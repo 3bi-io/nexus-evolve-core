@@ -92,8 +92,7 @@ export const ChatInterface = () => {
         const { data: memories } = await supabase
           .from("agent_memory")
           .select("id")
-          .eq("user_id", user.id)
-          .eq("session_id", id);
+          .eq("user_id", user.id);
         setContextCount(memories?.length || 0);
       }
     } catch (error: any) {
@@ -223,8 +222,7 @@ export const ChatInterface = () => {
         const { data: memories } = await supabase
           .from("agent_memory")
           .select("id")
-          .eq("user_id", user.id)
-          .eq("session_id", sessionId);
+          .eq("user_id", user.id);
         setContextCount(memories?.length || 0);
       }
     } catch (error: any) {

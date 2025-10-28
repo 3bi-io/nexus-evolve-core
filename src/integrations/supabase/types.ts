@@ -14,7 +14,206 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      agent_memory: {
+        Row: {
+          context_summary: string
+          created_at: string
+          id: string
+          memory_type: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          context_summary: string
+          created_at?: string
+          id?: string
+          memory_type: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          context_summary?: string
+          created_at?: string
+          id?: string
+          memory_type?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      capability_modules: {
+        Row: {
+          capability_name: string
+          created_at: string
+          description: string | null
+          id: string
+          is_enabled: boolean
+          usage_count: number
+          user_id: string
+        }
+        Insert: {
+          capability_name: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_enabled?: boolean
+          usage_count?: number
+          user_id: string
+        }
+        Update: {
+          capability_name?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_enabled?: boolean
+          usage_count?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      evolution_logs: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          log_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          log_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          log_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      interactions: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          quality_rating: number | null
+          response: string | null
+          session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          quality_rating?: number | null
+          response?: string | null
+          session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          quality_rating?: number | null
+          response?: string | null
+          session_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interactions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_base: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          metadata: Json | null
+          topic: string
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          topic: string
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          topic?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      problem_solutions: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          problem_description: string
+          solution: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          problem_description: string
+          solution?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          problem_description?: string
+          solution?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      sessions: {
+        Row: {
+          created_at: string
+          id: string
+          last_message_at: string | null
+          message_count: number
+          title: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          message_count?: number
+          title?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          message_count?: number
+          title?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

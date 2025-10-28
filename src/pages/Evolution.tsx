@@ -9,7 +9,7 @@ import { toast } from "@/hooks/use-toast";
 
 type EvolutionLog = {
   id: string;
-  event_type: string;
+  log_type: string;
   description: string;
   created_at: string;
 };
@@ -252,7 +252,7 @@ export default function Evolution() {
               <div className="space-y-3">
                 {logs.map((log) => (
                   <div key={log.id} className="flex items-start gap-3 p-3 rounded-lg bg-card border border-border">
-                    <Badge variant="outline">{log.event_type}</Badge>
+                    <Badge variant="outline">{log.log_type}</Badge>
                     <div className="flex-1">
                       <p className="text-sm text-foreground">{log.description}</p>
                       <p className="text-xs text-muted-foreground mt-1">
