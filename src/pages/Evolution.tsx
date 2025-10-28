@@ -39,6 +39,9 @@ export default function Evolution() {
   const [behaviors, setBehaviors] = useState<AdaptiveBehavior[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isDiscovering, setIsDiscovering] = useState(false);
+  const [isEvolving, setIsEvolving] = useState(false);
+  const [capabilitySuggestions, setCapabilitySuggestions] = useState<any[]>([]);
 
   useEffect(() => {
     if (user) {
@@ -131,6 +134,16 @@ export default function Evolution() {
 
       setBehaviors(behaviorsData || []);
 
+      // Load capability suggestions (PHASE 3D)
+      const { data: suggestionsData } = await supabase
+        .from("capability_suggestions")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("confidence_score", { ascending: false })
+        .limit(10);
+
+      setCapabilitySuggestions(suggestionsData || []);
+
     } catch (error) {
       console.error("Error loading dashboard:", error);
       toast({
@@ -158,7 +171,6 @@ export default function Evolution() {
         description: `Created ${data.behaviors_created} new patterns, updated ${data.behaviors_updated} existing behaviors.`,
       });
 
-      // Reload dashboard
       await loadDashboardData();
     } catch (error: any) {
       toast({
@@ -168,6 +180,58 @@ export default function Evolution() {
       });
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const discoverCapabilities = async () => {
+    if (!user) return;
+    
+    setIsDiscovering(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("discover-capabilities");
+
+      if (error) throw error;
+
+      toast({
+        title: "🔍 Capability discovery complete",
+        description: `Found ${data.suggestions?.length || 0} potential new capabilities based on your usage patterns.`,
+      });
+
+      await loadDashboardData();
+    } catch (error: any) {
+      toast({
+        title: "Failed to discover capabilities",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsDiscovering(false);
+    }
+  };
+
+  const triggerEvolution = async () => {
+    if (!user) return;
+    
+    setIsEvolving(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("evolve-system");
+
+      if (error) throw error;
+
+      toast({
+        title: "🧬 System evolution complete",
+        description: `Performance: ${data.summary.performance_trend}, Archived ${data.summary.memories_archived} memories, Optimized ${data.summary.behaviors_optimized} behaviors.`,
+      });
+
+      await loadDashboardData();
+    } catch (error: any) {
+      toast({
+        title: "Failed to evolve system",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsEvolving(false);
     }
   };
 
@@ -341,6 +405,70 @@ export default function Evolution() {
                 </p>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Autonomous Evolution (Phase 3D)</CardTitle>
+              <CardDescription>Self-improvement & capability discovery</CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={discoverCapabilities}
+                disabled={isDiscovering}
+                className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 text-sm"
+              >
+                {isDiscovering ? "Discovering..." : "Discover Capabilities"}
+              </button>
+              <button
+                onClick={triggerEvolution}
+                disabled={isEvolving}
+                className="px-3 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50 text-sm"
+              >
+                {isEvolving ? "Evolving..." : "Run Evolution Cycle"}
+              </button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {capabilitySuggestions.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Brain className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>No capability suggestions yet. Click "Discover Capabilities" to analyze your usage patterns!</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {capabilitySuggestions.map((suggestion) => (
+                  <div
+                    key={suggestion.id}
+                    className="p-4 rounded-lg bg-card border border-border"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h4 className="font-semibold">{suggestion.capability_name}</h4>
+                          <Badge 
+                            variant={suggestion.status === "pending" ? "outline" : suggestion.status === "approved" ? "default" : "secondary"}
+                          >
+                            {suggestion.status}
+                          </Badge>
+                          <Badge variant="outline">
+                            {(suggestion.confidence_score * 100).toFixed(0)}% confidence
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          {suggestion.description}
+                        </p>
+                        <p className="text-xs text-muted-foreground italic">
+                          💡 {suggestion.reasoning}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 

@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      ab_experiments: {
+        Row: {
+          active: boolean | null
+          created_at: string
+          ended_at: string | null
+          experiment_name: string
+          id: string
+          metrics: Json | null
+          started_at: string
+          user_id: string
+          variant: string
+          winner: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string
+          ended_at?: string | null
+          experiment_name: string
+          id?: string
+          metrics?: Json | null
+          started_at?: string
+          user_id: string
+          variant: string
+          winner?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string
+          ended_at?: string | null
+          experiment_name?: string
+          id?: string
+          metrics?: Json | null
+          started_at?: string
+          user_id?: string
+          variant?: string
+          winner?: string | null
+        }
+        Relationships: []
+      }
       adaptive_behaviors: {
         Row: {
           active: boolean | null
@@ -64,6 +103,7 @@ export type Database = {
           content: Json | null
           context_summary: string
           created_at: string
+          embedding: string | null
           id: string
           importance_score: number | null
           last_retrieved_at: string | null
@@ -77,6 +117,7 @@ export type Database = {
           content?: Json | null
           context_summary: string
           created_at?: string
+          embedding?: string | null
           id?: string
           importance_score?: number | null
           last_retrieved_at?: string | null
@@ -90,6 +131,7 @@ export type Database = {
           content?: Json | null
           context_summary?: string
           created_at?: string
+          embedding?: string | null
           id?: string
           importance_score?: number | null
           last_retrieved_at?: string | null
@@ -135,6 +177,42 @@ export type Database = {
           id?: string
           is_enabled?: boolean
           usage_count?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      capability_suggestions: {
+        Row: {
+          capability_name: string
+          confidence_score: number | null
+          created_at: string
+          description: string | null
+          id: string
+          reasoning: string | null
+          reviewed_at: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          capability_name: string
+          confidence_score?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          reasoning?: string | null
+          reviewed_at?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          capability_name?: string
+          confidence_score?: number | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          reasoning?: string | null
+          reviewed_at?: string | null
+          status?: string | null
           user_id?: string
         }
         Relationships: []
@@ -223,6 +301,7 @@ export type Database = {
         Row: {
           content: string | null
           created_at: string
+          embedding: string | null
           id: string
           importance_score: number | null
           metadata: Json | null
@@ -235,6 +314,7 @@ export type Database = {
         Insert: {
           content?: string | null
           created_at?: string
+          embedding?: string | null
           id?: string
           importance_score?: number | null
           metadata?: Json | null
@@ -247,6 +327,7 @@ export type Database = {
         Update: {
           content?: string | null
           created_at?: string
+          embedding?: string | null
           id?: string
           importance_score?: number | null
           metadata?: Json | null
