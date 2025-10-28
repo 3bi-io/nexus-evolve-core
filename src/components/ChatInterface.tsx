@@ -192,6 +192,29 @@ export const ChatInterface = () => {
         title: "Rating saved",
         description: "Thank you for your feedback!",
       });
+
+      // PHASE 3B: Auto-trigger feedback analysis after every 20 rated interactions
+      const { count } = await supabase
+        .from("interactions")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user!.id)
+        .not("quality_rating", "is", null);
+
+      if (count && count % 20 === 0) {
+        // Trigger feedback analysis in background
+        supabase.functions
+          .invoke("analyze-feedback", {
+            body: { timeframe: 30 },
+          })
+          .then(({ data, error }) => {
+            if (!error && data) {
+              toast({
+                title: "🧠 System Learning Update",
+                description: `Analyzed recent feedback and created ${data.behaviors_created} new behavioral patterns.`,
+              });
+            }
+          });
+      }
     } catch (error: any) {
       toast({
         title: "Failed to save rating",

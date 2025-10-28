@@ -21,13 +21,24 @@ type Stats = {
   activeCapabilities: number;
 };
 
+type AdaptiveBehavior = {
+  id: string;
+  behavior_type: string;
+  description: string;
+  effectiveness_score: number;
+  application_count: number;
+  created_at: string;
+};
+
 export default function Evolution() {
   const { user } = useAuth();
   const [logs, setLogs] = useState<EvolutionLog[]>([]);
   const [stats, setStats] = useState<Stats>({ totalInteractions: 0, avgRating: 0, learningRate: 0, activeCapabilities: 0 });
   const [interactionTrend, setInteractionTrend] = useState<any[]>([]);
   const [qualityTrend, setQualityTrend] = useState<any[]>([]);
+  const [behaviors, setBehaviors] = useState<AdaptiveBehavior[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -109,6 +120,17 @@ export default function Evolution() {
 
       setQualityTrend(qualityData);
 
+      // Load adaptive behaviors (PHASE 3B)
+      const { data: behaviorsData } = await supabase
+        .from("adaptive_behaviors")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("active", true)
+        .order("effectiveness_score", { ascending: false })
+        .limit(10);
+
+      setBehaviors(behaviorsData || []);
+
     } catch (error) {
       console.error("Error loading dashboard:", error);
       toast({
@@ -117,6 +139,35 @@ export default function Evolution() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const triggerFeedbackAnalysis = async () => {
+    if (!user) return;
+    
+    setIsAnalyzing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("analyze-feedback", {
+        body: { timeframe: 30 },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Analysis complete",
+        description: `Created ${data.behaviors_created} new patterns, updated ${data.behaviors_updated} existing behaviors.`,
+      });
+
+      // Reload dashboard
+      await loadDashboardData();
+    } catch (error: any) {
+      toast({
+        title: "Failed to analyze feedback",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
@@ -236,6 +287,60 @@ export default function Evolution() {
             </CardContent>
           </Card>
         </div>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Adaptive Behaviors</CardTitle>
+              <CardDescription>Patterns learned from your feedback (Phase 3B)</CardDescription>
+            </div>
+            <button
+              onClick={triggerFeedbackAnalysis}
+              disabled={isAnalyzing}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 disabled:opacity-50 text-sm"
+            >
+              {isAnalyzing ? "Analyzing..." : "Analyze Feedback"}
+            </button>
+          </CardHeader>
+          <CardContent>
+            {behaviors.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Brain className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>No adaptive behaviors yet. Rate some interactions to start learning!</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {behaviors.map((behavior) => (
+                  <div
+                    key={behavior.id}
+                    className="flex items-start justify-between p-4 rounded-lg bg-card border border-border hover:border-primary/50 transition-colors"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant="outline" className="capitalize">
+                          {behavior.behavior_type.replace(/_/g, " ")}
+                        </Badge>
+                        <span className="text-xs text-muted-foreground">
+                          Applied {behavior.application_count} times
+                        </span>
+                      </div>
+                      <p className="text-sm text-foreground mb-1">{behavior.description}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Created {new Date(behavior.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="text-right ml-4">
+                      <div className="text-2xl font-bold text-primary">
+                        {(behavior.effectiveness_score * 100).toFixed(0)}%
+                      </div>
+                      <div className="text-xs text-muted-foreground">effective</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>

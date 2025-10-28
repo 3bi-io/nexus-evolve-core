@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      adaptive_behaviors: {
+        Row: {
+          active: boolean | null
+          application_count: number | null
+          behavior_type: string
+          created_at: string
+          created_from: string | null
+          description: string
+          effectiveness_score: number | null
+          id: string
+          last_applied_at: string | null
+          metadata: Json | null
+          sample_interaction_ids: string[] | null
+          user_id: string
+        }
+        Insert: {
+          active?: boolean | null
+          application_count?: number | null
+          behavior_type: string
+          created_at?: string
+          created_from?: string | null
+          description: string
+          effectiveness_score?: number | null
+          id?: string
+          last_applied_at?: string | null
+          metadata?: Json | null
+          sample_interaction_ids?: string[] | null
+          user_id: string
+        }
+        Update: {
+          active?: boolean | null
+          application_count?: number | null
+          behavior_type?: string
+          created_at?: string
+          created_from?: string | null
+          description?: string
+          effectiveness_score?: number | null
+          id?: string
+          last_applied_at?: string | null
+          metadata?: Json | null
+          sample_interaction_ids?: string[] | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       agent_memory: {
         Row: {
           content: Json | null

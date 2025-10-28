@@ -73,23 +73,70 @@ serve(async (req) => {
       await supabase.rpc('increment_memory_retrieval', { memory_id: memory.id });
     }
 
-    // Build dynamic system prompt with context
-    const systemPrompt = `You are an advanced AI assistant with access to accumulated knowledge and context. You can reason deeply, learn from interactions, and provide thoughtful, comprehensive responses.
+    // Fetch adaptive behaviors for dynamic prompt construction (PHASE 3B)
+    const { data: adaptiveBehaviors } = await supabase
+      .from("adaptive_behaviors")
+      .select("id, behavior_type, description, effectiveness_score")
+      .eq("user_id", user.id)
+      .eq("active", true)
+      .order("effectiveness_score", { ascending: false })
+      .limit(10);
 
-${contextMemories.length > 0 ? `
-## Relevant Context & Learnings:
-${contextMemories.map(m => `- [${m.memory_type}] ${m.context_summary}${m.content ? `\n  Details: ${JSON.stringify(m.content)}` : ''}`).join('\n')}
+    // Fetch enabled capabilities
+    const { data: capabilities } = await supabase
+      .from("capability_modules")
+      .select("capability_name, description")
+      .eq("user_id", user.id)
+      .eq("is_enabled", true);
 
-This context comes from your past learnings and interactions. Use it to provide more informed and personalized responses.
-` : ''}
+    // Build user performance summary for prompt context
+    const { data: recentRatings } = await supabase
+      .from("interactions")
+      .select("quality_rating")
+      .eq("user_id", user.id)
+      .not("quality_rating", "is", null)
+      .gte("created_at", new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
+      .order("created_at", { ascending: false })
+      .limit(20);
 
+    const avgRating = recentRatings && recentRatings.length > 0
+      ? recentRatings.reduce((sum, i) => sum + (i.quality_rating || 0), 0) / recentRatings.length
+      : 0;
+
+    // Build dynamic multi-layered system prompt (PHASE 3B)
+    const memoryContext = contextMemories.length > 0
+      ? `\n## Relevant Context & Learnings:\n${contextMemories.map(m => 
+          `- [${m.memory_type}] ${m.context_summary}${m.content ? '\n  ' + JSON.stringify(m.content) : ''}`
+        ).join('\n')}\n`
+      : '';
+
+    const behaviorContext = adaptiveBehaviors && adaptiveBehaviors.length > 0
+      ? `\n## Your Communication Style (learned from user feedback):\n${adaptiveBehaviors.map(b => 
+          `- ${b.description} (effectiveness: ${(b.effectiveness_score * 100).toFixed(0)}%)`
+        ).join('\n')}\n`
+      : '';
+
+    const capabilityContext = capabilities && capabilities.length > 0
+      ? `\n## Active Capabilities:\n${capabilities.map(c => `- ${c.capability_name}: ${c.description}`).join('\n')}\n`
+      : '';
+
+    const performanceContext = recentRatings && recentRatings.length > 0
+      ? `\n## Performance Goals:\n- Current user satisfaction: ${(avgRating * 100 + 50).toFixed(0)}% (based on ${recentRatings.length} recent ratings)\n- Continue adapting to user preferences and improving response quality\n`
+      : '';
+
+    const systemPrompt = `You are an advanced AI assistant with learning capabilities and access to accumulated knowledge.
+${behaviorContext}${capabilityContext}${memoryContext}${performanceContext}
 ## Guidelines:
 - Provide clear, accurate, and helpful responses
-- Show your reasoning when solving complex problems
-- Learn from the conversation and adapt your responses
-- Reference past learnings when relevant
-- Be concise but thorough
-- Ask clarifying questions when needed`;
+- Apply learned communication preferences from user feedback
+- Reference past learnings when relevant to the conversation
+- Show your reasoning for complex problems
+- Adapt your responses based on context and user preferences`;
+
+    console.log(`Dynamic prompt: ${uniqueMemories.length} memories, ${adaptiveBehaviors?.length || 0} behaviors, ${capabilities?.length || 0} capabilities`);
+
+    // Track which behaviors are being used for effectiveness tracking
+    const usedBehaviorIds = adaptiveBehaviors?.map(b => b.id) || [];
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -137,7 +184,9 @@ This context comes from your past learnings and interactions. Use it to provide 
       context: { 
         memories_used: contextMemories.length,
         memory_ids: contextMemories.map(m => m.id),
-        memory_types: contextMemories.map(m => m.memory_type)
+        memory_types: contextMemories.map(m => m.memory_type),
+        behavior_ids: usedBehaviorIds,
+        capability_count: capabilities?.length || 0,
       },
       model_used: "google/gemini-2.5-flash",
     }).select().single();
@@ -180,6 +229,28 @@ This context comes from your past learnings and interactions. Use it to provide 
             await supabase.from("interactions")
               .update({ response: assistantResponse })
               .eq("id", interactionId);
+            
+            // Update behavior application tracking (PHASE 3B)
+            if (usedBehaviorIds.length > 0) {
+              for (const behaviorId of usedBehaviorIds) {
+                // Get current count and increment
+                const { data: currentBehavior } = await supabase
+                  .from("adaptive_behaviors")
+                  .select("application_count")
+                  .eq("id", behaviorId)
+                  .single();
+                
+                if (currentBehavior) {
+                  await supabase
+                    .from("adaptive_behaviors")
+                    .update({ 
+                      last_applied_at: new Date().toISOString(),
+                      application_count: (currentBehavior.application_count || 0) + 1
+                    })
+                    .eq("id", behaviorId);
+                }
+              }
+            }
           }
 
           controller.close();
