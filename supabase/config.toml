@@ -3,11 +3,23 @@ project_id = "coobieessxvnujkkiadc"
 [functions.chat-stream]
 verify_jwt = true
 
+[functions.chat-stream-with-routing]
+verify_jwt = true
+
 [functions.extract-learnings]
 verify_jwt = true
 
 [functions.reasoning-agent]
-verify_jwt = true
+verify_jwt = false
 
 [functions.analyze-feedback]
+verify_jwt = true
+
+[functions.learning-agent]
+verify_jwt = true
+
+[functions.creative-agent]
+verify_jwt = true
+
+[functions.coordinator-agent]
 verify_jwt = true

@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,10 +12,25 @@ serve(async (req) => {
   }
 
   try {
-    const { problem } = await req.json();
+    const authHeader = req.headers.get("Authorization");
+    
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
-    if (!problem) {
-      return new Response(JSON.stringify({ error: "Problem description required" }), {
+    let userId: string | undefined;
+    if (authHeader) {
+      const token = authHeader.replace("Bearer ", "");
+      const { data: { user } } = await supabase.auth.getUser(token);
+      userId = user?.id;
+    }
+
+    const { problem, messages } = await req.json();
+
+    const requestContent = problem || messages?.[messages.length - 1]?.content || "";
+    
+    if (!requestContent) {
+      return new Response(JSON.stringify({ error: "Problem description or messages required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -24,9 +40,34 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY not configured");
     }
+    
+    console.log(`Reasoning agent processing: ${requestContent.substring(0, 100)}...`);
 
-    // Step 1: Analyze the problem
-    const analysisPrompt = `You are an expert problem solver. Analyze this problem and break it down into key components:\n\n${problem}\n\nProvide a structured analysis.`;
+    // Step 1: Analyze the problem with enhanced system prompt
+    const systemPrompt = `You are a Reasoning Agent specializing in deep multi-step reasoning and logical analysis.
+
+## Your Role:
+- Break down complex problems into manageable components
+- Apply rigorous logical reasoning and chain-of-thought analysis
+- Show your work and reasoning process explicitly
+- Verify conclusions at each step
+- Handle mathematical, logical, and analytical problems
+
+## Your Reasoning Process:
+1. **Problem Analysis**: Identify key components and constraints
+2. **Decomposition**: Break into sub-problems
+3. **Step-by-Step Solution**: Solve each part methodically
+4. **Verification**: Check logic and validate conclusions
+5. **Synthesis**: Combine results into complete solution
+
+Focus on:
+- Explicit reasoning chains
+- Logical validity
+- Step-by-step explanations
+- Error checking and verification
+- Mathematical rigor when applicable`;
+
+    const analysisPrompt = `${systemPrompt}\n\nProblem to analyze:\n${requestContent}\n\nProvide a structured analysis with clear reasoning.`;
     
     const analysisResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -86,8 +127,31 @@ serve(async (req) => {
       { step: 3, type: "solution", content: solution },
     ];
 
+    // Log reasoning session if user authenticated
+    if (userId) {
+      await supabase.from("evolution_logs").insert({
+        user_id: userId,
+        log_type: "deep_reasoning",
+        description: `Reasoning agent solved: ${requestContent.substring(0, 100)}...`,
+        change_type: "auto_discovery",
+        metrics: {
+          steps_count: steps.length,
+          agent_type: "reasoning_agent",
+          problem_length: requestContent.length
+        },
+        success: true
+      });
+    }
+
+    console.log("Reasoning agent completed successfully");
+
     return new Response(
-      JSON.stringify({ steps, solution }),
+      JSON.stringify({ 
+        steps, 
+        solution,
+        agent_type: "reasoning_agent",
+        reasoning_steps: steps.length
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {

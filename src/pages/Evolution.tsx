@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { TrendingUp, Activity, Brain, Star } from "lucide-react";
+import { TrendingUp, Activity, Brain, Star, Network, Sparkles, BookOpen } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 type EvolutionLog = {
@@ -287,6 +287,62 @@ export default function Evolution() {
             </CardContent>
           </Card>
         </div>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle>Multi-Agent System (Phase 3C)</CardTitle>
+              <CardDescription>Specialized agents for different tasks</CardDescription>
+            </div>
+            <Badge variant="outline" className="gap-1">
+              <Network className="w-3 h-3" />
+              4 Agents Active
+            </Badge>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 rounded-lg bg-card border border-border">
+                <div className="flex items-center gap-2 mb-2">
+                  <Brain className="w-5 h-5 text-purple-500" />
+                  <h4 className="font-semibold">Reasoning Agent</h4>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Deep logical analysis, multi-step reasoning, and mathematical problem solving
+                </p>
+              </div>
+
+              <div className="p-4 rounded-lg bg-card border border-border">
+                <div className="flex items-center gap-2 mb-2">
+                  <Sparkles className="w-5 h-5 text-pink-500" />
+                  <h4 className="font-semibold">Creative Agent</h4>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Ideation, brainstorming, and innovative solution generation
+                </p>
+              </div>
+
+              <div className="p-4 rounded-lg bg-card border border-border">
+                <div className="flex items-center gap-2 mb-2">
+                  <BookOpen className="w-5 h-5 text-green-500" />
+                  <h4 className="font-semibold">Learning Agent</h4>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Meta-learning, pattern analysis, and knowledge gap identification
+                </p>
+              </div>
+
+              <div className="p-4 rounded-lg bg-card border border-border">
+                <div className="flex items-center gap-2 mb-2">
+                  <Network className="w-5 h-5 text-blue-500" />
+                  <h4 className="font-semibold">Coordinator Agent</h4>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Intelligent routing and multi-agent orchestration
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
