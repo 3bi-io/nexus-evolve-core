@@ -16,30 +16,53 @@ export type Database = {
     Tables: {
       agent_memory: {
         Row: {
+          content: Json | null
           context_summary: string
           created_at: string
           id: string
+          importance_score: number | null
+          last_retrieved_at: string | null
           memory_type: string
           metadata: Json | null
+          retrieval_count: number | null
+          session_id: string | null
           user_id: string
         }
         Insert: {
+          content?: Json | null
           context_summary: string
           created_at?: string
           id?: string
+          importance_score?: number | null
+          last_retrieved_at?: string | null
           memory_type: string
           metadata?: Json | null
+          retrieval_count?: number | null
+          session_id?: string | null
           user_id: string
         }
         Update: {
+          content?: Json | null
           context_summary?: string
           created_at?: string
           id?: string
+          importance_score?: number | null
+          last_retrieved_at?: string | null
           memory_type?: string
           metadata?: Json | null
+          retrieval_count?: number | null
+          session_id?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "agent_memory_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       capability_modules: {
         Row: {
@@ -73,52 +96,70 @@ export type Database = {
       }
       evolution_logs: {
         Row: {
+          change_type: string | null
           created_at: string
           description: string
           id: string
           log_type: string
+          metrics: Json | null
+          success: boolean | null
           user_id: string
         }
         Insert: {
+          change_type?: string | null
           created_at?: string
           description: string
           id?: string
           log_type: string
+          metrics?: Json | null
+          success?: boolean | null
           user_id: string
         }
         Update: {
+          change_type?: string | null
           created_at?: string
           description?: string
           id?: string
           log_type?: string
+          metrics?: Json | null
+          success?: boolean | null
           user_id?: string
         }
         Relationships: []
       }
       interactions: {
         Row: {
+          context: Json | null
           created_at: string
           id: string
           message: string
+          model_used: string | null
           quality_rating: number | null
+          reasoning_trace: Json | null
           response: string | null
           session_id: string | null
           user_id: string
         }
         Insert: {
+          context?: Json | null
           created_at?: string
           id?: string
           message: string
+          model_used?: string | null
           quality_rating?: number | null
+          reasoning_trace?: Json | null
           response?: string | null
           session_id?: string | null
           user_id: string
         }
         Update: {
+          context?: Json | null
           created_at?: string
           id?: string
           message?: string
+          model_used?: string | null
           quality_rating?: number | null
+          reasoning_trace?: Json | null
           response?: string | null
           session_id?: string | null
           user_id?: string
@@ -138,7 +179,11 @@ export type Database = {
           content: string | null
           created_at: string
           id: string
+          importance_score: number | null
           metadata: Json | null
+          source_reference: string | null
+          source_type: string | null
+          tags: string[] | null
           topic: string
           user_id: string
         }
@@ -146,7 +191,11 @@ export type Database = {
           content?: string | null
           created_at?: string
           id?: string
+          importance_score?: number | null
           metadata?: Json | null
+          source_reference?: string | null
+          source_type?: string | null
+          tags?: string[] | null
           topic: string
           user_id: string
         }
@@ -154,7 +203,11 @@ export type Database = {
           content?: string | null
           created_at?: string
           id?: string
+          importance_score?: number | null
           metadata?: Json | null
+          source_reference?: string | null
+          source_type?: string | null
+          tags?: string[] | null
           topic?: string
           user_id?: string
         }
@@ -166,7 +219,10 @@ export type Database = {
           id: string
           metadata: Json | null
           problem_description: string
+          reasoning_steps: Json | null
           solution: string | null
+          solution_path: Json | null
+          success_score: number | null
           user_id: string
         }
         Insert: {
@@ -174,7 +230,10 @@ export type Database = {
           id?: string
           metadata?: Json | null
           problem_description: string
+          reasoning_steps?: Json | null
           solution?: string | null
+          solution_path?: Json | null
+          success_score?: number | null
           user_id: string
         }
         Update: {
@@ -182,7 +241,10 @@ export type Database = {
           id?: string
           metadata?: Json | null
           problem_description?: string
+          reasoning_steps?: Json | null
           solution?: string | null
+          solution_path?: Json | null
+          success_score?: number | null
           user_id?: string
         }
         Relationships: []
@@ -219,7 +281,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_memory_retrieval: {
+        Args: { memory_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

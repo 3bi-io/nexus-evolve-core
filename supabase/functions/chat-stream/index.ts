@@ -35,32 +35,59 @@ serve(async (req) => {
       });
     }
     
-    // Retrieve relevant context from agent memory
-    let contextMemories: Array<{ content: any; memory_type: string }> = [];
+    // Retrieve relevant context from agent memory - INTELLIGENT RETRIEVAL
+    let contextMemories: Array<{ id: string; content: any; memory_type: string; context_summary: string; importance_score: number }> = [];
+    
     if (sessionId) {
-      const { data: memories } = await supabase
+      // Strategy 1: Get high-importance memories from current session
+      const { data: sessionMemories } = await supabase
         .from("agent_memory")
-        .select("content, memory_type")
+        .select("id, content, memory_type, context_summary, importance_score")
         .eq("user_id", user.id)
         .eq("session_id", sessionId)
         .order("importance_score", { ascending: false })
-        .limit(5);
+        .limit(3);
       
-      contextMemories = memories || [];
+      contextMemories = sessionMemories || [];
+    }
+    
+    // Strategy 2: Get globally important memories across all sessions
+    const { data: globalMemories } = await supabase
+      .from("agent_memory")
+      .select("id, content, memory_type, context_summary, importance_score")
+      .eq("user_id", user.id)
+      .order("importance_score", { ascending: false })
+      .order("last_retrieved_at", { ascending: false, nullsFirst: false })
+      .limit(5);
+    
+    // Combine and deduplicate memories
+    const allMemories = [...contextMemories, ...(globalMemories || [])];
+    const uniqueMemories = Array.from(
+      new Map(allMemories.map(m => [m.id, m])).values()
+    ).slice(0, 10);
+    
+    contextMemories = uniqueMemories;
+    
+    // Track memory retrieval
+    for (const memory of contextMemories) {
+      await supabase.rpc('increment_memory_retrieval', { memory_id: memory.id });
     }
 
-    // Build system prompt with context
+    // Build dynamic system prompt with context
     const systemPrompt = `You are an advanced AI assistant with access to accumulated knowledge and context. You can reason deeply, learn from interactions, and provide thoughtful, comprehensive responses.
 
 ${contextMemories.length > 0 ? `
-Recent Context:
-${contextMemories.map(m => `- [${m.memory_type}] ${JSON.stringify(m.content)}`).join('\n')}
+## Relevant Context & Learnings:
+${contextMemories.map(m => `- [${m.memory_type}] ${m.context_summary}${m.content ? `\n  Details: ${JSON.stringify(m.content)}` : ''}`).join('\n')}
+
+This context comes from your past learnings and interactions. Use it to provide more informed and personalized responses.
 ` : ''}
 
-Guidelines:
+## Guidelines:
 - Provide clear, accurate, and helpful responses
 - Show your reasoning when solving complex problems
 - Learn from the conversation and adapt your responses
+- Reference past learnings when relevant
 - Be concise but thorough
 - Ask clarifying questions when needed`;
 
@@ -107,7 +134,11 @@ Guidelines:
       user_id: user.id,
       session_id: sessionId,
       message: userMessage,
-      context: { memories_used: contextMemories.length },
+      context: { 
+        memories_used: contextMemories.length,
+        memory_ids: contextMemories.map(m => m.id),
+        memory_types: contextMemories.map(m => m.memory_type)
+      },
       model_used: "google/gemini-2.5-flash",
     }).select().single();
 
