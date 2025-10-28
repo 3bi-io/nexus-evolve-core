@@ -101,17 +101,65 @@ Guidelines:
       );
     }
 
-    // Store interaction in background (non-blocking)
+    // Store user message and get interaction ID
     const userMessage = messages[messages.length - 1]?.content || "";
-    supabase.from("interactions").insert({
+    const { data: interactionData } = await supabase.from("interactions").insert({
       user_id: user.id,
       session_id: sessionId,
       message: userMessage,
       context: { memories_used: contextMemories.length },
       model_used: "google/gemini-2.5-flash",
-    }).then();
+    }).select().single();
 
-    return new Response(response.body, {
+    const interactionId = interactionData?.id;
+
+    // Stream response and buffer it
+    const encoder = new TextEncoder();
+    let assistantResponse = "";
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        const reader = response.body?.getReader();
+        if (!reader) return;
+
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            // Forward to client
+            controller.enqueue(value);
+
+            // Buffer response for storage
+            const text = new TextDecoder().decode(value);
+            const lines = text.split('\n');
+            for (const line of lines) {
+              if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+                try {
+                  const json = JSON.parse(line.slice(6));
+                  const content = json.choices?.[0]?.delta?.content;
+                  if (content) assistantResponse += content;
+                } catch {}
+              }
+            }
+          }
+
+          // Store complete response after streaming
+          if (interactionId && assistantResponse) {
+            await supabase.from("interactions")
+              .update({ response: assistantResponse })
+              .eq("id", interactionId);
+          }
+
+          controller.close();
+        } catch (error) {
+          console.error("Stream error:", error);
+          controller.error(error);
+        }
+      },
+    });
+
+    return new Response(stream, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (error) {

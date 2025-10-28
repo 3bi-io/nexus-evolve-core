@@ -2,7 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Brain, Send, LogOut } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Brain, Send, LogOut, ThumbsUp, ThumbsDown, Sparkles } from "lucide-react";
 import { streamChat } from "@/lib/chat";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,6 +13,8 @@ import { SessionSidebar } from "./SessionSidebar";
 type Message = {
   role: "user" | "assistant";
   content: string;
+  interactionId?: string;
+  rating?: number;
 };
 
 export const ChatInterface = () => {
@@ -20,6 +23,8 @@ export const ChatInterface = () => {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const [contextCount, setContextCount] = useState(0);
+  const [isExtracting, setIsExtracting] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -60,7 +65,7 @@ export const ChatInterface = () => {
     try {
       const { data: interactions, error } = await supabase
         .from("interactions")
-        .select("message, response")
+        .select("id, message, response, quality_rating")
         .eq("session_id", id)
         .order("created_at", { ascending: true });
 
@@ -70,12 +75,27 @@ export const ChatInterface = () => {
       interactions?.forEach((interaction) => {
         loadedMessages.push({ role: "user", content: interaction.message });
         if (interaction.response) {
-          loadedMessages.push({ role: "assistant", content: interaction.response });
+          loadedMessages.push({ 
+            role: "assistant", 
+            content: interaction.response,
+            interactionId: interaction.id,
+            rating: interaction.quality_rating 
+          });
         }
       });
 
       setMessages(loadedMessages);
       setSessionId(id);
+
+      // Load context count for this session
+      if (user) {
+        const { data: memories } = await supabase
+          .from("agent_memory")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("session_id", id);
+        setContextCount(memories?.length || 0);
+      }
     } catch (error: any) {
       toast({
         title: "Failed to load session",
@@ -154,6 +174,70 @@ export const ChatInterface = () => {
     }
   };
 
+  const rateResponse = async (interactionId: string, rating: number) => {
+    try {
+      const { error } = await supabase
+        .from("interactions")
+        .update({ quality_rating: rating })
+        .eq("id", interactionId);
+
+      if (error) throw error;
+
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.interactionId === interactionId ? { ...m, rating } : m
+        )
+      );
+
+      toast({
+        title: "Rating saved",
+        description: "Thank you for your feedback!",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Failed to save rating",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const extractLearnings = async () => {
+    if (!sessionId) return;
+
+    setIsExtracting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("extract-learnings", {
+        body: { sessionId },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Learning extraction complete",
+        description: `Extracted ${data.summary.total_learnings} insights from this conversation.`,
+      });
+
+      // Reload context count
+      if (user) {
+        const { data: memories } = await supabase
+          .from("agent_memory")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("session_id", sessionId);
+        setContextCount(memories?.length || 0);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Failed to extract learnings",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsExtracting(false);
+    }
+  };
+
   return (
     <div className="flex h-screen">
       <SessionSidebar
@@ -167,13 +251,34 @@ export const ChatInterface = () => {
             <Brain className="w-8 h-8 text-primary" />
             <div>
               <h1 className="text-2xl font-bold">AI Assistant</h1>
-              <p className="text-sm text-muted-foreground">Powered by Lovable AI</p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-muted-foreground">Powered by Lovable AI</p>
+                {contextCount > 0 && (
+                  <Badge variant="secondary" className="text-xs">
+                    <Brain className="w-3 h-3 mr-1" />
+                    {contextCount} memories
+                  </Badge>
+                )}
+              </div>
             </div>
           </div>
-          <Button variant="ghost" size="sm" onClick={signOut}>
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
-          </Button>
+          <div className="flex items-center gap-2">
+            {messages.length >= 4 && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={extractLearnings}
+                disabled={isExtracting}
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                {isExtracting ? "Extracting..." : "Extract Learnings"}
+              </Button>
+            )}
+            <Button variant="ghost" size="sm" onClick={signOut}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
         </div>
 
         <ScrollArea ref={scrollRef} className="flex-1 my-4">
@@ -192,14 +297,36 @@ export const ChatInterface = () => {
                   key={idx}
                   className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  <div
-                    className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                      message.role === "user"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted"
-                    }`}
-                  >
-                    <p className="whitespace-pre-wrap">{message.content}</p>
+                  <div className="flex flex-col gap-2">
+                    <div
+                      className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                        message.role === "user"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-muted"
+                      }`}
+                    >
+                      <p className="whitespace-pre-wrap">{message.content}</p>
+                    </div>
+                    {message.role === "assistant" && message.interactionId && (
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => rateResponse(message.interactionId!, 1)}
+                          className={message.rating === 1 ? "text-green-600" : ""}
+                        >
+                          <ThumbsUp className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => rateResponse(message.interactionId!, -1)}
+                          className={message.rating === -1 ? "text-red-600" : ""}
+                        >
+                          <ThumbsDown className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}

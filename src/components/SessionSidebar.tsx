@@ -25,6 +25,26 @@ export const SessionSidebar = ({ currentSessionId, onSessionSelect, onNewSession
 
   useEffect(() => {
     loadSessions();
+
+    // Real-time subscription for session updates
+    const channel = supabase
+      .channel('sessions-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'sessions',
+        },
+        () => {
+          loadSessions();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const loadSessions = async () => {
