@@ -3,13 +3,14 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Send, LogOut, ThumbsUp, ThumbsDown, Sparkles } from "lucide-react";
+import { Brain, Send, LogOut, ThumbsUp, ThumbsDown, Sparkles, TrendingUp } from "lucide-react";
 import { streamChat } from "@/lib/chat";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { SessionSidebar } from "./SessionSidebar";
 import { AgentSelector } from "./AgentSelector";
+import { Link } from "react-router-dom";
 
 type Message = {
   role: "user" | "assistant";
@@ -291,6 +292,14 @@ export const ChatInterface = () => {
               selectedAgent={selectedAgent}
               onSelectAgent={setSelectedAgent}
             />
+            {contextCount > 0 && (
+              <Link to="/evolution">
+                <Button variant="outline" size="sm">
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Dashboard
+                </Button>
+              </Link>
+            )}
             {messages.length >= 4 && (
               <Button 
                 variant="outline" 

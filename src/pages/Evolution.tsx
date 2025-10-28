@@ -41,6 +41,7 @@ export default function Evolution() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isDiscovering, setIsDiscovering] = useState(false);
   const [isEvolving, setIsEvolving] = useState(false);
+  const [isBackfilling, setIsBackfilling] = useState(false);
   const [capabilitySuggestions, setCapabilitySuggestions] = useState<any[]>([]);
 
   useEffect(() => {
@@ -235,6 +236,60 @@ export default function Evolution() {
     }
   };
 
+  const backfillEmbeddings = async () => {
+    if (!user) return;
+    
+    setIsBackfilling(true);
+    try {
+      // Get all records without embeddings
+      const [{ data: memories }, { data: knowledge }] = await Promise.all([
+        supabase.from("agent_memory").select("id, context_summary").eq("user_id", user.id).is("embedding", null),
+        supabase.from("knowledge_base").select("id, content").eq("user_id", user.id).is("embedding", null),
+      ]);
+
+      const totalRecords = (memories?.length || 0) + (knowledge?.length || 0);
+      
+      if (totalRecords === 0) {
+        toast({
+          title: "✅ All embeddings up to date",
+          description: "No records need embedding generation.",
+        });
+        return;
+      }
+
+      // Generate embeddings for all records
+      const promises = [
+        ...(memories || []).map(m => 
+          supabase.functions.invoke("generate-embeddings", {
+            body: { text: m.context_summary, table: "agent_memory", record_id: m.id }
+          })
+        ),
+        ...(knowledge || []).map(k => 
+          supabase.functions.invoke("generate-embeddings", {
+            body: { text: k.content || "", table: "knowledge_base", record_id: k.id }
+          })
+        ),
+      ];
+
+      await Promise.all(promises);
+
+      toast({
+        title: "✅ Embeddings backfilled",
+        description: `Generated embeddings for ${totalRecords} records.`,
+      });
+
+      await loadDashboardData();
+    } catch (error: any) {
+      toast({
+        title: "Failed to backfill embeddings",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsBackfilling(false);
+    }
+  };
+
   const COLORS = ["hsl(262, 83%, 58%)", "hsl(217, 91%, 60%)", "hsl(142, 76%, 36%)", "hsl(38, 92%, 50%)"];
 
   return (
@@ -415,6 +470,13 @@ export default function Evolution() {
               <CardDescription>Self-improvement & capability discovery</CardDescription>
             </div>
             <div className="flex gap-2">
+              <button
+                onClick={backfillEmbeddings}
+                disabled={isBackfilling}
+                className="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 text-sm"
+              >
+                {isBackfilling ? "Backfilling..." : "Backfill Embeddings"}
+              </button>
               <button
                 onClick={discoverCapabilities}
                 disabled={isDiscovering}
