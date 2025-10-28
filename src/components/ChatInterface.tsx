@@ -239,7 +239,7 @@ export const ChatInterface = () => {
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex" style={{ height: 'calc(100vh - 57px)' }}>
       <SessionSidebar
         currentSessionId={sessionId}
         onSessionSelect={loadSession}

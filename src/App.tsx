@@ -7,6 +7,10 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import KnowledgeGraph from "./pages/KnowledgeGraph";
+import ProblemSolver from "./pages/ProblemSolver";
+import Capabilities from "./pages/Capabilities";
+import Evolution from "./pages/Evolution";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +42,38 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Index />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/knowledge-graph"
+              element={
+                <ProtectedRoute>
+                  <KnowledgeGraph />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/problem-solver"
+              element={
+                <ProtectedRoute>
+                  <ProblemSolver />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/capabilities"
+              element={
+                <ProtectedRoute>
+                  <Capabilities />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/evolution"
+              element={
+                <ProtectedRoute>
+                  <Evolution />
                 </ProtectedRoute>
               }
             />

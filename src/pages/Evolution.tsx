@@ -1,0 +1,271 @@
+import { useEffect, useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { TrendingUp, Activity, Brain, Star } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+
+type EvolutionLog = {
+  id: string;
+  event_type: string;
+  description: string;
+  created_at: string;
+};
+
+type Stats = {
+  totalInteractions: number;
+  avgRating: number;
+  learningRate: number;
+  activeCapabilities: number;
+};
+
+export default function Evolution() {
+  const { user } = useAuth();
+  const [logs, setLogs] = useState<EvolutionLog[]>([]);
+  const [stats, setStats] = useState<Stats>({ totalInteractions: 0, avgRating: 0, learningRate: 0, activeCapabilities: 0 });
+  const [interactionTrend, setInteractionTrend] = useState<any[]>([]);
+  const [qualityTrend, setQualityTrend] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (user) {
+      loadDashboardData();
+    }
+  }, [user]);
+
+  const loadDashboardData = async () => {
+    if (!user) return;
+
+    setIsLoading(true);
+    try {
+      // Load evolution logs
+      const { data: logsData } = await supabase
+        .from("evolution_logs")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      setLogs(logsData || []);
+
+      // Load interactions for stats
+      const { data: interactions } = await supabase
+        .from("interactions")
+        .select("quality_rating, created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      // Calculate stats
+      const totalInteractions = interactions?.length || 0;
+      const ratings = interactions?.filter((i) => i.quality_rating !== null).map((i) => i.quality_rating) || [];
+      const avgRating = ratings.length > 0 ? ratings.reduce((a, b) => a! + b!, 0)! / ratings.length : 0;
+
+      // Load capabilities
+      const { data: capabilities } = await supabase
+        .from("capability_modules")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("is_enabled", true);
+
+      // Load knowledge base for learning rate
+      const { data: knowledge } = await supabase
+        .from("knowledge_base")
+        .select("*")
+        .eq("user_id", user.id);
+
+      const learningRate = knowledge?.length || 0;
+
+      setStats({
+        totalInteractions,
+        avgRating: Math.round(avgRating * 100),
+        learningRate,
+        activeCapabilities: capabilities?.length || 0,
+      });
+
+      // Process interaction trend (last 7 days)
+      const today = new Date();
+      const last7Days = Array.from({ length: 7 }, (_, i) => {
+        const date = new Date(today);
+        date.setDate(date.getDate() - (6 - i));
+        return date.toISOString().split("T")[0];
+      });
+
+      const trendData = last7Days.map((date) => {
+        const count = interactions?.filter((i) => i.created_at.startsWith(date)).length || 0;
+        return { date: date.substring(5), count };
+      });
+
+      setInteractionTrend(trendData);
+
+      // Process quality trend
+      const qualityData = last7Days.map((date) => {
+        const dayInteractions = interactions?.filter((i) => i.created_at.startsWith(date)) || [];
+        const dayRatings = dayInteractions.filter((i) => i.quality_rating !== null).map((i) => i.quality_rating);
+        const avg = dayRatings.length > 0 ? dayRatings.reduce((a, b) => a! + b!, 0)! / dayRatings.length : 0;
+        return { date: date.substring(5), quality: Math.round(avg * 50 + 50) };
+      });
+
+      setQualityTrend(qualityData);
+
+    } catch (error) {
+      console.error("Error loading dashboard:", error);
+      toast({
+        title: "Failed to load dashboard",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const COLORS = ["hsl(262, 83%, 58%)", "hsl(217, 91%, 60%)", "hsl(142, 76%, 36%)", "hsl(38, 92%, 50%)"];
+
+  return (
+    <div className="min-h-screen bg-background p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex items-center gap-3">
+          <TrendingUp className="w-8 h-8 text-primary" />
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Evolution Dashboard</h1>
+            <p className="text-muted-foreground">Track learning progress and system improvements</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Activity className="w-4 h-4" />
+                Total Interactions
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-primary">{stats.totalInteractions}</div>
+              <p className="text-xs text-muted-foreground mt-1">Conversations processed</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Star className="w-4 h-4" />
+                Avg Quality
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-accent">{stats.avgRating}%</div>
+              <p className="text-xs text-muted-foreground mt-1">Response quality rating</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <Brain className="w-4 h-4" />
+                Learning Rate
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-success">{stats.learningRate}</div>
+              <p className="text-xs text-muted-foreground mt-1">Concepts learned</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <TrendingUp className="w-4 h-4" />
+                Active Capabilities
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold text-warning">{stats.activeCapabilities}</div>
+              <p className="text-xs text-muted-foreground mt-1">Enabled features</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Interaction Trend</CardTitle>
+              <CardDescription>Daily conversation volume (last 7 days)</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart data={interactionTrend}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" />
+                  <YAxis stroke="hsl(var(--muted-foreground))" />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "hsl(var(--card))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: "var(--radius)",
+                    }}
+                  />
+                  <Line type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Quality Trend</CardTitle>
+              <CardDescription>Response quality over time</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={qualityTrend}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis dataKey="date" stroke="hsl(var(--muted-foreground))" />
+                  <YAxis stroke="hsl(var(--muted-foreground))" />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "hsl(var(--card))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: "var(--radius)",
+                    }}
+                  />
+                  <Bar dataKey="quality" fill="hsl(var(--accent))" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Evolution Events</CardTitle>
+            <CardDescription>Latest system improvements and learning milestones</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {logs.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Brain className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>No evolution events yet</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {logs.map((log) => (
+                  <div key={log.id} className="flex items-start gap-3 p-3 rounded-lg bg-card border border-border">
+                    <Badge variant="outline">{log.event_type}</Badge>
+                    <div className="flex-1">
+                      <p className="text-sm text-foreground">{log.description}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {new Date(log.created_at).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
