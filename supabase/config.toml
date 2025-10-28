@@ -1,8 +1,5 @@
 project_id = "coobieessxvnujkkiadc"
 
-[functions.chat-stream]
-verify_jwt = true
-
 [functions.chat-stream-with-routing]
 verify_jwt = true
 

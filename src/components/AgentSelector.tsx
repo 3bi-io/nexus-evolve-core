@@ -28,28 +28,28 @@ const agents = [
     name: "General Assistant",
     icon: Brain,
     description: "Standard conversational AI",
-    color: "text-blue-500",
+    color: "text-accent",
   },
   {
     id: "reasoning",
     name: "Reasoning Agent",
     icon: Brain,
     description: "Deep logical analysis & problem solving",
-    color: "text-purple-500",
+    color: "text-primary",
   },
   {
     id: "creative",
     name: "Creative Agent",
     icon: Sparkles,
     description: "Ideation & innovative solutions",
-    color: "text-pink-500",
+    color: "text-accent",
   },
   {
     id: "learning",
     name: "Learning Agent",
     icon: BookOpen,
     description: "Meta-learning & pattern analysis",
-    color: "text-green-500",
+    color: "text-success",
   },
 ];
 
