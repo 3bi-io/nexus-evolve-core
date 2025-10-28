@@ -1,6 +1,6 @@
-type Message = { role: "user" | "assistant"; content: string };
+import { supabase } from "@/integrations/supabase/client";
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-stream`;
+type Message = { role: "user" | "assistant"; content: string };
 
 export async function streamChat({
   messages,
@@ -14,30 +14,39 @@ export async function streamChat({
   onDelta: (deltaText: string) => void;
   onDone: () => void;
   onError?: (error: string) => void;
-}) {
+}): Promise<void> {
+  const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-stream`;
+
+  // Get auth token
+  const { data: { session } } = await supabase.auth.getSession();
+  
+  if (!session) {
+    throw new Error("Not authenticated");
+  }
+
   try {
-    const resp = await fetch(CHAT_URL, {
+    const response = await fetch(CHAT_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        "Authorization": `Bearer ${session.access_token}`,
       },
       body: JSON.stringify({ messages, sessionId }),
     });
 
-    if (!resp.ok) {
-      if (resp.status === 429) {
+    if (!response.ok) {
+      if (response.status === 429) {
         throw new Error("Rate limit exceeded. Please try again later.");
       }
-      if (resp.status === 402) {
+      if (response.status === 402) {
         throw new Error("Payment required. Please add credits to your workspace.");
       }
-      throw new Error(`Failed to start stream: ${resp.status}`);
+      throw new Error(`Failed to start stream: ${response.status}`);
     }
 
-    if (!resp.body) throw new Error("No response body");
+    if (!response.body) throw new Error("No response body");
 
-    const reader = resp.body.getReader();
+    const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let textBuffer = "";
     let streamDone = false;

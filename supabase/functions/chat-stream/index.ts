@@ -26,11 +26,18 @@ serve(async (req) => {
     // Get user ID from auth header
     const authHeader = req.headers.get("authorization");
     const token = authHeader?.replace("Bearer ", "");
-    const { data: { user } } = await supabase.auth.getUser(token || "");
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token || "");
+    
+    if (userError || !user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     
     // Retrieve relevant context from agent memory
     let contextMemories: Array<{ content: any; memory_type: string }> = [];
-    if (user && sessionId) {
+    if (sessionId) {
       const { data: memories } = await supabase
         .from("agent_memory")
         .select("content, memory_type")
@@ -95,14 +102,14 @@ Guidelines:
     }
 
     // Store interaction in background (non-blocking)
-    if (user) {
-      const userMessage = messages[messages.length - 1]?.content || "";
-      supabase.from("interactions").insert({
-        user_id: user.id,
-        message: userMessage,
-        context: { session_id: sessionId, memories_used: contextMemories.length },
-      }).then();
-    }
+    const userMessage = messages[messages.length - 1]?.content || "";
+    supabase.from("interactions").insert({
+      user_id: user.id,
+      session_id: sessionId,
+      message: userMessage,
+      context: { memories_used: contextMemories.length },
+      model_used: "google/gemini-2.5-flash",
+    }).then();
 
     return new Response(response.body, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
