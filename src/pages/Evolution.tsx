@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
-import { TrendingUp, Activity, Brain, Star, Network, Sparkles, BookOpen } from "lucide-react";
+import { TrendingUp, Activity, Brain, Star, Network, Sparkles, BookOpen, RefreshCw, Clock, Archive, Settings, Zap } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 type EvolutionLog = {
@@ -30,6 +32,24 @@ type AdaptiveBehavior = {
   created_at: string;
 };
 
+type CronStatus = {
+  lastEvolution: string | null;
+  lastDiscovery: string | null;
+  embeddingsProgress: { total: number; generated: number };
+  archivedMemories: number;
+};
+
+type ABExperiment = {
+  id: string;
+  experiment_name: string;
+  variant: string;
+  started_at: string;
+  ended_at: string | null;
+  winner: string | null;
+  active: boolean;
+  metrics: any;
+};
+
 export default function Evolution() {
   const { user } = useAuth();
   const [logs, setLogs] = useState<EvolutionLog[]>([]);
@@ -43,6 +63,10 @@ export default function Evolution() {
   const [isEvolving, setIsEvolving] = useState(false);
   const [isBackfilling, setIsBackfilling] = useState(false);
   const [capabilitySuggestions, setCapabilitySuggestions] = useState<any[]>([]);
+  const [cronStatus, setCronStatus] = useState<CronStatus>({ lastEvolution: null, lastDiscovery: null, embeddingsProgress: { total: 0, generated: 0 }, archivedMemories: 0 });
+  const [experiments, setExperiments] = useState<ABExperiment[]>([]);
+  const [archivedMemories, setArchivedMemories] = useState<any[]>([]);
+  const [autoApprovalThreshold, setAutoApprovalThreshold] = useState(0.8);
 
   useEffect(() => {
     if (user) {
@@ -144,6 +168,64 @@ export default function Evolution() {
         .limit(10);
 
       setCapabilitySuggestions(suggestionsData || []);
+
+      // Load A/B experiments (PHASE 3: Step 3.2)
+      const { data: experimentsData } = await supabase
+        .from("ab_experiments")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("started_at", { ascending: false })
+        .limit(10);
+
+      setExperiments(experimentsData || []);
+
+      // Load archived memories (PHASE 3: Step 3.3)
+      const { data: archivedData } = await supabase
+        .from("agent_memory")
+        .select("id, context_summary, created_at, metadata")
+        .eq("user_id", user.id)
+        .order("last_retrieved_at", { ascending: true })
+        .limit(20);
+
+      setArchivedMemories(archivedData || []);
+
+      // Load cron status and embedding progress (PHASE 3: Step 3.1)
+      const { data: evolutionLogs } = await supabase
+        .from("evolution_logs")
+        .select("log_type, created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+
+      const lastEvolution = evolutionLogs?.find(l => l.log_type === "system_evolution")?.created_at || null;
+      const lastDiscovery = evolutionLogs?.find(l => l.log_type === "capability_discovery")?.created_at || null;
+
+      // Check embedding progress
+      const [{ count: totalMemories }, { count: memoriesWithEmbeddings }] = await Promise.all([
+        supabase.from("agent_memory").select("*", { count: "exact", head: true }).eq("user_id", user.id),
+        supabase.from("agent_memory").select("*", { count: "exact", head: true }).eq("user_id", user.id).not("embedding", "is", null),
+      ]);
+
+      const [{ count: totalKnowledge }, { count: knowledgeWithEmbeddings }] = await Promise.all([
+        supabase.from("knowledge_base").select("*", { count: "exact", head: true }).eq("user_id", user.id),
+        supabase.from("knowledge_base").select("*", { count: "exact", head: true }).eq("user_id", user.id).not("embedding", "is", null),
+      ]);
+
+      const total = (totalMemories || 0) + (totalKnowledge || 0);
+      const generated = (memoriesWithEmbeddings || 0) + (knowledgeWithEmbeddings || 0);
+
+      // Count archived memories (low retrieval)
+      const { count: archivedCount } = await supabase
+        .from("agent_memory")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .lte("retrieval_count", 1);
+
+      setCronStatus({
+        lastEvolution,
+        lastDiscovery,
+        embeddingsProgress: { total, generated },
+        archivedMemories: archivedCount || 0,
+      });
 
     } catch (error) {
       console.error("Error loading dashboard:", error);
@@ -290,17 +372,58 @@ export default function Evolution() {
     }
   };
 
+  const restoreMemory = async (memoryId: string) => {
+    try {
+      const { error } = await supabase
+        .from("agent_memory")
+        .update({ importance_score: 0.8 })
+        .eq("id", memoryId);
+
+      if (error) throw error;
+
+      toast({
+        title: "✅ Memory restored",
+        description: "Memory importance has been boosted.",
+      });
+
+      await loadDashboardData();
+    } catch (error: any) {
+      toast({
+        title: "Failed to restore memory",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const updateAutoApprovalThreshold = async (value: number) => {
+    setAutoApprovalThreshold(value);
+    // Store in local storage for now (could be moved to user settings table)
+    localStorage.setItem("autoApprovalThreshold", value.toString());
+    
+    toast({
+      title: "Settings updated",
+      description: `Auto-approval threshold set to ${(value * 100).toFixed(0)}%`,
+    });
+  };
+
   const COLORS = ["hsl(262, 83%, 58%)", "hsl(217, 91%, 60%)", "hsl(142, 76%, 36%)", "hsl(38, 92%, 50%)"];
 
   return (
     <div className="min-h-screen bg-background p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center gap-3">
-          <TrendingUp className="w-8 h-8 text-primary" />
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">Evolution Dashboard</h1>
-            <p className="text-muted-foreground">Track learning progress and system improvements</p>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <TrendingUp className="w-8 h-8 text-primary" />
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">Evolution Dashboard</h1>
+              <p className="text-muted-foreground">Track learning progress and system improvements</p>
+            </div>
           </div>
+          <Button onClick={loadDashboardData} variant="outline" disabled={isLoading}>
+            <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -356,6 +479,95 @@ export default function Evolution() {
             </CardContent>
           </Card>
         </div>
+
+        {/* PHASE 3: Step 3.1 - Real-Time Status Indicators */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="w-5 h-5" />
+              System Status
+            </CardTitle>
+            <CardDescription>Cron jobs, embeddings, and memory consolidation</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 rounded-lg bg-muted">
+                <div className="flex items-center gap-2 mb-2">
+                  <Zap className="w-4 h-4 text-primary" />
+                  <h4 className="font-semibold text-sm">Daily Evolution</h4>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {cronStatus.lastEvolution 
+                    ? `Last run: ${new Date(cronStatus.lastEvolution).toLocaleString()}`
+                    : "Not run yet"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Next: Daily at 2:00 AM
+                </p>
+              </div>
+
+              <div className="p-4 rounded-lg bg-muted">
+                <div className="flex items-center gap-2 mb-2">
+                  <Brain className="w-4 h-4 text-accent" />
+                  <h4 className="font-semibold text-sm">Weekly Discovery</h4>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {cronStatus.lastDiscovery 
+                    ? `Last run: ${new Date(cronStatus.lastDiscovery).toLocaleString()}`
+                    : "Not run yet"}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Next: Sundays at 3:00 AM
+                </p>
+              </div>
+
+              <div className="p-4 rounded-lg bg-muted">
+                <div className="flex items-center gap-2 mb-2">
+                  <Archive className="w-4 h-4 text-warning" />
+                  <h4 className="font-semibold text-sm">Memory Status</h4>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Embeddings: {cronStatus.embeddingsProgress.generated}/{cronStatus.embeddingsProgress.total}
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Archived: {cronStatus.archivedMemories} low-usage memories
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* PHASE 3: Step 3.4 - Auto-Approval Config */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="w-5 h-5" />
+              System Settings
+            </CardTitle>
+            <CardDescription>Configure autonomous behavior</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium">Auto-Approval Confidence Threshold</label>
+                  <span className="text-sm text-muted-foreground">{(autoApprovalThreshold * 100).toFixed(0)}%</span>
+                </div>
+                <Slider
+                  value={[autoApprovalThreshold]}
+                  onValueChange={([value]) => updateAutoApprovalThreshold(value)}
+                  min={0.5}
+                  max={1.0}
+                  step={0.05}
+                  className="w-full"
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  Capabilities with confidence above this threshold will be automatically approved and enabled.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card>
@@ -581,6 +793,94 @@ export default function Evolution() {
                       </div>
                       <div className="text-xs text-muted-foreground">effective</div>
                     </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* PHASE 3: Step 3.2 - A/B Testing UI */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="w-5 h-5" />
+              Active Experiments
+            </CardTitle>
+            <CardDescription>A/B testing and optimization trials</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {experiments.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>No active experiments. System will create tests automatically as it learns.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {experiments.map((exp) => (
+                  <div key={exp.id} className="p-4 rounded-lg bg-card border border-border">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-semibold">{exp.experiment_name}</h4>
+                          <Badge variant={exp.active ? "default" : "secondary"}>
+                            {exp.active ? "Active" : "Ended"}
+                          </Badge>
+                          {exp.winner && (
+                            <Badge variant="outline">Winner: {exp.winner}</Badge>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Started: {new Date(exp.started_at).toLocaleDateString()}
+                          {exp.ended_at && ` • Ended: ${new Date(exp.ended_at).toLocaleDateString()}`}
+                        </p>
+                      </div>
+                    </div>
+                    {exp.metrics && (
+                      <div className="mt-2 text-xs text-muted-foreground">
+                        Metrics: {JSON.stringify(exp.metrics, null, 2)}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* PHASE 3: Step 3.3 - Memory Archive Viewer */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Archive className="w-5 h-5" />
+              Low-Usage Memories
+            </CardTitle>
+            <CardDescription>Memories with minimal retrieval (potential candidates for archival)</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {archivedMemories.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Brain className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>All memories are actively used!</p>
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {archivedMemories.slice(0, 20).map((memory) => (
+                  <div key={memory.id} className="flex items-start justify-between p-3 rounded-lg bg-muted hover:bg-muted/80 transition-colors">
+                    <div className="flex-1">
+                      <p className="text-sm text-foreground line-clamp-2">{memory.context_summary}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Created: {new Date(memory.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => restoreMemory(memory.id)}
+                      className="ml-2"
+                    >
+                      Restore
+                    </Button>
                   </div>
                 ))}
               </div>
