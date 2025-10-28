@@ -286,6 +286,14 @@ Focus on:
         success: true,
         learnings_stored: storedCount,
         session_quality: avgRating,
+        summary: {
+          total_learnings: storedCount,
+          facts: learnings.facts?.length || 0,
+          topics: learnings.topics?.length || 0,
+          solutions: learnings.solutions?.length || 0,
+          patterns: learnings.patterns?.length || 0,
+          preferences: learnings.user_preferences ? 1 : 0
+        },
         breakdown: {
           facts: learnings.facts?.length || 0,
           topics: learnings.topics?.length || 0,

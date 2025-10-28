@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Send, LogOut, ThumbsUp, ThumbsDown, Sparkles, TrendingUp } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Brain, Send, LogOut, ThumbsUp, ThumbsDown, Sparkles, TrendingUp, Search } from "lucide-react";
 import { streamChat } from "@/lib/chat";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -28,6 +29,8 @@ export const ChatInterface = () => {
   const [contextCount, setContextCount] = useState(0);
   const [isExtracting, setIsExtracting] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState("auto");
+  const [memoryModalOpen, setMemoryModalOpen] = useState(false);
+  const [recentMemories, setRecentMemories] = useState<any[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -239,9 +242,17 @@ export const ChatInterface = () => {
 
       if (error) throw error;
 
+      // PHASE 4: Enhanced toast with breakdown
+      const breakdown = data.breakdown || data.summary;
+      const details = [];
+      if (breakdown.facts > 0) details.push(`${breakdown.facts} facts`);
+      if (breakdown.topics > 0) details.push(`${breakdown.topics} topics`);
+      if (breakdown.solutions > 0) details.push(`${breakdown.solutions} solutions`);
+      if (breakdown.patterns > 0) details.push(`${breakdown.patterns} patterns`);
+
       toast({
-        title: "Learning extraction complete",
-        description: `Extracted ${data.summary.total_learnings} insights from this conversation.`,
+        title: "🧠 Learning extraction complete",
+        description: `Extracted ${data.summary?.total_learnings || data.learnings_stored} insights: ${details.join(", ")}`,
       });
 
       // Reload context count
@@ -263,6 +274,23 @@ export const ChatInterface = () => {
     }
   };
 
+  const loadRecentMemories = async () => {
+    if (!user) return;
+    
+    try {
+      const { data } = await supabase
+        .from("agent_memory")
+        .select("id, memory_type, context_summary, importance_score, retrieval_count, created_at")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(10);
+      
+      setRecentMemories(data || []);
+    } catch (error) {
+      console.error("Failed to load memories:", error);
+    }
+  };
+
   return (
     <div className="flex" style={{ height: 'calc(100vh - 57px)' }}>
       <SessionSidebar
@@ -279,7 +307,14 @@ export const ChatInterface = () => {
               <div className="flex items-center gap-2">
                 <p className="text-sm text-muted-foreground">Powered by Lovable AI</p>
                 {contextCount > 0 && (
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge 
+                    variant="secondary" 
+                    className="text-xs cursor-pointer hover:bg-secondary/80"
+                    onClick={() => {
+                      loadRecentMemories();
+                      setMemoryModalOpen(true);
+                    }}
+                  >
                     <Brain className="w-3 h-3 mr-1" />
                     {contextCount} memories
                   </Badge>
@@ -388,6 +423,53 @@ export const ChatInterface = () => {
           </Button>
         </div>
       </div>
+
+      {/* PHASE 4: Memory Details Modal */}
+      <Dialog open={memoryModalOpen} onOpenChange={setMemoryModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Brain className="w-5 h-5" />
+              Active Memories
+            </DialogTitle>
+            <DialogDescription>
+              Recent learnings and patterns the system has extracted
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 mt-4">
+            {recentMemories.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">No memories yet</p>
+            ) : (
+              recentMemories.map((memory) => (
+                <div key={memory.id} className="p-4 rounded-lg bg-muted">
+                  <div className="flex items-start justify-between mb-2">
+                    <Badge variant="outline" className="capitalize">
+                      {memory.memory_type?.replace(/_/g, " ") || "general"}
+                    </Badge>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span>Importance: {(memory.importance_score * 100).toFixed(0)}%</span>
+                      <span>•</span>
+                      <span>Retrieved: {memory.retrieval_count}x</span>
+                    </div>
+                  </div>
+                  <p className="text-sm">{memory.context_summary}</p>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {new Date(memory.created_at).toLocaleString()}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+          <div className="flex justify-end gap-2 mt-4">
+            <Link to="/evolution">
+              <Button variant="outline">
+                <TrendingUp className="w-4 h-4 mr-2" />
+                View Dashboard
+              </Button>
+            </Link>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
