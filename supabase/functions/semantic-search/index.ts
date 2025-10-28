@@ -36,9 +36,29 @@ serve(async (req) => {
 
     console.log(`Semantic search in ${table}: "${query}"`);
 
-    // Generate embedding for query text
-    // Note: Using mock embedding for now (same as generate-embeddings)
-    const queryEmbedding = generateMockEmbedding(query);
+    // Generate real embedding for query using OpenAI
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY not configured");
+
+    const embeddingResponse = await fetch("https://api.openai.com/v1/embeddings", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "text-embedding-3-small",
+        input: query
+      })
+    });
+
+    if (!embeddingResponse.ok) {
+      const errorText = await embeddingResponse.text();
+      throw new Error(`OpenAI embeddings API error: ${embeddingResponse.status} - ${errorText}`);
+    }
+
+    const embeddingData = await embeddingResponse.json();
+    const queryEmbedding = embeddingData.data[0].embedding;
 
     // Perform vector similarity search
     let results;
@@ -82,7 +102,7 @@ serve(async (req) => {
         results: results || [],
         count: results?.length || 0,
         query,
-        note: "Using mock embeddings - integrate real embeddings API for production semantic search"
+        model: "text-embedding-3-small"
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
@@ -95,22 +115,3 @@ serve(async (req) => {
     );
   }
 });
-
-// Same mock embedding function as generate-embeddings
-function generateMockEmbedding(text: string): number[] {
-  const embedding = new Array(1536);
-  let hash = 0;
-  
-  for (let i = 0; i < text.length; i++) {
-    hash = ((hash << 5) - hash) + text.charCodeAt(i);
-    hash = hash & hash;
-  }
-  
-  let seed = Math.abs(hash);
-  for (let i = 0; i < 1536; i++) {
-    seed = (seed * 9301 + 49297) % 233280;
-    embedding[i] = (seed / 233280) * 2 - 1;
-  }
-  
-  return embedding;
-}

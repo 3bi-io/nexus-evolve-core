@@ -9,6 +9,7 @@ import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { SessionSidebar } from "./SessionSidebar";
+import { AgentSelector } from "./AgentSelector";
 
 type Message = {
   role: "user" | "assistant";
@@ -25,6 +26,7 @@ export const ChatInterface = () => {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [contextCount, setContextCount] = useState(0);
   const [isExtracting, setIsExtracting] = useState(false);
+  const [selectedAgent, setSelectedAgent] = useState("auto");
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -134,6 +136,7 @@ export const ChatInterface = () => {
       await streamChat({
         messages: [...messages, userMessage],
         sessionId,
+        forceAgent: selectedAgent === "auto" ? undefined : selectedAgent,
         onDelta: (chunk) => {
           assistantContent += chunk;
           setMessages((prev) => {
@@ -284,6 +287,10 @@ export const ChatInterface = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <AgentSelector 
+              selectedAgent={selectedAgent}
+              onSelectAgent={setSelectedAgent}
+            />
             {messages.length >= 4 && (
               <Button 
                 variant="outline" 

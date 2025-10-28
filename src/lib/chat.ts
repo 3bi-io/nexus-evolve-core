@@ -5,17 +5,19 @@ type Message = { role: "user" | "assistant"; content: string };
 export async function streamChat({
   messages,
   sessionId,
+  forceAgent,
   onDelta,
   onDone,
   onError,
 }: {
   messages: Message[];
   sessionId?: string;
+  forceAgent?: string;
   onDelta: (deltaText: string) => void;
   onDone: () => void;
   onError?: (error: string) => void;
 }): Promise<void> {
-  const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-stream`;
+  const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-stream-with-routing`;
 
   // Get auth token
   const { data: { session } } = await supabase.auth.getSession();
@@ -31,7 +33,7 @@ export async function streamChat({
         "Content-Type": "application/json",
         "Authorization": `Bearer ${session.access_token}`,
       },
-      body: JSON.stringify({ messages, sessionId }),
+      body: JSON.stringify({ messages, sessionId, forceAgent }),
     });
 
     if (!response.ok) {

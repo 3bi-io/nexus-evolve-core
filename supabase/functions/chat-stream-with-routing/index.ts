@@ -104,31 +104,54 @@ serve(async (req) => {
       }
       
     } else {
-      // Default: Use general streaming chat agent (current chat-stream logic)
-      // Fetch context for general agent
+      // Default: Use general streaming chat agent with semantic search
       let contextMemories: any[] = [];
       
-      if (sessionId) {
-        const { data: sessionMemories } = await supabase
+      // PHASE 3E: Semantic Search Integration
+      // Try semantic search first for better context retrieval
+      try {
+        const { data: semanticResults } = await supabase.functions.invoke("semantic-search", {
+          body: { 
+            query: userMessage,
+            table: "agent_memory",
+            limit: 5
+          }
+        });
+
+        if (semanticResults?.results && semanticResults.results.length > 0) {
+          contextMemories = semanticResults.results;
+          console.log(`Found ${contextMemories.length} semantically relevant memories`);
+        }
+      } catch (semanticError) {
+        console.error("Semantic search failed, falling back to importance-based:", semanticError);
+      }
+
+      // Fallback or supplement with importance-based retrieval
+      if (contextMemories.length < 5) {
+        if (sessionId) {
+          const { data: sessionMemories } = await supabase
+            .from("agent_memory")
+            .select("id, content, memory_type, context_summary, importance_score")
+            .eq("user_id", user.id)
+            .eq("session_id", sessionId)
+            .order("importance_score", { ascending: false })
+            .limit(3);
+          contextMemories = [...contextMemories, ...(sessionMemories || [])];
+        }
+        
+        const { data: globalMemories } = await supabase
           .from("agent_memory")
           .select("id, content, memory_type, context_summary, importance_score")
           .eq("user_id", user.id)
-          .eq("session_id", sessionId)
           .order("importance_score", { ascending: false })
-          .limit(3);
-        contextMemories = sessionMemories || [];
+          .limit(5);
+        
+        contextMemories = [...contextMemories, ...(globalMemories || [])];
       }
       
-      const { data: globalMemories } = await supabase
-        .from("agent_memory")
-        .select("id, content, memory_type, context_summary, importance_score")
-        .eq("user_id", user.id)
-        .order("importance_score", { ascending: false })
-        .limit(5);
-      
-      const allMemories = [...contextMemories, ...(globalMemories || [])];
+      // Remove duplicates
       const uniqueMemories = Array.from(
-        new Map(allMemories.map(m => [m.id, m])).values()
+        new Map(contextMemories.map(m => [m.id, m])).values()
       ).slice(0, 10);
       
       // Get adaptive behaviors

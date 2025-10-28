@@ -36,57 +36,55 @@ serve(async (req) => {
 
     console.log(`Generating embedding for ${table} record ${record_id}`);
 
-    // Generate embedding using Lovable AI
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+    // Generate real embedding using OpenAI
+    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
+    if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY not configured");
 
-    // Note: Lovable AI doesn't currently have a dedicated embeddings endpoint
-    // This is a placeholder implementation that would use a real embeddings API
-    // For production, you'd want to use OpenAI's embeddings API or similar
-    
-    // Placeholder: Generate a mock embedding vector (1536 dimensions for OpenAI compatibility)
-    // In production, replace with actual API call:
-    // const embeddingResponse = await fetch("https://api.openai.com/v1/embeddings", {
-    //   method: "POST",
-    //   headers: {
-    //     "Authorization": `Bearer ${OPENAI_API_KEY}`,
-    //     "Content-Type": "application/json"
-    //   },
-    //   body: JSON.stringify({
-    //     model: "text-embedding-3-small",
-    //     input: text
-    //   })
-    // });
+    const embeddingResponse = await fetch("https://api.openai.com/v1/embeddings", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${OPENAI_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "text-embedding-3-small",
+        input: text
+      })
+    });
 
-    // For now, create a deterministic "embedding" based on text hash
-    // This allows the system to work but won't provide semantic search benefits
-    const mockEmbedding = generateMockEmbedding(text);
+    if (!embeddingResponse.ok) {
+      const errorText = await embeddingResponse.text();
+      throw new Error(`OpenAI embeddings API error: ${embeddingResponse.status} - ${errorText}`);
+    }
+
+    const embeddingData = await embeddingResponse.json();
+    const embedding = embeddingData.data[0].embedding;
 
     // Store embedding in database
     if (table === "agent_memory") {
       await supabase
         .from("agent_memory")
-        .update({ embedding: mockEmbedding })
+        .update({ embedding })
         .eq("id", record_id)
         .eq("user_id", user.id);
     } else if (table === "knowledge_base") {
       await supabase
         .from("knowledge_base")
-        .update({ embedding: mockEmbedding })
+        .update({ embedding })
         .eq("id", record_id)
         .eq("user_id", user.id);
     } else {
       throw new Error(`Unsupported table: ${table}`);
     }
 
-    console.log(`Embedding stored for ${table} ${record_id}`);
+    console.log(`Real embedding stored for ${table} ${record_id}`);
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: "Embedding generated and stored (mock implementation)",
+        message: "Embedding generated and stored using OpenAI",
         dimensions: 1536,
-        note: "To enable true semantic search, integrate OpenAI embeddings API or similar"
+        model: "text-embedding-3-small"
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
@@ -99,24 +97,3 @@ serve(async (req) => {
     );
   }
 });
-
-// Generate a deterministic mock embedding (1536 dimensions)
-// In production, replace with actual embeddings API
-function generateMockEmbedding(text: string): number[] {
-  const embedding = new Array(1536);
-  let hash = 0;
-  
-  for (let i = 0; i < text.length; i++) {
-    hash = ((hash << 5) - hash) + text.charCodeAt(i);
-    hash = hash & hash;
-  }
-  
-  // Use hash to seed deterministic "random" values
-  let seed = Math.abs(hash);
-  for (let i = 0; i < 1536; i++) {
-    seed = (seed * 9301 + 49297) % 233280;
-    embedding[i] = (seed / 233280) * 2 - 1; // Values between -1 and 1
-  }
-  
-  return embedding;
-}
