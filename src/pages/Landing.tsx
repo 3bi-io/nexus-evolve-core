@@ -151,7 +151,7 @@ const Landing = () => {
                 )}
               </div>
               <p className="text-xs md:text-sm text-muted-foreground">
-                No signup required • 5 free messages daily
+                Start with Starter plan at $49/month • 500 credits
               </p>
             </div>
             
@@ -283,16 +283,16 @@ const Landing = () => {
           <div className="text-center mb-8 md:mb-16">
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">Simple, Transparent Pricing</h2>
             <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
-              Start free with 5 daily credits. Upgrade anytime for more power.
+              Choose the plan that fits your needs. Start from $49/month.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
             <Card>
               <CardContent className="pt-6 space-y-4">
-                <h3 className="text-2xl font-bold">Free</h3>
-                <div className="text-4xl font-bold">$0</div>
-                <p className="text-muted-foreground">5 daily credits</p>
-                <Button variant="outline" className="w-full" onClick={() => navigate("/auth")}>
+                <h3 className="text-2xl font-bold">Starter</h3>
+                <div className="text-4xl font-bold">$49</div>
+                <p className="text-muted-foreground">500 credits/month</p>
+                <Button variant="outline" className="w-full" onClick={() => navigate("/pricing")}>
                   Get Started
                 </Button>
               </CardContent>
