@@ -406,11 +406,11 @@ export const ChatInterface = () => {
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <Brain className="w-16 h-16 text-primary mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Start a Conversation</h2>
+              <h2 className="text-xl font-semibold mb-2">Welcome to Self-Learning AI</h2>
               <p className="text-muted-foreground max-w-md">
                 {user 
-                  ? "Ask me anything and I'll provide thoughtful responses while learning from our interaction."
-                  : "Try 5 free messages daily. Sign up to unlock advanced features and more credits!"
+                  ? "Your AI learns from every interaction. Start with 500 credits (41+ hours) and watch your AI evolve with you."
+                  : "Experience AI that learns from you. Sign up for 500 free credits—that's 2,500 minutes (41+ hours) of intelligent conversation!"
                 }
               </p>
             </div>

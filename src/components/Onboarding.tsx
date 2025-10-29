@@ -9,12 +9,12 @@ const steps = [
   {
     icon: Brain,
     title: 'Welcome to Your Self-Learning AI',
-    description: 'Start chatting instantly - no signup required! Get 5 free messages daily to experience how your AI learns from you.',
+    description: 'Sign up to get 500 free credits—that\'s 41+ hours of usage time! Your AI learns from every conversation and evolves autonomously.',
   },
   {
     icon: Sparkles,
-    title: 'Extract & Remember',
-    description: 'After meaningful conversations, click "Extract Learnings" to save insights forever. Your AI builds a personalized knowledge base.',
+    title: 'Time-Based Credits',
+    description: 'Each credit gives you 5 minutes of intelligent conversation. Track your time in the bottom-right corner and watch your AI build a personalized knowledge base.',
   },
 ];
 
