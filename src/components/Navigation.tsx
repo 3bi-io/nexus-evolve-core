@@ -14,10 +14,14 @@ export const Navigation = () => {
     <nav className="border-b border-border bg-card">
       <div className="max-w-7xl mx-auto px-6 py-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link to="/">
+          <div className="flex items-center gap-6">
+            <Link to="/chat" className="flex items-center gap-2 mr-4">
+              <Brain className="w-6 h-6 text-primary" />
+              <span className="font-semibold text-lg hidden sm:inline">Self-Learning AI</span>
+            </Link>
+            <Link to="/chat">
               <Button
-                variant={isActive("/") ? "default" : "ghost"}
+                variant={isActive("/chat") ? "default" : "ghost"}
                 className="gap-2"
               >
                 <MessageSquare className="w-4 h-4" />

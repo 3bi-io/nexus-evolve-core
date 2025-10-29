@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Onboarding } from "@/components/Onboarding";
 import { ThemeProvider } from "next-themes";
+import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -49,9 +50,10 @@ const App = () => (
             <Onboarding />
             <BrowserRouter>
               <Routes>
+                <Route path="/" element={<Landing />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route
-                  path="/"
+                  path="/chat"
                   element={
                     <ProtectedRoute>
                       <Index />
