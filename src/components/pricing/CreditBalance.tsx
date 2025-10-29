@@ -132,9 +132,12 @@ export const CreditBalance = () => {
           <p className="font-semibold">
             {credits.remaining} credits remaining
           </p>
+          <p className="text-xs text-muted-foreground">
+            ≈ {Math.floor((credits.remaining * 300) / 60)} minutes of usage
+          </p>
           {!credits.tier && (
             <p className="text-xs text-muted-foreground">
-              Free tier: 5 daily credits
+              Free tier: 5 daily credits (25 min/day)
             </p>
           )}
           {credits.tier && (
@@ -143,7 +146,7 @@ export const CreditBalance = () => {
             </Badge>
           )}
           <p className="text-xs text-muted-foreground mt-1">
-            Click to view usage history
+            1 credit = 5 minutes • Click for history
           </p>
         </TooltipContent>
       </Tooltip>

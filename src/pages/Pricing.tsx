@@ -36,7 +36,7 @@ const Pricing = () => {
     {
       question: "What counts as a credit?",
       answer:
-        "Credits are deducted based on the operation: general chat (1 credit), reasoning agent (2 credits), creative agent (1 credit), knowledge graph generation (3 credits), and problem solving (2 credits).",
+        "Each credit provides 300 seconds (5 minutes) of usage time. Your session timer starts when you use the platform and credits are deducted based on elapsed time when you finish. 1 credit = 5 minutes, so 10 credits = 50 minutes of usage.",
     },
     {
       question: "Can I cancel anytime?",
@@ -74,7 +74,7 @@ const Pricing = () => {
               Choose Your Plan
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Start free with 5 daily credits. Upgrade anytime for more power and features.
+              Start free with 5 daily credits (25 min/day). Upgrade for more time and features.
             </p>
           </div>
 

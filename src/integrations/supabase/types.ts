@@ -665,6 +665,48 @@ export type Database = {
         }
         Relationships: []
       }
+      usage_sessions: {
+        Row: {
+          created_at: string
+          credits_deducted: number
+          elapsed_seconds: number
+          ended_at: string | null
+          id: string
+          is_active: boolean
+          metadata: Json | null
+          session_id: string | null
+          started_at: string
+          user_id: string | null
+          visitor_credit_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          credits_deducted?: number
+          elapsed_seconds?: number
+          ended_at?: string | null
+          id?: string
+          is_active?: boolean
+          metadata?: Json | null
+          session_id?: string | null
+          started_at?: string
+          user_id?: string | null
+          visitor_credit_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          credits_deducted?: number
+          elapsed_seconds?: number
+          ended_at?: string | null
+          id?: string
+          is_active?: boolean
+          metadata?: Json | null
+          session_id?: string | null
+          started_at?: string
+          user_id?: string | null
+          visitor_credit_id?: string | null
+        }
+        Relationships: []
+      }
       user_achievements: {
         Row: {
           achievement_key: string
