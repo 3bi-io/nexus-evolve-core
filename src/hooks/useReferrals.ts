@@ -83,6 +83,35 @@ export function useReferrals() {
     if (!user) return null;
 
     try {
+      // Check rate limit: max 50 referrals per day
+      const oneDayAgo = new Date();
+      oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
+      const { count } = await supabase
+        .from('referrals')
+        .select('*', { count: 'exact', head: true })
+        .eq('referrer_id', user.id)
+        .gte('created_at', oneDayAgo.toISOString());
+
+      if (count && count >= 50) {
+        toast({
+          title: 'Rate limit reached',
+          description: 'You can only create 50 referrals per day.',
+          variant: 'destructive',
+        });
+        return null;
+      }
+
+      // Prevent self-referral
+      if (email === user.email) {
+        toast({
+          title: 'Invalid referral',
+          description: 'You cannot refer yourself.',
+          variant: 'destructive',
+        });
+        return null;
+      }
+
       // Generate referral code
       const { data: codeData, error: codeError } = await supabase.rpc('generate_referral_code');
       
@@ -104,7 +133,7 @@ export function useReferrals() {
       if (error) throw error;
 
       toast({
-        title: 'Invitation sent!',
+        title: 'Invitation created!',
         description: `Referral code: ${referralCode}`,
       });
 

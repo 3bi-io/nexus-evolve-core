@@ -53,6 +53,49 @@ export const ReferralRewards = () => {
     setClaiming(rewardId);
 
     try {
+      // Get the reward details
+      const reward = rewards.find(r => r.id === rewardId);
+      if (!reward) throw new Error('Reward not found');
+
+      // Get current subscription to calculate new balance
+      const { data: subscription } = await supabase
+        .from('user_subscriptions')
+        .select('credits_remaining')
+        .eq('user_id', user!.id)
+        .single();
+
+      const currentBalance = subscription?.credits_remaining || 0;
+      const newBalance = currentBalance + reward.reward_value;
+
+      // Update subscription credits
+      const { error: subError } = await supabase
+        .from('user_subscriptions')
+        .update({ 
+          credits_remaining: newBalance,
+          credits_total: newBalance 
+        })
+        .eq('user_id', user!.id);
+
+      if (subError) throw subError;
+
+      // Record the transaction
+      const { error: txError } = await supabase
+        .from('credit_transactions')
+        .insert({
+          user_id: user!.id,
+          transaction_type: 'reward',
+          credits_amount: reward.reward_value,
+          operation_type: 'referral_reward',
+          balance_after: newBalance,
+          metadata: { 
+            referral_id: reward.referral_id,
+            reward_type: reward.reward_type 
+          }
+        });
+
+      if (txError) throw txError;
+
+      // Mark reward as claimed
       const { error } = await supabase
         .from('referral_rewards')
         .update({ claimed: true, claimed_at: new Date().toISOString() })
@@ -65,7 +108,7 @@ export const ReferralRewards = () => {
 
       toast({
         title: '🎉 Reward claimed!',
-        description: 'Your credits have been added to your account.',
+        description: `${reward.reward_value} credits have been added to your account.`,
       });
 
       fetchRewards();

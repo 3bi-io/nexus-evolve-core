@@ -1,15 +1,32 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
+import { Gift } from "lucide-react";
 
 export const SignUpForm = ({ onToggle }: { onToggle: () => void }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [referralCode, setReferralCode] = useState<string>("");
   const { signUp } = useAuth();
+
+  // Detect referral code from URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const refCode = params.get('ref');
+    if (refCode) {
+      setReferralCode(refCode);
+      toast({
+        title: "🎉 Referral detected!",
+        description: "You'll get bonus credits when you sign up!",
+      });
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,9 +34,15 @@ export const SignUpForm = ({ onToggle }: { onToggle: () => void }) => {
 
     try {
       await signUp(email, password);
-      toast({
-        title: "Check your email",
-        description: "We sent you a confirmation link",
+      
+      // If there's a referral code, store it to process after email verification
+      if (referralCode) {
+        localStorage.setItem('pending_referral_code', referralCode);
+      }
+      
+      toast({ 
+        title: referralCode ? "Success! Check your email to verify and claim your bonus!" : "Success! Please check your email to verify your account.",
+        description: referralCode ? "You'll receive 50 bonus credits after verification!" : undefined
       });
     } catch (error: any) {
       toast({
@@ -34,6 +57,17 @@ export const SignUpForm = ({ onToggle }: { onToggle: () => void }) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {referralCode && (
+        <div className="p-3 bg-primary/10 rounded-lg border border-primary/20 flex items-center gap-2">
+          <Gift className="h-5 w-5 text-primary" />
+          <div className="flex-1">
+            <p className="text-sm font-medium">Referral Applied!</p>
+            <p className="text-xs text-muted-foreground">Get 50 bonus credits after signup</p>
+          </div>
+          <Badge variant="secondary">{referralCode}</Badge>
+        </div>
+      )}
+      
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
@@ -50,6 +84,7 @@ export const SignUpForm = ({ onToggle }: { onToggle: () => void }) => {
         <Input
           id="password"
           type="password"
+          placeholder="Min 6 characters"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required

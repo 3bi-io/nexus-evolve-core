@@ -17,6 +17,8 @@ import Analytics from "./pages/Analytics";
 import { CommandPalette } from "./components/onboarding/CommandPalette";
 import { KeyboardShortcutsDialog } from "./components/onboarding/KeyboardShortcutsDialog";
 import { useGlobalShortcuts } from "./hooks/useKeyboardShortcuts";
+import { useReferralProcessor } from "./hooks/useReferralProcessor";
+import { useReferralConversion } from "./hooks/useReferralConversion";
 import Capabilities from "./pages/Capabilities";
 import Evolution from "./pages/Evolution";
 import SuperAdmin from "./pages/SuperAdmin";
@@ -50,6 +52,8 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const RoutesWithShortcuts = () => {
   useGlobalShortcuts();
+  useReferralProcessor(); // Process referral codes after signup
+  useReferralConversion(); // Track conversion after 3+ interactions
   return (
     <Routes>
           <Route path="/" element={<Landing />} />
