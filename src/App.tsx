@@ -128,10 +128,10 @@ const RoutesWithShortcuts = () => {
 const AppContent = () => {
   return (
     <>
-      <CommandPalette />
-      <KeyboardShortcutsDialog />
       <Onboarding />
       <BrowserRouter>
+        <CommandPalette />
+        <KeyboardShortcutsDialog />
         <RoutesWithShortcuts />
       </BrowserRouter>
     </>
