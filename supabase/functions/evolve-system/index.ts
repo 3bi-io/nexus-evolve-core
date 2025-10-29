@@ -104,7 +104,26 @@ serve(async (req) => {
         .eq("id", memory.id);
     }
 
-    console.log(`Knowledge consolidation: archived ${archivedCount}, boosted ${frequentMemories.length}`);
+    // Memory decay: reduce importance of unused memories (30+ days since last retrieval)
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    const unusedMemories = memories?.filter(m => {
+      const lastRetrieved = m.last_retrieved_at ? new Date(m.last_retrieved_at) : new Date(m.created_at);
+      return lastRetrieved < thirtyDaysAgo && m.importance_score > 0.2;
+    }) || [];
+    
+    let decayedCount = 0;
+    for (const memory of unusedMemories) {
+      const newImportance = Math.max(0.2, memory.importance_score - 0.02);
+      await supabase
+        .from("agent_memory")
+        .update({ importance_score: newImportance })
+        .eq("id", memory.id);
+      decayedCount++;
+    }
+
+    console.log(`Knowledge consolidation: archived ${archivedCount}, boosted ${frequentMemories.length}, decayed ${decayedCount}`);
 
     // 3. ADAPTIVE BEHAVIOR OPTIMIZATION
     const { data: behaviors } = await supabase

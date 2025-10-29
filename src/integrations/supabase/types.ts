@@ -217,6 +217,42 @@ export type Database = {
         }
         Relationships: []
       }
+      cron_job_logs: {
+        Row: {
+          created_at: string | null
+          ended_at: string | null
+          error_message: string | null
+          id: string
+          job_name: string
+          metrics: Json | null
+          started_at: string | null
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          ended_at?: string | null
+          error_message?: string | null
+          id?: string
+          job_name: string
+          metrics?: Json | null
+          started_at?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          ended_at?: string | null
+          error_message?: string | null
+          id?: string
+          job_name?: string
+          metrics?: Json | null
+          started_at?: string | null
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       evolution_logs: {
         Row: {
           change_type: string | null
@@ -398,6 +434,39 @@ export type Database = {
           last_message_at?: string | null
           message_count?: number
           title?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          auto_approval_threshold: number | null
+          auto_learning_enabled: boolean | null
+          created_at: string | null
+          default_agent: string | null
+          evolution_frequency: string | null
+          notifications_enabled: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          auto_approval_threshold?: number | null
+          auto_learning_enabled?: boolean | null
+          created_at?: string | null
+          default_agent?: string | null
+          evolution_frequency?: string | null
+          notifications_enabled?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          auto_approval_threshold?: number | null
+          auto_learning_enabled?: boolean | null
+          created_at?: string | null
+          default_agent?: string | null
+          evolution_frequency?: string | null
+          notifications_enabled?: boolean | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []

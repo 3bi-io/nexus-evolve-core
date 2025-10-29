@@ -1,6 +1,7 @@
-import { useEffect, useState, useCallback } from "react";
-import ForceGraph2D from "react-force-graph-2d";
+import { useEffect, useState, useCallback, lazy, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
+
+const ForceGraph2D = lazy(() => import("react-force-graph-2d"));
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -223,8 +224,13 @@ export default function KnowledgeGraph() {
                 </div>
               </div>
             ) : (
-              <ForceGraph2D
-                graphData={graphData}
+              <Suspense fallback={
+                <div className="h-[600px] flex items-center justify-center">
+                  <RefreshCw className="w-8 h-8 animate-spin text-primary" />
+                </div>
+              }>
+                <ForceGraph2D
+                  graphData={graphData}
                 nodeLabel="name"
                 nodeAutoColorBy="type"
                 linkDirectionalParticles={2}
@@ -245,6 +251,7 @@ export default function KnowledgeGraph() {
                   ctx.fillText(label, node.x, node.y + node.val + fontSize);
                 }}
               />
+              </Suspense>
             )}
           </CardContent>
         </Card>
