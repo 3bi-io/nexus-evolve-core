@@ -147,7 +147,7 @@ Deno.serve(async (req) => {
 
     // STOP SESSION
     if (action === 'stop') {
-      const { usageSessionId } = await req.json();
+      // Use already parsed body instead of parsing again
       
       if (!usageSessionId) {
         return new Response(
@@ -289,7 +289,7 @@ Deno.serve(async (req) => {
 
     // CHECK SESSION
     if (action === 'check') {
-      const { usageSessionId: checkSessionId } = await req.json();
+      const checkSessionId = usageSessionId;
       
       if (!checkSessionId) {
         return new Response(
