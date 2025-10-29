@@ -47,15 +47,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-const AppContent = () => {
+const RoutesWithShortcuts = () => {
   useGlobalShortcuts();
   return (
-    <>
-      <CommandPalette />
-      <KeyboardShortcutsDialog />
-      <Onboarding />
-      <BrowserRouter>
-        <Routes>
+    <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/chat" element={<Index />} />
@@ -127,6 +122,17 @@ const AppContent = () => {
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+  );
+};
+
+const AppContent = () => {
+  return (
+    <>
+      <CommandPalette />
+      <KeyboardShortcutsDialog />
+      <Onboarding />
+      <BrowserRouter>
+        <RoutesWithShortcuts />
       </BrowserRouter>
     </>
   );
