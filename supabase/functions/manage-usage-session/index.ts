@@ -52,20 +52,36 @@ Deno.serve(async (req) => {
       let hasCredits = false;
       let remainingCredits = 0;
       let remainingSeconds = 0;
+      let isSuperAdmin = false;
 
       if (userId) {
-        // Check authenticated user subscription
-        const { data: subscription } = await supabase
-          .from('user_subscriptions')
-          .select('credits_remaining')
-          .eq('user_id', userId)
-          .eq('status', 'active')
-          .single();
+        // Check if user is super admin - they have unlimited usage
+        const { data: roleCheck, error: roleError } = await supabase
+          .rpc('has_role', { 
+            _user_id: userId, 
+            _role: 'super_admin' 
+          });
 
-        if (subscription && subscription.credits_remaining > 0) {
+        if (!roleError && roleCheck) {
+          // Super admin has unlimited credits
           hasCredits = true;
-          remainingCredits = subscription.credits_remaining;
-          remainingSeconds = remainingCredits * SECONDS_PER_CREDIT;
+          isSuperAdmin = true;
+          remainingCredits = 999999;
+          remainingSeconds = 999999 * SECONDS_PER_CREDIT;
+        } else {
+          // Check authenticated user subscription
+          const { data: subscription } = await supabase
+            .from('user_subscriptions')
+            .select('credits_remaining')
+            .eq('user_id', userId)
+            .eq('status', 'active')
+            .single();
+
+          if (subscription && subscription.credits_remaining > 0) {
+            hasCredits = true;
+            remainingCredits = subscription.credits_remaining;
+            remainingSeconds = remainingCredits * SECONDS_PER_CREDIT;
+          }
         }
       } else if (ipAddress) {
         // Check visitor credits
@@ -165,32 +181,57 @@ Deno.serve(async (req) => {
 
       // Deduct credits
       if (session.user_id) {
-        // Authenticated user
-        const { data: subscription } = await supabase
-          .from('user_subscriptions')
-          .select('credits_remaining')
-          .eq('user_id', session.user_id)
-          .eq('status', 'active')
-          .single();
+        // Check if user is super admin - they don't get charged
+        const { data: roleCheck, error: roleError } = await supabase
+          .rpc('has_role', { 
+            _user_id: session.user_id, 
+            _role: 'super_admin' 
+          });
 
-        if (subscription) {
-          const newBalance = Math.max(0, subscription.credits_remaining - creditsToDeduct);
-          
-          await supabase
+        const isSuperAdmin = !roleError && roleCheck;
+
+        if (!isSuperAdmin) {
+          // Authenticated user (non-admin)
+          const { data: subscription } = await supabase
             .from('user_subscriptions')
-            .update({ credits_remaining: newBalance })
-            .eq('user_id', session.user_id);
+            .select('credits_remaining')
+            .eq('user_id', session.user_id)
+            .eq('status', 'active')
+            .single();
 
-          // Log transaction
+          if (subscription) {
+            const newBalance = Math.max(0, subscription.credits_remaining - creditsToDeduct);
+            
+            await supabase
+              .from('user_subscriptions')
+              .update({ credits_remaining: newBalance })
+              .eq('user_id', session.user_id);
+
+            // Log transaction
+            await supabase.from('credit_transactions').insert({
+              user_id: session.user_id,
+              transaction_type: 'usage',
+              credits_amount: -creditsToDeduct,
+              balance_after: newBalance,
+              operation_type: 'time_usage',
+              metadata: { 
+                usage_session_id: usageSessionId,
+                elapsed_seconds: elapsedSeconds
+              }
+            });
+          }
+        } else {
+          // Super admin - log session but don't deduct credits
           await supabase.from('credit_transactions').insert({
             user_id: session.user_id,
             transaction_type: 'usage',
-            credits_amount: -creditsToDeduct,
-            balance_after: newBalance,
-            operation_type: 'time_usage',
+            credits_amount: 0,
+            balance_after: 999999,
+            operation_type: 'time_usage_admin',
             metadata: { 
               usage_session_id: usageSessionId,
-              elapsed_seconds: elapsedSeconds
+              elapsed_seconds: elapsedSeconds,
+              super_admin: true
             }
           });
         }
@@ -278,13 +319,24 @@ Deno.serve(async (req) => {
       // Get remaining credits
       let remainingCredits = 0;
       if (session.user_id) {
-        const { data: subscription } = await supabase
-          .from('user_subscriptions')
-          .select('credits_remaining')
-          .eq('user_id', session.user_id)
-          .eq('status', 'active')
-          .single();
-        remainingCredits = subscription?.credits_remaining || 0;
+        // Check if user is super admin
+        const { data: roleCheck, error: roleError } = await supabase
+          .rpc('has_role', { 
+            _user_id: session.user_id, 
+            _role: 'super_admin' 
+          });
+
+        if (!roleError && roleCheck) {
+          remainingCredits = 999999; // Unlimited for super admin
+        } else {
+          const { data: subscription } = await supabase
+            .from('user_subscriptions')
+            .select('credits_remaining')
+            .eq('user_id', session.user_id)
+            .eq('status', 'active')
+            .single();
+          remainingCredits = subscription?.credits_remaining || 0;
+        }
       } else if (session.visitor_credit_id) {
         const { data: visitor } = await supabase
           .from('visitor_credits')

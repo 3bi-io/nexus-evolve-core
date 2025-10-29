@@ -52,6 +52,28 @@ Deno.serve(async (req) => {
 
     // Handle authenticated users
     if (userId) {
+      // Check if user is super admin - they have unlimited usage
+      const { data: isSuperAdmin, error: roleError } = await supabase
+        .rpc('has_role', { 
+          _user_id: userId, 
+          _role: 'super_admin' 
+        });
+
+      if (!roleError && isSuperAdmin) {
+        // Super admin has unlimited credits
+        return new Response(
+          JSON.stringify({
+            allowed: true,
+            remaining: 999999,
+            creditCost: 0,
+            suggestedTier: null,
+            isAnonymous: false,
+            isSuperAdmin: true
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       // Use row-level locking to prevent concurrent request race conditions
       const { data: subscription, error: subError } = await supabase
         .from('user_subscriptions')
