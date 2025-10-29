@@ -103,17 +103,17 @@ const Landing = () => {
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-lg">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Brain className="w-8 h-8 text-primary" />
-            <span className="font-bold text-xl">Oneiros.me</span>
+            <Brain className="w-6 h-6 md:w-8 md:h-8 text-primary" />
+            <span className="font-bold text-lg md:text-xl">Oneiros.me</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             {user ? (
-              <Button onClick={() => navigate('/chat')}>Go to Dashboard</Button>
+              <Button onClick={() => navigate('/chat')} size="sm" className="md:h-10">Dashboard</Button>
             ) : (
               <>
-                <Button onClick={() => navigate('/chat')}>Try Free</Button>
-                <Button onClick={() => navigate('/auth')} variant="ghost">Sign In</Button>
-                <Button onClick={() => navigate('/pricing')} variant="outline">Pricing</Button>
+                <Button onClick={() => navigate('/chat')} size="sm" className="md:h-10">Try Free</Button>
+                <Button onClick={() => navigate('/auth')} variant="ghost" size="sm" className="hidden sm:flex md:h-10">Sign In</Button>
+                <Button onClick={() => navigate('/pricing')} variant="outline" size="sm" className="md:h-10">Pricing</Button>
               </>
             )}
           </div>
@@ -121,41 +121,41 @@ const Landing = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4">
+      <section className="pt-20 md:pt-32 pb-12 md:pb-20 px-4">
         <div className="container mx-auto max-w-6xl">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="text-center lg:text-left space-y-6 animate-fade-in">
-              <Badge variant="secondary" className="mb-4">
+          <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
+            <div className="text-center lg:text-left space-y-4 md:space-y-6 animate-fade-in">
+              <Badge variant="secondary" className="mb-2 md:mb-4 text-xs md:text-sm">
                 <Sparkles className="w-3 h-3 mr-1" />
                 Production-Ready AI Platform
               </Badge>
-              <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
                 Dream-Powered AI That
-                <span className="bg-gradient-to-r from-[hsl(var(--ai-gradient-start))] to-[hsl(var(--ai-gradient-end))] bg-clip-text text-transparent">
-                  {" "}Evolves With You
+                <span className="bg-gradient-to-r from-[hsl(var(--ai-gradient-start))] to-[hsl(var(--ai-gradient-end))] bg-clip-text text-transparent block mt-1">
+                  Evolves With You
                 </span>
               </h1>
-              <p className="text-xl text-muted-foreground">
+              <p className="text-base md:text-lg lg:text-xl text-muted-foreground">
                 Autonomous evolution powered by multi-agent architecture. Your AI assistant learns from every interaction, 
                 builds knowledge graphs, and continuously optimizes its performance through your dreams.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
-                <Button size="lg" className="text-lg px-8 hover-scale" onClick={() => navigate("/chat")}>
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center lg:justify-start pt-2 md:pt-4">
+                <Button size="lg" className="text-base md:text-lg px-6 md:px-8 hover-scale w-full sm:w-auto" onClick={() => navigate("/chat")}>
                   Try Now Free
-                  <ArrowRight className="ml-2 w-5 h-5" />
+                  <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
                 </Button>
                 {!user && (
-                  <Button size="lg" variant="outline" className="text-lg px-8" onClick={() => navigate("/auth")}>
+                  <Button size="lg" variant="outline" className="text-base md:text-lg px-6 md:px-8 w-full sm:w-auto" onClick={() => navigate("/auth")}>
                     Sign In
                   </Button>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs md:text-sm text-muted-foreground">
                 No signup required • 5 free messages daily
               </p>
             </div>
             
-            <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+            <div className="hidden lg:block animate-fade-in" style={{ animationDelay: '0.2s' }}>
               <InteractiveDemo />
             </div>
           </div>
@@ -163,11 +163,11 @@ const Landing = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 px-4 bg-muted/30">
+      <section className="py-12 md:py-20 px-4 bg-muted/30">
         <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Powerful AI Capabilities</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <div className="text-center mb-8 md:mb-16">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">Powerful AI Capabilities</h2>
+            <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
               Built on cutting-edge technology that learns, adapts, and evolves autonomously
             </p>
           </div>
@@ -191,11 +191,11 @@ const Landing = () => {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-20 px-4">
+      <section className="py-12 md:py-20 px-4">
         <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">How It Works</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <div className="text-center mb-8 md:mb-16">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">How It Works</h2>
+            <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
               Three simple steps to autonomous AI evolution
             </p>
           </div>
@@ -225,11 +225,11 @@ const Landing = () => {
       </section>
 
       {/* Trust Indicators */}
-      <section className="py-20 px-4 bg-muted/30">
+      <section className="py-12 md:py-20 px-4 bg-muted/30">
         <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Trusted by Thousands</h2>
-            <p className="text-xl text-muted-foreground">
+          <div className="text-center mb-8 md:mb-12">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">Trusted by Thousands</h2>
+            <p className="text-base md:text-lg lg:text-xl text-muted-foreground px-4">
               Join a growing community of users building with AI
             </p>
           </div>
@@ -278,11 +278,11 @@ const Landing = () => {
       </section>
 
       {/* Pricing Preview */}
-      <section className="py-20 px-4">
+      <section className="py-12 md:py-20 px-4">
         <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Simple, Transparent Pricing</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <div className="text-center mb-8 md:mb-16">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">Simple, Transparent Pricing</h2>
+            <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
               Start free with 5 daily credits. Upgrade anytime for more power.
             </p>
           </div>
@@ -330,20 +330,20 @@ const Landing = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4">
+      <section className="py-12 md:py-20 px-4">
         <div className="container mx-auto max-w-4xl">
           <Card className="bg-gradient-to-br from-primary/10 to-accent/10 border-primary/20">
-            <CardContent className="pt-12 pb-12 text-center space-y-6">
-              <h2 className="text-4xl font-bold">Ready to Get Started?</h2>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <CardContent className="pt-8 pb-8 md:pt-12 md:pb-12 text-center space-y-4 md:space-y-6">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold px-4">Ready to Get Started?</h2>
+              <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
                 Join the future of dream-powered AI. Start building with autonomous evolution today.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-                <Button size="lg" className="text-lg px-8" onClick={() => navigate("/auth")}>
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center pt-2 md:pt-4 px-4">
+                <Button size="lg" className="text-base md:text-lg px-6 md:px-8 w-full sm:w-auto" onClick={() => navigate("/auth")}>
                   Create Your Account
-                  <ArrowRight className="ml-2 w-5 h-5" />
+                  <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
                 </Button>
-                <Button size="lg" variant="outline" className="text-lg px-8">
+                <Button size="lg" variant="outline" className="text-base md:text-lg px-6 md:px-8 w-full sm:w-auto">
                   Contact Sales
                 </Button>
               </div>
