@@ -5,14 +5,16 @@ import { Shield, Zap, Users, TrendingUp, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const ACTIVITY_MESSAGES = [
-  { location: 'San Francisco', action: 'upgraded to Pro' },
-  { location: 'New York', action: 'extracted 10 learnings' },
-  { location: 'London', action: 'started their AI journey' },
-  { location: 'Tokyo', action: 'completed 50 conversations' },
-  { location: 'Berlin', action: 'unlocked new capabilities' },
-  { location: 'Sydney', action: 'signed up for free' },
+  { location: 'San Francisco', action: 'started a voice conversation' },
+  { location: 'New York', action: 'created a custom agent' },
+  { location: 'London', action: 'analyzed trending topics' },
+  { location: 'Tokyo', action: 'generated an image with AI' },
+  { location: 'Berlin', action: 'unlocked Achievement: Power User' },
+  { location: 'Sydney', action: 'shared their referral code' },
   { location: 'Toronto', action: 'upgraded to Enterprise' },
-  { location: 'Paris', action: 'built their knowledge graph' },
+  { location: 'Paris', action: 'built a knowledge graph' },
+  { location: 'Singapore', action: 'connected Zapier integration' },
+  { location: 'Dubai', action: 'published agent to marketplace' },
 ];
 
 export function TrustSignals() {
@@ -62,44 +64,48 @@ export function TrustSignals() {
 
       {/* Trust Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="p-4 text-center hover:shadow-lg transition-shadow">
+        <Card className="p-4 text-center hover:shadow-lg transition-all hover:-translate-y-1">
           <Users className="h-8 w-8 mx-auto mb-2 text-primary" />
-          <div className="text-2xl font-bold">50,000+</div>
-          <div className="text-xs text-muted-foreground">Conversations</div>
+          <div className="text-2xl font-bold">100,000+</div>
+          <div className="text-xs text-muted-foreground">AI Interactions</div>
         </Card>
 
-        <Card className="p-4 text-center hover:shadow-lg transition-shadow">
+        <Card className="p-4 text-center hover:shadow-lg transition-all hover:-translate-y-1">
           <TrendingUp className="h-8 w-8 mx-auto mb-2 text-success" />
-          <div className="text-2xl font-bold">95%</div>
-          <div className="text-xs text-muted-foreground">Quality Score</div>
+          <div className="text-2xl font-bold">98%</div>
+          <div className="text-xs text-muted-foreground">Satisfaction Score</div>
         </Card>
 
-        <Card className="p-4 text-center hover:shadow-lg transition-shadow">
+        <Card className="p-4 text-center hover:shadow-lg transition-all hover:-translate-y-1">
           <Zap className="h-8 w-8 mx-auto mb-2 text-warning" />
-          <div className="text-2xl font-bold">&lt;2s</div>
-          <div className="text-xs text-muted-foreground">Avg Response</div>
+          <div className="text-2xl font-bold">&lt;1.5s</div>
+          <div className="text-xs text-muted-foreground">Response Time</div>
         </Card>
 
-        <Card className="p-4 text-center hover:shadow-lg transition-shadow">
+        <Card className="p-4 text-center hover:shadow-lg transition-all hover:-translate-y-1">
           <Clock className="h-8 w-8 mx-auto mb-2 text-accent" />
-          <div className="text-2xl font-bold">24/7</div>
-          <div className="text-xs text-muted-foreground">Available</div>
+          <div className="text-2xl font-bold">9</div>
+          <div className="text-xs text-muted-foreground">AI Systems</div>
         </Card>
       </div>
 
       {/* Security Badges */}
       <div className="flex flex-wrap justify-center gap-4">
-        <Badge variant="outline" className="px-4 py-2">
+        <Badge variant="outline" className="px-4 py-2 hover:bg-primary/10 transition-colors">
           <Shield className="h-4 w-4 mr-2" />
-          Bank-level Encryption
+          Enterprise Security
         </Badge>
-        <Badge variant="outline" className="px-4 py-2">
+        <Badge variant="outline" className="px-4 py-2 hover:bg-primary/10 transition-colors">
           <Shield className="h-4 w-4 mr-2" />
           GDPR Compliant
         </Badge>
-        <Badge variant="outline" className="px-4 py-2">
+        <Badge variant="outline" className="px-4 py-2 hover:bg-primary/10 transition-colors">
           <Zap className="h-4 w-4 mr-2" />
           99.9% Uptime
+        </Badge>
+        <Badge variant="outline" className="px-4 py-2 hover:bg-primary/10 transition-colors">
+          <Users className="h-4 w-4 mr-2" />
+          5 AI Agents
         </Badge>
       </div>
     </div>

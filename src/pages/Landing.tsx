@@ -18,6 +18,13 @@ import {
   Sparkles,
   Check,
   ArrowRight,
+  Phone,
+  Store,
+  Image,
+  Users,
+  Globe,
+  Trophy,
+  Workflow,
 } from "lucide-react";
 import { InteractiveDemo } from "@/components/landing/InteractiveDemo";
 import { TrustSignals } from "@/components/landing/TrustSignals";
@@ -35,34 +42,58 @@ const Landing = () => {
 
   const features = [
     {
+      icon: Phone,
+      title: "Voice AI Agents",
+      description: "Real-time conversational AI powered by ElevenLabs with natural voice interactions and function calling",
+      badge: "New",
+    },
+    {
       icon: Network,
-      title: "Multi-Agent System",
-      description: "Specialized agents (Coordinator, Reasoning, Creative, Learning) work together for optimal responses",
+      title: "Multi-Agent Orchestration",
+      description: "5 specialized agents (Coordinator, Reasoning, Creative, Learning, Grok Reality) work in harmony",
+      badge: null,
     },
     {
-      icon: Brain,
-      title: "Semantic Memory",
-      description: "Vector-based knowledge storage with intelligent retrieval and context-aware responses",
+      icon: Store,
+      title: "Agent Marketplace",
+      description: "Create, share, and monetize custom AI agents. Build your own or use community agents",
+      badge: "Popular",
     },
     {
-      icon: TrendingUp,
-      title: "Autonomous Evolution",
-      description: "Daily self-improvement cycles that analyze performance and optimize system capabilities",
+      icon: Image,
+      title: "Multimodal Studio",
+      description: "Generate images, convert speech to text, text to speech, and process multiple media types",
+      badge: null,
+    },
+    {
+      icon: Globe,
+      title: "Social Intelligence",
+      description: "Real-time trend analysis, viral content creation, and sentiment tracking with Grok integration",
+      badge: null,
     },
     {
       icon: GitBranch,
       title: "Knowledge Graphs",
-      description: "Visual concept mapping that reveals relationships and patterns in learned information",
+      description: "Visual semantic networks with vector embeddings for intelligent information retrieval",
+      badge: null,
     },
     {
-      icon: BarChart3,
-      title: "A/B Testing",
-      description: "Built-in experimentation framework to continuously validate and improve agent performance",
+      icon: Trophy,
+      title: "Gamification System",
+      description: "Achievements, referral rewards, and engagement tracking to boost user motivation",
+      badge: null,
     },
     {
-      icon: Sparkles,
-      title: "Auto-Discovery",
-      description: "System suggests new capabilities based on usage patterns and emerging needs",
+      icon: TrendingUp,
+      title: "Autonomous Evolution",
+      description: "Self-learning system that discovers new capabilities and optimizes performance daily",
+      badge: null,
+    },
+    {
+      icon: Workflow,
+      title: "Integration Hub",
+      description: "Connect with Zapier, webhooks, and custom APIs to automate your workflows",
+      badge: null,
     },
   ];
 
@@ -88,12 +119,18 @@ const Landing = () => {
   ];
 
   const benefits = [
-    "Production-ready multi-agent architecture",
-    "Real-time semantic search and retrieval",
-    "Automated performance optimization",
-    "Secure role-based access control",
-    "Built on React, Supabase, and OpenAI",
-    "Self-evolving system capabilities",
+    "Voice AI with ElevenLabs integration",
+    "5-agent orchestration system",
+    "Custom agent builder & marketplace",
+    "Real-time social intelligence",
+    "Vector-based semantic search",
+    "Multimodal capabilities (text, image, voice)",
+    "Time-based credit system",
+    "Gamification & achievements",
+    "Mobile-responsive PWA",
+    "Enterprise-grade security",
+    "Built on React, Supabase, OpenAI",
+    "Self-evolving autonomous AI",
   ];
 
   return (
@@ -130,14 +167,14 @@ const Landing = () => {
                 Production-Ready AI Platform
               </Badge>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
-                Dream-Powered AI That
+                The Most Advanced
                 <span className="bg-gradient-to-r from-[hsl(var(--ai-gradient-start))] to-[hsl(var(--ai-gradient-end))] bg-clip-text text-transparent block mt-1">
-                  Evolves With You
+                  AI Platform Ever Built
                 </span>
               </h1>
               <p className="text-base md:text-lg lg:text-xl text-muted-foreground">
-                Autonomous evolution powered by multi-agent architecture. Your AI assistant learns from every interaction, 
-                builds knowledge graphs, and continuously optimizes its performance through your dreams.
+                Multi-agent orchestration • Voice AI • Agent marketplace • Social intelligence • Self-learning evolution. 
+                Experience the future of AI with 9 integrated systems working together seamlessly.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center lg:justify-start pt-2 md:pt-4">
                 <Button size="lg" className="text-base md:text-lg px-6 md:px-8 hover-scale w-full sm:w-auto" onClick={() => navigate("/chat")}>
@@ -166,22 +203,29 @@ const Landing = () => {
       <section className="py-12 md:py-20 px-4 bg-muted/30">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-8 md:mb-16">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">Powerful AI Capabilities</h2>
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">Revolutionary AI Capabilities</h2>
             <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
-              Built on cutting-edge technology that learns, adapts, and evolves autonomously
+              9 integrated systems working together to deliver the most advanced AI experience
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
-                <Card key={index} className="hover:shadow-lg transition-shadow">
+                <Card key={index} className="hover:shadow-lg transition-all hover:-translate-y-1 group">
                   <CardContent className="pt-6">
-                    <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                      <Icon className="w-6 h-6 text-primary" />
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                        <Icon className="w-6 h-6 text-primary" />
+                      </div>
+                      {feature.badge && (
+                        <Badge variant={feature.badge === "New" ? "default" : "secondary"} className="text-xs">
+                          {feature.badge}
+                        </Badge>
+                      )}
                     </div>
                     <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                    <p className="text-muted-foreground">{feature.description}</p>
+                    <p className="text-muted-foreground text-sm">{feature.description}</p>
                   </CardContent>
                 </Card>
               );
@@ -242,9 +286,9 @@ const Landing = () => {
                 <div className="flex items-start gap-4">
                   <Shield className="w-8 h-8 text-primary flex-shrink-0" />
                   <div>
-                    <h3 className="text-xl font-semibold mb-2">Secure by Design</h3>
-                    <ul className="space-y-2 text-muted-foreground">
-                      {benefits.slice(0, 3).map((benefit, i) => (
+                    <h3 className="text-xl font-semibold mb-2">Enterprise Features</h3>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      {benefits.slice(0, 6).map((benefit, i) => (
                         <li key={i} className="flex items-start gap-2">
                           <Check className="w-4 h-4 text-success mt-1 flex-shrink-0" />
                           <span>{benefit}</span>
@@ -260,9 +304,9 @@ const Landing = () => {
                 <div className="flex items-start gap-4">
                   <Zap className="w-8 h-8 text-primary flex-shrink-0" />
                   <div>
-                    <h3 className="text-xl font-semibold mb-2">Modern Stack</h3>
-                    <ul className="space-y-2 text-muted-foreground">
-                      {benefits.slice(3).map((benefit, i) => (
+                    <h3 className="text-xl font-semibold mb-2">Built for Scale</h3>
+                    <ul className="space-y-2 text-sm text-muted-foreground">
+                      {benefits.slice(6).map((benefit, i) => (
                         <li key={i} className="flex items-start gap-2">
                           <Check className="w-4 h-4 text-success mt-1 flex-shrink-0" />
                           <span>{benefit}</span>
@@ -334,9 +378,10 @@ const Landing = () => {
         <div className="container mx-auto max-w-4xl">
           <Card className="bg-gradient-to-br from-primary/10 to-accent/10 border-primary/20">
             <CardContent className="pt-8 pb-8 md:pt-12 md:pb-12 text-center space-y-4 md:space-y-6">
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold px-4">Ready to Get Started?</h2>
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold px-4">Ready to Experience the Future?</h2>
               <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
-                Join the future of dream-powered AI. Start building with autonomous evolution today.
+                Join thousands of users building with the most advanced AI platform. Voice AI, multi-agent orchestration, 
+                social intelligence, and more—all in one place.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center pt-2 md:pt-4 px-4">
                 <Button size="lg" className="text-base md:text-lg px-6 md:px-8 w-full sm:w-auto" onClick={() => navigate("/auth")}>
