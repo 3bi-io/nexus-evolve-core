@@ -217,6 +217,60 @@ export type Database = {
         }
         Relationships: []
       }
+      credit_transactions: {
+        Row: {
+          balance_after: number
+          created_at: string
+          credits_amount: number
+          id: string
+          interaction_id: string | null
+          metadata: Json | null
+          operation_type: string | null
+          transaction_type: string
+          user_id: string | null
+          visitor_credit_id: string | null
+        }
+        Insert: {
+          balance_after: number
+          created_at?: string
+          credits_amount: number
+          id?: string
+          interaction_id?: string | null
+          metadata?: Json | null
+          operation_type?: string | null
+          transaction_type: string
+          user_id?: string | null
+          visitor_credit_id?: string | null
+        }
+        Update: {
+          balance_after?: number
+          created_at?: string
+          credits_amount?: number
+          id?: string
+          interaction_id?: string | null
+          metadata?: Json | null
+          operation_type?: string | null
+          transaction_type?: string
+          user_id?: string | null
+          visitor_credit_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "credit_transactions_interaction_id_fkey"
+            columns: ["interaction_id"]
+            isOneToOne: false
+            referencedRelation: "interactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "credit_transactions_visitor_credit_id_fkey"
+            columns: ["visitor_credit_id"]
+            isOneToOne: false
+            referencedRelation: "visitor_credits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cron_job_logs: {
         Row: {
           created_at: string | null
@@ -438,6 +492,42 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_tiers: {
+        Row: {
+          active: boolean
+          created_at: string
+          features: Json
+          id: string
+          monthly_credits: number
+          monthly_price: number
+          sort_order: number
+          tier_name: string
+          yearly_price: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          features?: Json
+          id?: string
+          monthly_credits: number
+          monthly_price: number
+          sort_order: number
+          tier_name: string
+          yearly_price: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          features?: Json
+          id?: string
+          monthly_credits?: number
+          monthly_price?: number
+          sort_order?: number
+          tier_name?: string
+          yearly_price?: number
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           auto_approval_threshold: number | null
@@ -492,6 +582,98 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_subscriptions: {
+        Row: {
+          billing_cycle: string
+          cancelled_at: string | null
+          created_at: string
+          credits_remaining: number
+          credits_total: number
+          id: string
+          renews_at: string
+          started_at: string
+          status: string
+          stripe_subscription_id: string | null
+          tier_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          billing_cycle: string
+          cancelled_at?: string | null
+          created_at?: string
+          credits_remaining: number
+          credits_total: number
+          id?: string
+          renews_at: string
+          started_at?: string
+          status?: string
+          stripe_subscription_id?: string | null
+          tier_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          billing_cycle?: string
+          cancelled_at?: string | null
+          created_at?: string
+          credits_remaining?: number
+          credits_total?: number
+          id?: string
+          renews_at?: string
+          started_at?: string
+          status?: string
+          stripe_subscription_id?: string | null
+          tier_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_tier_id_fkey"
+            columns: ["tier_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_tiers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      visitor_credits: {
+        Row: {
+          consecutive_days: number
+          created_at: string
+          credits_used_today: number
+          daily_credits: number
+          id: string
+          ip_encrypted: string
+          ip_hash: string
+          last_visit_date: string
+          updated_at: string
+        }
+        Insert: {
+          consecutive_days?: number
+          created_at?: string
+          credits_used_today?: number
+          daily_credits?: number
+          id?: string
+          ip_encrypted: string
+          ip_hash: string
+          last_visit_date?: string
+          updated_at?: string
+        }
+        Update: {
+          consecutive_days?: number
+          created_at?: string
+          credits_used_today?: number
+          daily_credits?: number
+          id?: string
+          ip_encrypted?: string
+          ip_hash?: string
+          last_visit_date?: string
+          updated_at?: string
         }
         Relationships: []
       }
