@@ -69,7 +69,8 @@ export const UsageTimer = () => {
           body: {
             action: 'start',
             userId: user?.id,
-            ipAddress: ipAddress
+            ipAddress: ipAddress,
+            route: location.pathname
           }
         });
 

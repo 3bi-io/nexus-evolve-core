@@ -21,7 +21,7 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { action, userId, ipAddress, sessionId } = await req.json();
+    const { action, userId, ipAddress, sessionId, usageSessionId, route } = await req.json();
 
     if (!action || (action !== 'start' && action !== 'stop' && action !== 'check')) {
       return new Response(
@@ -90,7 +90,11 @@ Deno.serve(async (req) => {
           visitor_credit_id: ipAddress ? (await supabase.from('visitor_credits').select('id').eq('ip_hash', await hashIP(ipAddress)).single()).data?.id : null,
           session_id: sessionId,
           is_active: true,
-          metadata: { ip_address: ipAddress || null }
+          metadata: { 
+            ip_address: ipAddress || null,
+            route: route || 'unknown',
+            started_at: new Date().toISOString()
+          }
         })
         .select()
         .single();
