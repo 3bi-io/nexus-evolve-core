@@ -32,6 +32,7 @@ import SocialIntelligence from "./pages/SocialIntelligence";
 import AgentStudio from "./pages/AgentStudio";
 import AgentMarketplace from "./pages/AgentMarketplace";
 import Integrations from "./pages/Integrations";
+import MultimodalStudio from "./pages/MultimodalStudio";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -169,6 +170,14 @@ const RoutesWithShortcuts = () => {
             element={
               <ProtectedRoute>
                 <Integrations />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/multimodal"
+            element={
+              <ProtectedRoute>
+                <MultimodalStudio />
               </ProtectedRoute>
             }
           />

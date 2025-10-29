@@ -148,6 +148,15 @@ export const Navigation = () => {
                     Integrations
                   </Button>
                 </Link>
+                <Link to="/multimodal">
+                  <Button
+                    variant={isActive("/multimodal") ? "default" : "ghost"}
+                    className="gap-2"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    Multimodal
+                  </Button>
+                </Link>
               </>
             )}
             {isAdmin && (

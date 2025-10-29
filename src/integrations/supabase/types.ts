@@ -759,6 +759,42 @@ export type Database = {
         }
         Relationships: []
       }
+      generated_images: {
+        Row: {
+          created_at: string | null
+          generation_time_ms: number | null
+          id: string
+          image_data: string | null
+          image_url: string | null
+          metadata: Json | null
+          model_used: string | null
+          prompt: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          generation_time_ms?: number | null
+          id?: string
+          image_data?: string | null
+          image_url?: string | null
+          metadata?: Json | null
+          model_used?: string | null
+          prompt: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          generation_time_ms?: number | null
+          id?: string
+          image_data?: string | null
+          image_url?: string | null
+          metadata?: Json | null
+          model_used?: string | null
+          prompt?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       integration_triggers: {
         Row: {
           agent_id: string | null
@@ -980,6 +1016,36 @@ export type Database = {
           task_type?: string
           user_id?: string
           user_satisfaction?: number | null
+        }
+        Relationships: []
+      }
+      multimodal_sessions: {
+        Row: {
+          content: Json
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          session_type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content?: Json
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          session_type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          session_type?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -1613,6 +1679,42 @@ export type Database = {
           ip_hash?: string
           last_visit_date?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      voice_interactions: {
+        Row: {
+          audio_data: string | null
+          audio_duration_ms: number | null
+          created_at: string | null
+          id: string
+          input_text: string | null
+          interaction_type: string
+          model_used: string | null
+          output_text: string | null
+          user_id: string
+        }
+        Insert: {
+          audio_data?: string | null
+          audio_duration_ms?: number | null
+          created_at?: string | null
+          id?: string
+          input_text?: string | null
+          interaction_type: string
+          model_used?: string | null
+          output_text?: string | null
+          user_id: string
+        }
+        Update: {
+          audio_data?: string | null
+          audio_duration_ms?: number | null
+          created_at?: string | null
+          id?: string
+          input_text?: string | null
+          interaction_type?: string
+          model_used?: string | null
+          output_text?: string | null
+          user_id?: string
         }
         Relationships: []
       }
