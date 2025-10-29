@@ -33,6 +33,7 @@ import AgentStudio from "./pages/AgentStudio";
 import AgentMarketplace from "./pages/AgentMarketplace";
 import Integrations from "./pages/Integrations";
 import MultimodalStudio from "./pages/MultimodalStudio";
+import VoiceAgent from "./pages/VoiceAgent";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -178,6 +179,14 @@ const RoutesWithShortcuts = () => {
             element={
               <ProtectedRoute>
                 <MultimodalStudio />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/voice-agent"
+            element={
+              <ProtectedRoute>
+                <VoiceAgent />
               </ProtectedRoute>
             }
           />

@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Network, Brain, Zap, TrendingUp, LogOut, Shield, Trophy, BarChart3, Keyboard, Sparkles, Store } from "lucide-react";
+import { MessageSquare, Network, Brain, Zap, TrendingUp, LogOut, Shield, Trophy, BarChart3, Keyboard, Sparkles, Store, Phone } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CreditBalance } from "@/components/pricing/CreditBalance";
@@ -155,6 +155,15 @@ export const Navigation = () => {
                   >
                     <Sparkles className="w-4 h-4" />
                     Multimodal
+                  </Button>
+                </Link>
+                <Link to="/voice-agent">
+                  <Button
+                    variant={isActive("/voice-agent") ? "default" : "ghost"}
+                    className="gap-2"
+                  >
+                    <Phone className="w-4 h-4" />
+                    Voice AI
                   </Button>
                 </Link>
               </>

@@ -1682,6 +1682,80 @@ export type Database = {
         }
         Relationships: []
       }
+      voice_agent_conversations: {
+        Row: {
+          agent_id: string | null
+          conversation_id: string
+          created_at: string | null
+          duration_seconds: number | null
+          ended_at: string | null
+          id: string
+          metadata: Json | null
+          started_at: string | null
+          user_id: string
+        }
+        Insert: {
+          agent_id?: string | null
+          conversation_id: string
+          created_at?: string | null
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          metadata?: Json | null
+          started_at?: string | null
+          user_id: string
+        }
+        Update: {
+          agent_id?: string | null
+          conversation_id?: string
+          created_at?: string | null
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          metadata?: Json | null
+          started_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      voice_agent_messages: {
+        Row: {
+          audio_url: string | null
+          content: string
+          conversation_id: string
+          created_at: string | null
+          id: string
+          role: string
+          tool_calls: Json | null
+        }
+        Insert: {
+          audio_url?: string | null
+          content: string
+          conversation_id: string
+          created_at?: string | null
+          id?: string
+          role: string
+          tool_calls?: Json | null
+        }
+        Update: {
+          audio_url?: string | null
+          content?: string
+          conversation_id?: string
+          created_at?: string | null
+          id?: string
+          role?: string
+          tool_calls?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voice_agent_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "voice_agent_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       voice_interactions: {
         Row: {
           audio_data: string | null
