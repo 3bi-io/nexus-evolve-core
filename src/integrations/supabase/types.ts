@@ -759,6 +759,45 @@ export type Database = {
         }
         Relationships: []
       }
+      integration_triggers: {
+        Row: {
+          agent_id: string | null
+          created_at: string | null
+          error_message: string | null
+          execution_time_ms: number | null
+          id: string
+          integration_id: string
+          response_data: Json | null
+          status: string
+          trigger_data: Json
+          user_id: string
+        }
+        Insert: {
+          agent_id?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          integration_id: string
+          response_data?: Json | null
+          status?: string
+          trigger_data: Json
+          user_id: string
+        }
+        Update: {
+          agent_id?: string | null
+          created_at?: string | null
+          error_message?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          integration_id?: string
+          response_data?: Json | null
+          status?: string
+          trigger_data?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
       interactions: {
         Row: {
           context: Json | null
@@ -1307,6 +1346,54 @@ export type Database = {
             referencedColumns: ["achievement_key"]
           },
         ]
+      }
+      user_integrations: {
+        Row: {
+          api_key: string | null
+          config: Json | null
+          created_at: string | null
+          description: string | null
+          id: string
+          integration_type: string
+          is_active: boolean | null
+          last_triggered_at: string | null
+          name: string
+          trigger_count: number | null
+          updated_at: string | null
+          user_id: string
+          webhook_url: string | null
+        }
+        Insert: {
+          api_key?: string | null
+          config?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          integration_type: string
+          is_active?: boolean | null
+          last_triggered_at?: string | null
+          name: string
+          trigger_count?: number | null
+          updated_at?: string | null
+          user_id: string
+          webhook_url?: string | null
+        }
+        Update: {
+          api_key?: string | null
+          config?: Json | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          integration_type?: string
+          is_active?: boolean | null
+          last_triggered_at?: string | null
+          name?: string
+          trigger_count?: number | null
+          updated_at?: string | null
+          user_id?: string
+          webhook_url?: string | null
+        }
+        Relationships: []
       }
       user_preferences: {
         Row: {

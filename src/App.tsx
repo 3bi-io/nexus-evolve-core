@@ -31,6 +31,7 @@ import Referrals from "./pages/Referrals";
 import SocialIntelligence from "./pages/SocialIntelligence";
 import AgentStudio from "./pages/AgentStudio";
 import AgentMarketplace from "./pages/AgentMarketplace";
+import Integrations from "./pages/Integrations";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -160,6 +161,14 @@ const RoutesWithShortcuts = () => {
             element={
               <ProtectedRoute>
                 <AgentMarketplace />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/integrations"
+            element={
+              <ProtectedRoute>
+                <Integrations />
               </ProtectedRoute>
             }
           />

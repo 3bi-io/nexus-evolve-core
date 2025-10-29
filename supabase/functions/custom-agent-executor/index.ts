@@ -316,7 +316,14 @@ async function executeToolCall(toolCall: any): Promise<string> {
       return `Semantic search results for: ${args.query}\n[Knowledge base search would be integrated here]`;
     
     case 'trigger_zapier':
-      return 'Zapier webhook triggered successfully';
+      // Find user's Zapier integrations and trigger them
+      const supabaseClient = createClient(
+        Deno.env.get('SUPABASE_URL')!,
+        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+      );
+      
+      // This would need user context - for now return message
+      return 'Zapier integration ready. Configure integrations in the Integrations page.';
     
     default:
       return 'Tool execution not implemented';

@@ -139,6 +139,15 @@ export const Navigation = () => {
                     Market
                   </Button>
                 </Link>
+                <Link to="/integrations">
+                  <Button
+                    variant={isActive("/integrations") ? "default" : "ghost"}
+                    className="gap-2"
+                  >
+                    <Zap className="w-4 h-4" />
+                    Integrations
+                  </Button>
+                </Link>
               </>
             )}
             {isAdmin && (
