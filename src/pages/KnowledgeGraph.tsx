@@ -3,11 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 
 const ForceGraph2D = lazy(() => import("react-force-graph-2d"));
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, Network } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { EmptyState } from "@/components/EmptyState";
 
 type GraphNode = {
   id: string;
@@ -25,6 +27,7 @@ type GraphLink = {
 
 export default function KnowledgeGraph() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [graphData, setGraphData] = useState<{ nodes: GraphNode[]; links: GraphLink[] }>({ nodes: [], links: [] });
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({ knowledge: 0, memories: 0, solutions: 0, patterns: 0 });
@@ -214,15 +217,28 @@ export default function KnowledgeGraph() {
                 <RefreshCw className="w-8 h-8 animate-spin text-primary" />
               </div>
             ) : graphData.nodes.length === 0 ? (
-              <div className="h-[600px] flex items-center justify-center">
-                <div className="text-center">
-                  <Network className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">No knowledge graph data yet</p>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Start chatting and extracting learnings to build your knowledge graph
-                  </p>
-                </div>
-              </div>
+              <EmptyState
+                icon={Network}
+                title="Your Knowledge Graph Awaits"
+                description="Have meaningful conversations and click 'Extract Learnings' to build your personal knowledge network. Watch concepts connect and grow over time."
+                action={{
+                  label: "Start First Chat",
+                  onClick: () => navigate('/chat')
+                }}
+                mockup={
+                  <div className="relative w-48 h-48 mx-auto">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-primary/20 animate-pulse" />
+                    <div className="absolute top-1/4 left-1/4 w-8 h-8 rounded-full bg-primary/10" />
+                    <div className="absolute top-1/4 right-1/4 w-8 h-8 rounded-full bg-primary/10" />
+                    <div className="absolute bottom-1/4 left-1/3 w-8 h-8 rounded-full bg-primary/10" />
+                    <svg className="absolute inset-0 w-full h-full">
+                      <line x1="50%" y1="50%" x2="25%" y2="25%" stroke="currentColor" strokeWidth="1" className="text-primary/20" />
+                      <line x1="50%" y1="50%" x2="75%" y2="25%" stroke="currentColor" strokeWidth="1" className="text-primary/20" />
+                      <line x1="50%" y1="50%" x2="33%" y2="75%" stroke="currentColor" strokeWidth="1" className="text-primary/20" />
+                    </svg>
+                  </div>
+                }
+              />
             ) : (
               <Suspense fallback={
                 <div className="h-[600px] flex items-center justify-center">

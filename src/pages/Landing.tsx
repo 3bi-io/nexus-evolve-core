@@ -18,6 +18,7 @@ import {
   Check,
   ArrowRight,
 } from "lucide-react";
+import { InteractiveDemo } from "@/components/landing/InteractiveDemo";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -119,58 +120,40 @@ const Landing = () => {
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-4">
         <div className="container mx-auto max-w-6xl">
-          <div className="text-center space-y-8">
-            <Badge variant="secondary" className="mb-4">
-              <Sparkles className="w-3 h-3 mr-1" />
-              Production-Ready AI Platform
-            </Badge>
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
-              Self-Learning AI That Gets
-              <span className="bg-gradient-to-r from-[hsl(var(--ai-gradient-start))] to-[hsl(var(--ai-gradient-end))] bg-clip-text text-transparent">
-                {" "}Smarter Every Day
-              </span>
-            </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto">
-              Autonomous evolution powered by multi-agent architecture. Watch your AI assistant learn from interactions, 
-              build knowledge graphs, and continuously optimize its own performance.
-            </p>
-            <div className="flex justify-center items-center pt-4">
-              <Button size="lg" className="text-lg px-8" onClick={() => navigate("/chat")}>
-                Try Now Free
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="text-center lg:text-left space-y-6 animate-fade-in">
+              <Badge variant="secondary" className="mb-4">
+                <Sparkles className="w-3 h-3 mr-1" />
+                Production-Ready AI Platform
+              </Badge>
+              <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
+                Self-Learning AI That Gets
+                <span className="bg-gradient-to-r from-[hsl(var(--ai-gradient-start))] to-[hsl(var(--ai-gradient-end))] bg-clip-text text-transparent">
+                  {" "}Smarter Every Day
+                </span>
+              </h1>
+              <p className="text-xl text-muted-foreground">
+                Autonomous evolution powered by multi-agent architecture. Watch your AI assistant learn from interactions, 
+                build knowledge graphs, and continuously optimize its own performance.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
+                <Button size="lg" className="text-lg px-8 hover-scale" onClick={() => navigate("/chat")}>
+                  Try Now Free
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+                {!user && (
+                  <Button size="lg" variant="outline" className="text-lg px-8" onClick={() => navigate("/auth")}>
+                    Sign In
+                  </Button>
+                )}
+              </div>
+              <p className="text-sm text-muted-foreground">
+                No signup required • 5 free messages daily
+              </p>
             </div>
-            <p className="text-sm text-muted-foreground mt-2">
-              No signup required • 5 free messages daily • Upgrade anytime
-            </p>
-            <div className="flex flex-wrap gap-4 justify-center pt-8 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-success" />
-                No credit card required
-              </div>
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-success" />
-                Deploy in minutes
-              </div>
-              <div className="flex items-center gap-2">
-                <Check className="w-4 h-4 text-success" />
-                Self-improving system
-              </div>
-            </div>
-          </div>
-
-          {/* Animated Visual Placeholder */}
-          <div className="mt-16 relative">
-            <div className="aspect-video rounded-lg border border-border bg-gradient-to-br from-primary/10 to-accent/10 relative overflow-hidden">
-              <div className="absolute inset-0 bg-grid-pattern opacity-10"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="relative w-64 h-64">
-                  <div className="absolute inset-0 rounded-full bg-primary/20 animate-pulse"></div>
-                  <div className="absolute inset-8 rounded-full bg-primary/30 animate-pulse delay-75"></div>
-                  <div className="absolute inset-16 rounded-full bg-primary/40 animate-pulse delay-150"></div>
-                  <Brain className="absolute inset-0 m-auto w-16 h-16 text-primary" />
-                </div>
-              </div>
+            
+            <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
+              <InteractiveDemo />
             </div>
           </div>
         </div>

@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { TrendingUp, Activity, Brain, Star, Network, Sparkles, BookOpen, RefreshCw } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -11,12 +12,14 @@ import { StatusCard } from "@/components/evolution/StatusCard";
 import { SettingsCard } from "@/components/evolution/SettingsCard";
 import { ExperimentsCard } from "@/components/evolution/ExperimentsCard";
 import { MemoryArchiveCard } from "@/components/evolution/MemoryArchiveCard";
+import { EmptyState } from "@/components/EmptyState";
 import type { EvolutionLog, Stats, AdaptiveBehavior, CronStatus, ABExperiment, ArchivedMemory } from "@/components/evolution/types";
 
 // Types are now imported from @/components/evolution/types
 
 export default function Evolution() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [logs, setLogs] = useState<EvolutionLog[]>([]);
   const [stats, setStats] = useState<Stats>({ totalInteractions: 0, avgRating: 0, learningRate: 0, activeCapabilities: 0 });
   const [interactionTrend, setInteractionTrend] = useState<any[]>([]);
@@ -444,11 +447,30 @@ export default function Evolution() {
         </div>
 
         {/* PHASE 3: Real-Time Status & Settings */}
-        <StatusCard cronStatus={cronStatus} />
-        <SettingsCard 
-          autoApprovalThreshold={autoApprovalThreshold}
-          onThresholdChange={updateAutoApprovalThreshold}
-        />
+        {stats.totalInteractions === 0 && experiments.length === 0 && archivedMemories.length === 0 ? (
+          <EmptyState
+            icon={TrendingUp}
+            title="Evolution Tracking Not Yet Active"
+            description="Complete 10 conversations and extract some learnings to unlock evolution insights. Your AI will analyze patterns and improve over time."
+            action={{
+              label: "Start Chatting",
+              onClick: () => navigate('/chat')
+            }}
+            mockup={
+              <div className="space-y-2">
+                <div className="h-2 w-full bg-primary/10 rounded" />
+                <div className="h-2 w-3/4 bg-primary/10 rounded" />
+                <div className="h-2 w-5/6 bg-primary/10 rounded" />
+              </div>
+            }
+          />
+        ) : (
+          <>
+            <StatusCard cronStatus={cronStatus} />
+            <SettingsCard 
+              autoApprovalThreshold={autoApprovalThreshold}
+              onThresholdChange={updateAutoApprovalThreshold}
+            />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card>
@@ -688,34 +710,36 @@ export default function Evolution() {
           onRestore={restoreMemory}
         />
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Evolution Events</CardTitle>
-            <CardDescription>Latest system improvements and learning milestones</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {logs.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                <Brain className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>No evolution events yet</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {logs.map((log) => (
-                  <div key={log.id} className="flex items-start gap-3 p-3 rounded-lg bg-card border border-border">
-                    <Badge variant="outline">{log.log_type}</Badge>
-                    <div className="flex-1">
-                      <p className="text-sm text-foreground">{log.description}</p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {new Date(log.created_at).toLocaleString()}
-                      </p>
-                    </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Evolution Events</CardTitle>
+                <CardDescription>Latest system improvements and learning milestones</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {logs.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Brain className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>No evolution events yet</p>
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                ) : (
+                  <div className="space-y-3">
+                    {logs.map((log) => (
+                      <div key={log.id} className="flex items-start gap-3 p-3 rounded-lg bg-card border border-border">
+                        <Badge variant="outline">{log.log_type}</Badge>
+                        <div className="flex-1">
+                          <p className="text-sm text-foreground">{log.description}</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {new Date(log.created_at).toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
     </div>
   );

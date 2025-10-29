@@ -563,6 +563,7 @@ export type Database = {
           default_agent: string | null
           evolution_frequency: string | null
           notifications_enabled: boolean | null
+          onboarding_progress: Json | null
           updated_at: string | null
           user_id: string
         }
@@ -573,6 +574,7 @@ export type Database = {
           default_agent?: string | null
           evolution_frequency?: string | null
           notifications_enabled?: boolean | null
+          onboarding_progress?: Json | null
           updated_at?: string | null
           user_id: string
         }
@@ -583,6 +585,7 @@ export type Database = {
           default_agent?: string | null
           evolution_frequency?: string | null
           notifications_enabled?: boolean | null
+          onboarding_progress?: Json | null
           updated_at?: string | null
           user_id?: string
         }

@@ -7,8 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Zap, Settings, Trash2 } from "lucide-react";
+import { EmptyState } from "@/components/EmptyState";
 
 type Capability = {
   id: string;
@@ -21,6 +23,7 @@ type Capability = {
 
 export default function Capabilities() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [capabilities, setCapabilities] = useState<Capability[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -165,13 +168,28 @@ export default function Capabilities() {
             <Settings className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : capabilities.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center h-64">
-              <Zap className="w-16 h-16 text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">No capabilities yet</p>
-              <p className="text-sm text-muted-foreground mt-2">Create your first capability to get started</p>
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={Zap}
+            title="Discover Your AI's Capabilities"
+            description="As you interact with your AI, it will automatically discover new capabilities based on your conversations. Check back after a few chats to see what it can do!"
+            action={{
+              label: "Start Chatting",
+              onClick: () => navigate('/chat')
+            }}
+            mockup={
+              <div className="grid grid-cols-3 gap-2">
+                <div className="h-16 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Zap className="h-6 w-6 text-primary/30" />
+                </div>
+                <div className="h-16 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Zap className="h-6 w-6 text-primary/30" />
+                </div>
+                <div className="h-16 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Zap className="h-6 w-6 text-primary/30" />
+                </div>
+              </div>
+            }
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {capabilities.map((capability) => (

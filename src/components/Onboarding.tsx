@@ -9,22 +9,12 @@ const steps = [
   {
     icon: Brain,
     title: 'Welcome to Your Self-Learning AI',
-    description: 'This AI learns from every conversation, building a personalized knowledge base tailored to you.',
+    description: 'Start chatting instantly - no signup required! Get 5 free messages daily to experience how your AI learns from you.',
   },
   {
     icon: Sparkles,
-    title: 'Extract Insights Automatically',
-    description: 'Click "Extract Learnings" after meaningful conversations to save insights, patterns, and solutions for future use.',
-  },
-  {
-    icon: TrendingUp,
-    title: 'Track Evolution Progress',
-    description: 'Visit the Evolution Dashboard to see how your AI improves over time, with metrics on learning rate and capabilities.',
-  },
-  {
-    icon: Users,
-    title: 'Specialized Agents',
-    description: 'Choose different agents for specific tasks: Reasoning for complex problems, Creative for brainstorming, or let Auto-Routing decide.',
+    title: 'Extract & Remember',
+    description: 'After meaningful conversations, click "Extract Learnings" to save insights forever. Your AI builds a personalized knowledge base.',
   },
 ];
 
