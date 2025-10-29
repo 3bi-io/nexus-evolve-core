@@ -1,12 +1,32 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Network, Brain, Zap, TrendingUp, LogOut } from "lucide-react";
+import { MessageSquare, Network, Brain, Zap, TrendingUp, LogOut, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Navigation = () => {
   const location = useLocation();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", user.id)
+        .eq("role", "super_admin")
+        .maybeSingle();
+
+      setIsAdmin(!!data);
+    };
+
+    checkAdminStatus();
+  }, [user]);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -64,6 +84,17 @@ export const Navigation = () => {
                 Evolution
               </Button>
             </Link>
+            {isAdmin && (
+              <Link to="/admin">
+                <Button
+                  variant={isActive("/admin") ? "default" : "ghost"}
+                  className="gap-2"
+                >
+                  <Shield className="w-4 h-4" />
+                  Admin
+                </Button>
+              </Link>
+            )}
           </div>
           <div className="flex items-center gap-2">
             <ThemeToggle />

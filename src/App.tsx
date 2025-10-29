@@ -15,6 +15,7 @@ import KnowledgeGraph from "./pages/KnowledgeGraph";
 import ProblemSolver from "./pages/ProblemSolver";
 import Capabilities from "./pages/Capabilities";
 import Evolution from "./pages/Evolution";
+import SuperAdmin from "./pages/SuperAdmin";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -89,6 +90,14 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <Evolution />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/admin"
+                  element={
+                    <ProtectedRoute>
+                      <SuperAdmin />
                     </ProtectedRoute>
                   }
                 />
