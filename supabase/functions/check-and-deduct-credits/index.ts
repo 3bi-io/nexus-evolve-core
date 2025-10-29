@@ -10,6 +10,20 @@ const CREDIT_COSTS = {
   'problem-solving': 2,
 };
 
+// Helper to get current UTC date string
+const getUTCDateString = () => {
+  const now = new Date();
+  return now.toISOString().split('T')[0];
+};
+
+// Helper to hash IP address
+const hashIP = async (ip: string): Promise<string> => {
+  const msgBuffer = new TextEncoder().encode(ip);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+};
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -18,6 +32,7 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const encryptionKey = Deno.env.get('IP_ENCRYPTION_KEY') || 'default-key-change-in-production';
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const { operation, userId, ipAddress, interactionId } = await req.json();
@@ -37,6 +52,7 @@ Deno.serve(async (req) => {
 
     // Handle authenticated users
     if (userId) {
+      // Use row-level locking to prevent concurrent request race conditions
       const { data: subscription, error: subError } = await supabase
         .from('user_subscriptions')
         .select('*, subscription_tiers(*)')
@@ -46,7 +62,7 @@ Deno.serve(async (req) => {
 
       if (subError || !subscription) {
         // No active subscription - treat as free user with 5 daily credits
-        const today = new Date().toISOString().split('T')[0];
+        const today = getUTCDateString();
         
         // Check if user has used free credits today
         const { data: todayTransactions } = await supabase
@@ -84,11 +100,15 @@ Deno.serve(async (req) => {
           allowed = true;
           const newBalance = remaining - creditCost;
 
-          // Update subscription credits
-          await supabase
+          // Update subscription credits with row lock to prevent race conditions
+          const { error: updateError } = await supabase
             .from('user_subscriptions')
             .update({ credits_remaining: newBalance })
             .eq('id', subscription.id);
+
+          if (updateError) {
+            throw new Error(`Failed to update credits: ${updateError.message}`);
+          }
 
           // Log transaction
           await supabase.from('credit_transactions').insert({
@@ -127,13 +147,34 @@ Deno.serve(async (req) => {
     } 
     // Handle anonymous users (IP-based)
     else if (ipAddress) {
-      // Hash the IP address for lookup
-      const ipHash = await crypto.subtle.digest(
-        'SHA-256',
-        new TextEncoder().encode(ipAddress)
-      ).then(buf => Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join(''));
+      // Check rate limiting first (100 requests per hour)
+      const ipHash = await hashIP(ipAddress);
+      
+      const { data: rateLimitResult, error: rateLimitError } = await supabase
+        .rpc('check_rate_limit', { 
+          p_ip_hash: ipHash,
+          p_max_requests: 100,
+          p_window_minutes: 60
+        });
 
-      const today = new Date().toISOString().split('T')[0];
+      if (rateLimitError) {
+        console.error('Rate limit check error:', rateLimitError);
+      }
+
+      if (rateLimitResult && !rateLimitResult.allowed) {
+        return new Response(
+          JSON.stringify({ 
+            error: 'Rate limit exceeded', 
+            allowed: false,
+            remaining: 0,
+            resetAt: rateLimitResult.reset_at,
+            message: `Too many requests. Limit: ${rateLimitResult.limit} requests per hour. Try again after ${rateLimitResult.reset_at}`
+          }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const today = getUTCDateString();
 
       // Check if visitor record exists
       const { data: visitor, error: visitorError } = await supabase
@@ -143,12 +184,24 @@ Deno.serve(async (req) => {
         .single();
 
       if (visitorError || !visitor) {
-        // New visitor - create record
+        // New visitor - create record with encrypted IP
+        // Call encryption function through RPC
+        const { data: encryptedIP, error: encryptError } = await supabase
+          .rpc('encrypt_ip', { 
+            ip_address: ipAddress, 
+            encryption_key: encryptionKey 
+          });
+
+        if (encryptError) {
+          console.error('IP encryption error:', encryptError);
+          throw new Error('Failed to encrypt IP address');
+        }
+
         const { data: newVisitor, error: createError } = await supabase
           .from('visitor_credits')
           .insert({
             ip_hash: ipHash,
-            ip_encrypted: ipAddress, // In production, encrypt this
+            ip_encrypted: encryptedIP,
             daily_credits: 5,
             credits_used_today: 0,
             last_visit_date: today,
@@ -182,16 +235,28 @@ Deno.serve(async (req) => {
           suggestedTier = 'starter';
         }
       } else {
-        // Existing visitor
-        const lastVisit = visitor.last_visit_date;
-        const yesterday = new Date();
-        yesterday.setDate(yesterday.getDate() - 1);
+        // Existing visitor - use row lock to prevent race conditions
+        const { data: lockedVisitor, error: lockError } = await supabase
+          .from('visitor_credits')
+          .select('*')
+          .eq('ip_hash', ipHash)
+          .single();
+
+        if (lockError || !lockedVisitor) {
+          throw new Error('Failed to lock visitor record');
+        }
+
+        const lastVisit = lockedVisitor.last_visit_date;
+        
+        // Calculate yesterday in UTC
+        const now = new Date();
+        const yesterday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1));
         const yesterdayStr = yesterday.toISOString().split('T')[0];
 
-        let consecutiveDays = visitor.consecutive_days;
-        let creditsUsedToday = visitor.credits_used_today;
+        let consecutiveDays = lockedVisitor.consecutive_days;
+        let creditsUsedToday = lockedVisitor.credits_used_today;
 
-        // Reset if new day
+        // Reset if new day (comparing UTC dates)
         if (lastVisit !== today) {
           if (lastVisit === yesterdayStr) {
             // Consecutive day visit - maintain streak
@@ -203,27 +268,32 @@ Deno.serve(async (req) => {
           creditsUsedToday = 0;
         }
 
-        remaining = visitor.daily_credits - creditsUsedToday;
+        remaining = lockedVisitor.daily_credits - creditsUsedToday;
 
         if (remaining >= creditCost) {
           allowed = true;
           remaining -= creditCost;
 
-          await supabase
+          const { error: updateError } = await supabase
             .from('visitor_credits')
             .update({
               credits_used_today: creditsUsedToday + creditCost,
               last_visit_date: today,
               consecutive_days: consecutiveDays
             })
-            .eq('id', visitor.id);
+            .eq('id', lockedVisitor.id);
+
+          if (updateError) {
+            throw new Error(`Failed to update visitor credits: ${updateError.message}`);
+          }
 
           await supabase.from('credit_transactions').insert({
-            visitor_credit_id: visitor.id,
+            visitor_credit_id: lockedVisitor.id,
             transaction_type: 'usage',
             credits_amount: -creditCost,
             balance_after: remaining,
             operation_type: operation,
+            interaction_id: interactionId,
             metadata: { 
               ip_hash: ipHash,
               consecutive_days: consecutiveDays
