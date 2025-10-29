@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Network, Brain, Zap, TrendingUp, LogOut, Shield } from "lucide-react";
+import { MessageSquare, Network, Brain, Zap, TrendingUp, LogOut, Shield, Trophy } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CreditBalance } from "@/components/pricing/CreditBalance";
@@ -85,6 +85,15 @@ export const Navigation = () => {
                   >
                     <TrendingUp className="w-4 h-4" />
                     Evolution
+                  </Button>
+                </Link>
+                <Link to="/achievements">
+                  <Button
+                    variant={isActive("/achievements") ? "default" : "ghost"}
+                    className="gap-2"
+                  >
+                    <Trophy className="w-4 h-4" />
+                    Achievements
                   </Button>
                 </Link>
               </>

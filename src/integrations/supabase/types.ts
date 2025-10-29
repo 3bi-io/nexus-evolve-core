@@ -53,6 +53,39 @@ export type Database = {
         }
         Relationships: []
       }
+      achievement_definitions: {
+        Row: {
+          achievement_key: string
+          category: string
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          name: string
+          target_value: number
+        }
+        Insert: {
+          achievement_key: string
+          category: string
+          created_at?: string
+          description: string
+          icon: string
+          id?: string
+          name: string
+          target_value?: number
+        }
+        Update: {
+          achievement_key?: string
+          category?: string
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          name?: string
+          target_value?: number
+        }
+        Relationships: []
+      }
       adaptive_behaviors: {
         Row: {
           active: boolean | null
@@ -555,6 +588,41 @@ export type Database = {
         }
         Relationships: []
       }
+      user_achievements: {
+        Row: {
+          achievement_key: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          progress: number
+          user_id: string
+        }
+        Insert: {
+          achievement_key: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          progress?: number
+          user_id: string
+        }
+        Update: {
+          achievement_key?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          progress?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_achievement_key_fkey"
+            columns: ["achievement_key"]
+            isOneToOne: false
+            referencedRelation: "achievement_definitions"
+            referencedColumns: ["achievement_key"]
+          },
+        ]
+      }
       user_preferences: {
         Row: {
           auto_approval_threshold: number | null
@@ -747,6 +815,18 @@ export type Database = {
       }
     }
     Functions: {
+      check_achievements: {
+        Args: {
+          p_achievement_key: string
+          p_increment?: number
+          p_user_id: string
+        }
+        Returns: {
+          achievement_description: string
+          achievement_name: string
+          achievement_unlocked: boolean
+        }[]
+      }
       check_rate_limit: {
         Args: {
           p_ip_hash: string

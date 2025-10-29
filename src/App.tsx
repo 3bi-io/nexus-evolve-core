@@ -18,6 +18,7 @@ import Evolution from "./pages/Evolution";
 import SuperAdmin from "./pages/SuperAdmin";
 import Pricing from "./pages/Pricing";
 import Account from "./pages/Account";
+import Achievements from "./pages/Achievements";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -85,6 +86,14 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <Evolution />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/achievements"
+                  element={
+                    <ProtectedRoute>
+                      <Achievements />
                     </ProtectedRoute>
                   }
                 />
