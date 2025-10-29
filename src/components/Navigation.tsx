@@ -2,6 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Network, Brain, Zap, TrendingUp, LogOut } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export const Navigation = () => {
   const location = useLocation();
@@ -60,10 +61,13 @@ export const Navigation = () => {
               </Button>
             </Link>
           </div>
-          <Button onClick={signOut} variant="ghost" className="gap-2">
-            <LogOut className="w-4 h-4" />
-            Sign Out
-          </Button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Button onClick={signOut} variant="ghost" className="gap-2">
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </Button>
+          </div>
         </div>
       </div>
     </nav>

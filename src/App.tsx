@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Onboarding } from "@/components/Onboarding";
+import { ThemeProvider } from "next-themes";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -40,61 +41,63 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <Onboarding />
-          <BrowserRouter>
-          <Routes>
-            <Route path="/auth" element={<Auth />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Index />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/knowledge-graph"
-              element={
-                <ProtectedRoute>
-                  <KnowledgeGraph />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/problem-solver"
-              element={
-                <ProtectedRoute>
-                  <ProblemSolver />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/capabilities"
-              element={
-                <ProtectedRoute>
-                  <Capabilities />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/evolution"
-              element={
-                <ProtectedRoute>
-                  <Evolution />
-                </ProtectedRoute>
-              }
-            />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <Onboarding />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/auth" element={<Auth />} />
+                <Route
+                  path="/"
+                  element={
+                    <ProtectedRoute>
+                      <Index />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/knowledge-graph"
+                  element={
+                    <ProtectedRoute>
+                      <KnowledgeGraph />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/problem-solver"
+                  element={
+                    <ProtectedRoute>
+                      <ProblemSolver />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/capabilities"
+                  element={
+                    <ProtectedRoute>
+                      <Capabilities />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/evolution"
+                  element={
+                    <ProtectedRoute>
+                      <Evolution />
+                    </ProtectedRoute>
+                  }
+                />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </TooltipProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   </ErrorBoundary>
 );
 
