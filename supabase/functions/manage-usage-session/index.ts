@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
+import { checkRateLimit, getClientIP, createRateLimitResponse } from '../_shared/rate-limit.ts';
 
 const SECONDS_PER_CREDIT = 300; // 1 credit = 300 seconds (5 minutes)
 
@@ -17,11 +18,26 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Rate limiting - 100 requests per hour per IP/user
+    const clientIP = getClientIP(req);
+    const body = await req.json();
+    const { action, userId, ipAddress, sessionId, usageSessionId, route } = body;
+    const identifier = userId || clientIP;
+    
+    const rateLimit = await checkRateLimit({
+      maxRequests: 100,
+      windowMinutes: 60,
+      identifier,
+    });
+
+    if (!rateLimit.allowed) {
+      console.warn(`Rate limit exceeded for ${identifier}`);
+      return createRateLimitResponse(rateLimit, corsHeaders);
+    }
+
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    const { action, userId, ipAddress, sessionId, usageSessionId, route } = await req.json();
 
     if (!action || (action !== 'start' && action !== 'stop' && action !== 'check')) {
       return new Response(
