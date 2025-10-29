@@ -13,6 +13,10 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import KnowledgeGraph from "./pages/KnowledgeGraph";
 import ProblemSolver from "./pages/ProblemSolver";
+import Analytics from "./pages/Analytics";
+import { CommandPalette } from "./components/onboarding/CommandPalette";
+import { KeyboardShortcutsDialog } from "./components/onboarding/KeyboardShortcutsDialog";
+import { useGlobalShortcuts } from "./hooks/useKeyboardShortcuts";
 import Capabilities from "./pages/Capabilities";
 import Evolution from "./pages/Evolution";
 import SuperAdmin from "./pages/SuperAdmin";
@@ -43,6 +47,91 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
+const AppContent = () => {
+  useGlobalShortcuts();
+  return (
+    <>
+      <CommandPalette />
+      <KeyboardShortcutsDialog />
+      <Onboarding />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/chat" element={<Index />} />
+          <Route
+            path="/knowledge-graph"
+            element={
+              <ProtectedRoute>
+                <KnowledgeGraph />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/problem-solver"
+            element={
+              <ProtectedRoute>
+                <ProblemSolver />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/capabilities"
+            element={
+              <ProtectedRoute>
+                <Capabilities />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/evolution"
+            element={
+              <ProtectedRoute>
+                <Evolution />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/achievements"
+            element={
+              <ProtectedRoute>
+                <Achievements />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/analytics"
+            element={
+              <ProtectedRoute>
+                <Analytics />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <SuperAdmin />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route
+            path="/account"
+            element={
+              <ProtectedRoute>
+                <Account />
+              </ProtectedRoute>
+            }
+          />
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </>
+  );
+};
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -51,73 +140,7 @@ const App = () => (
           <TooltipProvider>
             <Toaster />
             <Sonner />
-            <Onboarding />
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Landing />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/chat" element={<Index />} />
-                <Route
-                  path="/knowledge-graph"
-                  element={
-                    <ProtectedRoute>
-                      <KnowledgeGraph />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/problem-solver"
-                  element={
-                    <ProtectedRoute>
-                      <ProblemSolver />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/capabilities"
-                  element={
-                    <ProtectedRoute>
-                      <Capabilities />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/evolution"
-                  element={
-                    <ProtectedRoute>
-                      <Evolution />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/achievements"
-                  element={
-                    <ProtectedRoute>
-                      <Achievements />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin"
-                  element={
-                    <ProtectedRoute>
-                      <SuperAdmin />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="/pricing" element={<Pricing />} />
-                <Route
-                  path="/account"
-                  element={
-                    <ProtectedRoute>
-                      <Account />
-                    </ProtectedRoute>
-                  }
-                />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
+            <AppContent />
           </TooltipProvider>
         </AuthProvider>
       </ThemeProvider>

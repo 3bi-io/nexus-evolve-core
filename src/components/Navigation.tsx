@@ -1,11 +1,17 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Network, Brain, Zap, TrendingUp, LogOut, Shield, Trophy } from "lucide-react";
+import { MessageSquare, Network, Brain, Zap, TrendingUp, LogOut, Shield, Trophy, BarChart3, Keyboard } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CreditBalance } from "@/components/pricing/CreditBalance";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const Navigation = () => {
   const location = useLocation();
@@ -96,6 +102,16 @@ export const Navigation = () => {
                     Achievements
                   </Button>
                 </Link>
+
+                <Link to="/analytics">
+                  <Button
+                    variant={isActive("/analytics") ? "default" : "ghost"}
+                    className="gap-2"
+                  >
+                    <BarChart3 className="w-4 h-4" />
+                    Analytics
+                  </Button>
+                </Link>
               </>
             )}
             {isAdmin && (
@@ -111,6 +127,23 @@ export const Navigation = () => {
             )}
           </div>
           <div className="flex items-center gap-2">
+            <TooltipProvider delayDuration={300}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => window.dispatchEvent(new CustomEvent('show-shortcuts'))}
+                  >
+                    <Keyboard className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Keyboard shortcuts (Ctrl+/)</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            
             <CreditBalance />
             <ThemeToggle />
             {user ? (
