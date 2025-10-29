@@ -525,6 +525,83 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_rewards: {
+        Row: {
+          claimed: boolean
+          claimed_at: string | null
+          created_at: string
+          id: string
+          referral_id: string
+          reward_type: string
+          reward_value: number
+          user_id: string
+        }
+        Insert: {
+          claimed?: boolean
+          claimed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_id: string
+          reward_type: string
+          reward_value?: number
+          user_id: string
+        }
+        Update: {
+          claimed?: boolean
+          claimed_at?: string | null
+          created_at?: string
+          id?: string
+          referral_id?: string
+          reward_type?: string
+          reward_value?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_rewards_referral_id_fkey"
+            columns: ["referral_id"]
+            isOneToOne: false
+            referencedRelation: "referrals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referrals: {
+        Row: {
+          converted_at: string | null
+          created_at: string
+          id: string
+          metadata: Json | null
+          referral_code: string
+          referred_email: string
+          referred_user_id: string | null
+          referrer_id: string
+          status: string
+        }
+        Insert: {
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          referral_code: string
+          referred_email: string
+          referred_user_id?: string | null
+          referrer_id: string
+          status?: string
+        }
+        Update: {
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          referral_code?: string
+          referred_email?: string
+          referred_user_id?: string | null
+          referrer_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
       sessions: {
         Row: {
           created_at: string
@@ -739,6 +816,33 @@ export type Database = {
           },
         ]
       }
+      viral_shares: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          platform: string
+          share_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          platform: string
+          share_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          platform?: string
+          share_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       visitor_credits: {
         Row: {
           consecutive_days: number
@@ -844,6 +948,7 @@ export type Database = {
         Args: { encryption_key: string; ip_address: string }
         Returns: string
       }
+      generate_referral_code: { Args: never; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -856,6 +961,10 @@ export type Database = {
         Returns: undefined
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      process_referral_signup: {
+        Args: { p_referral_code: string; p_referred_user_id: string }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "super_admin" | "admin" | "moderator" | "user"
