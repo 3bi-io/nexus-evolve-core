@@ -105,9 +105,7 @@ serve(async (req) => {
     }
 
     // Memory decay: reduce importance of unused memories (30+ days since last retrieval)
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    
+    // Reuse thirtyDaysAgo variable already defined at line 31
     const unusedMemories = memories?.filter(m => {
       const lastRetrieved = m.last_retrieved_at ? new Date(m.last_retrieved_at) : new Date(m.created_at);
       return lastRetrieved < thirtyDaysAgo && m.importance_score > 0.2;
@@ -233,6 +231,7 @@ serve(async (req) => {
         knowledge_consolidation: {
           memories_archived: archivedCount,
           memories_boosted: frequentMemories.length,
+          memories_decayed: decayedCount,
           total_memories: memories?.length || 0
         },
         behavior_optimization: {
@@ -264,6 +263,7 @@ serve(async (req) => {
           avg_rating: (avgRating * 100 + 50).toFixed(0) + "%",
           memories_archived: archivedCount,
           memories_boosted: frequentMemories.length,
+          memories_decayed: decayedCount,
           behaviors_optimized: behaviorUpdates.length,
           experiments_completed: experimentResults.length,
           capabilities_auto_approved: autoApproved
