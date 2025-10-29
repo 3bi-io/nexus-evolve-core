@@ -129,13 +129,10 @@ const Landing = () => {
               Autonomous evolution powered by multi-agent architecture. Watch your AI assistant learn from interactions, 
               build knowledge graphs, and continuously optimize its own performance.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
+            <div className="flex justify-center items-center pt-4">
               <Button size="lg" className="text-lg px-8" onClick={() => navigate("/auth")}>
                 Start Free Trial
                 <ArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-              <Button size="lg" variant="outline" className="text-lg px-8">
-                Watch Demo
               </Button>
             </div>
             <div className="flex flex-wrap gap-4 justify-center pt-8 text-sm text-muted-foreground">
