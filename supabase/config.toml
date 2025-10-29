@@ -38,3 +38,10 @@ verify_jwt = true
 
 [functions.semantic-search]
 verify_jwt = true
+
+[functions.process-subscription-renewals]
+verify_jwt = false
+
+[functions.reset-daily-credits]
+verify_jwt = false
+
