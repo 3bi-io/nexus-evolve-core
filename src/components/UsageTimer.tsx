@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
-import { Clock, AlertTriangle } from "lucide-react";
+import { Clock, AlertTriangle, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Alert } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,20 +18,52 @@ export const UsageTimer = () => {
   const location = useLocation();
   const { toast } = useToast();
   
-  const [usageSessionId, setUsageSessionId] = useState<string | null>(null);
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [usageSessionId, setUsageSessionId] = useState<string | null>(() => {
+    // Try to recover session from sessionStorage
+    return sessionStorage.getItem('usage_session_id');
+  });
+  const [elapsedSeconds, setElapsedSeconds] = useState(() => {
+    const saved = sessionStorage.getItem('usage_elapsed_seconds');
+    return saved ? parseInt(saved, 10) : 0;
+  });
   const [remainingSeconds, setRemainingSeconds] = useState(0);
   const [isActive, setIsActive] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Only run timer on specific routes where AI is being used
   const shouldRunTimer = ['/chat', '/problem-solver', '/knowledge-graph'].includes(location.pathname);
 
-  // Start session on mount (only on relevant pages)
+  // Start or recover session on mount
   useEffect(() => {
     if (!shouldRunTimer) return;
 
-    const startSession = async () => {
+    const startOrRecoverSession = async () => {
+      // Try to recover existing session first
+      const savedSessionId = sessionStorage.getItem('usage_session_id');
+      
+      if (savedSessionId) {
+        try {
+          const { data, error } = await supabase.functions.invoke('manage-usage-session', {
+            body: { 
+              action: 'check',
+              usageSessionId: savedSessionId
+            }
+          });
+
+          if (!error && data.isActive) {
+            setUsageSessionId(savedSessionId);
+            setRemainingSeconds(data.remainingSeconds);
+            setElapsedSeconds(data.elapsedSeconds || 0);
+            setIsActive(true);
+            return;
+          }
+        } catch (error) {
+          console.log('Could not recover session, starting new one');
+        }
+      }
+
+      // Start new session if recovery failed or no saved session
       try {
         const { data, error } = await supabase.functions.invoke('manage-usage-session', {
           body: {
@@ -46,7 +79,12 @@ export const UsageTimer = () => {
           setUsageSessionId(data.sessionId);
           setRemainingSeconds(data.remainingSeconds);
           setIsActive(true);
+          setErrorMessage(null);
+          
+          // Persist session ID
+          sessionStorage.setItem('usage_session_id', data.sessionId);
         } else {
+          setErrorMessage("You've used all your available time credits. Please upgrade your plan to continue.");
           toast({
             title: "No credits available",
             description: "Please upgrade your plan to continue using the service.",
@@ -55,20 +93,25 @@ export const UsageTimer = () => {
         }
       } catch (error: any) {
         console.error('Failed to start session:', error);
+        setErrorMessage("Failed to start usage session. Please refresh the page.");
       }
     };
 
     if ((user || ipAddress) && !usageSessionId) {
-      startSession();
+      startOrRecoverSession();
     }
   }, [user, ipAddress, shouldRunTimer]);
 
-  // Update timer every second
+  // Update timer every second with persistence
   useEffect(() => {
     if (!isActive || !usageSessionId) return;
 
     const interval = setInterval(() => {
-      setElapsedSeconds(prev => prev + 1);
+      setElapsedSeconds(prev => {
+        const newElapsed = prev + 1;
+        sessionStorage.setItem('usage_elapsed_seconds', newElapsed.toString());
+        return newElapsed;
+      });
       setRemainingSeconds(prev => {
         const newRemaining = Math.max(0, prev - 1);
         
@@ -107,6 +150,10 @@ export const UsageTimer = () => {
 
       setIsActive(false);
       
+      // Clear session storage
+      sessionStorage.removeItem('usage_session_id');
+      sessionStorage.removeItem('usage_elapsed_seconds');
+      
       if (remainingSeconds === 0) {
         toast({
           title: "Session ended",
@@ -143,7 +190,25 @@ export const UsageTimer = () => {
 
   const progressPercentage = Math.min(100, (remainingSeconds / SECONDS_PER_CREDIT) * 100);
 
-  // Don't show on landing page or other non-AI pages
+  // Show error state if there's an error message
+  if (errorMessage && shouldRunTimer) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="fixed top-4 right-4 z-50"
+      >
+        <Alert variant="destructive" className="max-w-md flex items-start gap-2 p-4">
+          <AlertCircle className="h-4 w-4 mt-0.5" />
+          <div>
+            <p className="text-sm font-medium">Session Error</p>
+            <p className="text-sm text-muted-foreground mt-1">{errorMessage}</p>
+          </div>
+        </Alert>
+      </motion.div>
+    );
+  }
+
   if (!isActive || !shouldRunTimer) return null;
 
   return (

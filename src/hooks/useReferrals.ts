@@ -49,10 +49,11 @@ export function useReferrals() {
 
       setReferrals((data || []) as Referral[]);
 
-      // Calculate stats
-      const totalReferrals = data?.length || 0;
-      const pendingReferrals = data?.filter(r => r.status === 'pending').length || 0;
-      const convertedReferrals = data?.filter(r => r.status === 'converted').length || 0;
+      // Calculate stats (excluding user's own referral code)
+      const actualReferrals = data?.filter(r => r.referred_email !== user.email) || [];
+      const totalReferrals = actualReferrals.length;
+      const pendingReferrals = actualReferrals.filter(r => r.status === 'pending').length;
+      const convertedReferrals = actualReferrals.filter(r => r.status === 'converted').length;
 
       // Fetch rewards
       const { data: rewardsData, error: rewardsError } = await supabase
@@ -153,25 +154,19 @@ export function useReferrals() {
     if (!user) return;
 
     try {
-      // Check if user already has a personal referral code
+      // Fetch user's personal referral code (auto-generated on signup)
       const { data: existing, error: existingError } = await supabase
         .from('referrals')
         .select('referral_code')
         .eq('referrer_id', user.id)
-        .limit(1)
+        .eq('referred_email', user.email)
         .single();
 
       if (existing && !existingError) {
         setUserReferralCode(existing.referral_code);
-        return;
+      } else {
+        console.warn('No referral code found. This should have been auto-generated on signup.');
       }
-
-      // Generate new code if none exists
-      const { data: codeData, error: codeError } = await supabase.rpc('generate_referral_code');
-      
-      if (codeError) throw codeError;
-
-      setUserReferralCode(codeData as string);
     } catch (error) {
       console.error('Error getting referral code:', error);
     }
