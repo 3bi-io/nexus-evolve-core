@@ -28,7 +28,7 @@ interface UsageStats {
   mostUsedFeature: string;
 }
 
-export default function UsageAnalytics() {
+const UsageAnalytics = () => {
   const { user } = useAuth();
   const [creditUsage, setCreditUsage] = useState<CreditUsage[]>([]);
   const [featureUsage, setFeatureUsage] = useState<FeatureUsage[]>([]);
@@ -339,4 +339,6 @@ export default function UsageAnalytics() {
       </div>
     </PageTransition>
   );
-}
+};
+
+export default UsageAnalytics;

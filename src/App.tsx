@@ -14,7 +14,6 @@ import NotFound from "./pages/NotFound";
 import KnowledgeGraph from "./pages/KnowledgeGraph";
 import ProblemSolver from "./pages/ProblemSolver";
 import Analytics from "./pages/Analytics";
-import UsageAnalytics from "./pages/UsageAnalytics";
 import { CommandPalette } from "./components/onboarding/CommandPalette";
 import { KeyboardShortcutsDialog } from "./components/onboarding/KeyboardShortcutsDialog";
 import { useGlobalShortcuts } from "./hooks/useKeyboardShortcuts";
@@ -109,14 +108,6 @@ const RoutesWithShortcuts = () => {
             element={
               <ProtectedRoute>
                 <Analytics />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/usage-analytics"
-            element={
-              <ProtectedRoute>
-                <UsageAnalytics />
               </ProtectedRoute>
             }
           />
