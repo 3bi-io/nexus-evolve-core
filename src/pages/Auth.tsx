@@ -2,12 +2,14 @@ import { useState } from "react";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { SignUpForm } from "@/components/auth/SignUpForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageTransition } from "@/components/ui/page-transition";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+    <PageTransition>
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>{isLogin ? "Welcome back" : "Create an account"}</CardTitle>
@@ -25,7 +27,8 @@ const Auth = () => {
           )}
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </PageTransition>
   );
 };
 

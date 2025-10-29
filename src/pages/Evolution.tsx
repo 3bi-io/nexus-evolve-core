@@ -13,6 +13,7 @@ import { SettingsCard } from "@/components/evolution/SettingsCard";
 import { ExperimentsCard } from "@/components/evolution/ExperimentsCard";
 import { MemoryArchiveCard } from "@/components/evolution/MemoryArchiveCard";
 import { EmptyState } from "@/components/EmptyState";
+import { PageLayout } from "@/components/layout/PageLayout";
 import type { EvolutionLog, Stats, AdaptiveBehavior, CronStatus, ABExperiment, ArchivedMemory } from "@/components/evolution/types";
 
 // Types are now imported from @/components/evolution/types
@@ -376,7 +377,8 @@ export default function Evolution() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
+    <PageLayout transition={false}>
+      <div className="p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -741,6 +743,7 @@ export default function Evolution() {
           </>
         )}
       </div>
-    </div>
+      </div>
+    </PageLayout>
   );
 }

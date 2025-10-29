@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Navigation } from "@/components/Navigation";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -94,8 +94,7 @@ export default function SuperAdmin() {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
+      <PageLayout>
         <div className="max-w-7xl mx-auto px-6 py-8">
           <Card>
             <CardHeader>
@@ -104,13 +103,12 @@ export default function SuperAdmin() {
             </CardHeader>
           </Card>
         </div>
-      </div>
+      </PageLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <PageLayout>
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -262,6 +260,6 @@ export default function SuperAdmin() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </PageLayout>
   );
 }

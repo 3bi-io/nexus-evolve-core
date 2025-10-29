@@ -1,10 +1,10 @@
 import { ChatInterface } from "@/components/ChatInterface";
-import { Navigation } from "@/components/Navigation";
 import { OnboardingChecklist } from "@/components/onboarding/OnboardingChecklist";
 import { PersonalizedUpgradePrompt } from "@/components/conversion/PersonalizedUpgradePrompt";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEngagementTracking } from "@/hooks/useEngagementTracking";
 import { useState, useEffect } from "react";
+import { PageLayout } from "@/components/layout/PageLayout";
 
 const Index = () => {
   const { user } = useAuth();
@@ -21,8 +21,7 @@ const Index = () => {
   }, [metrics]);
   
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
+    <PageLayout transition={false}>
       <ChatInterface />
       {user && <OnboardingChecklist />}
       {showPrompt && promptTrigger && !user && (
@@ -32,7 +31,7 @@ const Index = () => {
           sessionDuration={metrics.sessionDuration}
         />
       )}
-    </div>
+    </PageLayout>
   );
 };
 
