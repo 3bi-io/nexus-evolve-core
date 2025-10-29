@@ -14,6 +14,8 @@ type ReasoningStep = {
   content: string;
 };
 
+import { PageLayout } from "@/components/layout/PageLayout";
+
 export default function ProblemSolver() {
   const [problem, setProblem] = useState("");
   const [steps, setSteps] = useState<ReasoningStep[]>([]);
@@ -76,13 +78,13 @@ export default function ProblemSolver() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-5xl mx-auto space-y-6">
+    <PageLayout title="Solver" showBottomNav={true}>
+      <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-4 md:space-y-6">
         <div className="flex items-center gap-3">
-          <Brain className="w-8 h-8 text-primary" />
+          <Brain className="w-6 h-6 md:w-8 md:h-8 text-primary" />
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Problem Solver</h1>
-            <p className="text-muted-foreground">Advanced reasoning for complex challenges</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground">Problem Solver</h1>
+            <p className="text-sm md:text-base text-muted-foreground">Advanced reasoning for complex challenges</p>
           </div>
         </div>
 
@@ -160,6 +162,6 @@ export default function ProblemSolver() {
           </Card>
         )}
       </div>
-    </div>
+    </PageLayout>
   );
 }

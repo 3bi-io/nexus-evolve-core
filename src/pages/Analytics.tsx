@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Navigation } from "@/components/Navigation";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { 
@@ -119,12 +119,11 @@ const Analytics = () => {
   const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))', 'hsl(var(--chart-4))', 'hsl(var(--chart-5))'];
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Usage Analytics</h1>
-          <p className="text-muted-foreground">
+    <PageLayout title="Analytics" showBottomNav={true}>
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-4xl font-bold mb-2">Usage Analytics</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             Track your AI interactions, learning progress, and engagement patterns
           </p>
         </div>
@@ -339,7 +338,7 @@ const Analytics = () => {
           </Card>
         )}
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

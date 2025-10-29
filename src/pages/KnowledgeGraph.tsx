@@ -149,14 +149,14 @@ export default function KnowledgeGraph() {
   }, [loadGraphData]);
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-background p-4 md:p-6">
+      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Network className="w-8 h-8 text-primary" />
+            <Network className="w-6 h-6 md:w-8 md:h-8 text-primary" />
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Knowledge Graph</h1>
-              <p className="text-muted-foreground">Visual representation of learned concepts and connections</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">Knowledge Graph</h1>
+              <p className="text-sm md:text-base text-muted-foreground">Visual representation of learned concepts and connections</p>
             </div>
           </div>
           <Button onClick={loadGraphData} disabled={isLoading} variant="outline">
@@ -165,7 +165,7 @@ export default function KnowledgeGraph() {
           </Button>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium">Knowledge Base</CardTitle>

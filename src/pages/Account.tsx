@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Navigation } from "@/components/Navigation";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -81,12 +81,11 @@ const Account = () => {
     : 0;
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Account Settings</h1>
-          <p className="text-muted-foreground">
+    <PageLayout title="Account" showBottomNav={true}>
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-6xl">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl md:text-4xl font-bold mb-2">Account Settings</h1>
+          <p className="text-sm md:text-base text-muted-foreground">
             Manage your subscription and monitor credit usage
           </p>
         </div>
@@ -234,7 +233,7 @@ const Account = () => {
           </div>
         )}
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

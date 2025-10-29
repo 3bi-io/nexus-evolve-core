@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Navigation } from '@/components/Navigation';
+import { PageLayout } from '@/components/layout/PageLayout';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Clock, TrendingUp, Zap, Award, CalendarDays } from 'lucide-react';
-import { PageTransition } from '@/components/ui/page-transition';
 import { Badge } from '@/components/ui/badge';
 
 interface CreditUsage {
@@ -142,16 +141,13 @@ const UsageAnalytics = () => {
   const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--muted))'];
 
   return (
-    <PageTransition>
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        
-        <div className="container mx-auto px-4 py-8 mt-16">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h1 className="text-4xl font-bold mb-2">Usage Analytics</h1>
-              <p className="text-muted-foreground">Track your credit usage and feature activity</p>
-            </div>
+    <PageLayout title="Usage" showBottomNav={true}>
+      <div className="container mx-auto px-4 py-6 md:py-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 md:mb-8">
+          <div>
+            <h1 className="text-2xl md:text-4xl font-bold mb-2">Usage Analytics</h1>
+            <p className="text-sm md:text-base text-muted-foreground">Track your credit usage and feature activity</p>
+          </div>
             
             <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as any)}>
               <TabsList>
@@ -336,8 +332,7 @@ const UsageAnalytics = () => {
             )}
           </Card>
         </div>
-      </div>
-    </PageTransition>
+      </PageLayout>
   );
 };
 

@@ -116,14 +116,14 @@ export default function Capabilities() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      <div className="max-w-5xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-background p-4 md:p-6">
+      <div className="max-w-5xl mx-auto space-y-4 md:space-y-6">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <Zap className="w-8 h-8 text-primary" />
+            <Zap className="w-6 h-6 md:w-8 md:h-8 text-primary" />
             <div>
-              <h1 className="text-3xl font-bold text-foreground">Capability Registry</h1>
-              <p className="text-muted-foreground">Manage dynamic features and modules</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">Capability Registry</h1>
+              <p className="text-sm md:text-base text-muted-foreground">Manage dynamic features and modules</p>
             </div>
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -191,7 +191,7 @@ export default function Capabilities() {
             }
           />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
             {capabilities.map((capability) => (
               <Card key={capability.id} className={capability.is_enabled ? "" : "opacity-60"}>
                 <CardHeader>

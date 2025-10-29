@@ -1,12 +1,11 @@
-import { Navigation } from "@/components/Navigation";
+import { PageLayout } from "@/components/layout/PageLayout";
+import { LoadingPage } from "@/components/layout/LoadingPage";
 import { ReferralCard } from "@/components/referral/ReferralCard";
 import { ShareDialog } from "@/components/referral/ShareDialog";
 import { InviteDialog } from "@/components/referral/InviteDialog";
 import { ReferralRewards } from "@/components/referral/ReferralRewards";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useReferrals } from "@/hooks/useReferrals";
-import { PageTransition } from "@/components/ui/page-transition";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Users, Gift, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -14,29 +13,20 @@ const Referrals = () => {
   const { stats, userReferralCode, referrals, loading } = useReferrals();
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navigation />
-        <main className="container mx-auto px-4 py-8">
-          <LoadingSpinner size="lg" text="Loading referrals..." />
-        </main>
-      </div>
-    );
+    return <LoadingPage cardCount={3} />;
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      <PageTransition>
-        <main className="container mx-auto px-4 py-8 space-y-8">
-          {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-4xl font-bold mb-2">Referral Program</h1>
-              <p className="text-muted-foreground">
-                Invite friends and earn rewards together
-              </p>
-            </div>
+    <PageLayout title="Referrals" showBottomNav={true}>
+      <div className="container mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl md:text-4xl font-bold mb-2">Referral Program</h1>
+            <p className="text-sm md:text-base text-muted-foreground">
+              Invite friends and earn rewards together
+            </p>
+          </div>
             <div className="flex gap-3">
               <InviteDialog />
               <ShareDialog referralCode={userReferralCode} />
@@ -164,9 +154,8 @@ const Referrals = () => {
               </CardContent>
             </Card>
           )}
-        </main>
-      </PageTransition>
-    </div>
+      </div>
+    </PageLayout>
   );
 };
 
