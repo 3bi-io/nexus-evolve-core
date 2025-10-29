@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useClientIP } from "@/hooks/useClientIP";
+import { AnimatedCreditDisplay } from "@/components/credits/AnimatedCreditDisplay";
 import {
   Tooltip,
   TooltipContent,
@@ -120,40 +121,41 @@ export const CreditBalance = () => {
   }
 
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          variant="ghost"
-          className="gap-2"
-          onClick={() => navigate("/account")}
-        >
-          <Coins className={`w-4 h-4 ${getColorClass()}`} />
-          <span className={getColorClass()}>
-            {credits.remaining}
-            {credits.tier && (
-              <span className="text-muted-foreground"> / {credits.total}</span>
-            )}
-          </span>
+    <div className="flex items-center gap-2">
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div onClick={() => navigate("/account")} className="cursor-pointer">
+            <AnimatedCreditDisplay credits={credits.remaining} />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="font-semibold">
+            {credits.remaining} credits remaining
+          </p>
+          {!credits.tier && (
+            <p className="text-xs text-muted-foreground">
+              Free tier: 5 daily credits
+            </p>
+          )}
           {credits.tier && (
-            <Badge variant="secondary" className="ml-1 capitalize">
+            <Badge variant="secondary" className="mt-1 capitalize">
               {credits.tier}
             </Badge>
           )}
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p className="font-semibold">
-          {credits.remaining} credits remaining
-        </p>
-        {!credits.tier && (
-          <p className="text-xs text-muted-foreground">
-            Free tier: 5 daily credits
+          <p className="text-xs text-muted-foreground mt-1">
+            Click to view usage history
           </p>
-        )}
-        <p className="text-xs text-muted-foreground mt-1">
-          Click to view usage history
-        </p>
-      </TooltipContent>
-    </Tooltip>
+        </TooltipContent>
+      </Tooltip>
+      {(credits.remaining <= 5 || !user) && (
+        <Button 
+          size="sm" 
+          variant={user ? "default" : "outline"}
+          onClick={() => navigate(user ? '/pricing' : '/auth')}
+        >
+          {user ? 'Upgrade' : 'Sign Up Free'}
+        </Button>
+      )}
+    </div>
   );
 };

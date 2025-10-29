@@ -19,6 +19,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { InteractiveDemo } from "@/components/landing/InteractiveDemo";
+import { TrustSignals } from "@/components/landing/TrustSignals";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -225,12 +226,15 @@ const Landing = () => {
       <section className="py-20 px-4 bg-muted/30">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-4">Built for Production</h2>
+            <h2 className="text-4xl font-bold mb-4">Trusted by Thousands</h2>
             <p className="text-xl text-muted-foreground">
-              Enterprise-grade technology stack with security at its core
+              Join a growing community of users building with AI
             </p>
           </div>
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          
+          <TrustSignals />
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mt-12">
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-start gap-4">
