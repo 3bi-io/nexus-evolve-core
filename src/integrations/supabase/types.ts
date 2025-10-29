@@ -184,6 +184,54 @@ export type Database = {
           },
         ]
       }
+      available_models: {
+        Row: {
+          capabilities: string[] | null
+          cost_per_1k_tokens: number | null
+          created_at: string
+          id: string
+          is_available: boolean | null
+          max_tokens: number | null
+          metadata: Json | null
+          model_id: string
+          model_name: string
+          priority: number | null
+          provider: string
+          supports_streaming: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          capabilities?: string[] | null
+          cost_per_1k_tokens?: number | null
+          created_at?: string
+          id?: string
+          is_available?: boolean | null
+          max_tokens?: number | null
+          metadata?: Json | null
+          model_id: string
+          model_name: string
+          priority?: number | null
+          provider: string
+          supports_streaming?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          capabilities?: string[] | null
+          cost_per_1k_tokens?: number | null
+          created_at?: string
+          id?: string
+          is_available?: boolean | null
+          max_tokens?: number | null
+          metadata?: Json | null
+          model_id?: string
+          model_name?: string
+          priority?: number | null
+          provider?: string
+          supports_streaming?: boolean | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       capability_modules: {
         Row: {
           capability_name: string
@@ -462,6 +510,102 @@ export type Database = {
         }
         Relationships: []
       }
+      model_performance: {
+        Row: {
+          avg_cost_credits: number | null
+          avg_latency_ms: number | null
+          created_at: string
+          id: string
+          last_used_at: string | null
+          metadata: Json | null
+          model_name: string
+          success_rate: number | null
+          task_type: string
+          total_uses: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avg_cost_credits?: number | null
+          avg_latency_ms?: number | null
+          created_at?: string
+          id?: string
+          last_used_at?: string | null
+          metadata?: Json | null
+          model_name: string
+          success_rate?: number | null
+          task_type: string
+          total_uses?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avg_cost_credits?: number | null
+          avg_latency_ms?: number | null
+          created_at?: string
+          id?: string
+          last_used_at?: string | null
+          metadata?: Json | null
+          model_name?: string
+          success_rate?: number | null
+          task_type?: string
+          total_uses?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      model_routing_log: {
+        Row: {
+          actual_cost_credits: number | null
+          actual_latency_ms: number | null
+          confidence_score: number | null
+          created_at: string
+          ensemble_mode: boolean | null
+          ensemble_models: string[] | null
+          id: string
+          interaction_id: string | null
+          routing_reason: string | null
+          selected_model: string
+          task_complexity: number | null
+          task_type: string
+          user_id: string
+          user_satisfaction: number | null
+        }
+        Insert: {
+          actual_cost_credits?: number | null
+          actual_latency_ms?: number | null
+          confidence_score?: number | null
+          created_at?: string
+          ensemble_mode?: boolean | null
+          ensemble_models?: string[] | null
+          id?: string
+          interaction_id?: string | null
+          routing_reason?: string | null
+          selected_model: string
+          task_complexity?: number | null
+          task_type: string
+          user_id: string
+          user_satisfaction?: number | null
+        }
+        Update: {
+          actual_cost_credits?: number | null
+          actual_latency_ms?: number | null
+          confidence_score?: number | null
+          created_at?: string
+          ensemble_mode?: boolean | null
+          ensemble_models?: string[] | null
+          id?: string
+          interaction_id?: string | null
+          routing_reason?: string | null
+          selected_model?: string
+          task_complexity?: number | null
+          task_type?: string
+          user_id?: string
+          user_satisfaction?: number | null
+        }
+        Relationships: []
+      }
       problem_solutions: {
         Row: {
           created_at: string
@@ -629,6 +773,45 @@ export type Database = {
         }
         Relationships: []
       }
+      social_intelligence: {
+        Row: {
+          created_at: string
+          data: Json
+          expires_at: string
+          id: string
+          intelligence_type: string
+          metadata: Json | null
+          score: number | null
+          source: string | null
+          topic: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          expires_at?: string
+          id?: string
+          intelligence_type: string
+          metadata?: Json | null
+          score?: number | null
+          source?: string | null
+          topic: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          expires_at?: string
+          id?: string
+          intelligence_type?: string
+          metadata?: Json | null
+          score?: number | null
+          source?: string | null
+          topic?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscription_tiers: {
         Row: {
           active: boolean
@@ -662,6 +845,51 @@ export type Database = {
           sort_order?: number
           tier_name?: string
           yearly_price?: number
+        }
+        Relationships: []
+      }
+      trend_predictions: {
+        Row: {
+          actual_data: Json | null
+          confidence_score: number | null
+          created_at: string
+          id: string
+          predicted_data: Json
+          prediction_date: string
+          prediction_type: string
+          target_date: string
+          topic: string
+          user_id: string
+          verified: boolean | null
+          verified_at: string | null
+        }
+        Insert: {
+          actual_data?: Json | null
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          predicted_data?: Json
+          prediction_date?: string
+          prediction_type: string
+          target_date: string
+          topic: string
+          user_id: string
+          verified?: boolean | null
+          verified_at?: string | null
+        }
+        Update: {
+          actual_data?: Json | null
+          confidence_score?: number | null
+          created_at?: string
+          id?: string
+          predicted_data?: Json
+          prediction_date?: string
+          prediction_type?: string
+          target_date?: string
+          topic?: string
+          user_id?: string
+          verified?: boolean | null
+          verified_at?: string | null
         }
         Relationships: []
       }
@@ -858,6 +1086,48 @@ export type Database = {
           },
         ]
       }
+      viral_content: {
+        Row: {
+          content: string
+          content_type: string
+          created_at: string
+          generated_by: string | null
+          id: string
+          metadata: Json | null
+          performance_metrics: Json | null
+          platform: string
+          shared: boolean | null
+          shared_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          content_type: string
+          created_at?: string
+          generated_by?: string | null
+          id?: string
+          metadata?: Json | null
+          performance_metrics?: Json | null
+          platform: string
+          shared?: boolean | null
+          shared_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          content_type?: string
+          created_at?: string
+          generated_by?: string | null
+          id?: string
+          metadata?: Json | null
+          performance_metrics?: Json | null
+          platform?: string
+          shared?: boolean | null
+          shared_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       viral_shares: {
         Row: {
           created_at: string
@@ -1006,6 +1276,17 @@ export type Database = {
       process_referral_signup: {
         Args: { p_referral_code: string; p_referred_user_id: string }
         Returns: Json
+      }
+      update_model_performance: {
+        Args: {
+          p_cost_credits: number
+          p_latency_ms: number
+          p_model_name: string
+          p_success: boolean
+          p_task_type: string
+          p_user_id: string
+        }
+        Returns: undefined
       }
     }
     Enums: {

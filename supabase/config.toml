@@ -1,5 +1,11 @@
 project_id = "coobieessxvnujkkiadc"
 
+[functions.grok-reality-agent]
+verify_jwt = true
+
+[functions.meta-router-agent]
+verify_jwt = true
+
 [functions.check-and-deduct-credits]
 verify_jwt = false
 

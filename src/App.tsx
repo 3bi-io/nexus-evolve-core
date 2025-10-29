@@ -28,6 +28,7 @@ import Pricing from "./pages/Pricing";
 import Account from "./pages/Account";
 import Achievements from "./pages/Achievements";
 import Referrals from "./pages/Referrals";
+import SocialIntelligence from "./pages/SocialIntelligence";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -133,6 +134,14 @@ const RoutesWithShortcuts = () => {
             element={
               <ProtectedRoute>
                 <Referrals />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/social-intelligence"
+            element={
+              <ProtectedRoute>
+                <SocialIntelligence />
               </ProtectedRoute>
             }
           />
