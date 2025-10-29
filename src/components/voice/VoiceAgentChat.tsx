@@ -150,7 +150,7 @@ export function VoiceAgentChat({ agentId }: VoiceAgentChatProps) {
       console.error("Voice agent error:", error);
       toast({
         title: "Error",
-        description: error.message,
+        description: typeof error === 'string' ? error : 'An error occurred',
         variant: "destructive",
       });
     },
@@ -172,7 +172,7 @@ export function VoiceAgentChat({ agentId }: VoiceAgentChatProps) {
 
       // Start conversation
       const convId = await conversation.startSession({ 
-        url: data.signedUrl 
+        signedUrl: data.signedUrl 
       });
 
       setConversationId(convId);
