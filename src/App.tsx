@@ -57,7 +57,9 @@ const RoutesWithShortcuts = () => {
   useReferralProcessor(); // Process referral codes after signup
   useReferralConversion(); // Track conversion after 3+ interactions
   return (
-    <Routes>
+    <>
+      <UsageTimer />
+      <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/chat" element={<Index />} />
@@ -137,6 +139,7 @@ const RoutesWithShortcuts = () => {
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+      </>
   );
 };
 
@@ -145,7 +148,6 @@ const AppContent = () => {
     <>
       <Onboarding />
       <SelfLearningBadge />
-      <UsageTimer />
       <BrowserRouter>
         <CommandPalette />
         <KeyboardShortcutsDialog />
