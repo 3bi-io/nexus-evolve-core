@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Network, Brain, Zap, TrendingUp, LogOut, Shield, Trophy, BarChart3, Keyboard, Sparkles } from "lucide-react";
+import { MessageSquare, Network, Brain, Zap, TrendingUp, LogOut, Shield, Trophy, BarChart3, Keyboard, Sparkles, Store } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CreditBalance } from "@/components/pricing/CreditBalance";
@@ -119,6 +119,24 @@ export const Navigation = () => {
                   >
                     <Sparkles className="w-4 h-4" />
                     Social
+                  </Button>
+                </Link>
+                <Link to="/agent-studio">
+                  <Button
+                    variant={isActive("/agent-studio") ? "default" : "ghost"}
+                    className="gap-2"
+                  >
+                    <Brain className="w-4 h-4" />
+                    Studio
+                  </Button>
+                </Link>
+                <Link to="/agent-marketplace">
+                  <Button
+                    variant={isActive("/agent-marketplace") ? "default" : "ghost"}
+                    className="gap-2"
+                  >
+                    <Store className="w-4 h-4" />
+                    Market
                   </Button>
                 </Link>
               </>

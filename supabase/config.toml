@@ -6,6 +6,9 @@ verify_jwt = true
 [functions.meta-router-agent]
 verify_jwt = true
 
+[functions.custom-agent-executor]
+verify_jwt = true
+
 [functions.check-and-deduct-credits]
 verify_jwt = false
 

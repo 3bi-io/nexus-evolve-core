@@ -29,6 +29,8 @@ import Account from "./pages/Account";
 import Achievements from "./pages/Achievements";
 import Referrals from "./pages/Referrals";
 import SocialIntelligence from "./pages/SocialIntelligence";
+import AgentStudio from "./pages/AgentStudio";
+import AgentMarketplace from "./pages/AgentMarketplace";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -142,6 +144,22 @@ const RoutesWithShortcuts = () => {
             element={
               <ProtectedRoute>
                 <SocialIntelligence />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/agent-studio"
+            element={
+              <ProtectedRoute>
+                <AgentStudio />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/agent-marketplace"
+            element={
+              <ProtectedRoute>
+                <AgentMarketplace />
               </ProtectedRoute>
             }
           />
