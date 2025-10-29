@@ -103,13 +103,15 @@ const Landing = () => {
             <span className="font-bold text-xl">Self-Learning AI</span>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" onClick={() => navigate("/pricing")}>
-              Pricing
-            </Button>
-            <Button variant="ghost" onClick={() => navigate("/auth")}>
-              Sign In
-            </Button>
-            <Button onClick={() => navigate("/auth")}>Get Started</Button>
+            {user ? (
+              <Button onClick={() => navigate('/chat')}>Go to Dashboard</Button>
+            ) : (
+              <>
+                <Button onClick={() => navigate('/chat')}>Try Free</Button>
+                <Button onClick={() => navigate('/auth')} variant="ghost">Sign In</Button>
+                <Button onClick={() => navigate('/pricing')} variant="outline">Pricing</Button>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -133,11 +135,14 @@ const Landing = () => {
               build knowledge graphs, and continuously optimize its own performance.
             </p>
             <div className="flex justify-center items-center pt-4">
-              <Button size="lg" className="text-lg px-8" onClick={() => navigate("/auth")}>
-                Start Free Trial
+              <Button size="lg" className="text-lg px-8" onClick={() => navigate("/chat")}>
+                Try Now Free
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </div>
+            <p className="text-sm text-muted-foreground mt-2">
+              No signup required • 5 free messages daily • Upgrade anytime
+            </p>
             <div className="flex flex-wrap gap-4 justify-center pt-8 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Check className="w-4 h-4 text-success" />

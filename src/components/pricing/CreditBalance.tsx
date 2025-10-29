@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useClientIP } from "@/hooks/useClientIP";
 import {
   Tooltip,
   TooltipContent,
@@ -20,6 +21,7 @@ interface CreditBalanceData {
 export const CreditBalance = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { ipAddress } = useClientIP();
   const [credits, setCredits] = useState<CreditBalanceData>({
     remaining: 5,
     total: 5,
@@ -29,9 +31,36 @@ export const CreditBalance = () => {
 
   useEffect(() => {
     fetchCredits();
-  }, [user]);
+  }, [user, ipAddress]);
 
   const fetchCredits = async () => {
+    // Handle anonymous users with IP-based credits
+    if (!user && ipAddress) {
+      try {
+        const response = await supabase.functions.invoke('check-and-deduct-credits', {
+          body: { 
+            operation: 'check', 
+            ipAddress,
+            userId: null 
+          }
+        });
+        
+        if (response.data) {
+          setCredits({
+            remaining: response.data.remaining || 5,
+            total: 5,
+            tier: 'Visitor'
+          });
+        }
+      } catch (error) {
+        console.error('Failed to fetch visitor credits:', error);
+        setCredits({ remaining: 5, total: 5, tier: 'Visitor' });
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
     if (!user) {
       setLoading(false);
       return;

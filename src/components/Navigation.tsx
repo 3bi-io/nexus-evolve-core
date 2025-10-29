@@ -49,42 +49,46 @@ export const Navigation = () => {
                 Chat
               </Button>
             </Link>
-            <Link to="/knowledge-graph">
-              <Button
-                variant={isActive("/knowledge-graph") ? "default" : "ghost"}
-                className="gap-2"
-              >
-                <Network className="w-4 h-4" />
-                Knowledge
-              </Button>
-            </Link>
-            <Link to="/problem-solver">
-              <Button
-                variant={isActive("/problem-solver") ? "default" : "ghost"}
-                className="gap-2"
-              >
-                <Brain className="w-4 h-4" />
-                Solver
-              </Button>
-            </Link>
-            <Link to="/capabilities">
-              <Button
-                variant={isActive("/capabilities") ? "default" : "ghost"}
-                className="gap-2"
-              >
-                <Zap className="w-4 h-4" />
-                Capabilities
-              </Button>
-            </Link>
-            <Link to="/evolution">
-              <Button
-                variant={isActive("/evolution") ? "default" : "ghost"}
-                className="gap-2"
-              >
-                <TrendingUp className="w-4 h-4" />
-                Evolution
-              </Button>
-            </Link>
+            {user && (
+              <>
+                <Link to="/knowledge-graph">
+                  <Button
+                    variant={isActive("/knowledge-graph") ? "default" : "ghost"}
+                    className="gap-2"
+                  >
+                    <Network className="w-4 h-4" />
+                    Knowledge
+                  </Button>
+                </Link>
+                <Link to="/problem-solver">
+                  <Button
+                    variant={isActive("/problem-solver") ? "default" : "ghost"}
+                    className="gap-2"
+                  >
+                    <Brain className="w-4 h-4" />
+                    Solver
+                  </Button>
+                </Link>
+                <Link to="/capabilities">
+                  <Button
+                    variant={isActive("/capabilities") ? "default" : "ghost"}
+                    className="gap-2"
+                  >
+                    <Zap className="w-4 h-4" />
+                    Capabilities
+                  </Button>
+                </Link>
+                <Link to="/evolution">
+                  <Button
+                    variant={isActive("/evolution") ? "default" : "ghost"}
+                    className="gap-2"
+                  >
+                    <TrendingUp className="w-4 h-4" />
+                    Evolution
+                  </Button>
+                </Link>
+              </>
+            )}
             {isAdmin && (
               <Link to="/admin">
                 <Button
@@ -100,10 +104,18 @@ export const Navigation = () => {
           <div className="flex items-center gap-2">
             <CreditBalance />
             <ThemeToggle />
-            <Button onClick={signOut} variant="ghost" className="gap-2">
-              <LogOut className="w-4 h-4" />
-              Sign Out
-            </Button>
+            {user ? (
+              <Button onClick={signOut} variant="ghost" className="gap-2">
+                <LogOut className="w-4 h-4" />
+                Sign Out
+              </Button>
+            ) : (
+              <Link to="/auth">
+                <Button variant="default" className="gap-2">
+                  Sign Up Free
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </div>

@@ -68,11 +68,9 @@ export const PricingCards = () => {
   const { user } = useAuth();
 
   const handleSelectPlan = (tierName: string) => {
-    if (!user) {
-      navigate("/auth");
-      return;
-    }
-    navigate("/pricing", { state: { selectedTier: tierName, isYearly } });
+    // Allow both authenticated and anonymous users to proceed to checkout
+    // Stripe will collect email during checkout for anonymous users
+    navigate('/pricing', { state: { selectedTier: tierName, isYearly } });
   };
 
   const calculateSavings = (monthly: number, yearly: number) => {

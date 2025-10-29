@@ -55,14 +55,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route
-                  path="/chat"
-                  element={
-                    <ProtectedRoute>
-                      <Index />
-                    </ProtectedRoute>
-                  }
-                />
+                <Route path="/chat" element={<Index />} />
                 <Route
                   path="/knowledge-graph"
                   element={

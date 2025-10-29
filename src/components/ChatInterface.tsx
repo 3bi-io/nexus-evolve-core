@@ -12,7 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { SessionSidebar } from "./SessionSidebar";
 import { AgentSelector } from "./AgentSelector";
 import { UpgradePrompt } from "./pricing/UpgradePrompt";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useClientIP } from "@/hooks/useClientIP";
 
 type Message = {
   role: "user" | "assistant";
@@ -23,6 +24,8 @@ type Message = {
 
 export const ChatInterface = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const { ipAddress } = useClientIP();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -46,6 +49,11 @@ export const ChatInterface = () => {
   useEffect(() => {
     if (user) {
       createNewSession();
+    } else {
+      // Anonymous users: create a pseudo-session ID from localStorage
+      const anonSessionId = localStorage.getItem('anon_session_id') || crypto.randomUUID();
+      localStorage.setItem('anon_session_id', anonSessionId);
+      setSessionId(anonSessionId);
     }
   }, [user]);
 
@@ -127,6 +135,35 @@ export const ChatInterface = () => {
   const sendMessage = async () => {
     if (!input.trim() || isLoading || !sessionId) return;
 
+    // Check credits before sending
+    try {
+      const { data: creditCheck } = await supabase.functions.invoke('check-and-deduct-credits', {
+        body: {
+          operation: 'chat',
+          userId: user?.id || null,
+          ipAddress: ipAddress || 'unknown',
+          interactionId: crypto.randomUUID()
+        }
+      });
+
+      if (!creditCheck?.allowed) {
+        setCurrentCredits(creditCheck?.remaining || 0);
+        setSuggestedTier(creditCheck?.suggestedTier);
+        setUpgradePromptOpen(true);
+        return;
+      }
+
+      setCurrentCredits(creditCheck?.remaining || 0);
+    } catch (error) {
+      console.error('Credit check failed:', error);
+      toast({
+        title: "Error checking credits",
+        description: "Please try again",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const userMessage: Message = { role: "user", content: input };
     const isFirstMessage = messages.length === 0;
     
@@ -134,7 +171,7 @@ export const ChatInterface = () => {
     setInput("");
     setIsLoading(true);
 
-    if (isFirstMessage) {
+    if (isFirstMessage && user) {
       await updateSessionTitle(input);
     }
 
@@ -297,11 +334,13 @@ export const ChatInterface = () => {
 
   return (
     <div className="flex" style={{ height: 'calc(100vh - 57px)' }}>
-      <SessionSidebar
-        currentSessionId={sessionId}
-        onSessionSelect={loadSession}
-        onNewSession={createNewSession}
-      />
+      {user && (
+        <SessionSidebar
+          currentSessionId={sessionId}
+          onSessionSelect={loadSession}
+          onNewSession={createNewSession}
+        />
+      )}
       <div className="flex flex-col flex-1 max-w-4xl mx-auto w-full p-4">
         <div className="flex items-center justify-between gap-3 pb-4 border-b border-border">
           <div className="flex items-center gap-3">
@@ -339,7 +378,7 @@ export const ChatInterface = () => {
                 </Button>
               </Link>
             )}
-            {messages.length >= 4 && (
+            {user && messages.length >= 4 && (
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -350,10 +389,16 @@ export const ChatInterface = () => {
                 {isExtracting ? "Extracting..." : "Extract Learnings"}
               </Button>
             )}
-            <Button variant="ghost" size="sm" onClick={signOut}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
-            </Button>
+            {user ? (
+              <Button variant="ghost" size="sm" onClick={signOut}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </Button>
+            ) : (
+              <Button variant="default" size="sm" onClick={() => navigate('/auth')}>
+                Sign Up Free
+              </Button>
+            )}
           </div>
         </div>
 
@@ -363,7 +408,10 @@ export const ChatInterface = () => {
               <Brain className="w-16 h-16 text-primary mb-4" />
               <h2 className="text-xl font-semibold mb-2">Start a Conversation</h2>
               <p className="text-muted-foreground max-w-md">
-                Ask me anything and I'll provide thoughtful responses while learning from our interaction.
+                {user 
+                  ? "Ask me anything and I'll provide thoughtful responses while learning from our interaction."
+                  : "Try 5 free messages daily. Sign up to unlock advanced features and more credits!"
+                }
               </p>
             </div>
           ) : (
