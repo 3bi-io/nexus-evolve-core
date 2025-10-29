@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { MessageSquare, Network, Brain, Zap, TrendingUp, LogOut, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { CreditBalance } from "@/components/pricing/CreditBalance";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -97,6 +98,7 @@ export const Navigation = () => {
             )}
           </div>
           <div className="flex items-center gap-2">
+            <CreditBalance />
             <ThemeToggle />
             <Button onClick={signOut} variant="ghost" className="gap-2">
               <LogOut className="w-4 h-4" />

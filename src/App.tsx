@@ -16,6 +16,8 @@ import ProblemSolver from "./pages/ProblemSolver";
 import Capabilities from "./pages/Capabilities";
 import Evolution from "./pages/Evolution";
 import SuperAdmin from "./pages/SuperAdmin";
+import Pricing from "./pages/Pricing";
+import Account from "./pages/Account";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -98,6 +100,15 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <SuperAdmin />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route
+                  path="/account"
+                  element={
+                    <ProtectedRoute>
+                      <Account />
                     </ProtectedRoute>
                   }
                 />

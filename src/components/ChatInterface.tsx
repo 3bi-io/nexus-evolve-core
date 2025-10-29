@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { SessionSidebar } from "./SessionSidebar";
 import { AgentSelector } from "./AgentSelector";
+import { UpgradePrompt } from "./pricing/UpgradePrompt";
 import { Link } from "react-router-dom";
 
 type Message = {
@@ -31,6 +32,9 @@ export const ChatInterface = () => {
   const [selectedAgent, setSelectedAgent] = useState("auto");
   const [memoryModalOpen, setMemoryModalOpen] = useState(false);
   const [recentMemories, setRecentMemories] = useState<any[]>([]);
+  const [upgradePromptOpen, setUpgradePromptOpen] = useState(false);
+  const [currentCredits, setCurrentCredits] = useState(5);
+  const [suggestedTier, setSuggestedTier] = useState<string | undefined>();
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -470,6 +474,14 @@ export const ChatInterface = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Upgrade Prompt */}
+      <UpgradePrompt
+        open={upgradePromptOpen}
+        onOpenChange={setUpgradePromptOpen}
+        currentCredits={currentCredits}
+        suggestedTier={suggestedTier}
+      />
     </div>
   );
 };

@@ -103,6 +103,9 @@ const Landing = () => {
             <span className="font-bold text-xl">Self-Learning AI</span>
           </div>
           <div className="flex items-center gap-4">
+            <Button variant="ghost" onClick={() => navigate("/pricing")}>
+              Pricing
+            </Button>
             <Button variant="ghost" onClick={() => navigate("/auth")}>
               Sign In
             </Button>
@@ -276,6 +279,58 @@ const Landing = () => {
                 </div>
               </CardContent>
             </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing Preview */}
+      <section className="py-20 px-4">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">Simple, Transparent Pricing</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Start free with 5 daily credits. Upgrade anytime for more power.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            <Card>
+              <CardContent className="pt-6 space-y-4">
+                <h3 className="text-2xl font-bold">Free</h3>
+                <div className="text-4xl font-bold">$0</div>
+                <p className="text-muted-foreground">5 daily credits</p>
+                <Button variant="outline" className="w-full" onClick={() => navigate("/auth")}>
+                  Get Started
+                </Button>
+              </CardContent>
+            </Card>
+            <Card className="border-primary shadow-lg">
+              <CardContent className="pt-6 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-2xl font-bold">Professional</h3>
+                  <Badge>Popular</Badge>
+                </div>
+                <div className="text-4xl font-bold">$149</div>
+                <p className="text-muted-foreground">2,000 credits/month</p>
+                <Button className="w-full" onClick={() => navigate("/pricing")}>
+                  Subscribe Now
+                </Button>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6 space-y-4">
+                <h3 className="text-2xl font-bold">Enterprise</h3>
+                <div className="text-4xl font-bold">$999</div>
+                <p className="text-muted-foreground">Unlimited credits</p>
+                <Button variant="outline" className="w-full" onClick={() => navigate("/pricing")}>
+                  Contact Sales
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="text-center mt-8">
+            <Button variant="link" onClick={() => navigate("/pricing")}>
+              View detailed pricing comparison →
+            </Button>
           </div>
         </div>
       </section>
