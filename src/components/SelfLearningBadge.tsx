@@ -15,7 +15,7 @@ export const SelfLearningBadge = () => {
         className="px-3 py-2 gap-2 bg-primary/10 border-primary/20 backdrop-blur-sm shadow-lg hover:bg-primary/20 transition-colors"
       >
         <Brain className="h-4 w-4 text-primary animate-pulse" />
-        <span className="text-sm font-medium">Self-Learning AI</span>
+        <span className="text-sm font-medium">Oneiros.me</span>
       </Badge>
     </motion.div>
   );

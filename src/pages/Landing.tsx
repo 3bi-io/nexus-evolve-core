@@ -104,7 +104,7 @@ const Landing = () => {
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Brain className="w-8 h-8 text-primary" />
-            <span className="font-bold text-xl">Self-Learning AI</span>
+            <span className="font-bold text-xl">Oneiros.me</span>
           </div>
           <div className="flex items-center gap-4">
             {user ? (
@@ -130,14 +130,14 @@ const Landing = () => {
                 Production-Ready AI Platform
               </Badge>
               <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
-                Self-Learning AI That Gets
+                Dream-Powered AI That
                 <span className="bg-gradient-to-r from-[hsl(var(--ai-gradient-start))] to-[hsl(var(--ai-gradient-end))] bg-clip-text text-transparent">
-                  {" "}Smarter Every Day
+                  {" "}Evolves With You
                 </span>
               </h1>
               <p className="text-xl text-muted-foreground">
-                Autonomous evolution powered by multi-agent architecture. Watch your AI assistant learn from interactions, 
-                build knowledge graphs, and continuously optimize its own performance.
+                Autonomous evolution powered by multi-agent architecture. Your AI assistant learns from every interaction, 
+                builds knowledge graphs, and continuously optimizes its performance through your dreams.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
                 <Button size="lg" className="text-lg px-8 hover-scale" onClick={() => navigate("/chat")}>
@@ -336,7 +336,7 @@ const Landing = () => {
             <CardContent className="pt-12 pb-12 text-center space-y-6">
               <h2 className="text-4xl font-bold">Ready to Get Started?</h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Join the future of self-learning AI. Start building with autonomous evolution today.
+                Join the future of dream-powered AI. Start building with autonomous evolution today.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
                 <Button size="lg" className="text-lg px-8" onClick={() => navigate("/auth")}>
@@ -364,7 +364,7 @@ const Landing = () => {
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <div className="flex items-center gap-2">
               <Brain className="w-6 h-6 text-primary" />
-              <span className="font-semibold">Self-Learning AI</span>
+              <span className="font-semibold">Oneiros.me</span>
             </div>
             <div className="flex gap-6 text-sm text-muted-foreground">
               <button className="hover:text-foreground transition-colors">Documentation</button>
@@ -372,7 +372,7 @@ const Landing = () => {
               <button className="hover:text-foreground transition-colors">Terms</button>
             </div>
             <p className="text-sm text-muted-foreground">
-              © 2025 Self-Learning AI. All rights reserved.
+              © 2025 Oneiros.me. All rights reserved.
             </p>
           </div>
         </div>

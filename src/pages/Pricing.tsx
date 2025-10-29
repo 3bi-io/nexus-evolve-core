@@ -62,7 +62,7 @@ const Pricing = () => {
           </Button>
           <div className="flex items-center gap-2">
             <Brain className="w-8 h-8 text-primary" />
-            <span className="font-bold text-xl">Self-Learning AI</span>
+            <span className="font-bold text-xl">Oneiros.me</span>
           </div>
           <div className="w-20" /> {/* Spacer for center alignment */}
         </div>

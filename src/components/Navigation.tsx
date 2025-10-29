@@ -44,7 +44,7 @@ export const Navigation = () => {
           <div className="flex items-center gap-6">
             <Link to="/chat" className="flex items-center gap-2 mr-4">
               <Brain className="w-6 h-6 text-primary" />
-              <span className="font-semibold text-lg hidden sm:inline">Self-Learning AI</span>
+              <span className="font-semibold text-lg hidden sm:inline">Oneiros.me</span>
             </Link>
             <Link to="/chat">
               <Button

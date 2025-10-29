@@ -8,8 +8,8 @@ const ONBOARDING_KEY = 'hasCompletedOnboarding';
 const steps = [
   {
     icon: Brain,
-    title: 'Welcome to Your Self-Learning AI',
-    description: 'Sign up to get 500 free credits—that\'s 41+ hours of usage time! Your AI learns from every conversation and evolves autonomously.',
+    title: 'Welcome to Oneiros',
+    description: 'Sign up to get 500 free credits—that\'s 41+ hours of usage time! Your AI learns from every conversation and evolves with your dreams.',
   },
   {
     icon: Sparkles,
