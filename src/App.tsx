@@ -19,6 +19,7 @@ import { KeyboardShortcutsDialog } from "./components/onboarding/KeyboardShortcu
 import { useGlobalShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useReferralProcessor } from "./hooks/useReferralProcessor";
 import { useReferralConversion } from "./hooks/useReferralConversion";
+import { SelfLearningBadge } from "./components/SelfLearningBadge";
 import Capabilities from "./pages/Capabilities";
 import Evolution from "./pages/Evolution";
 import SuperAdmin from "./pages/SuperAdmin";
@@ -142,6 +143,7 @@ const AppContent = () => {
   return (
     <>
       <Onboarding />
+      <SelfLearningBadge />
       <BrowserRouter>
         <CommandPalette />
         <KeyboardShortcutsDialog />
