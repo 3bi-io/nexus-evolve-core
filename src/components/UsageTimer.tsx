@@ -7,12 +7,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useClientIP } from "@/hooks/useClientIP";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLocation } from "react-router-dom";
 
 const SECONDS_PER_CREDIT = 300; // 5 minutes
 
 export const UsageTimer = () => {
   const { user } = useAuth();
   const { ipAddress } = useClientIP();
+  const location = useLocation();
   const { toast } = useToast();
   
   const [usageSessionId, setUsageSessionId] = useState<string | null>(null);
@@ -21,8 +23,13 @@ export const UsageTimer = () => {
   const [isActive, setIsActive] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
 
-  // Start session on mount
+  // Only run timer on specific routes where AI is being used
+  const shouldRunTimer = ['/chat', '/problem-solver', '/knowledge-graph'].includes(location.pathname);
+
+  // Start session on mount (only on relevant pages)
   useEffect(() => {
+    if (!shouldRunTimer) return;
+
     const startSession = async () => {
       try {
         const { data, error } = await supabase.functions.invoke('manage-usage-session', {
@@ -54,7 +61,7 @@ export const UsageTimer = () => {
     if ((user || ipAddress) && !usageSessionId) {
       startSession();
     }
-  }, [user, ipAddress]);
+  }, [user, ipAddress, shouldRunTimer]);
 
   // Update timer every second
   useEffect(() => {
@@ -136,7 +143,8 @@ export const UsageTimer = () => {
 
   const progressPercentage = Math.min(100, (remainingSeconds / SECONDS_PER_CREDIT) * 100);
 
-  if (!isActive) return null;
+  // Don't show on landing page or other non-AI pages
+  if (!isActive || !shouldRunTimer) return null;
 
   return (
     <motion.div
