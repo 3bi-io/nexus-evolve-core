@@ -1,0 +1,54 @@
+{
+  "name": "Oneiros.me - The Most Advanced AI Platform",
+  "short_name": "Oneiros.me",
+  "description": "Experience 9 integrated AI systems: Voice AI, multi-agent orchestration, agent marketplace, social intelligence, and more.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0a1e",
+  "theme_color": "#8B5CF6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["productivity", "business", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Start Chat",
+      "short_name": "Chat",
+      "description": "Start a conversation with AI",
+      "url": "/chat",
+      "icons": [{ "src": "/favicon.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Voice AI",
+      "short_name": "Voice",
+      "description": "Start a voice conversation",
+      "url": "/voice-agent",
+      "icons": [{ "src": "/favicon.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Agent Marketplace",
+      "short_name": "Marketplace",
+      "description": "Browse custom AI agents",
+      "url": "/agent-marketplace",
+      "icons": [{ "src": "/favicon.png", "sizes": "192x192" }]
+    }
+  ]
+}
