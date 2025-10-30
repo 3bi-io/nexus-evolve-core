@@ -348,7 +348,6 @@ export const ChatInterface = () => {
             <div>
               <h1 className="text-2xl font-bold">AI Assistant</h1>
               <div className="flex items-center gap-2">
-                <p className="text-sm text-muted-foreground">Powered by Lovable AI</p>
                 {contextCount > 0 && (
                   <Badge 
                     variant="secondary" 
