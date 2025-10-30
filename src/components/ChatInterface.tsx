@@ -352,10 +352,7 @@ export const ChatInterface = () => {
                   <Badge 
                     variant="secondary" 
                     className="text-xs cursor-pointer hover:bg-secondary/80"
-                    onClick={() => {
-                      loadRecentMemories();
-                      setMemoryModalOpen(true);
-                    }}
+                    onClick={() => navigate('/')}
                   >
                     <Brain className="w-3 h-3 mr-1" />
                     {contextCount} memories
