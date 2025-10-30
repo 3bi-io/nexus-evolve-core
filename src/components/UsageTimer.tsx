@@ -34,6 +34,13 @@ export const UsageTimer = () => {
   // Only run timer on specific routes where AI is being used
   const shouldRunTimer = ['/chat', '/problem-solver', '/knowledge-graph'].includes(location.pathname);
 
+  // Clear errors when navigating away from timer routes
+  useEffect(() => {
+    if (!shouldRunTimer) {
+      setErrorMessage(null);
+    }
+  }, [shouldRunTimer]);
+
   // Start or recover session on mount
   useEffect(() => {
     if (!shouldRunTimer) return;
@@ -94,13 +101,21 @@ export const UsageTimer = () => {
         }
       } catch (error: any) {
         console.error('Failed to start session:', error);
-        setErrorMessage("Failed to start usage session. Please refresh the page.");
+        
+        // Only set error if we're actually on a timer route
+        if (shouldRunTimer) {
+          // For anonymous users, if IP is still loading, don't show error yet
+          if (!user && (!ipAddress || ipAddress === 'unknown')) {
+            console.log('IP address not loaded yet, will retry');
+            return;
+          }
+          setErrorMessage("Failed to start usage session. Please refresh the page.");
+        }
       }
     };
 
-    // Only start if we have user OR ipAddress (for anonymous users)
-    // Don't start if ipAddress is still loading (null)
-    if (!usageSessionId && shouldRunTimer) {
+    // Only start if we're on a timer route AND not on landing page AND (have user OR valid ipAddress)
+    if (!usageSessionId && shouldRunTimer && location.pathname !== '/') {
       if (user || (ipAddress && ipAddress !== 'unknown')) {
         startOrRecoverSession();
       }
