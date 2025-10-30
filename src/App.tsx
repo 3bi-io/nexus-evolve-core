@@ -20,7 +20,6 @@ import { useGlobalShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useReferralProcessor } from "./hooks/useReferralProcessor";
 import { useReferralConversion } from "./hooks/useReferralConversion";
 import { SelfLearningBadge } from "./components/SelfLearningBadge";
-import { UsageTimer } from "./components/UsageTimer";
 import Capabilities from "./pages/Capabilities";
 import Evolution from "./pages/Evolution";
 import SuperAdmin from "./pages/SuperAdmin";
@@ -64,7 +63,6 @@ const RoutesWithShortcuts = () => {
   useReferralConversion(); // Track conversion after 3+ interactions
   return (
     <>
-      <UsageTimer />
       <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />

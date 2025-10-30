@@ -48,82 +48,58 @@ Deno.serve(async (req) => {
 
     // START SESSION
     if (action === 'start') {
+      // Only authenticated users can start sessions
+      if (!userId) {
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            allowed: false,
+            message: 'Please sign in to use this feature'
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 402 }
+        );
+      }
+
       // Check if user has credits available
       let hasCredits = false;
       let remainingCredits = 0;
       let remainingSeconds = 0;
       let isSuperAdmin = false;
 
-      if (userId) {
-        // Check if user is super admin - they have unlimited usage
-        const { data: roleCheck, error: roleError } = await supabase
-          .rpc('has_role', { 
-            _user_id: userId, 
-            _role: 'super_admin' 
-          });
+      // Check if user is super admin - they have unlimited usage
+      const { data: roleCheck, error: roleError } = await supabase
+        .rpc('has_role', { 
+          _user_id: userId, 
+          _role: 'super_admin' 
+        });
 
-        if (!roleError && roleCheck) {
-          // Super admin has unlimited credits
+      if (!roleError && roleCheck) {
+        // Super admin has unlimited credits
+        hasCredits = true;
+        isSuperAdmin = true;
+        remainingCredits = 999999;
+        remainingSeconds = 999999 * SECONDS_PER_CREDIT;
+      } else {
+        // Check authenticated user subscription
+        const { data: subscription } = await supabase
+          .from('user_subscriptions')
+          .select('credits_remaining')
+          .eq('user_id', userId)
+          .eq('status', 'active')
+          .single();
+
+        if (subscription && subscription.credits_remaining > 0) {
           hasCredits = true;
-          isSuperAdmin = true;
-          remainingCredits = 999999;
-          remainingSeconds = 999999 * SECONDS_PER_CREDIT;
-        } else {
-          // Check authenticated user subscription
-          const { data: subscription } = await supabase
-            .from('user_subscriptions')
-            .select('credits_remaining')
-            .eq('user_id', userId)
-            .eq('status', 'active')
-            .single();
-
-          if (subscription && subscription.credits_remaining > 0) {
-            hasCredits = true;
-            remainingCredits = subscription.credits_remaining;
-            remainingSeconds = remainingCredits * SECONDS_PER_CREDIT;
-          }
-        }
-      } else if (ipAddress) {
-        // Check visitor credits
-        const ipHash = await hashIP(ipAddress);
-        let { data: visitor } = await supabase
-          .from('visitor_credits')
-          .select('*')
-          .eq('ip_hash', ipHash)
-          .maybeSingle();
-
-        // Create visitor record if it doesn't exist
-        if (!visitor) {
-          const { data: newVisitor, error: createError } = await supabase
-            .from('visitor_credits')
-            .insert({
-              ip_hash: ipHash,
-              daily_credits: 10,
-              credits_used_today: 0,
-              last_reset_at: new Date().toISOString()
-            })
-            .select()
-            .single();
-
-          if (!createError && newVisitor) {
-            visitor = newVisitor;
-          }
-        }
-
-        if (visitor) {
-          const remaining = visitor.daily_credits - visitor.credits_used_today;
-          if (remaining > 0) {
-            hasCredits = true;
-            remainingCredits = remaining;
-            remainingSeconds = remaining * SECONDS_PER_CREDIT;
-          }
+          remainingCredits = subscription.credits_remaining;
+          remainingSeconds = remainingCredits * SECONDS_PER_CREDIT;
         }
       }
 
       if (!hasCredits) {
         return new Response(
           JSON.stringify({ 
-            error: 'No credits available',
+            success: false,
+            message: 'No credits available. Please upgrade your plan.',
             allowed: false,
             remainingCredits: 0,
             remainingSeconds: 0
@@ -136,12 +112,11 @@ Deno.serve(async (req) => {
       const { data: usageSession, error: sessionError } = await supabase
         .from('usage_sessions')
         .insert({
-          user_id: userId || null,
-          visitor_credit_id: ipAddress ? (await supabase.from('visitor_credits').select('id').eq('ip_hash', await hashIP(ipAddress)).single()).data?.id : null,
+          user_id: userId,
+          visitor_credit_id: null,
           session_id: sessionId,
           is_active: true,
           metadata: { 
-            ip_address: ipAddress || null,
             route: route || 'unknown',
             started_at: new Date().toISOString()
           }
@@ -153,6 +128,7 @@ Deno.serve(async (req) => {
 
       return new Response(
         JSON.stringify({
+          success: true,
           allowed: true,
           sessionId: usageSession.id,
           remainingCredits,
@@ -165,11 +141,11 @@ Deno.serve(async (req) => {
 
     // STOP SESSION
     if (action === 'stop') {
-      // Use already parsed body instead of parsing again
+      const checkUsageSessionId = usageSessionId || sessionId;
       
-      if (!usageSessionId) {
+      if (!checkUsageSessionId) {
         return new Response(
-          JSON.stringify({ error: 'usageSessionId required for stop action' }),
+          JSON.stringify({ error: 'sessionId or usageSessionId required for stop action' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
@@ -178,7 +154,7 @@ Deno.serve(async (req) => {
       const { data: session, error: fetchError } = await supabase
         .from('usage_sessions')
         .select('*')
-        .eq('id', usageSessionId)
+        .eq('id', checkUsageSessionId)
         .eq('is_active', true)
         .single();
 
@@ -232,8 +208,8 @@ Deno.serve(async (req) => {
               credits_amount: -creditsToDeduct,
               balance_after: newBalance,
               operation_type: 'time_usage',
-              metadata: { 
-                usage_session_id: usageSessionId,
+            metadata: { 
+              usage_session_id: checkUsageSessionId,
                 elapsed_seconds: elapsedSeconds
               }
             });
@@ -247,7 +223,7 @@ Deno.serve(async (req) => {
             balance_after: 999999,
             operation_type: 'time_usage_admin',
             metadata: { 
-              usage_session_id: usageSessionId,
+              usage_session_id: checkUsageSessionId,
               elapsed_seconds: elapsedSeconds,
               super_admin: true
             }
@@ -277,7 +253,7 @@ Deno.serve(async (req) => {
             balance_after: visitor.daily_credits - newUsed,
             operation_type: 'time_usage',
             metadata: { 
-              usage_session_id: usageSessionId,
+              usage_session_id: checkUsageSessionId,
               elapsed_seconds: elapsedSeconds
             }
           });
@@ -293,7 +269,7 @@ Deno.serve(async (req) => {
           credits_deducted: creditsToDeduct,
           is_active: false
         })
-        .eq('id', usageSessionId);
+        .eq('id', checkUsageSessionId);
 
       return new Response(
         JSON.stringify({

@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useEngagementTracking } from "@/hooks/useEngagementTracking";
 import { useState, useEffect } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { UsageTimer } from "@/components/UsageTimer";
 
 const Index = () => {
   const { user } = useAuth();
@@ -22,6 +23,7 @@ const Index = () => {
   
   return (
     <PageLayout transition={false}>
+      <UsageTimer />
       <ChatInterface />
       {user && <OnboardingChecklist />}
       {showPrompt && promptTrigger && !user && (

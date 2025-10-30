@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw, Network } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/EmptyState";
+import { UsageTimer } from "@/components/UsageTimer";
 
 type GraphNode = {
   id: string;
@@ -150,6 +151,7 @@ export default function KnowledgeGraph() {
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
+      <UsageTimer />
       <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
