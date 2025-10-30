@@ -98,10 +98,14 @@ export const UsageTimer = () => {
       }
     };
 
-    if ((user || ipAddress) && !usageSessionId) {
-      startOrRecoverSession();
+    // Only start if we have user OR ipAddress (for anonymous users)
+    // Don't start if ipAddress is still loading (null)
+    if (!usageSessionId && shouldRunTimer) {
+      if (user || (ipAddress && ipAddress !== 'unknown')) {
+        startOrRecoverSession();
+      }
     }
-  }, [user, ipAddress, shouldRunTimer]);
+  }, [user, ipAddress, shouldRunTimer, usageSessionId]);
 
   // Update timer every second with persistence
   useEffect(() => {
