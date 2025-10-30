@@ -86,11 +86,29 @@ Deno.serve(async (req) => {
       } else if (ipAddress) {
         // Check visitor credits
         const ipHash = await hashIP(ipAddress);
-        const { data: visitor } = await supabase
+        let { data: visitor } = await supabase
           .from('visitor_credits')
           .select('*')
           .eq('ip_hash', ipHash)
-          .single();
+          .maybeSingle();
+
+        // Create visitor record if it doesn't exist
+        if (!visitor) {
+          const { data: newVisitor, error: createError } = await supabase
+            .from('visitor_credits')
+            .insert({
+              ip_hash: ipHash,
+              daily_credits: 10,
+              credits_used_today: 0,
+              last_reset_at: new Date().toISOString()
+            })
+            .select()
+            .single();
+
+          if (!createError && newVisitor) {
+            visitor = newVisitor;
+          }
+        }
 
         if (visitor) {
           const remaining = visitor.daily_credits - visitor.credits_used_today;
