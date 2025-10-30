@@ -1,8 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
-import { Clock, AlertTriangle, AlertCircle } from "lucide-react";
+import { Clock, AlertTriangle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Alert } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -11,88 +10,81 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
 
 const SECONDS_PER_CREDIT = 300; // 5 minutes
+const TIMER_ROUTES = ['/chat', '/problem-solver', '/knowledge-graph'];
 
 export const UsageTimer = () => {
   const { user } = useAuth();
-  const { ipAddress } = useClientIP();
+  const { ipAddress, loading: ipLoading } = useClientIP();
   const location = useLocation();
   const { toast } = useToast();
   
-  const [usageSessionId, setUsageSessionId] = useState<string | null>(() => {
-    // Try to recover session from sessionStorage
-    return sessionStorage.getItem('usage_session_id');
-  });
-  const [elapsedSeconds, setElapsedSeconds] = useState(() => {
-    const saved = sessionStorage.getItem('usage_elapsed_seconds');
-    return saved ? parseInt(saved, 10) : 0;
-  });
+  const [usageSessionId, setUsageSessionId] = useState<string | null>(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [remainingSeconds, setRemainingSeconds] = useState(0);
   const [isActive, setIsActive] = useState(false);
   const [showWarning, setShowWarning] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Only run timer on specific routes where AI is being used
-  const shouldRunTimer = ['/chat', '/problem-solver', '/knowledge-graph'].includes(location.pathname);
+  // Determine if timer should run on current route
+  const shouldRunTimer = TIMER_ROUTES.includes(location.pathname);
 
-  // Clear errors when navigating away from timer routes
+  // Clear session state when navigating away from timer routes
   useEffect(() => {
     if (!shouldRunTimer) {
-      setErrorMessage(null);
+      // Clean up session state
+      if (usageSessionId && isActive) {
+        stopSession();
+      }
+      setUsageSessionId(null);
+      setElapsedSeconds(0);
+      setRemainingSeconds(0);
+      setIsActive(false);
+      setShowWarning(false);
+      sessionStorage.removeItem('usage_session_id');
+      sessionStorage.removeItem('usage_elapsed_seconds');
     }
   }, [shouldRunTimer]);
 
-  // Start or recover session on mount
+  // Initialize session when on timer route
   useEffect(() => {
     if (!shouldRunTimer) return;
+    if (usageSessionId) return; // Already have a session
+    
+    // Wait for IP to load for anonymous users
+    if (!user && ipLoading) {
+      console.log('Waiting for IP address to load...');
+      return;
+    }
 
-    const startOrRecoverSession = async () => {
-      // Try to recover existing session first
-      const savedSessionId = sessionStorage.getItem('usage_session_id');
-      
-      if (savedSessionId) {
-        try {
-          const { data, error } = await supabase.functions.invoke('manage-usage-session', {
-            body: { 
-              action: 'check',
-              usageSessionId: savedSessionId
-            }
-          });
-
-          if (!error && data.isActive) {
-            setUsageSessionId(savedSessionId);
-            setRemainingSeconds(data.remainingSeconds);
-            setElapsedSeconds(data.elapsedSeconds || 0);
-            setIsActive(true);
-            return;
-          }
-        } catch (error) {
-          console.log('Could not recover session, starting new one');
-        }
-      }
-
-      // Start new session if recovery failed or no saved session
+    const startSession = async () => {
       try {
+        console.log('Starting usage session...', { user: !!user, ipAddress, route: location.pathname });
+        
         const { data, error } = await supabase.functions.invoke('manage-usage-session', {
           body: {
             action: 'start',
             userId: user?.id,
-            ipAddress: ipAddress,
+            ipAddress: ipAddress || undefined,
             route: location.pathname
           }
         });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Session start error:', error);
+          // Silently fail for anonymous users without IP
+          if (!user && !ipAddress) {
+            console.log('Anonymous user without IP, skipping session tracking');
+            return;
+          }
+          throw error;
+        }
 
         if (data.allowed) {
+          console.log('Session started successfully:', data.sessionId);
           setUsageSessionId(data.sessionId);
-          setRemainingSeconds(data.remainingSeconds);
+          setRemainingSeconds(data.remainingSeconds || 0);
           setIsActive(true);
-          setErrorMessage(null);
-          
-          // Persist session ID
           sessionStorage.setItem('usage_session_id', data.sessionId);
         } else {
-          setErrorMessage("You've used all your available time credits. Please upgrade your plan to continue.");
           toast({
             title: "No credits available",
             description: "Please upgrade your plan to continue using the service.",
@@ -101,26 +93,22 @@ export const UsageTimer = () => {
         }
       } catch (error: any) {
         console.error('Failed to start session:', error);
-        
-        // Only set error if we're actually on a timer route
-        if (shouldRunTimer) {
-          // For anonymous users, if IP is still loading, don't show error yet
-          if (!user && (!ipAddress || ipAddress === 'unknown')) {
-            console.log('IP address not loaded yet, will retry');
-            return;
-          }
-          setErrorMessage("Failed to start usage session. Please refresh the page.");
+        // Only show error for authenticated users or when IP is available
+        if (user || ipAddress) {
+          toast({
+            title: "Session Error",
+            description: "Could not start usage tracking. Please refresh the page.",
+            variant: "destructive"
+          });
         }
       }
     };
 
-    // Only start if we're on a timer route AND not on landing page AND (have user OR valid ipAddress)
-    if (!usageSessionId && shouldRunTimer && location.pathname !== '/') {
-      if (user || (ipAddress && ipAddress !== 'unknown')) {
-        startOrRecoverSession();
-      }
+    // Only start if we have user OR ipAddress
+    if (user || ipAddress) {
+      startSession();
     }
-  }, [user, ipAddress, shouldRunTimer, usageSessionId]);
+  }, [shouldRunTimer, user, ipAddress, ipLoading, usageSessionId, location.pathname]);
 
   // Update timer every second with persistence
   useEffect(() => {
@@ -210,25 +198,7 @@ export const UsageTimer = () => {
 
   const progressPercentage = Math.min(100, (remainingSeconds / SECONDS_PER_CREDIT) * 100);
 
-  // Show error state if there's an error message
-  if (errorMessage && shouldRunTimer) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="fixed top-4 right-4 z-50"
-      >
-        <Alert variant="destructive" className="max-w-md flex items-start gap-2 p-4">
-          <AlertCircle className="h-4 w-4 mt-0.5" />
-          <div>
-            <p className="text-sm font-medium">Session Error</p>
-            <p className="text-sm text-muted-foreground mt-1">{errorMessage}</p>
-          </div>
-        </Alert>
-      </motion.div>
-    );
-  }
-
+  // Only render if active and on a timer route
   if (!isActive || !shouldRunTimer) return null;
 
   return (

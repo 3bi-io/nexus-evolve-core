@@ -199,31 +199,18 @@ Deno.serve(async (req) => {
       const today = getUTCDateString();
 
       // Check if visitor record exists
-      const { data: visitor, error: visitorError } = await supabase
+      const { data: visitor } = await supabase
         .from('visitor_credits')
         .select('*')
         .eq('ip_hash', ipHash)
-        .single();
+        .maybeSingle();
 
-      if (visitorError || !visitor) {
-        // New visitor - create record with encrypted IP
-        // Call encryption function through RPC
-        const { data: encryptedIP, error: encryptError } = await supabase
-          .rpc('encrypt_ip', { 
-            ip_address: ipAddress, 
-            encryption_key: encryptionKey 
-          });
-
-        if (encryptError) {
-          console.error('IP encryption error:', encryptError);
-          throw new Error('Failed to encrypt IP address');
-        }
-
+      if (!visitor) {
+        // New visitor - create record (no encryption needed, hash is sufficient)
         const { data: newVisitor, error: createError } = await supabase
           .from('visitor_credits')
           .insert({
             ip_hash: ipHash,
-            ip_encrypted: encryptedIP,
             daily_credits: 5,
             credits_used_today: 0,
             last_visit_date: today,
@@ -257,26 +244,16 @@ Deno.serve(async (req) => {
           suggestedTier = 'starter';
         }
       } else {
-        // Existing visitor - use row lock to prevent race conditions
-        const { data: lockedVisitor, error: lockError } = await supabase
-          .from('visitor_credits')
-          .select('*')
-          .eq('ip_hash', ipHash)
-          .single();
-
-        if (lockError || !lockedVisitor) {
-          throw new Error('Failed to lock visitor record');
-        }
-
-        const lastVisit = lockedVisitor.last_visit_date;
+        // Existing visitor
+        const lastVisit = visitor.last_visit_date;
         
         // Calculate yesterday in UTC
         const now = new Date();
         const yesterday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1));
         const yesterdayStr = yesterday.toISOString().split('T')[0];
 
-        let consecutiveDays = lockedVisitor.consecutive_days;
-        let creditsUsedToday = lockedVisitor.credits_used_today;
+        let consecutiveDays = visitor.consecutive_days;
+        let creditsUsedToday = visitor.credits_used_today;
 
         // Reset if new day (comparing UTC dates)
         if (lastVisit !== today) {
@@ -290,7 +267,7 @@ Deno.serve(async (req) => {
           creditsUsedToday = 0;
         }
 
-        remaining = lockedVisitor.daily_credits - creditsUsedToday;
+        remaining = visitor.daily_credits - creditsUsedToday;
 
         if (remaining >= creditCost) {
           allowed = true;
@@ -303,14 +280,14 @@ Deno.serve(async (req) => {
               last_visit_date: today,
               consecutive_days: consecutiveDays
             })
-            .eq('id', lockedVisitor.id);
+            .eq('id', visitor.id);
 
           if (updateError) {
             throw new Error(`Failed to update visitor credits: ${updateError.message}`);
           }
 
           await supabase.from('credit_transactions').insert({
-            visitor_credit_id: lockedVisitor.id,
+            visitor_credit_id: visitor.id,
             transaction_type: 'usage',
             credits_amount: -creditCost,
             balance_after: remaining,
