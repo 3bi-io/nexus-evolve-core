@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Zap, Webhook, Activity, Plus, Trash2, Play, ExternalLink } from "lucide-react";
+import { SEO } from "@/components/SEO";
 
 export default function Integrations() {
   const { toast } = useToast();
@@ -125,6 +126,12 @@ export default function Integrations() {
 
   return (
     <PageLayout>
+      <SEO 
+        title="Integrations - Connect Zapier, Make.com & Custom Webhooks"
+        description="Integrate AI with your favorite tools. Connect Zapier, Make.com, and custom webhooks to automate workflows and trigger actions from AI conversations."
+        keywords="AI integrations, Zapier integration, Make.com, webhooks, automation, workflow automation"
+        canonical="https://oneiros.me/integrations"
+      />
       <div className="container mx-auto py-8 space-y-6">
         <div className="flex items-center justify-between">
           <div>

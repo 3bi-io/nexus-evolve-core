@@ -14,6 +14,7 @@ import { ExperimentsCard } from "@/components/evolution/ExperimentsCard";
 import { MemoryArchiveCard } from "@/components/evolution/MemoryArchiveCard";
 import { EmptyState } from "@/components/EmptyState";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { SEO } from "@/components/SEO";
 import type { EvolutionLog, Stats, AdaptiveBehavior, CronStatus, ABExperiment, ArchivedMemory } from "@/components/evolution/types";
 
 // Types are now imported from @/components/evolution/types
@@ -378,6 +379,12 @@ export default function Evolution() {
 
   return (
     <PageLayout transition={false}>
+      <SEO 
+        title="Evolution Dashboard - AI Self-Learning & Autonomous Improvement"
+        description="Watch your AI evolve in real-time. Track learning progress, adaptive behaviors, A/B experiments, and system improvements with our autonomous evolution engine."
+        keywords="AI evolution, self-learning AI, autonomous AI, adaptive behavior, AI improvement tracking"
+        canonical="https://oneiros.me/evolution"
+      />
       <div className="p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between">

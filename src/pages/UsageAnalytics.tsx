@@ -7,6 +7,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Clock, TrendingUp, Zap, Award, CalendarDays } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { SEO } from '@/components/SEO';
 
 interface CreditUsage {
   date: string;
@@ -142,6 +143,12 @@ const UsageAnalytics = () => {
 
   return (
     <PageLayout title="Usage" showBottomNav={true}>
+      <SEO 
+        title="Usage Analytics - Track Credits, Time & Feature Activity"
+        description="Monitor your AI platform usage with detailed analytics. Track credit consumption, time spent, average session length, and feature usage breakdown over 7, 30, or 90 days."
+        keywords="usage analytics, credit tracking, usage dashboard, AI analytics, time tracking"
+        canonical="https://oneiros.me/usage-analytics"
+      />
       <div className="container mx-auto px-4 py-6 md:py-8">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 md:mb-8">
           <div>

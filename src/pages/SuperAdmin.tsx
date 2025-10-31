@@ -9,6 +9,7 @@ import { Trash2, Database, Brain, MessageSquare, RefreshCw } from "lucide-react"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { SEO } from "@/components/SEO";
 
 export default function SuperAdmin() {
   const { user } = useAuth();
@@ -95,6 +96,11 @@ export default function SuperAdmin() {
   if (!isAdmin) {
     return (
       <PageLayout>
+        <SEO 
+          title="Super Admin - System Management & Data Control"
+          description="Super admin dashboard for managing system knowledge, memories, interactions, and sessions. Access restricted to authorized administrators only."
+          canonical="https://oneiros.me/super-admin"
+        />
         <div className="max-w-7xl mx-auto px-6 py-8">
           <Card>
             <CardHeader>
@@ -109,6 +115,11 @@ export default function SuperAdmin() {
 
   return (
     <PageLayout>
+      <SEO 
+        title="Super Admin - System Management & Data Control"
+        description="Super admin dashboard for managing system knowledge, memories, interactions, and sessions. Monitor stats and perform administrative operations."
+        canonical="https://oneiros.me/super-admin"
+      />
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="flex items-center justify-between mb-8">
           <div>

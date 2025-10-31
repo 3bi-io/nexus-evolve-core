@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { Plus, Zap, Settings, Trash2 } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
+import { SEO } from "@/components/SEO";
 
 type Capability = {
   id: string;
@@ -117,6 +118,12 @@ export default function Capabilities() {
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
+      <SEO 
+        title="Capability Registry - Dynamic AI Feature Discovery & Management"
+        description="Discover and manage dynamic AI capabilities. Your AI automatically discovers new features based on usage patterns and conversation context."
+        keywords="AI capabilities, feature discovery, dynamic features, AI module management"
+        canonical="https://oneiros.me/capabilities"
+      />
       <div className="max-w-5xl mx-auto space-y-4 md:space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">

@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useReferrals } from "@/hooks/useReferrals";
 import { Users, Gift, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { SEO } from "@/components/SEO";
 
 const Referrals = () => {
   const { stats, userReferralCode, referrals, loading } = useReferrals();
@@ -18,6 +19,12 @@ const Referrals = () => {
 
   return (
     <PageLayout title="Referrals" showBottomNav={true}>
+      <SEO 
+        title="Referral Program - Earn 100 Credits Per Referral & Bonus Rewards"
+        description="Invite friends to Oneiros.me and earn 100 credits for each successful referral. Unlock milestone rewards: 500 bonus credits at 5 referrals, Premium Trial at 10, VIP Status at 25."
+        keywords="referral program, earn credits, invite friends, AI referrals, bonus rewards"
+        canonical="https://oneiros.me/referrals"
+      />
       <div className="container mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
