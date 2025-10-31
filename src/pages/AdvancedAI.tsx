@@ -9,10 +9,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Monitor, Database, Search } from "lucide-react";
+import { Loader2, Monitor, Database, Search, AlertCircle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useSecretValidation } from "@/hooks/useSecretValidation";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Link } from "react-router-dom";
 
 const AdvancedAI = () => {
+  const { validation } = useSecretValidation();
+  
   // Computer Use State
   const [computerTask, setComputerTask] = useState("");
   const [computerContext, setComputerContext] = useState("");
@@ -111,6 +116,22 @@ const AdvancedAI = () => {
             Anthropic Computer Use and Pinecone vector database integration
           </p>
         </div>
+
+        {validation && (!validation.results.ANTHROPIC_API_KEY?.valid || !validation.results.PINECONE_API_KEY?.valid) && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>API Configuration Required</AlertTitle>
+            <AlertDescription className="flex items-center justify-between">
+              <span>
+                {!validation.results.ANTHROPIC_API_KEY?.valid && 'Anthropic API key is not configured. '}
+                {!validation.results.PINECONE_API_KEY?.valid && 'Pinecone API key or host is not configured.'}
+              </span>
+              <Link to="/system-health">
+                <Button variant="outline" size="sm">Configure Keys</Button>
+              </Link>
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Tabs defaultValue="computer-use" className="w-full">
           <TabsList className="grid w-full grid-cols-2">

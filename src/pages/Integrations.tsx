@@ -9,10 +9,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Loader2, Link2, Brain, Box, Database } from "lucide-react";
+import { Loader2, Link2, Brain, Box, Database, AlertCircle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useSecretValidation } from "@/hooks/useSecretValidation";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Link } from "react-router-dom";
 
 const Integrations = () => {
+  const { validation } = useSecretValidation();
+  
   // LangChain State
   const [langchainTask, setLangchainTask] = useState<string>("summarize");
   const [langchainInput, setLangchainInput] = useState("");
@@ -139,6 +144,22 @@ const Integrations = () => {
             LangChain orchestration, Replicate ML models, and Mem0 memory management
           </p>
         </div>
+
+        {validation && (!validation.results.REPLICATE_API_KEY?.valid || !validation.results.MEM0_API_KEY?.valid) && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>API Configuration Required</AlertTitle>
+            <AlertDescription className="flex items-center justify-between">
+              <span>
+                {!validation.results.REPLICATE_API_KEY?.valid && 'Replicate API key is not configured. '}
+                {!validation.results.MEM0_API_KEY?.valid && 'Mem0 API key is not configured.'}
+              </span>
+              <Link to="/system-health">
+                <Button variant="outline" size="sm">Configure Keys</Button>
+              </Link>
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Tabs defaultValue="langchain" className="w-full">
           <TabsList className="grid w-full grid-cols-3">

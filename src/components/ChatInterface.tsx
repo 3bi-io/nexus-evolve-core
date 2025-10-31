@@ -14,6 +14,9 @@ import { AgentSelector } from "./AgentSelector";
 import { UpgradePrompt } from "./pricing/UpgradePrompt";
 import { Link, useNavigate } from "react-router-dom";
 import { useClientIP } from "@/hooks/useClientIP";
+import { useSecretValidation } from "@/hooks/useSecretValidation";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 type Message = {
   role: "user" | "assistant";
@@ -26,6 +29,7 @@ export const ChatInterface = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const { ipAddress } = useClientIP();
+  const { validation, criticalIssues } = useSecretValidation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -344,6 +348,18 @@ export const ChatInterface = () => {
         />
       )}
       <div className="flex flex-col flex-1 max-w-4xl mx-auto w-full p-2 sm:p-4">
+        {user && criticalIssues > 0 && (
+          <Alert variant="destructive" className="mb-4">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="flex items-center justify-between">
+              <span>Critical API keys need configuration</span>
+              <Link to="/system-health">
+                <Button variant="outline" size="sm">Fix Now</Button>
+              </Link>
+            </AlertDescription>
+          </Alert>
+        )}
+        
         <div className="flex items-center justify-between gap-2 sm:gap-3 pb-3 sm:pb-4 border-b border-border">
           <div className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Brain className="w-6 h-6 sm:w-8 sm:h-8 text-primary flex-shrink-0" />

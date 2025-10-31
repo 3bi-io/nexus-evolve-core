@@ -6,6 +6,8 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { CreditBalance } from "@/components/pricing/CreditBalance";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
+import { useSecretValidation } from "@/hooks/useSecretValidation";
 import {
   Tooltip,
   TooltipContent,
@@ -17,6 +19,7 @@ export const Navigation = () => {
   const location = useLocation();
   const { signOut, user } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
+  const { hasIssues, criticalIssues } = useSecretValidation();
 
   useEffect(() => {
     const checkAdminStatus = async () => {
@@ -126,6 +129,21 @@ export const Navigation = () => {
                   >
                     <Cpu className="w-4 h-4" />
                     <span className="hidden xl:inline">Phase 3</span>
+                  </Button>
+                </Link>
+                <Link to="/system-health" className="flex-shrink-0">
+                  <Button
+                    variant={isActive("/system-health") ? "default" : "ghost"}
+                    size="sm"
+                    className="gap-2 relative"
+                  >
+                    <Shield className="w-4 h-4" />
+                    <span className="hidden xl:inline">Health</span>
+                    {hasIssues && (
+                      <Badge variant="destructive" className="absolute -top-1 -right-1 px-1 h-4 text-xs min-w-4">
+                        {criticalIssues || '!'}
+                      </Badge>
+                    )}
                   </Button>
                 </Link>
               </>

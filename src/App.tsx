@@ -30,6 +30,7 @@ import Account from "./pages/Account";
 import Achievements from "./pages/Achievements";
 import Referrals from "./pages/Referrals";
 import SocialIntelligence from "./pages/SocialIntelligence";
+import SystemHealth from "./pages/SystemHealth";
 import AgentStudio from "./pages/AgentStudio";
 import AgentMarketplace from "./pages/AgentMarketplace";
 import Integrations from "./pages/Integrations";
@@ -208,6 +209,14 @@ const RoutesWithShortcuts = () => {
             element={
               <ProtectedRoute>
                 <VoiceAgent />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/system-health"
+            element={
+              <ProtectedRoute>
+                <SystemHealth />
               </ProtectedRoute>
             }
           />
