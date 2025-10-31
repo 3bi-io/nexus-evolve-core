@@ -206,11 +206,18 @@ Deno.serve(async (req) => {
         .maybeSingle();
 
       if (!visitor) {
-        // New visitor - create record (no encryption needed, hash is sufficient)
+        // New visitor - create record with encrypted IP
+        const { data: encryptedIP } = await supabase
+          .rpc('encrypt_ip', { 
+            ip_address: ipAddress,
+            encryption_key: encryptionKey
+          });
+
         const { data: newVisitor, error: createError } = await supabase
           .from('visitor_credits')
           .insert({
             ip_hash: ipHash,
+            ip_encrypted: encryptedIP,
             daily_credits: 5,
             credits_used_today: 0,
             last_visit_date: today,
