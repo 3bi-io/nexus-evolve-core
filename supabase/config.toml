@@ -1,5 +1,8 @@
 project_id = "coobieessxvnujkkiadc"
 
+[functions.huggingface-inference]
+verify_jwt = true
+
 [functions.computer-use]
 verify_jwt = true
 

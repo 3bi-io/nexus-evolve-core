@@ -211,6 +211,28 @@ Deno.serve(async (req) => {
       ? { valid: true, lastChecked: timestamp }
       : { valid: false, error: 'Not configured', lastChecked: timestamp };
 
+    // Validate HuggingFace API Key
+    const huggingfaceKey = Deno.env.get('HUGGINGFACE_API_KEY');
+    if (huggingfaceKey) {
+      try {
+        const response = await fetch('https://huggingface.co/api/whoami-v2', {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${huggingfaceKey}` },
+        });
+        
+        results.HUGGINGFACE_API_KEY = {
+          valid: response.ok,
+          error: response.ok ? undefined : 'Authentication failed',
+          lastChecked: timestamp,
+          endpoint: 'https://huggingface.co/api/whoami-v2'
+        };
+      } catch (error) {
+        results.HUGGINGFACE_API_KEY = { valid: false, error: 'Network error', lastChecked: timestamp };
+      }
+    } else {
+      results.HUGGINGFACE_API_KEY = { valid: false, error: 'Not configured', lastChecked: timestamp };
+    }
+
     // Calculate summary
     const allResults = Object.values(results);
     const summary = {

@@ -795,6 +795,51 @@ export type Database = {
         }
         Relationships: []
       }
+      huggingface_models: {
+        Row: {
+          active: boolean | null
+          cost_per_1k_tokens: number | null
+          created_at: string | null
+          description: string | null
+          display_name: string | null
+          id: string
+          license: string | null
+          metadata: Json | null
+          model_id: string
+          parameters_count: number | null
+          task: string
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          cost_per_1k_tokens?: number | null
+          created_at?: string | null
+          description?: string | null
+          display_name?: string | null
+          id?: string
+          license?: string | null
+          metadata?: Json | null
+          model_id: string
+          parameters_count?: number | null
+          task: string
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          cost_per_1k_tokens?: number | null
+          created_at?: string | null
+          description?: string | null
+          display_name?: string | null
+          id?: string
+          license?: string | null
+          metadata?: Json | null
+          model_id?: string
+          parameters_count?: number | null
+          task?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       integration_triggers: {
         Row: {
           agent_id: string | null
@@ -953,6 +998,7 @@ export type Database = {
           metadata: Json | null
           model_used: string
           prompt_tokens: number | null
+          provider: string | null
           quality_score: number | null
           session_id: string | null
           user_id: string | null
@@ -968,6 +1014,7 @@ export type Database = {
           metadata?: Json | null
           model_used: string
           prompt_tokens?: number | null
+          provider?: string | null
           quality_score?: number | null
           session_id?: string | null
           user_id?: string | null
@@ -983,6 +1030,7 @@ export type Database = {
           metadata?: Json | null
           model_used?: string
           prompt_tokens?: number | null
+          provider?: string | null
           quality_score?: number | null
           session_id?: string | null
           user_id?: string | null

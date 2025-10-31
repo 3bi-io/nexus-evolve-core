@@ -48,6 +48,11 @@ const API_KEY_INFO: Record<string, { name: string; description: string; docsUrl:
     name: "Pinecone Host",
     description: "Pinecone index host URL",
     docsUrl: "https://docs.pinecone.io"
+  },
+  HUGGINGFACE_API_KEY: {
+    name: "HuggingFace API",
+    description: "Access to 400,000+ open-source AI models",
+    docsUrl: "https://huggingface.co/settings/tokens"
   }
 };
 
