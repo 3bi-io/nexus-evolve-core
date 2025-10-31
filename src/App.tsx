@@ -43,6 +43,7 @@ import ModelComparison from "./pages/ModelComparison";
 import BrowserAI from "./pages/BrowserAI";
 import AIHub from "./pages/AIHub";
 import AdvancedBrowserAI from "./pages/AdvancedBrowserAI";
+import RouterDashboard from "./pages/RouterDashboard";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -253,6 +254,14 @@ const RoutesWithShortcuts = () => {
             element={
               <ProtectedRoute>
                 <AdvancedBrowserAI />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/router-dashboard"
+            element={
+              <ProtectedRoute>
+                <RouterDashboard />
               </ProtectedRoute>
             }
           />
