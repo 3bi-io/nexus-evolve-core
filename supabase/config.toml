@@ -81,6 +81,15 @@ verify_jwt = false
 [functions.llamaindex-rag]
 verify_jwt = true
 
+[functions.track-llm-observation]
+verify_jwt = false
+
+[functions.claude-chat]
+verify_jwt = true
+
+[functions.tavily-search]
+verify_jwt = true
+
 [functions.system-health]
 verify_jwt = false
 

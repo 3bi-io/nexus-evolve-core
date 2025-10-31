@@ -15,6 +15,7 @@ import NotFound from "./pages/NotFound";
 import KnowledgeGraph from "./pages/KnowledgeGraph";
 import ProblemSolver from "./pages/ProblemSolver";
 import Analytics from "./pages/Analytics";
+import LLMAnalytics from "./pages/LLMAnalytics";
 import { CommandPalette } from "./components/onboarding/CommandPalette";
 import { KeyboardShortcutsDialog } from "./components/onboarding/KeyboardShortcutsDialog";
 import { useGlobalShortcuts } from "./hooks/useKeyboardShortcuts";
@@ -115,6 +116,14 @@ const RoutesWithShortcuts = () => {
             element={
               <ProtectedRoute>
                 <Analytics />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/llm-analytics"
+            element={
+              <ProtectedRoute>
+                <LLMAnalytics />
               </ProtectedRoute>
             }
           />

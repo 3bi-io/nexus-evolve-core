@@ -11,6 +11,7 @@ interface AgentAnalysis {
   complexity: "low" | "medium" | "high";
   recommended_agents: string[];
   requires_coordination: boolean;
+  requires_web_search?: boolean;
   reasoning: string;
 }
 
@@ -57,6 +58,7 @@ Return a JSON object with:
   "complexity": "low" | "medium" | "high",
   "recommended_agents": ["agent1", "agent2"],
   "requires_coordination": true/false,
+  "requires_web_search": true/false,
   "reasoning": "Why these agents were chosen"
 }
 
@@ -65,6 +67,8 @@ Guidelines:
 - Use creative-agent for brainstorming, ideas, innovative solutions
 - Use learning-agent for questions about learning patterns, improvements, meta-analysis
 - Use general-agent for simple questions, greetings, basic tasks
+- Set complexity "high" for multi-step reasoning, complex analysis, or nuanced problems
+- Set requires_web_search = true if query needs real-time info (news, weather, current events, stock prices)
 - Use multiple agents only if task genuinely requires multiple perspectives
 - requires_coordination = true if multiple agents needed, false otherwise`;
 

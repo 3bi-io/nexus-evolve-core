@@ -106,6 +106,34 @@ serve(async (req) => {
     } else {
       // Default: Use general streaming chat agent with semantic search
       let contextMemories: any[] = [];
+      let webSearchContext = "";
+      const startTime = Date.now();
+      
+      // PHASE 1: Check if web search is needed
+      const needsWebSearch = agentAnalysis?.requires_web_search || 
+                             /(?:latest|recent|current|today|news|weather|stock|price|now)/i.test(userMessage);
+      
+      if (needsWebSearch) {
+        try {
+          console.log("[Phase 1] Web search needed, using Tavily");
+          const { data: searchResults } = await supabase.functions.invoke("tavily-search", {
+            body: { 
+              query: userMessage,
+              searchDepth: "basic",
+              maxResults: 5
+            }
+          });
+
+          if (searchResults?.answer) {
+            webSearchContext = `\n## Real-Time Web Information:\n${searchResults.answer}\n\nSources:\n${
+              searchResults.results.map((r: any, i: number) => `${i+1}. ${r.title} - ${r.url}`).join('\n')
+            }\n`;
+            console.log(`[Phase 1] Tavily found ${searchResults.results.length} results`);
+          }
+        } catch (searchError) {
+          console.error("[Phase 1] Tavily search failed:", searchError);
+        }
+      }
       
       // PHASE 3E: Semantic Search Integration
       // Try semantic search first for better context retrieval
@@ -171,27 +199,60 @@ serve(async (req) => {
         ? `\n## Style:\n${adaptiveBehaviors.map(b => `- ${b.description}`).join('\n')}\n`
         : '';
 
-      const systemPrompt = `You are a helpful AI assistant with learning capabilities.${behaviorContext}${memoryContext}`;
+      const systemPrompt = `You are a helpful AI assistant with learning capabilities.${behaviorContext}${memoryContext}${webSearchContext}`;
 
-      // Stream response from general agent
-      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
-          messages: [
-            { role: "system", content: systemPrompt },
-            ...messages,
-          ],
-          stream: true,
-        }),
-      });
+      // PHASE 1: Determine model to use (Claude for complex reasoning, Gemini for general)
+      const complexity = agentAnalysis?.complexity || "medium";
+      const useClaude = complexity === "high" || forceAgent === "claude";
+      const modelUsed = useClaude ? "claude-sonnet-4-20250514" : "google/gemini-2.5-flash";
+      
+      console.log(`[Phase 1] Using model: ${modelUsed} (complexity: ${complexity})`);
 
-      if (!response.ok) {
-        throw new Error(`AI gateway error: ${response.status}`);
+      // Stream response from agent
+      let response: Response;
+      
+      if (useClaude) {
+        // Use Claude for complex reasoning
+        const claudeResponse = await supabase.functions.invoke("claude-chat", {
+          body: { 
+            messages: [
+              ...messages,
+            ],
+            systemPrompt,
+            maxTokens: 4096
+          }
+        });
+        
+        if (!claudeResponse.data) {
+          throw new Error("Claude chat failed");
+        }
+        
+        response = new Response(claudeResponse.data, {
+          headers: {
+            "Content-Type": "text/event-stream",
+          }
+        });
+      } else {
+        // Use Gemini Flash for general queries
+        response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "google/gemini-2.5-flash",
+            messages: [
+              { role: "system", content: systemPrompt },
+              ...messages,
+            ],
+            stream: true,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`AI gateway error: ${response.status}`);
+        }
       }
 
       // Store interaction and return stream
@@ -203,14 +264,18 @@ serve(async (req) => {
           agent_used: "general",
           coordinator_analysis: agentAnalysis,
           memories: uniqueMemories.length,
-          behaviors: adaptiveBehaviors?.length || 0
+          behaviors: adaptiveBehaviors?.length || 0,
+          web_search_used: needsWebSearch,
+          model_used: modelUsed
         },
-        model_used: "google/gemini-2.5-flash",
+        model_used: modelUsed,
       }).select().single();
 
       // Buffer and stream response
       const encoder = new TextEncoder();
       let assistantResponse = "";
+      let promptTokens = 0;
+      let completionTokens = 0;
 
       const stream = new ReadableStream({
         async start(controller) {
@@ -231,17 +296,45 @@ serve(async (req) => {
                   try {
                     const json = JSON.parse(line.slice(6));
                     const content = json.choices?.[0]?.delta?.content;
-                    if (content) assistantResponse += content;
+                    if (content) {
+                      assistantResponse += content;
+                      completionTokens++; // Approximate
+                    }
+                    // Track token usage if available
+                    if (json.usage) {
+                      promptTokens = json.usage.prompt_tokens || 0;
+                      completionTokens = json.usage.completion_tokens || 0;
+                    }
                   } catch {}
                 }
               }
             }
 
+            // Update interaction with response
             if (interactionData?.id && assistantResponse) {
               await supabase.from("interactions")
                 .update({ response: assistantResponse })
                 .eq("id", interactionData.id);
             }
+
+            // PHASE 1: Track LLM observation asynchronously
+            const latencyMs = Date.now() - startTime;
+            supabase.functions.invoke('track-llm-observation', {
+              body: {
+                agentType: "general",
+                modelUsed: modelUsed,
+                promptTokens: promptTokens || Math.ceil(userMessage.length / 4),
+                completionTokens: completionTokens || Math.ceil(assistantResponse.length / 4),
+                latencyMs: latencyMs,
+                userId: user.id,
+                sessionId: sessionId,
+                metadata: {
+                  complexity: complexity,
+                  web_search_used: needsWebSearch,
+                  memories_used: uniqueMemories.length
+                }
+              }
+            }).catch(err => console.error("[Phase 1] Failed to track observation:", err));
 
             controller.close();
           } catch (error) {
