@@ -333,7 +333,7 @@ export const ChatInterface = () => {
   };
 
   return (
-    <div className="flex" style={{ height: 'calc(100vh - 57px)' }}>
+    <div className="flex h-full md:h-[calc(100vh-57px)]">
       {user && (
         <SessionSidebar
           currentSessionId={sessionId}
@@ -341,12 +341,12 @@ export const ChatInterface = () => {
           onNewSession={createNewSession}
         />
       )}
-      <div className="flex flex-col flex-1 max-w-4xl mx-auto w-full p-4">
-        <div className="flex items-center justify-between gap-3 pb-4 border-b border-border">
-          <div className="flex items-center gap-3">
-            <Brain className="w-8 h-8 text-primary" />
-            <div>
-              <h1 className="text-2xl font-bold">AI Assistant</h1>
+      <div className="flex flex-col flex-1 max-w-4xl mx-auto w-full p-2 sm:p-4">
+        <div className="flex items-center justify-between gap-2 sm:gap-3 pb-3 sm:pb-4 border-b border-border">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <Brain className="w-6 h-6 sm:w-8 sm:h-8 text-primary flex-shrink-0" />
+            <div className="min-w-0">
+              <h1 className="text-lg sm:text-2xl font-bold truncate">AI Assistant</h1>
               <div className="flex items-center gap-2">
                 {contextCount > 0 && (
                   <Badge 
@@ -355,55 +355,59 @@ export const ChatInterface = () => {
                     onClick={() => navigate('/')}
                   >
                     <Brain className="w-3 h-3 mr-1" />
-                    {contextCount} memories
+                    <span className="hidden sm:inline">{contextCount} memories</span>
+                    <span className="sm:hidden">{contextCount}</span>
                   </Badge>
                 )}
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <AgentSelector 
-              selectedAgent={selectedAgent}
-              onSelectAgent={setSelectedAgent}
-            />
-            {contextCount > 0 && (
-              <Link to="/evolution">
-                <Button variant="outline" size="sm">
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  Dashboard
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+            <div className="hidden md:flex items-center gap-2">
+              <AgentSelector 
+                selectedAgent={selectedAgent}
+                onSelectAgent={setSelectedAgent}
+              />
+              {contextCount > 0 && (
+                <Link to="/evolution">
+                  <Button variant="outline" size="sm">
+                    <TrendingUp className="w-4 h-4 mr-2" />
+                    Dashboard
+                  </Button>
+                </Link>
+              )}
+              {user && messages.length >= 4 && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={extractLearnings}
+                  disabled={isExtracting}
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  {isExtracting ? "Extracting..." : "Extract Learnings"}
                 </Button>
-              </Link>
-            )}
-            {user && messages.length >= 4 && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={extractLearnings}
-                disabled={isExtracting}
-              >
-                <Sparkles className="w-4 h-4 mr-2" />
-                {isExtracting ? "Extracting..." : "Extract Learnings"}
-              </Button>
-            )}
+              )}
+            </div>
             {user ? (
-              <Button variant="ghost" size="sm" onClick={signOut}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
+              <Button variant="ghost" size="sm" onClick={signOut} className="hidden sm:flex">
+                <LogOut className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Sign Out</span>
               </Button>
             ) : (
               <Button variant="default" size="sm" onClick={() => navigate('/auth')}>
-                Sign Up Free
+                <span className="hidden sm:inline">Sign Up Free</span>
+                <span className="sm:hidden">Sign Up</span>
               </Button>
             )}
           </div>
         </div>
 
-        <ScrollArea ref={scrollRef} className="flex-1 my-4">
+        <ScrollArea ref={scrollRef} className="flex-1 my-2 sm:my-4">
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center">
-              <Brain className="w-16 h-16 text-primary mb-4" />
-              <h2 className="text-xl font-semibold mb-2">Welcome to Oneiros</h2>
-              <p className="text-muted-foreground max-w-md">
+            <div className="flex flex-col items-center justify-center h-full text-center px-4">
+              <Brain className="w-12 h-12 sm:w-16 sm:h-16 text-primary mb-3 sm:mb-4" />
+              <h2 className="text-lg sm:text-xl font-semibold mb-2">Welcome to Oneiros</h2>
+              <p className="text-sm sm:text-base text-muted-foreground max-w-md">
                 {user 
                   ? "Your AI learns from every interaction. Start with 500 credits (41+ hours) and watch your AI evolve with your dreams."
                   : "Experience AI that learns from you. Sign up for 500 free credits—that's 2,500 minutes (41+ hours) of intelligent conversation!"
@@ -411,7 +415,7 @@ export const ChatInterface = () => {
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               {messages.map((message, idx) => (
                 <div
                   key={idx}
@@ -419,21 +423,21 @@ export const ChatInterface = () => {
                 >
                   <div className="flex flex-col gap-2">
                     <div
-                      className={`max-w-[80%] rounded-lg px-4 py-2 ${
+                      className={`max-w-[85%] sm:max-w-[80%] rounded-lg px-3 py-2 sm:px-4 sm:py-2 ${
                         message.role === "user"
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted"
                       }`}
                     >
-                      <p className="whitespace-pre-wrap">{message.content}</p>
+                      <p className="whitespace-pre-wrap text-sm sm:text-base break-words">{message.content}</p>
                     </div>
                     {message.role === "assistant" && message.interactionId && (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1 sm:gap-2">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => rateResponse(message.interactionId!, 1)}
-                          className={message.rating === 1 ? "text-green-600" : ""}
+                          className={`h-8 w-8 p-0 ${message.rating === 1 ? "text-green-600" : ""}`}
                         >
                           <ThumbsUp className="w-4 h-4" />
                         </Button>
@@ -441,7 +445,7 @@ export const ChatInterface = () => {
                           variant="ghost"
                           size="sm"
                           onClick={() => rateResponse(message.interactionId!, -1)}
-                          className={message.rating === -1 ? "text-red-600" : ""}
+                          className={`h-8 w-8 p-0 ${message.rating === -1 ? "text-red-600" : ""}`}
                         >
                           <ThumbsDown className="w-4 h-4" />
                         </Button>
@@ -454,20 +458,21 @@ export const ChatInterface = () => {
           )}
         </ScrollArea>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 pb-safe">
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type your message..."
-            className="min-h-[60px] resize-none"
+            className="min-h-[56px] sm:min-h-[60px] resize-none text-sm sm:text-base"
             disabled={isLoading || !sessionId}
           />
           <Button
             onClick={sendMessage}
             disabled={isLoading || !input.trim() || !sessionId}
+            className="h-[56px] w-[56px] sm:h-auto sm:w-auto flex-shrink-0"
           >
-            <Send className="w-4 h-4" />
+            <Send className="w-4 h-4 sm:w-5 sm:h-5" />
           </Button>
         </div>
       </div>

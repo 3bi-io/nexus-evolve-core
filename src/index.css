@@ -160,15 +160,32 @@ All colors MUST be HSL.
   }
 }
 
-/* Touch targets for mobile */
+/* Touch targets for mobile - ensure accessibility */
 @media (max-width: 768px) {
-  button,
-  a,
+  button:not(.no-min-size),
+  a:not(.no-min-size) {
+    min-height: 44px;
+  }
+  
   input,
   textarea {
     min-height: 44px;
-    min-width: 44px;
   }
+}
+
+/* Hide scrollbar for horizontal scroll elements */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Safe area padding for mobile notches and bottom bars */
+.pb-safe {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
 }
 
 /* Prevent text selection on mobile for better UX */

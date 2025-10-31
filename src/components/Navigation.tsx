@@ -38,149 +38,92 @@ export const Navigation = () => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <nav className="border-b border-border bg-card">
-      <div className="max-w-7xl mx-auto px-6 py-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-6">
-            <Link to="/chat" className="flex items-center gap-2 mr-4">
+    <nav className="border-b border-border bg-card hidden md:block">
+      <div className="max-w-7xl mx-auto px-4 lg:px-6 py-3">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 lg:gap-4 overflow-x-auto scrollbar-hide flex-1 min-w-0">
+            <Link to="/chat" className="flex items-center gap-2 mr-2 lg:mr-4 flex-shrink-0">
               <Brain className="w-6 h-6 text-primary" />
-              <span className="font-semibold text-lg hidden sm:inline">Oneiros.me</span>
+              <span className="font-semibold text-lg hidden lg:inline">Oneiros.me</span>
             </Link>
-            <Link to="/chat">
+            <Link to="/chat" className="flex-shrink-0">
               <Button
                 variant={isActive("/chat") ? "default" : "ghost"}
+                size="sm"
                 className="gap-2"
               >
                 <MessageSquare className="w-4 h-4" />
-                Chat
+                <span className="hidden xl:inline">Chat</span>
               </Button>
             </Link>
             {user && (
               <>
-                <Link to="/knowledge-graph">
+                <Link to="/knowledge-graph" className="flex-shrink-0">
                   <Button
                     variant={isActive("/knowledge-graph") ? "default" : "ghost"}
+                    size="sm"
                     className="gap-2"
                   >
                     <Network className="w-4 h-4" />
-                    Knowledge
+                    <span className="hidden xl:inline">Knowledge</span>
                   </Button>
                 </Link>
-                <Link to="/problem-solver">
+                <Link to="/problem-solver" className="flex-shrink-0">
                   <Button
                     variant={isActive("/problem-solver") ? "default" : "ghost"}
+                    size="sm"
                     className="gap-2"
                   >
                     <Brain className="w-4 h-4" />
-                    Solver
+                    <span className="hidden xl:inline">Solver</span>
                   </Button>
                 </Link>
-                <Link to="/capabilities">
-                  <Button
-                    variant={isActive("/capabilities") ? "default" : "ghost"}
-                    className="gap-2"
-                  >
-                    <Zap className="w-4 h-4" />
-                    Capabilities
-                  </Button>
-                </Link>
-                <Link to="/evolution">
-                  <Button
-                    variant={isActive("/evolution") ? "default" : "ghost"}
-                    className="gap-2"
-                  >
-                    <TrendingUp className="w-4 h-4" />
-                    Evolution
-                  </Button>
-                </Link>
-                <Link to="/achievements">
-                  <Button
-                    variant={isActive("/achievements") ? "default" : "ghost"}
-                    className="gap-2"
-                  >
-                    <Trophy className="w-4 h-4" />
-                    Achievements
-                  </Button>
-                </Link>
-
-                <Link to="/analytics">
+                <Link to="/analytics" className="flex-shrink-0">
                   <Button
                     variant={isActive("/analytics") ? "default" : "ghost"}
+                    size="sm"
                     className="gap-2"
                   >
                     <BarChart3 className="w-4 h-4" />
-                    Analytics
+                    <span className="hidden xl:inline">Analytics</span>
                   </Button>
                 </Link>
-                <Link to="/social-intelligence">
-                  <Button
-                    variant={isActive("/social-intelligence") ? "default" : "ghost"}
-                    className="gap-2"
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    Social
-                  </Button>
-                </Link>
-                <Link to="/agent-studio">
-                  <Button
-                    variant={isActive("/agent-studio") ? "default" : "ghost"}
-                    className="gap-2"
-                  >
-                    <Brain className="w-4 h-4" />
-                    Studio
-                  </Button>
-                </Link>
-                <Link to="/agent-marketplace">
+                <Link to="/agent-marketplace" className="flex-shrink-0">
                   <Button
                     variant={isActive("/agent-marketplace") ? "default" : "ghost"}
+                    size="sm"
                     className="gap-2"
                   >
                     <Store className="w-4 h-4" />
-                    Market
+                    <span className="hidden xl:inline">Market</span>
                   </Button>
                 </Link>
-                <Link to="/integrations">
-                  <Button
-                    variant={isActive("/integrations") ? "default" : "ghost"}
-                    className="gap-2"
-                  >
-                    <Zap className="w-4 h-4" />
-                    Integrations
-                  </Button>
-                </Link>
-                <Link to="/multimodal">
-                  <Button
-                    variant={isActive("/multimodal") ? "default" : "ghost"}
-                    className="gap-2"
-                  >
-                    <Sparkles className="w-4 h-4" />
-                    Multimodal
-                  </Button>
-                </Link>
-                <Link to="/voice-agent">
+                <Link to="/voice-agent" className="flex-shrink-0">
                   <Button
                     variant={isActive("/voice-agent") ? "default" : "ghost"}
+                    size="sm"
                     className="gap-2"
                   >
                     <Phone className="w-4 h-4" />
-                    Voice AI
+                    <span className="hidden xl:inline">Voice AI</span>
                   </Button>
                 </Link>
               </>
             )}
             {isAdmin && (
-              <Link to="/admin">
+              <Link to="/admin" className="flex-shrink-0">
                 <Button
                   variant={isActive("/admin") ? "default" : "ghost"}
+                  size="sm"
                   className="gap-2"
                 >
                   <Shield className="w-4 h-4" />
-                  Admin
+                  <span className="hidden xl:inline">Admin</span>
                 </Button>
               </Link>
             )}
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             <TooltipProvider delayDuration={300}>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -188,6 +131,7 @@ export const Navigation = () => {
                     variant="ghost"
                     size="sm"
                     onClick={() => window.dispatchEvent(new CustomEvent('show-shortcuts'))}
+                    className="hidden lg:flex"
                   >
                     <Keyboard className="w-4 h-4" />
                   </Button>
@@ -201,14 +145,15 @@ export const Navigation = () => {
             <CreditBalance />
             <ThemeToggle />
             {user ? (
-              <Button onClick={signOut} variant="ghost" className="gap-2">
+              <Button onClick={signOut} variant="ghost" size="sm" className="gap-2">
                 <LogOut className="w-4 h-4" />
-                Sign Out
+                <span className="hidden lg:inline">Sign Out</span>
               </Button>
             ) : (
               <Link to="/auth">
-                <Button variant="default" className="gap-2">
-                  Sign Up Free
+                <Button variant="default" size="sm" className="gap-2">
+                  <span className="hidden lg:inline">Sign Up Free</span>
+                  <span className="lg:hidden">Sign Up</span>
                 </Button>
               </Link>
             )}
