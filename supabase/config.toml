@@ -1,5 +1,14 @@
 project_id = "coobieessxvnujkkiadc"
 
+[functions.langchain-orchestrator]
+verify_jwt = true
+
+[functions.replicate-runner]
+verify_jwt = true
+
+[functions.mem0-memory]
+verify_jwt = true
+
 [functions.grok-reality-agent]
 verify_jwt = true
 
