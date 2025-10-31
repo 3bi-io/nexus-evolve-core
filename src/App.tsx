@@ -39,6 +39,7 @@ import MultimodalStudio from "./pages/MultimodalStudio";
 import VoiceAgent from "./pages/VoiceAgent";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
+import ModelComparison from "./pages/ModelComparison";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -217,6 +218,14 @@ const RoutesWithShortcuts = () => {
             element={
               <ProtectedRoute>
                 <SystemHealth />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/model-comparison"
+            element={
+              <ProtectedRoute>
+                <ModelComparison />
               </ProtectedRoute>
             }
           />

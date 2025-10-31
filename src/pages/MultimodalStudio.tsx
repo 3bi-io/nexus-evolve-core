@@ -1,6 +1,7 @@
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ImageGenerator } from "@/components/multimodal/ImageGenerator";
+import { HuggingFaceImageGen } from "@/components/ai/HuggingFaceImageGen";
 import { VoiceRecorder } from "@/components/multimodal/VoiceRecorder";
 import { TextToSpeech } from "@/components/multimodal/TextToSpeech";
 import { MultimodalGallery } from "@/components/multimodal/MultimodalGallery";
@@ -28,10 +29,14 @@ export default function MultimodalStudio() {
         </div>
 
         <Tabs defaultValue="image" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="image" className="gap-2">
               <Image className="w-4 h-4" />
-              Image Generation
+              Lovable AI
+            </TabsTrigger>
+            <TabsTrigger value="huggingface" className="gap-2">
+              <Image className="w-4 h-4" />
+              HuggingFace
             </TabsTrigger>
             <TabsTrigger value="voice" className="gap-2">
               <Mic className="w-4 h-4" />
@@ -49,6 +54,10 @@ export default function MultimodalStudio() {
 
           <TabsContent value="image">
             <ImageGenerator />
+          </TabsContent>
+
+          <TabsContent value="huggingface">
+            <HuggingFaceImageGen />
           </TabsContent>
 
           <TabsContent value="voice">

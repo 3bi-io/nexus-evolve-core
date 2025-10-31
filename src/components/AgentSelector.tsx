@@ -1,4 +1,4 @@
-import { Brain, Sparkles, BookOpen, Network } from "lucide-react";
+import { Brain, Sparkles, BookOpen, Network, Cpu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -50,6 +50,13 @@ const agents = [
     icon: BookOpen,
     description: "Meta-learning & pattern analysis",
     color: "text-success",
+  },
+  {
+    id: "huggingface",
+    name: "HuggingFace Models",
+    icon: Cpu,
+    description: "Access to 400,000+ open-source models",
+    color: "text-accent",
   },
 ];
 
