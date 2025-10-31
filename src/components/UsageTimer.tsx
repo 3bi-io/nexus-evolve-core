@@ -16,43 +16,22 @@ export const UsageTimer = () => {
   const [remainingSeconds, setRemainingSeconds] = useState(SESSION_DURATION_SECONDS);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isActive, setIsActive] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
 
   // Start session for all users (authenticated and anonymous)
   useEffect(() => {
-    if (usageSessionId) {
-      console.log('[UsageTimer] Session already exists, skipping start:', usageSessionId);
+    if (usageSessionId || isStarting) {
+      console.log('[UsageTimer] Session already exists or starting, skipping:', { usageSessionId, isStarting });
       return;
     }
 
     const startSession = async () => {
+      setIsStarting(true);
       console.log('[UsageTimer] === Starting Session Flow ===');
       console.log('[UsageTimer] User authenticated:', !!user);
       console.log('[UsageTimer] User ID:', user?.id);
       
       try {
-        // Pre-check credits before starting session
-        const preCheckBody: any = { action: 'check_credits_only' };
-        
-        if (user) {
-          preCheckBody.userId = user.id;
-        } else {
-          preCheckBody.ipAddress = 'client';
-        }
-        
-        console.log('[UsageTimer] Pre-checking credits...');
-        const { data: preCheck } = await supabase.functions.invoke('manage-usage-session', {
-          body: preCheckBody
-        });
-        
-        if (!preCheck?.success || (preCheck?.remainingCredits || 0) === 0) {
-          console.log('[UsageTimer] ❌ No credits available, aborting session start');
-          toast.error("No credits available. Please upgrade to continue.");
-          return;
-        }
-        
-        console.log('[UsageTimer] ✅ Credits available:', preCheck.remainingCredits);
-        
-        // Now start the session
         const requestBody: any = { action: 'start' };
         
         if (user) {
@@ -107,6 +86,8 @@ export const UsageTimer = () => {
         console.error('[UsageTimer] Error stack:', error?.stack);
         console.error('[UsageTimer] Error message:', error?.message);
         toast.error("Failed to start usage session");
+      } finally {
+        setIsStarting(false);
       }
       
       console.log('[UsageTimer] === Session Flow Complete ===');
@@ -114,7 +95,7 @@ export const UsageTimer = () => {
 
     console.log('[UsageTimer] Triggering session start...');
     startSession();
-  }, [user, usageSessionId]);
+  }, [user, usageSessionId, isStarting]);
 
   // Timer countdown
   useEffect(() => {

@@ -154,38 +154,69 @@ Deno.serve(async (req) => {
           // First-time visitor - create new record
           console.log('[START] New visitor, creating record');
           
-          // Encrypt IP address
-          const { data: encryptedIP, error: encryptError } = await supabase
-            .rpc('encrypt_ip', { 
-              ip_address: ipAddress,
-              encryption_key: Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-            });
-
-          if (encryptError) {
-            console.error('[START] Failed to encrypt IP:', encryptError);
+          // Try to encrypt IP address (graceful fallback if encryption fails)
+          let encryptedIP = 'pending_encryption';
+          try {
+            const { data: encrypted } = await supabase
+              .rpc('encrypt_ip', { 
+                ip_address: ipAddress,
+                encryption_key: Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+              });
+            
+            if (encrypted) {
+              encryptedIP = encrypted;
+            }
+          } catch (encryptError) {
+            console.warn('[START] IP encryption not available, using placeholder:', encryptError);
           }
 
-          const { data: newVisitor, error: insertError } = await supabase
-            .from('visitor_credits')
-            .insert({
-              ip_hash: ipHash,
-              ip_encrypted: encryptedIP || 'encrypted',
-              daily_credits: 5,
-              credits_used_today: 0,
-              last_visit_date: today,
-              consecutive_days: 1
-            })
-            .select()
-            .single();
+          // Attempt to create visitor record with concurrency protection
+          try {
+            const { data: newVisitor, error: insertError } = await supabase
+              .from('visitor_credits')
+              .insert({
+                ip_hash: ipHash,
+                ip_encrypted: encryptedIP,
+                daily_credits: 5,
+                credits_used_today: 0,
+                last_visit_date: today,
+                consecutive_days: 1
+              })
+              .select()
+              .single();
 
-          if (insertError) {
-            console.error('[START] Failed to create visitor record:', insertError);
-          } else if (newVisitor) {
-            console.log('[START] Successfully created new visitor');
-            hasCredits = true;
-            remainingCredits = 5;
-            remainingSeconds = 5 * SECONDS_PER_CREDIT;
-            visitorCreditId = newVisitor.id;
+            if (insertError) {
+              // Handle duplicate key error - another request may have created the record
+              if (insertError.code === '23505') {
+                console.log('[START] Duplicate visitor record detected, fetching existing...');
+                const { data: existingRecord } = await supabase
+                  .from('visitor_credits')
+                  .select('*')
+                  .eq('ip_hash', ipHash)
+                  .single();
+                
+                if (existingRecord) {
+                  const creditsRemaining = existingRecord.daily_credits - existingRecord.credits_used_today;
+                  if (creditsRemaining > 0) {
+                    hasCredits = true;
+                    remainingCredits = creditsRemaining;
+                    remainingSeconds = creditsRemaining * SECONDS_PER_CREDIT;
+                    visitorCreditId = existingRecord.id;
+                    console.log('[START] Using existing record, credits available:', creditsRemaining);
+                  }
+                }
+              } else {
+                throw insertError;
+              }
+            } else if (newVisitor) {
+              console.log('[START] Successfully created new visitor');
+              hasCredits = true;
+              remainingCredits = 5;
+              remainingSeconds = 5 * SECONDS_PER_CREDIT;
+              visitorCreditId = newVisitor.id;
+            }
+          } catch (error) {
+            console.error('[START] Visitor record error:', error);
           }
         }
       }
