@@ -37,6 +37,37 @@ Successfully implemented comprehensive API key validation and monitoring:
 
 ---
 
+## ✅ Phase 0: Credit System Overhaul - COMPLETE
+
+### Implementation Summary
+
+Successfully migrated from dual credit system to unified **operation-based credit model**.
+
+#### What Changed:
+- ❌ **Removed:** UsageTimer component (time-based tracking)
+- ❌ **Removed:** manage-usage-session edge function
+- ❌ **Removed:** process-subscription-renewals edge function
+- ✅ **Enhanced:** AuthContext with centralized credit management
+- ✅ **Simplified:** CreditBalance component
+- ✅ **Unified:** All operations use check-and-deduct-credits
+
+#### New Credit Model:
+- **Chat message:** 1 credit
+- **Image generation:** 2-3 credits
+- **Voice synthesis:** 2 credits
+- **Advanced AI operations:** 2-3 credits
+
+#### Benefits:
+- ✅ Single source of truth for credits
+- ✅ Predictable, transparent costs
+- ✅ Industry-standard approach
+- ✅ Simpler architecture & debugging
+- ✅ Better user trust
+
+**Documentation:** See `CREDIT_SYSTEM_MIGRATION.md` for complete details.
+
+---
+
 ## 📊 System Architecture
 
 ### Edge Functions: 43 Deployed

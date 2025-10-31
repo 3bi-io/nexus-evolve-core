@@ -78,13 +78,7 @@ verify_jwt = true
 [functions.semantic-search]
 verify_jwt = true
 
-[functions.process-subscription-renewals]
-verify_jwt = false
-
 [functions.reset-daily-credits]
-verify_jwt = false
-
-[functions.manage-usage-session]
 verify_jwt = false
 
 [functions.process-referral-conversion]
@@ -110,4 +104,3 @@ verify_jwt = true
 
 [functions.validate-secrets]
 verify_jwt = true
-

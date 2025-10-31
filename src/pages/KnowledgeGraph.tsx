@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { RefreshCw, Network } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/EmptyState";
-import { UsageTimer } from "@/components/UsageTimer";
+
 import { SEO } from "@/components/SEO";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RAGSearch } from "@/components/rag/RAGSearch";
@@ -161,7 +161,7 @@ export default function KnowledgeGraph() {
         keywords="knowledge graph, semantic network, AI knowledge base, concept visualization, network graph"
         canonical="https://oneiros.me/knowledge-graph"
       />
-      <UsageTimer />
+      
       <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">

@@ -141,20 +141,17 @@ export const ChatInterface = () => {
 
     // Check credits before sending
     try {
-      const { data: creditCheck } = await supabase.functions.invoke('manage-usage-session', {
+      const { data: creditCheck } = await supabase.functions.invoke('check-and-deduct-credits', {
         body: {
-          action: 'check_credits_only',
-          userId: user?.id || null,
-          ipAddress: ipAddress || 'unknown'
+          operation: 'chat_message',
+          userId: user?.id,
+          ipAddress: !user ? ipAddress : undefined
         }
       });
 
-      // Transform response format
-      const allowed = (creditCheck?.remainingCredits || 0) > 0;
-      
-      if (!allowed) {
-        setCurrentCredits(creditCheck?.remainingCredits || 0);
-        setSuggestedTier(creditCheck?.remainingCredits === 0 ? 'starter' : undefined);
+      if (!creditCheck?.allowed) {
+        setCurrentCredits(creditCheck?.remaining || 0);
+        setSuggestedTier(creditCheck?.suggestedTier);
         setUpgradePromptOpen(true);
         return;
       }

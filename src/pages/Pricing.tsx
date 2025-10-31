@@ -38,7 +38,7 @@ const Pricing = () => {
     {
       question: "What counts as a credit?",
       answer:
-        "Each credit provides 300 seconds (5 minutes) of usage time. Your session timer starts when you use the platform and credits are deducted based on elapsed time when you finish. 1 credit = 5 minutes, so 10 credits = 50 minutes of usage.",
+        "Each operation (chat message, image generation, voice synthesis, etc.) costs credits based on complexity. Simple chat messages cost 1 credit, while advanced operations like image generation cost 2-3 credits. You can see the exact cost before each operation.",
     },
     {
       question: "Can I cancel anytime?",
@@ -118,7 +118,7 @@ const Pricing = () => {
               Choose Your Plan
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Start free with 5 daily credits (25 min/day). Upgrade for more time and features.
+              Start free with 5 daily credits. Upgrade for more credits and advanced features.
             </p>
           </div>
 

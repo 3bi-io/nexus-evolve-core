@@ -5,7 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useEngagementTracking } from "@/hooks/useEngagementTracking";
 import { useState, useEffect } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
-import { UsageTimer } from "@/components/UsageTimer";
+
 import { useMobile } from "@/hooks/useMobile";
 import { SEO } from "@/components/SEO";
 
@@ -37,7 +37,7 @@ const Index = () => {
         keywords="AI chat, chatbot, multi-agent AI, intelligent conversation, GPT alternative"
         canonical="https://oneiros.me/chat"
       />
-      <UsageTimer />
+      
       <ChatInterface />
       {user && <OnboardingChecklist />}
       {showPrompt && promptTrigger && !user && (
