@@ -137,23 +137,25 @@ export const ChatInterface = () => {
 
     // Check credits before sending
     try {
-      const { data: creditCheck } = await supabase.functions.invoke('check-and-deduct-credits', {
+      const { data: creditCheck } = await supabase.functions.invoke('manage-usage-session', {
         body: {
-          operation: 'chat',
+          action: 'check_credits_only',
           userId: user?.id || null,
-          ipAddress: ipAddress || 'unknown',
-          interactionId: crypto.randomUUID()
+          ipAddress: ipAddress || 'unknown'
         }
       });
 
-      if (!creditCheck?.allowed) {
-        setCurrentCredits(creditCheck?.remaining || 0);
-        setSuggestedTier(creditCheck?.suggestedTier);
+      // Transform response format
+      const allowed = (creditCheck?.remainingCredits || 0) > 0;
+      
+      if (!allowed) {
+        setCurrentCredits(creditCheck?.remainingCredits || 0);
+        setSuggestedTier(creditCheck?.remainingCredits === 0 ? 'starter' : undefined);
         setUpgradePromptOpen(true);
         return;
       }
 
-      setCurrentCredits(creditCheck?.remaining || 0);
+      setCurrentCredits(creditCheck?.remainingCredits || 0);
     } catch (error) {
       console.error('Credit check failed:', error);
       toast({

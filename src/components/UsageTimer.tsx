@@ -30,6 +30,29 @@ export const UsageTimer = () => {
       console.log('[UsageTimer] User ID:', user?.id);
       
       try {
+        // Pre-check credits before starting session
+        const preCheckBody: any = { action: 'check_credits_only' };
+        
+        if (user) {
+          preCheckBody.userId = user.id;
+        } else {
+          preCheckBody.ipAddress = 'client';
+        }
+        
+        console.log('[UsageTimer] Pre-checking credits...');
+        const { data: preCheck } = await supabase.functions.invoke('manage-usage-session', {
+          body: preCheckBody
+        });
+        
+        if (!preCheck?.success || (preCheck?.remainingCredits || 0) === 0) {
+          console.log('[UsageTimer] ❌ No credits available, aborting session start');
+          toast.error("No credits available. Please upgrade to continue.");
+          return;
+        }
+        
+        console.log('[UsageTimer] ✅ Credits available:', preCheck.remainingCredits);
+        
+        // Now start the session
         const requestBody: any = { action: 'start' };
         
         if (user) {
