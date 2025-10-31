@@ -24,11 +24,18 @@ export const UsageTimer = () => {
 
     const startSession = async () => {
       try {
+        console.log('Starting usage session for user:', user.id);
+        
         const { data, error } = await supabase.functions.invoke('manage-usage-session', {
           body: { action: 'start', userId: user.id }
         });
 
-        if (error) throw error;
+        console.log('Session start response:', { data, error });
+
+        if (error) {
+          console.error('Session start error:', error);
+          throw error;
+        }
 
         if (data?.success && data?.sessionId) {
           setUsageSessionId(data.sessionId);
@@ -36,7 +43,9 @@ export const UsageTimer = () => {
           setIsActive(true);
           sessionStorage.setItem('usageSessionId', data.sessionId);
           sessionStorage.setItem('sessionStartTime', Date.now().toString());
+          console.log('Session started successfully:', data.sessionId);
         } else if (!data?.success) {
+          console.error('Session start failed:', data?.message);
           toast.error(data?.message || "Failed to start session");
         }
       } catch (error) {

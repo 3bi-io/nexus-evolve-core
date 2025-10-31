@@ -39,52 +39,6 @@ serve(async (req) => {
     
     console.log(`Chat with routing: "${userMessage.substring(0, 100)}..."`);
 
-    // Check and deduct credits before processing
-    const clientIp = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
-    
-    const creditCheckResponse = await supabase.functions.invoke("check-and-deduct-credits", {
-      body: { 
-        operation: forceAgent || "chat",
-        userId: user.id,
-        ipAddress: clientIp
-      }
-    });
-
-    if (creditCheckResponse.error) {
-      console.error("Credit check error:", creditCheckResponse.error);
-      return new Response(JSON.stringify({ 
-        error: "Unable to verify credits. Please try again.",
-        details: creditCheckResponse.error
-      }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const creditCheck = creditCheckResponse.data;
-
-    if (!creditCheck.allowed) {
-      return new Response(JSON.stringify({ 
-        error: "Insufficient credits",
-        remaining: creditCheck.remaining,
-        creditCost: creditCheck.creditCost,
-        suggestedTier: creditCheck.suggestedTier,
-        message: creditCheck.suggestedTier 
-          ? `You've used all your credits. Upgrade to ${creditCheck.suggestedTier} for more!`
-          : "You've used all your daily credits. Please try again tomorrow or upgrade your plan."
-      }), {
-        status: 402,
-        headers: { 
-          ...corsHeaders, 
-          "Content-Type": "application/json",
-          "X-Credits-Remaining": creditCheck.remaining.toString(),
-          "X-Credits-Cost": creditCheck.creditCost.toString()
-        },
-      });
-    }
-
-    console.log(`Credits: ${creditCheck.remaining} remaining after ${creditCheck.creditCost} deduction`);
-
     // PHASE 3C: Intelligent Agent Routing
     let selectedAgent = forceAgent || "general";
     let agentAnalysis = null;
@@ -300,9 +254,7 @@ serve(async (req) => {
       return new Response(stream, {
         headers: { 
           ...corsHeaders, 
-          "Content-Type": "text/event-stream",
-          "X-Credits-Remaining": creditCheck.remaining.toString(),
-          "X-Credits-Cost": creditCheck.creditCost.toString()
+          "Content-Type": "text/event-stream"
         },
       });
     }
@@ -325,14 +277,11 @@ serve(async (req) => {
       JSON.stringify({ 
         response: responseText,
         agent: selectedAgent,
-        analysis: agentAnalysis,
-        creditsRemaining: creditCheck.remaining
+        analysis: agentAnalysis
       }),
       { headers: { 
         ...corsHeaders, 
-        "Content-Type": "application/json",
-        "X-Credits-Remaining": creditCheck.remaining.toString(),
-        "X-Credits-Cost": creditCheck.creditCost.toString()
+        "Content-Type": "application/json"
       } }
     );
 
