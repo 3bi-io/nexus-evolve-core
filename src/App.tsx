@@ -41,6 +41,7 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import ModelComparison from "./pages/ModelComparison";
 import BrowserAI from "./pages/BrowserAI";
+import AIHub from "./pages/AIHub";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -235,6 +236,14 @@ const RoutesWithShortcuts = () => {
             element={
               <ProtectedRoute>
                 <BrowserAI />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ai-hub"
+            element={
+              <ProtectedRoute>
+                <AIHub />
               </ProtectedRoute>
             }
           />
