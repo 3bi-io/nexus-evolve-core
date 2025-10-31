@@ -12,6 +12,8 @@ import { toast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/EmptyState";
 import { UsageTimer } from "@/components/UsageTimer";
 import { SEO } from "@/components/SEO";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RAGSearch } from "@/components/rag/RAGSearch";
 
 type GraphNode = {
   id: string;
@@ -33,6 +35,7 @@ export default function KnowledgeGraph() {
   const [graphData, setGraphData] = useState<{ nodes: GraphNode[]; links: GraphLink[] }>({ nodes: [], links: [] });
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({ knowledge: 0, memories: 0, solutions: 0, patterns: 0 });
+  const [activeTab, setActiveTab] = useState("graph");
 
   const loadGraphData = useCallback(async () => {
     if (!user) return;
@@ -213,7 +216,14 @@ export default function KnowledgeGraph() {
           </Card>
         </div>
 
-        <Card>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="graph">Graph View</TabsTrigger>
+            <TabsTrigger value="search">RAG Search</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="graph" className="mt-4">
+            <Card>
           <CardHeader>
             <CardTitle>Concept Network</CardTitle>
             <CardDescription>
@@ -280,6 +290,12 @@ export default function KnowledgeGraph() {
             )}
           </CardContent>
         </Card>
+          </TabsContent>
+
+          <TabsContent value="search" className="mt-4">
+            <RAGSearch />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

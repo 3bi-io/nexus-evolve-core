@@ -78,3 +78,12 @@ verify_jwt = false
 [functions.send-low-credit-alert]
 verify_jwt = false
 
+[functions.llamaindex-rag]
+verify_jwt = true
+
+[functions.system-health]
+verify_jwt = false
+
+[functions.validate-secrets]
+verify_jwt = false
+

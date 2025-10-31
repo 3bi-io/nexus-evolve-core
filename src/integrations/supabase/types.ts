@@ -883,42 +883,60 @@ export type Database = {
       }
       knowledge_base: {
         Row: {
+          chunk_index: number | null
           content: string | null
           created_at: string
+          document_type: string | null
           embedding: string | null
           id: string
           importance_score: number | null
+          keywords: string[] | null
           metadata: Json | null
+          parent_doc_id: string | null
           source_reference: string | null
           source_type: string | null
+          source_url: string | null
           tags: string[] | null
           topic: string
+          tsv: unknown
           user_id: string
         }
         Insert: {
+          chunk_index?: number | null
           content?: string | null
           created_at?: string
+          document_type?: string | null
           embedding?: string | null
           id?: string
           importance_score?: number | null
+          keywords?: string[] | null
           metadata?: Json | null
+          parent_doc_id?: string | null
           source_reference?: string | null
           source_type?: string | null
+          source_url?: string | null
           tags?: string[] | null
           topic: string
+          tsv?: unknown
           user_id: string
         }
         Update: {
+          chunk_index?: number | null
           content?: string | null
           created_at?: string
+          document_type?: string | null
           embedding?: string | null
           id?: string
           importance_score?: number | null
+          keywords?: string[] | null
           metadata?: Json | null
+          parent_doc_id?: string | null
           source_reference?: string | null
           source_type?: string | null
+          source_url?: string | null
           tags?: string[] | null
           topic?: string
+          tsv?: unknown
           user_id?: string
         }
         Relationships: []
@@ -1082,6 +1100,39 @@ export type Database = {
           solution_path?: Json | null
           success_score?: number | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      rag_queries: {
+        Row: {
+          created_at: string | null
+          id: string
+          query: string
+          response_quality_score: number | null
+          results_count: number | null
+          transformed_query: string | null
+          user_feedback: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          query: string
+          response_quality_score?: number | null
+          results_count?: number | null
+          transformed_query?: string | null
+          user_feedback?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          query?: string
+          response_quality_score?: number | null
+          results_count?: number | null
+          transformed_query?: string | null
+          user_feedback?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -1878,6 +1929,23 @@ export type Database = {
         Returns: undefined
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      match_knowledge_base: {
+        Args: {
+          match_count?: number
+          match_threshold?: number
+          p_user_id?: string
+          query_embedding: string
+        }
+        Returns: {
+          content: string
+          created_at: string
+          id: string
+          similarity: number
+          source_url: string
+          topic: string
+          user_id: string
+        }[]
+      }
       process_referral_signup: {
         Args: { p_referral_code: string; p_referred_user_id: string }
         Returns: Json
