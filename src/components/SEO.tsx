@@ -14,7 +14,7 @@ export function SEO({
   title, 
   description, 
   canonical, 
-  ogImage = '/og-image.png',
+  ogImage = '/og-image-new.png',
   ogType = 'website',
   keywords,
   schema 
