@@ -33,6 +33,8 @@ import AgentMarketplace from "./pages/AgentMarketplace";
 import Integrations from "./pages/Integrations";
 import MultimodalStudio from "./pages/MultimodalStudio";
 import VoiceAgent from "./pages/VoiceAgent";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -124,6 +126,8 @@ const RoutesWithShortcuts = () => {
             }
           />
           <Route path="/pricing" element={<Pricing />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
           <Route
             path="/account"
             element={

@@ -19,49 +19,77 @@ export const UsageTimer = () => {
 
   // Start session for all users (authenticated and anonymous)
   useEffect(() => {
-    if (usageSessionId) return;
+    if (usageSessionId) {
+      console.log('[UsageTimer] Session already exists, skipping start:', usageSessionId);
+      return;
+    }
 
     const startSession = async () => {
+      console.log('[UsageTimer] === Starting Session Flow ===');
+      console.log('[UsageTimer] User authenticated:', !!user);
+      console.log('[UsageTimer] User ID:', user?.id);
+      
       try {
         const requestBody: any = { action: 'start' };
         
         if (user) {
           requestBody.userId = user.id;
-          console.log('Starting usage session for user:', user.id);
+          console.log('[UsageTimer] Building request for authenticated user:', user.id);
         } else {
           // Anonymous visitor - get IP from client
           requestBody.ipAddress = 'client'; // Backend will extract real IP
-          console.log('Starting usage session for anonymous visitor');
+          console.log('[UsageTimer] Building request for anonymous visitor');
         }
+        
+        console.log('[UsageTimer] Request body:', JSON.stringify(requestBody, null, 2));
+        console.log('[UsageTimer] Invoking manage-usage-session edge function...');
         
         const { data, error } = await supabase.functions.invoke('manage-usage-session', {
           body: requestBody
         });
 
-        console.log('Session start response:', { data, error });
+        console.log('[UsageTimer] === Response Received ===');
+        console.log('[UsageTimer] Data:', JSON.stringify(data, null, 2));
+        console.log('[UsageTimer] Error:', error);
 
         if (error) {
-          console.error('Session start error:', error);
+          console.error('[UsageTimer] ❌ Session start error:', error);
+          console.error('[UsageTimer] Error details:', JSON.stringify(error, null, 2));
           throw error;
         }
 
         if (data?.success && data?.sessionId) {
+          console.log('[UsageTimer] ✅ Session started successfully');
+          console.log('[UsageTimer] Session ID:', data.sessionId);
+          console.log('[UsageTimer] Remaining seconds:', data.remainingSeconds);
+          console.log('[UsageTimer] Remaining credits:', data.remainingCredits);
+          
           setUsageSessionId(data.sessionId);
           setRemainingSeconds(data.remainingSeconds || SESSION_DURATION_SECONDS);
           setIsActive(true);
           sessionStorage.setItem('usageSessionId', data.sessionId);
           sessionStorage.setItem('sessionStartTime', Date.now().toString());
-          console.log('Session started successfully:', data.sessionId);
+          
+          console.log('[UsageTimer] State updated, timer is now active');
         } else if (!data?.success) {
-          console.error('Session start failed:', data?.message);
+          console.error('[UsageTimer] ❌ Session start failed');
+          console.error('[UsageTimer] Failure message:', data?.message);
+          console.error('[UsageTimer] Full response:', JSON.stringify(data, null, 2));
           toast.error(data?.message || "Failed to start session");
+        } else {
+          console.warn('[UsageTimer] ⚠️ Unexpected response format:', data);
         }
-      } catch (error) {
-        console.error('Failed to start usage session:', error);
+      } catch (error: any) {
+        console.error('[UsageTimer] ❌ Exception during session start:', error);
+        console.error('[UsageTimer] Error stack:', error?.stack);
+        console.error('[UsageTimer] Error message:', error?.message);
         toast.error("Failed to start usage session");
       }
+      
+      console.log('[UsageTimer] === Session Flow Complete ===');
     };
 
+    console.log('[UsageTimer] Triggering session start...');
     startSession();
   }, [user, usageSessionId]);
 
@@ -97,18 +125,34 @@ export const UsageTimer = () => {
 
   // Stop session
   const stopSession = useCallback(async () => {
-    if (!usageSessionId) return;
+    if (!usageSessionId) {
+      console.log('[UsageTimer] No session ID to stop');
+      return;
+    }
+
+    console.log('[UsageTimer] === Stopping Session ===');
+    console.log('[UsageTimer] Session ID:', usageSessionId);
+    console.log('[UsageTimer] Elapsed seconds:', elapsedSeconds);
 
     try {
+      const stopBody = { 
+        action: 'stop', 
+        sessionId: usageSessionId,
+        userId: user?.id 
+      };
+      
+      console.log('[UsageTimer] Stop request body:', JSON.stringify(stopBody, null, 2));
+      
       const { data, error } = await supabase.functions.invoke('manage-usage-session', {
-        body: { 
-          action: 'stop', 
-          sessionId: usageSessionId,
-          userId: user?.id 
-        }
+        body: stopBody
       });
 
-      if (error) throw error;
+      console.log('[UsageTimer] Stop response:', { data, error });
+
+      if (error) {
+        console.error('[UsageTimer] ❌ Error stopping session:', error);
+        throw error;
+      }
 
       sessionStorage.removeItem('usageSessionId');
       sessionStorage.removeItem('sessionStartTime');
@@ -120,12 +164,17 @@ export const UsageTimer = () => {
       setRemainingSeconds(SESSION_DURATION_SECONDS);
 
       if (data?.success) {
+        console.log('[UsageTimer] ✅ Session stopped successfully');
+        console.log('[UsageTimer] Credits deducted:', data.creditsDeducted);
         toast.info(`Session ended. ${data.creditsDeducted || 0} credits used.`);
       }
-    } catch (error) {
-      console.error('Failed to stop session:', error);
+    } catch (error: any) {
+      console.error('[UsageTimer] ❌ Failed to stop session:', error);
+      console.error('[UsageTimer] Error details:', error?.message);
     }
-  }, [usageSessionId, user?.id]);
+    
+    console.log('[UsageTimer] === Session Stop Complete ===');
+  }, [usageSessionId, user?.id, elapsedSeconds]);
 
   // Cleanup on unmount
   useEffect(() => {
