@@ -941,6 +941,54 @@ export type Database = {
         }
         Relationships: []
       }
+      llm_observations: {
+        Row: {
+          agent_type: string
+          braintrust_span_id: string | null
+          completion_tokens: number | null
+          cost_usd: number | null
+          created_at: string | null
+          id: string
+          latency_ms: number | null
+          metadata: Json | null
+          model_used: string
+          prompt_tokens: number | null
+          quality_score: number | null
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          agent_type: string
+          braintrust_span_id?: string | null
+          completion_tokens?: number | null
+          cost_usd?: number | null
+          created_at?: string | null
+          id?: string
+          latency_ms?: number | null
+          metadata?: Json | null
+          model_used: string
+          prompt_tokens?: number | null
+          quality_score?: number | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          agent_type?: string
+          braintrust_span_id?: string | null
+          completion_tokens?: number | null
+          cost_usd?: number | null
+          created_at?: string | null
+          id?: string
+          latency_ms?: number | null
+          metadata?: Json | null
+          model_used?: string
+          prompt_tokens?: number | null
+          quality_score?: number | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       model_performance: {
         Row: {
           avg_cost_credits: number | null
