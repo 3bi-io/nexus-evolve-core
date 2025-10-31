@@ -106,8 +106,8 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.system-health]
-verify_jwt = false
+verify_jwt = true
 
 [functions.validate-secrets]
-verify_jwt = false
+verify_jwt = true
 
