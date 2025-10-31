@@ -102,7 +102,7 @@ Deno.serve(async (req) => {
           .from('visitor_credits')
           .select('*')
           .eq('ip_hash', ipHash)
-          .eq('usage_date', today)
+          .eq('last_visit_date', today)
           .single();
 
         if (existingVisitor) {
@@ -122,7 +122,7 @@ Deno.serve(async (req) => {
               ip_hash: ipHash,
               daily_credits: 5,
               credits_used_today: 0,
-              usage_date: today,
+              last_visit_date: today,
               consecutive_days: 1
             })
             .select()
