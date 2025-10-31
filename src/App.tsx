@@ -33,6 +33,7 @@ import SocialIntelligence from "./pages/SocialIntelligence";
 import AgentStudio from "./pages/AgentStudio";
 import AgentMarketplace from "./pages/AgentMarketplace";
 import Integrations from "./pages/Integrations";
+import AdvancedAI from "./pages/AdvancedAI";
 import MultimodalStudio from "./pages/MultimodalStudio";
 import VoiceAgent from "./pages/VoiceAgent";
 import Privacy from "./pages/Privacy";
@@ -183,6 +184,14 @@ const RoutesWithShortcuts = () => {
             element={
               <ProtectedRoute>
                 <Integrations />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/advanced-ai"
+            element={
+              <ProtectedRoute>
+                <AdvancedAI />
               </ProtectedRoute>
             }
           />

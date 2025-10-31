@@ -1,5 +1,11 @@
 project_id = "coobieessxvnujkkiadc"
 
+[functions.computer-use]
+verify_jwt = true
+
+[functions.pinecone-vector]
+verify_jwt = true
+
 [functions.langchain-orchestrator]
 verify_jwt = true
 

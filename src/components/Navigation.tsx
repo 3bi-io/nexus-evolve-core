@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Network, Brain, Zap, TrendingUp, LogOut, Shield, Trophy, BarChart3, Keyboard, Sparkles, Store, Phone } from "lucide-react";
+import { MessageSquare, Network, Brain, Zap, TrendingUp, LogOut, Shield, Trophy, BarChart3, Keyboard, Sparkles, Store, Phone, Plug, Cpu } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CreditBalance } from "@/components/pricing/CreditBalance";
@@ -106,6 +106,26 @@ export const Navigation = () => {
                   >
                     <Phone className="w-4 h-4" />
                     <span className="hidden xl:inline">Voice AI</span>
+                  </Button>
+                </Link>
+                <Link to="/integrations" className="flex-shrink-0">
+                  <Button
+                    variant={isActive("/integrations") ? "default" : "ghost"}
+                    size="sm"
+                    className="gap-2"
+                  >
+                    <Plug className="w-4 h-4" />
+                    <span className="hidden xl:inline">Phase 2</span>
+                  </Button>
+                </Link>
+                <Link to="/advanced-ai" className="flex-shrink-0">
+                  <Button
+                    variant={isActive("/advanced-ai") ? "default" : "ghost"}
+                    size="sm"
+                    className="gap-2"
+                  >
+                    <Cpu className="w-4 h-4" />
+                    <span className="hidden xl:inline">Phase 3</span>
                   </Button>
                 </Link>
               </>
