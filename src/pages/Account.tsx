@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { CreditCard, TrendingUp, Calendar, AlertCircle } from "lucide-react";
 import { formatDistance } from "date-fns";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { SEO } from "@/components/SEO";
 
 interface Subscription {
   tier_name: string;
@@ -82,6 +83,12 @@ const Account = () => {
 
   return (
     <PageLayout title="Account" showBottomNav={true}>
+      <SEO 
+        title="Account Settings - Manage Subscription & Credits"
+        description="View your subscription plan, monitor credit usage, and manage your Oneiros.me account. Track usage history and upgrade your plan for more AI capabilities."
+        keywords="account settings, subscription management, credit usage, AI plan"
+        canonical="https://oneiros.me/account"
+      />
       <div className="container mx-auto px-4 py-6 md:py-8 max-w-6xl">
         <div className="mb-6 md:mb-8">
           <h1 className="text-2xl md:text-4xl font-bold mb-2">Account Settings</h1>

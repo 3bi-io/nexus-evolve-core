@@ -5,10 +5,17 @@ import { VoiceRecorder } from "@/components/multimodal/VoiceRecorder";
 import { TextToSpeech } from "@/components/multimodal/TextToSpeech";
 import { MultimodalGallery } from "@/components/multimodal/MultimodalGallery";
 import { Sparkles, Image, Mic, Volume2, Grid } from "lucide-react";
+import { SEO } from "@/components/SEO";
 
 export default function MultimodalStudio() {
   return (
     <PageLayout>
+      <SEO 
+        title="Multimodal Studio - Image, Voice & Text AI Generation"
+        description="Generate images with AI, transcribe audio to text, convert text to speech, and manage all your AI-generated content in one place. Powered by DALL-E and ElevenLabs."
+        keywords="AI image generation, text to speech, voice to text, multimodal AI, DALL-E, audio transcription"
+        canonical="https://oneiros.me/multimodal"
+      />
       <div className="container mx-auto py-8 space-y-6">
         <div className="flex items-center gap-3">
           <Sparkles className="w-8 h-8 text-primary" />

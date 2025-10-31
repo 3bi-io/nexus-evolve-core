@@ -1,10 +1,17 @@
 import { PageTransition } from "@/components/ui/page-transition";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { SEO } from "@/components/SEO";
 
 const Terms = () => {
   return (
     <PageTransition>
+      <SEO 
+        title="Terms of Service - Legal Agreement & Usage Policies"
+        description="Read the Terms of Service for Oneiros.me. Learn about acceptable use, user responsibilities, subscriptions, intellectual property rights, and more."
+        keywords="terms of service, legal agreement, usage policy, terms and conditions, user agreement"
+        canonical="https://oneiros.me/terms"
+      />
       <div className="container max-w-4xl py-12 space-y-8">
         <div className="space-y-4">
           <h1 className="text-4xl font-bold tracking-tight">Terms of Service</h1>

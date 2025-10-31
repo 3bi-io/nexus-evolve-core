@@ -3,10 +3,18 @@ import { TrendingTopicsPanel } from '@/components/social/TrendingTopicsPanel';
 import { ViralContentStudio } from '@/components/social/ViralContentStudio';
 import { SocialSentimentDashboard } from '@/components/social/SocialSentimentDashboard';
 import { Sparkles } from 'lucide-react';
+import { SEO } from '@/components/SEO';
 
 export default function SocialIntelligence() {
   return (
     <PageLayout>
+      <SEO 
+        title="Social Intelligence - Real-time X (Twitter) Trend Analysis & Viral Content"
+        description="Real-time social intelligence powered by Grok AI. Track trending topics on X (Twitter), analyze sentiment, and create viral content with AI-powered insights."
+        keywords="social intelligence, Grok AI, X trends, Twitter analytics, viral content, sentiment analysis, social media AI"
+        canonical="https://oneiros.me/social-intelligence"
+        ogImage="/og-social.png"
+      />
       <div className="container max-w-7xl py-8 space-y-8">
         <div className="flex items-center gap-3">
           <Sparkles className="w-8 h-8 text-primary" />

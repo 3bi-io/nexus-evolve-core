@@ -1,10 +1,17 @@
 import { PageTransition } from "@/components/ui/page-transition";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { SEO } from "@/components/SEO";
 
 const Privacy = () => {
   return (
     <PageTransition>
+      <SEO 
+        title="Privacy Policy - Data Protection & Security"
+        description="Learn how Oneiros.me collects, uses, and protects your data. GDPR & CCPA compliant. Transparent data practices with user rights and security measures."
+        keywords="privacy policy, data protection, GDPR, CCPA, data security, user privacy"
+        canonical="https://oneiros.me/privacy"
+      />
       <div className="container max-w-4xl py-12 space-y-8">
         <div className="space-y-4">
           <h1 className="text-4xl font-bold tracking-tight">Privacy Policy</h1>

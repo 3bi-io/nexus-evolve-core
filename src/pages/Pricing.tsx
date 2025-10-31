@@ -3,6 +3,7 @@ import { Brain, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PricingCards } from "@/components/pricing/PricingCards";
 import { PageTransition } from "@/components/ui/page-transition";
+import { SEO } from "@/components/SEO";
 import {
   Accordion,
   AccordionContent,
@@ -48,6 +49,47 @@ const Pricing = () => {
 
   return (
     <PageTransition>
+      <SEO 
+        title="Pricing Plans - Starter $49, Professional $149, Enterprise $999"
+        description="Choose the perfect AI plan for your needs. Starter: 500 credits/month at $49. Professional: 2,000 credits at $149. Enterprise: Unlimited at $999. Free tier with 500 daily credits available."
+        keywords="AI pricing, subscription plans, AI platform pricing, credits pricing, enterprise AI"
+        canonical="https://oneiros.me/pricing"
+        ogImage="/og-pricing.png"
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "name": "Free Tier",
+              "price": "0",
+              "priceCurrency": "USD",
+              "description": "500 free daily credits"
+            },
+            {
+              "@type": "Offer",
+              "name": "Starter Plan",
+              "price": "49",
+              "priceCurrency": "USD",
+              "description": "500 credits per month"
+            },
+            {
+              "@type": "Offer",
+              "name": "Professional Plan",
+              "price": "149",
+              "priceCurrency": "USD",
+              "description": "2,000 credits per month"
+            },
+            {
+              "@type": "Offer",
+              "name": "Enterprise Plan",
+              "price": "999",
+              "priceCurrency": "USD",
+              "description": "Unlimited credits"
+            }
+          ]
+        }}
+      />
       <div className="min-h-screen bg-background">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-lg">

@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { UsageTimer } from "@/components/UsageTimer";
 import { useMobile } from "@/hooks/useMobile";
+import { SEO } from "@/components/SEO";
 
 const Index = () => {
   const { user } = useAuth();
@@ -30,6 +31,12 @@ const Index = () => {
       showBottomNav={isMobile}
       showBack={false}
     >
+      <SEO 
+        title="AI Chat - Intelligent Conversations with Multi-Agent System"
+        description="Chat with our advanced AI powered by 5 specialized agents. Get intelligent responses for reasoning, creativity, learning, and real-time data with Grok integration."
+        keywords="AI chat, chatbot, multi-agent AI, intelligent conversation, GPT alternative"
+        canonical="https://oneiros.me/chat"
+      />
       <UsageTimer />
       <ChatInterface />
       {user && <OnboardingChecklist />}

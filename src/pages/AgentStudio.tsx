@@ -5,12 +5,19 @@ import { AgentTemplates } from '@/components/agents/AgentTemplates';
 import { MyAgents } from '@/components/agents/MyAgents';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sparkles, Plus, Library } from 'lucide-react';
+import { SEO } from '@/components/SEO';
 
 export default function AgentStudio() {
   const [activeTab, setActiveTab] = useState('my-agents');
 
   return (
     <PageLayout>
+      <SEO 
+        title="Agent Studio - Create & Customize AI Agents"
+        description="Build custom AI agents tailored to your needs. Use templates or create from scratch. Design personality, capabilities, and functions for your specialized AI assistants."
+        keywords="custom AI agents, agent builder, AI customization, agent templates, AI assistant builder"
+        canonical="https://oneiros.me/agent-studio"
+      />
       <div className="container max-w-7xl py-8">
         <div className="flex items-center gap-3 mb-8">
           <Sparkles className="w-8 h-8 text-primary" />

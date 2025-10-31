@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Mic, MicOff, Phone, PhoneOff, Sparkles, Settings } from "lucide-react";
 import { VoiceAgentChat } from "@/components/voice/VoiceAgentChat";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SEO } from "@/components/SEO";
 
 export default function VoiceAgent() {
   const { toast } = useToast();
@@ -35,6 +36,13 @@ export default function VoiceAgent() {
 
   return (
     <PageLayout>
+      <SEO 
+        title="Voice AI Agent - Real-time Conversational AI with ElevenLabs"
+        description="Engage in natural voice conversations with our AI agent powered by ElevenLabs. Real-time speech recognition, function calling, intelligent responses, and seamless voice interaction."
+        keywords="voice AI, ElevenLabs, conversational AI, voice agent, speech recognition, text to speech, voice chatbot"
+        canonical="https://oneiros.me/voice-agent"
+        ogImage="/og-voice-agent.png"
+      />
       <div className="container mx-auto py-8 space-y-6">
         <div className="flex items-center gap-3">
           <Phone className="w-8 h-8 text-primary" />

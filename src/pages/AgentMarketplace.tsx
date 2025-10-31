@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Store, Search, TrendingUp, Filter } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { SEO } from '@/components/SEO';
 
 interface MarketplaceListing {
   id: string;
@@ -94,6 +95,13 @@ export default function AgentMarketplace() {
 
   return (
     <PageLayout>
+      <SEO 
+        title="Agent Marketplace - Create, Share & Monetize Custom AI Agents"
+        description="Browse and deploy specialized AI agents or create your own. Community-driven marketplace with agents for productivity, creativity, research, business, and coding."
+        keywords="AI agent marketplace, custom AI agents, agent builder, AI marketplace, buy AI agents"
+        canonical="https://oneiros.me/agent-marketplace"
+        ogImage="/og-marketplace.png"
+      />
       <div className="container max-w-7xl py-8">
         <div className="flex items-center gap-3 mb-8">
           <Store className="w-8 h-8 text-primary" />

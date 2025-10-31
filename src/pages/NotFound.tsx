@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Home, ArrowLeft } from "lucide-react";
 import { PageTransition } from "@/components/ui/page-transition";
+import { SEO } from "@/components/SEO";
 
 const NotFound = () => {
   const location = useLocation();
@@ -15,6 +16,11 @@ const NotFound = () => {
 
   return (
     <PageTransition>
+      <SEO 
+        title="404 - Page Not Found"
+        description="The page you're looking for doesn't exist. Return to Oneiros.me homepage or explore our AI platform features."
+        canonical="https://oneiros.me/404"
+      />
       <div className="flex min-h-screen items-center justify-center bg-background px-4">
         <Card className="w-full max-w-md">
           <CardContent className="pt-12 pb-12 text-center space-y-6">

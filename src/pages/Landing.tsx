@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
 import { PageTransition } from "@/components/ui/page-transition";
+import { SEO } from "@/components/SEO";
 import {
   Brain,
   Network,
@@ -135,6 +136,28 @@ const Landing = () => {
 
   return (
     <PageTransition>
+      <SEO 
+        title="The Most Advanced AI Platform - Voice AI, Multi-Agent System & More"
+        description="Experience 9 integrated AI systems: Voice conversations with ElevenLabs, multi-agent orchestration, agent marketplace, social intelligence powered by Grok, multimodal capabilities, and autonomous evolution. Start with 500 free daily credits."
+        keywords="AI platform, voice AI, multi-agent system, agent marketplace, ChatGPT alternative, ElevenLabs integration, Grok AI, multimodal AI, autonomous AI"
+        canonical="https://oneiros.me"
+        ogImage="/og-image-new.png"
+        schema={{
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          "name": "Oneiros.me",
+          "applicationCategory": "BusinessApplication",
+          "offers": {
+            "@type": "AggregateOffer",
+            "lowPrice": "0",
+            "highPrice": "999",
+            "priceCurrency": "USD"
+          },
+          "description": "The most advanced AI platform with voice AI, multi-agent orchestration, and social intelligence",
+          "operatingSystem": "Web",
+          "url": "https://oneiros.me"
+        }}
+      />
       <div className="min-h-screen bg-background">
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-lg">
