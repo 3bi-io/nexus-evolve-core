@@ -121,6 +121,16 @@ export const Navigation = () => {
                     <span className="hidden xl:inline">AI Hub</span>
                   </Button>
                 </Link>
+                <Link to="/advanced-browser-ai" className="flex-shrink-0">
+                  <Button
+                    variant={isActive("/advanced-browser-ai") ? "default" : "ghost"}
+                    size="sm"
+                    className="gap-2"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    <span className="hidden xl:inline">Phase 3B</span>
+                  </Button>
+                </Link>
                 <Link to="/integrations" className="flex-shrink-0">
                   <Button
                     variant={isActive("/integrations") ? "default" : "ghost"}

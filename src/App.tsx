@@ -42,6 +42,7 @@ import Terms from "./pages/Terms";
 import ModelComparison from "./pages/ModelComparison";
 import BrowserAI from "./pages/BrowserAI";
 import AIHub from "./pages/AIHub";
+import AdvancedBrowserAI from "./pages/AdvancedBrowserAI";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -244,6 +245,14 @@ const RoutesWithShortcuts = () => {
             element={
               <ProtectedRoute>
                 <AIHub />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/advanced-browser-ai"
+            element={
+              <ProtectedRoute>
+                <AdvancedBrowserAI />
               </ProtectedRoute>
             }
           />
