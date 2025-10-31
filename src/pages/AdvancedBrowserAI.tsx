@@ -5,6 +5,8 @@ import { BackgroundRemover } from "@/components/ai/BackgroundRemover";
 import { ModelCacheViewer } from "@/components/ai/ModelCacheViewer";
 import { BrowserEmbeddings } from "@/components/ai/BrowserEmbeddings";
 import { IntentClassifier } from "@/components/ai/IntentClassifier";
+import { ObjectDetector } from "@/components/ai/ObjectDetector";
+import { ImageCaptioning } from "@/components/ai/ImageCaptioning";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Shield, Zap, HardDrive } from "lucide-react";
@@ -72,25 +74,34 @@ const AdvancedBrowserAI = () => {
         </div>
 
         <Tabs defaultValue="background" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="background">Background Removal</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="background">Background</TabsTrigger>
+            <TabsTrigger value="detection">Detection</TabsTrigger>
+            <TabsTrigger value="captioning">Captioning</TabsTrigger>
             <TabsTrigger value="embeddings">Embeddings</TabsTrigger>
             <TabsTrigger value="classification">Classification</TabsTrigger>
-            <TabsTrigger value="cache">Model Cache</TabsTrigger>
+            <TabsTrigger value="cache">Cache</TabsTrigger>
           </TabsList>
 
           <TabsContent value="background" className="space-y-4">
             <BackgroundRemover />
-            
-            <Card className="p-6 bg-muted">
-              <h3 className="font-semibold mb-3">How it works</h3>
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <p>1. Upload an image (stays in your browser)</p>
-                <p>2. AI model segments the subject from background</p>
-                <p>3. Background is removed, creating transparent PNG</p>
-                <p>4. Download your processed image</p>
-              </div>
-            </Card>
+            <p className="text-sm text-muted-foreground">
+              Upload an image and remove its background using AI segmentation, all processed locally in your browser.
+            </p>
+          </TabsContent>
+
+          <TabsContent value="detection" className="space-y-4">
+            <ObjectDetector />
+            <p className="text-sm text-muted-foreground">
+              Detect and locate objects in images using the DETR model, running entirely in your browser.
+            </p>
+          </TabsContent>
+
+          <TabsContent value="captioning" className="space-y-4">
+            <ImageCaptioning />
+            <p className="text-sm text-muted-foreground">
+              Generate natural language descriptions of images using Vision Transformer and GPT-2.
+            </p>
           </TabsContent>
 
           <TabsContent value="embeddings" className="space-y-4">
