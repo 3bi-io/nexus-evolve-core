@@ -97,29 +97,79 @@ Deno.serve(async (req) => {
         const ipHash = await hashIP(ipAddress);
         const today = new Date().toISOString().split('T')[0];
 
-        // Get or create visitor credit record
-        const { data: existingVisitor } = await supabase
+        console.log(`[START] Looking up visitor by IP hash for date: ${today}`);
+
+        // Get visitor by ip_hash only (ignore date to handle rollovers)
+        const { data: existingVisitor, error: lookupError } = await supabase
           .from('visitor_credits')
           .select('*')
           .eq('ip_hash', ipHash)
-          .eq('last_visit_date', today)
-          .single();
+          .maybeSingle();
+
+        if (lookupError) {
+          console.error('[START] Error looking up visitor:', lookupError);
+        }
 
         if (existingVisitor) {
-          // Check if visitor has credits remaining
-          const creditsRemaining = existingVisitor.daily_credits - existingVisitor.credits_used_today;
-          if (creditsRemaining > 0) {
-            hasCredits = true;
-            remainingCredits = creditsRemaining;
-            remainingSeconds = creditsRemaining * SECONDS_PER_CREDIT;
-            visitorCreditId = existingVisitor.id;
+          console.log(`[START] Found existing visitor, last visit: ${existingVisitor.last_visit_date}`);
+          
+          // Check if it's a new day - need to reset credits
+          if (existingVisitor.last_visit_date !== today) {
+            console.log('[START] New day detected, resetting credits');
+            
+            const { data: updatedVisitor, error: updateError } = await supabase
+              .from('visitor_credits')
+              .update({
+                last_visit_date: today,
+                credits_used_today: 0,
+                consecutive_days: existingVisitor.consecutive_days + 1,
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', existingVisitor.id)
+              .select()
+              .single();
+
+            if (updateError) {
+              console.error('[START] Failed to update visitor for new day:', updateError);
+            } else if (updatedVisitor) {
+              console.log('[START] Successfully reset credits for new day');
+              hasCredits = true;
+              remainingCredits = updatedVisitor.daily_credits;
+              remainingSeconds = remainingCredits * SECONDS_PER_CREDIT;
+              visitorCreditId = updatedVisitor.id;
+            }
+          } else {
+            // Same day - check remaining credits
+            const creditsRemaining = existingVisitor.daily_credits - existingVisitor.credits_used_today;
+            console.log(`[START] Same day, remaining credits: ${creditsRemaining}`);
+            
+            if (creditsRemaining > 0) {
+              hasCredits = true;
+              remainingCredits = creditsRemaining;
+              remainingSeconds = creditsRemaining * SECONDS_PER_CREDIT;
+              visitorCreditId = existingVisitor.id;
+            }
           }
         } else {
-          // Create new visitor record with 5 free daily credits
+          // First-time visitor - create new record
+          console.log('[START] New visitor, creating record');
+          
+          // Encrypt IP address
+          const { data: encryptedIP, error: encryptError } = await supabase
+            .rpc('encrypt_ip', { 
+              ip_address: ipAddress,
+              encryption_key: Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+            });
+
+          if (encryptError) {
+            console.error('[START] Failed to encrypt IP:', encryptError);
+          }
+
           const { data: newVisitor, error: insertError } = await supabase
             .from('visitor_credits')
             .insert({
               ip_hash: ipHash,
+              ip_encrypted: encryptedIP || 'encrypted',
               daily_credits: 5,
               credits_used_today: 0,
               last_visit_date: today,
@@ -128,7 +178,10 @@ Deno.serve(async (req) => {
             .select()
             .single();
 
-          if (!insertError && newVisitor) {
+          if (insertError) {
+            console.error('[START] Failed to create visitor record:', insertError);
+          } else if (newVisitor) {
+            console.log('[START] Successfully created new visitor');
             hasCredits = true;
             remainingCredits = 5;
             remainingSeconds = 5 * SECONDS_PER_CREDIT;
