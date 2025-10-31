@@ -17,17 +17,25 @@ export const UsageTimer = () => {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isActive, setIsActive] = useState(false);
 
-  // Start session for authenticated users only
+  // Start session for all users (authenticated and anonymous)
   useEffect(() => {
-    if (!user) return;
     if (usageSessionId) return;
 
     const startSession = async () => {
       try {
-        console.log('Starting usage session for user:', user.id);
+        const requestBody: any = { action: 'start' };
+        
+        if (user) {
+          requestBody.userId = user.id;
+          console.log('Starting usage session for user:', user.id);
+        } else {
+          // Anonymous visitor - get IP from client
+          requestBody.ipAddress = 'client'; // Backend will extract real IP
+          console.log('Starting usage session for anonymous visitor');
+        }
         
         const { data, error } = await supabase.functions.invoke('manage-usage-session', {
-          body: { action: 'start', userId: user.id }
+          body: requestBody
         });
 
         console.log('Session start response:', { data, error });
@@ -146,8 +154,8 @@ export const UsageTimer = () => {
     return "";
   };
 
-  // Only render for authenticated and active users
-  if (!user || !isActive) return null;
+  // Only render when active
+  if (!isActive) return null;
 
   return (
     <motion.div

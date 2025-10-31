@@ -21,7 +21,13 @@ Deno.serve(async (req) => {
     // Rate limiting - 100 requests per hour per IP/user
     const clientIP = getClientIP(req);
     const body = await req.json();
-    const { action, userId, ipAddress, sessionId, usageSessionId, route } = body;
+    let { action, userId, ipAddress, sessionId, usageSessionId, route } = body;
+    
+    // If ipAddress is 'client', extract real IP from headers
+    if (ipAddress === 'client') {
+      ipAddress = clientIP;
+    }
+    
     const identifier = userId || clientIP;
     
     const rateLimit = await checkRateLimit({
@@ -48,50 +54,86 @@ Deno.serve(async (req) => {
 
     // START SESSION
     if (action === 'start') {
-      // Only authenticated users can start sessions
-      if (!userId) {
-        return new Response(
-          JSON.stringify({ 
-            success: false, 
-            allowed: false,
-            message: 'Please sign in to use this feature'
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 402 }
-        );
-      }
-
-      // Check if user has credits available
       let hasCredits = false;
       let remainingCredits = 0;
       let remainingSeconds = 0;
-      let isSuperAdmin = false;
+      let visitorCreditId = null;
+      let userIdForSession = null;
 
-      // Check if user is super admin - they have unlimited usage
-      const { data: roleCheck, error: roleError } = await supabase
-        .rpc('has_role', { 
-          _user_id: userId, 
-          _role: 'super_admin' 
-        });
+      // AUTHENTICATED USER
+      if (userId) {
+        // Check if user is super admin - they have unlimited usage
+        const { data: roleCheck, error: roleError } = await supabase
+          .rpc('has_role', { 
+            _user_id: userId, 
+            _role: 'super_admin' 
+          });
 
-      if (!roleError && roleCheck) {
-        // Super admin has unlimited credits
-        hasCredits = true;
-        isSuperAdmin = true;
-        remainingCredits = 999999;
-        remainingSeconds = 999999 * SECONDS_PER_CREDIT;
-      } else {
-        // Check authenticated user subscription
-        const { data: subscription } = await supabase
-          .from('user_subscriptions')
-          .select('credits_remaining')
-          .eq('user_id', userId)
-          .eq('status', 'active')
+        if (!roleError && roleCheck) {
+          // Super admin has unlimited credits
+          hasCredits = true;
+          remainingCredits = 999999;
+          remainingSeconds = 999999 * SECONDS_PER_CREDIT;
+          userIdForSession = userId;
+        } else {
+          // Check authenticated user subscription
+          const { data: subscription } = await supabase
+            .from('user_subscriptions')
+            .select('credits_remaining')
+            .eq('user_id', userId)
+            .eq('status', 'active')
+            .single();
+
+          if (subscription && subscription.credits_remaining > 0) {
+            hasCredits = true;
+            remainingCredits = subscription.credits_remaining;
+            remainingSeconds = remainingCredits * SECONDS_PER_CREDIT;
+            userIdForSession = userId;
+          }
+        }
+      } 
+      // ANONYMOUS VISITOR
+      else if (ipAddress) {
+        const ipHash = await hashIP(ipAddress);
+        const today = new Date().toISOString().split('T')[0];
+
+        // Get or create visitor credit record
+        const { data: existingVisitor } = await supabase
+          .from('visitor_credits')
+          .select('*')
+          .eq('ip_hash', ipHash)
+          .eq('usage_date', today)
           .single();
 
-        if (subscription && subscription.credits_remaining > 0) {
-          hasCredits = true;
-          remainingCredits = subscription.credits_remaining;
-          remainingSeconds = remainingCredits * SECONDS_PER_CREDIT;
+        if (existingVisitor) {
+          // Check if visitor has credits remaining
+          const creditsRemaining = existingVisitor.daily_credits - existingVisitor.credits_used_today;
+          if (creditsRemaining > 0) {
+            hasCredits = true;
+            remainingCredits = creditsRemaining;
+            remainingSeconds = creditsRemaining * SECONDS_PER_CREDIT;
+            visitorCreditId = existingVisitor.id;
+          }
+        } else {
+          // Create new visitor record with 5 free daily credits
+          const { data: newVisitor, error: insertError } = await supabase
+            .from('visitor_credits')
+            .insert({
+              ip_hash: ipHash,
+              daily_credits: 5,
+              credits_used_today: 0,
+              usage_date: today,
+              consecutive_days: 1
+            })
+            .select()
+            .single();
+
+          if (!insertError && newVisitor) {
+            hasCredits = true;
+            remainingCredits = 5;
+            remainingSeconds = 5 * SECONDS_PER_CREDIT;
+            visitorCreditId = newVisitor.id;
+          }
         }
       }
 
@@ -99,7 +141,9 @@ Deno.serve(async (req) => {
         return new Response(
           JSON.stringify({ 
             success: false,
-            message: 'No credits available. Please upgrade your plan.',
+            message: userId 
+              ? 'No credits available. Please upgrade your plan.'
+              : 'Daily credit limit reached. Sign up for more credits!',
             allowed: false,
             remainingCredits: 0,
             remainingSeconds: 0
@@ -112,8 +156,8 @@ Deno.serve(async (req) => {
       const { data: usageSession, error: sessionError } = await supabase
         .from('usage_sessions')
         .insert({
-          user_id: userId,
-          visitor_credit_id: null,
+          user_id: userIdForSession,
+          visitor_credit_id: visitorCreditId,
           session_id: sessionId,
           is_active: true,
           metadata: { 
