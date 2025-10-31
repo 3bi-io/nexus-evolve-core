@@ -45,9 +45,9 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    if (!action || (action !== 'start' && action !== 'stop' && action !== 'check')) {
+    if (!action || !['start', 'stop', 'check', 'check_credits_only'].includes(action)) {
       return new Response(
-        JSON.stringify({ error: 'Valid action (start/stop/check) is required' }),
+        JSON.stringify({ error: 'Valid action (start/stop/check/check_credits_only) is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -320,6 +320,79 @@ Deno.serve(async (req) => {
           success: true,
           elapsedSeconds,
           creditsDeducted: creditsToDeduct
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // CHECK CREDITS ONLY (no session required)
+    if (action === 'check_credits_only') {
+      let remainingCredits = 0;
+      
+      // AUTHENTICATED USER
+      if (userId) {
+        // Check if user is super admin
+        const { data: roleCheck, error: roleError } = await supabase
+          .rpc('has_role', { 
+            _user_id: userId, 
+            _role: 'super_admin' 
+          });
+
+        if (!roleError && roleCheck) {
+          remainingCredits = 999999; // Unlimited for super admin
+        } else {
+          const { data: subscription } = await supabase
+            .from('user_subscriptions')
+            .select('credits_remaining')
+            .eq('user_id', userId)
+            .eq('status', 'active')
+            .maybeSingle();
+          
+          if (subscription) {
+            remainingCredits = subscription.credits_remaining;
+          } else {
+            // Free user - check daily usage
+            const today = new Date().toISOString().split('T')[0];
+            const { data: transactions } = await supabase
+              .from('credit_transactions')
+              .select('credits_amount')
+              .eq('user_id', userId)
+              .gte('created_at', `${today}T00:00:00`)
+              .eq('transaction_type', 'usage');
+            
+            const usedToday = transactions?.reduce((sum, t) => sum + Math.abs(t.credits_amount), 0) || 0;
+            remainingCredits = Math.max(0, 5 - usedToday);
+          }
+        }
+      } 
+      // ANONYMOUS VISITOR
+      else if (ipAddress) {
+        const ipHash = await hashIP(ipAddress);
+        const today = new Date().toISOString().split('T')[0];
+        
+        const { data: visitor } = await supabase
+          .from('visitor_credits')
+          .select('*')
+          .eq('ip_hash', ipHash)
+          .maybeSingle();
+        
+        if (visitor) {
+          // Reset if new day
+          if (visitor.last_visit_date !== today) {
+            remainingCredits = 5; // Fresh daily credits
+          } else {
+            remainingCredits = Math.max(0, visitor.daily_credits - visitor.credits_used_today);
+          }
+        } else {
+          remainingCredits = 5; // New visitor gets full daily credits
+        }
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          remainingCredits,
+          dailyLimit: 5
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );

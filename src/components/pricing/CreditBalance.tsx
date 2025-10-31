@@ -24,7 +24,7 @@ export const CreditBalance = () => {
   const { user } = useAuth();
   const { ipAddress } = useClientIP();
   const [credits, setCredits] = useState<CreditBalanceData>({
-    remaining: 5,
+    remaining: 0,
     total: 5,
     tier: null,
   });
@@ -35,75 +35,70 @@ export const CreditBalance = () => {
   }, [user, ipAddress]);
 
   const fetchCredits = async () => {
-    // Handle anonymous users with IP-based credits
-    if (!user && ipAddress) {
-      try {
-        const response = await supabase.functions.invoke('check-and-deduct-credits', {
-          body: { 
-            operation: 'check', 
-            ipAddress,
-            userId: null 
-          }
-        });
-        
-        if (response.data) {
-          setCredits({
-            remaining: response.data.remaining || 5,
-            total: 5,
-            tier: 'Visitor'
+    if (!user) {
+      // For anonymous users, use check_credits_only action
+      if (ipAddress) {
+        try {
+          const response = await supabase.functions.invoke('manage-usage-session', {
+            body: { 
+              action: 'check_credits_only', 
+              ipAddress 
+            }
           });
+          
+          if (response.data?.success) {
+            const remaining = response.data.remainingCredits || 0;
+            setCredits({
+              remaining,
+              total: 5,
+              tier: 'Visitor'
+            });
+          } else {
+            setCredits({ remaining: 0, total: 5, tier: 'Visitor' });
+          }
+        } catch (error) {
+          console.error('Failed to fetch visitor credits:', error);
+          setCredits({ remaining: 0, total: 5, tier: 'Visitor' });
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        console.error('Failed to fetch visitor credits:', error);
-        setCredits({ remaining: 5, total: 5, tier: 'Visitor' });
-      } finally {
+      } else {
         setLoading(false);
       }
       return;
     }
 
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-
+    // Authenticated users - use check_credits_only for consistency
     try {
-      const { data: subscription } = await supabase
-        .from("user_subscriptions")
-        .select("credits_remaining, credits_total, subscription_tiers(tier_name)")
-        .eq("user_id", user.id)
-        .eq("status", "active")
-        .maybeSingle();
+      const response = await supabase.functions.invoke('manage-usage-session', {
+        body: { 
+          action: 'check_credits_only', 
+          userId: user.id
+        }
+      });
+      
+      if (response.data?.success) {
+        const remaining = response.data.remainingCredits || 0;
+        
+        // Also fetch tier info
+        const { data: subscription } = await supabase
+          .from("user_subscriptions")
+          .select("credits_total, subscription_tiers(tier_name)")
+          .eq("user_id", user.id)
+          .eq("status", "active")
+          .maybeSingle();
 
-      if (subscription) {
         setCredits({
-          remaining: subscription.credits_remaining,
-          total: subscription.credits_total,
-          tier: subscription.subscription_tiers?.tier_name || null,
+          remaining,
+          total: subscription?.credits_total || 5,
+          tier: subscription?.subscription_tiers?.tier_name || null,
         });
       } else {
-        // Free user - check daily usage
-        const today = new Date().toISOString().split("T")[0];
-        const { data: transactions } = await supabase
-          .from("credit_transactions")
-          .select("credits_amount")
-          .eq("user_id", user.id)
-          .gte("created_at", `${today}T00:00:00`)
-          .eq("transaction_type", "usage");
-
-        const used = transactions?.reduce(
-          (sum, t) => sum + Math.abs(t.credits_amount),
-          0
-        ) || 0;
-        
-        setCredits({
-          remaining: Math.max(0, 5 - used),
-          total: 5,
-          tier: null,
-        });
+        setCredits({ remaining: 0, total: 5, tier: null });
       }
     } catch (error) {
       console.error("Error fetching credits:", error);
+      setCredits({ remaining: 0, total: 5, tier: null });
     } finally {
       setLoading(false);
     }
