@@ -40,6 +40,7 @@ import VoiceAgent from "./pages/VoiceAgent";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import ModelComparison from "./pages/ModelComparison";
+import BrowserAI from "./pages/BrowserAI";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -226,6 +227,14 @@ const RoutesWithShortcuts = () => {
             element={
               <ProtectedRoute>
                 <ModelComparison />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/browser-ai"
+            element={
+              <ProtectedRoute>
+                <BrowserAI />
               </ProtectedRoute>
             }
           />
