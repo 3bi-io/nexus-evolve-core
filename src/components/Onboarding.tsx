@@ -8,13 +8,23 @@ const ONBOARDING_KEY = 'hasCompletedOnboarding';
 const steps = [
   {
     icon: Brain,
-    title: 'Welcome to Oneiros',
-    description: 'Sign up to get 500 free credits—that\'s 41+ hours of usage time! Your AI learns from every conversation and evolves with your dreams.',
+    title: 'Welcome to Oneiros AI',
+    description: 'Your intelligent AI platform with 9 integrated AI systems. Get 500 free credits—that\'s 41+ hours of AI-powered conversations!',
   },
   {
     icon: Sparkles,
+    title: 'Multi-Agent Intelligence',
+    description: 'Every message is routed to the best AI model for your task. Our system learns from your interactions and improves over time.',
+  },
+  {
+    icon: TrendingUp,
     title: 'Time-Based Credits',
-    description: 'Each credit gives you 5 minutes of intelligent conversation. Track your time in the bottom-right corner and watch your AI build a personalized knowledge base.',
+    description: 'Each credit gives you 5 minutes of conversation. Track your usage in real-time and upgrade anytime for unlimited access.',
+  },
+  {
+    icon: Users,
+    title: 'Getting Started',
+    description: 'After this intro, we\'ll show you a quick tour of key features. You can also explore quick-start templates anytime.',
   },
 ];
 

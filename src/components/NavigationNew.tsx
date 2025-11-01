@@ -22,6 +22,7 @@ import {
   Zap,
   Bot,
   Users,
+  BookOpen,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -171,6 +172,13 @@ export const NavigationNew = () => {
                       <Link to="/router-dashboard" className="flex items-center gap-2">
                         <Activity className="w-4 h-4" />
                         Router Metrics
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/getting-started" className="flex items-center gap-2">
+                        <BookOpen className="w-4 h-4" />
+                        Getting Started
                       </Link>
                     </DropdownMenuItem>
                   </DropdownMenuContent>

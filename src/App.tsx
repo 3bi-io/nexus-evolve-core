@@ -47,6 +47,7 @@ import AdvancedBrowserAI from "./pages/AdvancedBrowserAI";
 import RouterDashboard from "./pages/RouterDashboard";
 import EnterpriseRouter from "./pages/EnterpriseRouter";
 import UnifiedRouterDemo from "./pages/UnifiedRouterDemo";
+import GettingStarted from "./pages/GettingStarted";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -284,6 +285,7 @@ const RoutesWithShortcuts = () => {
               </ProtectedRoute>
             }
           />
+          <Route path="/getting-started" element={<GettingStarted />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

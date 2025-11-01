@@ -1,11 +1,12 @@
 import { ChatInterface } from "@/components/ChatInterface";
 import { OnboardingChecklist } from "@/components/onboarding/OnboardingChecklist";
 import { PersonalizedUpgradePrompt } from "@/components/conversion/PersonalizedUpgradePrompt";
+import { ProductTour } from "@/components/onboarding/ProductTour";
+import { HelpWidget } from "@/components/onboarding/HelpWidget";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEngagementTracking } from "@/hooks/useEngagementTracking";
 import { useState, useEffect } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
-
 import { useMobile } from "@/hooks/useMobile";
 import { SEO } from "@/components/SEO";
 
@@ -47,6 +48,8 @@ const Index = () => {
           sessionDuration={metrics.sessionDuration}
         />
       )}
+      <ProductTour />
+      <HelpWidget />
     </PageLayout>
   );
 };
