@@ -23,6 +23,7 @@ import {
   Bot,
   Users,
   BookOpen,
+  Code,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -179,6 +180,45 @@ export const NavigationNew = () => {
                       <Link to="/getting-started" className="flex items-center gap-2">
                         <BookOpen className="w-4 h-4" />
                         Getting Started
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/advanced-analytics" className="flex items-center gap-2">
+                        <BarChart3 className="w-4 h-4" />
+                        Analytics
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Enterprise Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="gap-1">
+                      <Users className="w-4 h-4" />
+                      <span className="hidden xl:inline">Enterprise</span>
+                      <ChevronDown className="w-3 h-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56">
+                    <DropdownMenuLabel>Team & Collaboration</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/teams" className="flex items-center gap-2">
+                        <Users className="w-4 h-4" />
+                        Teams
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/collaboration" className="flex items-center gap-2">
+                        <Network className="w-4 h-4" />
+                        Collaboration
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/api-access" className="flex items-center gap-2">
+                        <Code className="w-4 h-4" />
+                        API Access
                       </Link>
                     </DropdownMenuItem>
                   </DropdownMenuContent>

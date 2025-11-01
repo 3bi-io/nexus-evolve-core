@@ -48,6 +48,10 @@ import RouterDashboard from "./pages/RouterDashboard";
 import EnterpriseRouter from "./pages/EnterpriseRouter";
 import UnifiedRouterDemo from "./pages/UnifiedRouterDemo";
 import GettingStarted from "./pages/GettingStarted";
+import Collaboration from "./pages/Collaboration";
+import Teams from "./pages/Teams";
+import APIAccess from "./pages/APIAccess";
+import AdvancedAnalytics from "./pages/AdvancedAnalytics";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -286,6 +290,38 @@ const RoutesWithShortcuts = () => {
             }
           />
           <Route path="/getting-started" element={<GettingStarted />} />
+          <Route
+            path="/collaboration"
+            element={
+              <ProtectedRoute>
+                <Collaboration />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/teams"
+            element={
+              <ProtectedRoute>
+                <Teams />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/api-access"
+            element={
+              <ProtectedRoute>
+                <APIAccess />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/advanced-analytics"
+            element={
+              <ProtectedRoute>
+                <AdvancedAnalytics />
+              </ProtectedRoute>
+            }
+          />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
