@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { MessageSquare, Network, Brain, Zap, TrendingUp, LogOut, Shield, Trophy, BarChart3, Keyboard, Sparkles, Store, Phone, Plug, Cpu, Layers, Activity } from "lucide-react";
+import { MessageSquare, Network, Brain, Zap, TrendingUp, LogOut, Shield, Trophy, BarChart3, Keyboard, Sparkles, Store, Phone, Plug, Cpu, Layers, Activity, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CreditBalance } from "@/components/pricing/CreditBalance";
@@ -139,6 +139,16 @@ export const Navigation = () => {
                   >
                     <Activity className="w-4 h-4" />
                     <span className="hidden xl:inline">Router</span>
+                  </Button>
+                </Link>
+                <Link to="/enterprise-router" className="flex-shrink-0">
+                  <Button
+                    variant={isActive("/enterprise-router") ? "default" : "ghost"}
+                    size="sm"
+                    className="gap-2"
+                  >
+                    <Settings className="w-4 h-4" />
+                    <span className="hidden xl:inline">Enterprise</span>
                   </Button>
                 </Link>
                 <Link to="/integrations" className="flex-shrink-0">

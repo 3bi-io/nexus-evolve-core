@@ -44,6 +44,7 @@ import BrowserAI from "./pages/BrowserAI";
 import AIHub from "./pages/AIHub";
 import AdvancedBrowserAI from "./pages/AdvancedBrowserAI";
 import RouterDashboard from "./pages/RouterDashboard";
+import EnterpriseRouter from "./pages/EnterpriseRouter";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -262,6 +263,14 @@ const RoutesWithShortcuts = () => {
             element={
               <ProtectedRoute>
                 <RouterDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/enterprise-router"
+            element={
+              <ProtectedRoute>
+                <EnterpriseRouter />
               </ProtectedRoute>
             }
           />

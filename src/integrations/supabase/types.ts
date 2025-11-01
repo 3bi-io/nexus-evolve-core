@@ -1336,6 +1336,167 @@ export type Database = {
         }
         Relationships: []
       }
+      router_ab_tests: {
+        Row: {
+          active: boolean | null
+          created_at: string
+          ended_at: string | null
+          id: string
+          started_at: string
+          test_name: string
+          user_id: string
+          variant_a_avg_latency: number | null
+          variant_a_calls: number | null
+          variant_a_config: Json
+          variant_a_success: number | null
+          variant_a_total_cost: number | null
+          variant_b_avg_latency: number | null
+          variant_b_calls: number | null
+          variant_b_config: Json
+          variant_b_success: number | null
+          variant_b_total_cost: number | null
+          winner: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          started_at?: string
+          test_name: string
+          user_id: string
+          variant_a_avg_latency?: number | null
+          variant_a_calls?: number | null
+          variant_a_config: Json
+          variant_a_success?: number | null
+          variant_a_total_cost?: number | null
+          variant_b_avg_latency?: number | null
+          variant_b_calls?: number | null
+          variant_b_config: Json
+          variant_b_success?: number | null
+          variant_b_total_cost?: number | null
+          winner?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          started_at?: string
+          test_name?: string
+          user_id?: string
+          variant_a_avg_latency?: number | null
+          variant_a_calls?: number | null
+          variant_a_config?: Json
+          variant_a_success?: number | null
+          variant_a_total_cost?: number | null
+          variant_b_avg_latency?: number | null
+          variant_b_calls?: number | null
+          variant_b_config?: Json
+          variant_b_success?: number | null
+          variant_b_total_cost?: number | null
+          winner?: string | null
+        }
+        Relationships: []
+      }
+      router_analytics: {
+        Row: {
+          ab_test_id: string | null
+          cost: number
+          created_at: string
+          fallback_used: boolean | null
+          id: string
+          latency_ms: number
+          metadata: Json | null
+          model_used: string
+          priority: string
+          provider: string
+          success: boolean
+          task_type: string
+          user_id: string
+        }
+        Insert: {
+          ab_test_id?: string | null
+          cost: number
+          created_at?: string
+          fallback_used?: boolean | null
+          id?: string
+          latency_ms: number
+          metadata?: Json | null
+          model_used: string
+          priority: string
+          provider: string
+          success: boolean
+          task_type: string
+          user_id: string
+        }
+        Update: {
+          ab_test_id?: string | null
+          cost?: number
+          created_at?: string
+          fallback_used?: boolean | null
+          id?: string
+          latency_ms?: number
+          metadata?: Json | null
+          model_used?: string
+          priority?: string
+          provider?: string
+          success?: boolean
+          task_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "router_analytics_ab_test_id_fkey"
+            columns: ["ab_test_id"]
+            isOneToOne: false
+            referencedRelation: "router_ab_tests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      router_cost_alerts: {
+        Row: {
+          acknowledged_at: string | null
+          active: boolean | null
+          alert_type: string
+          created_at: string
+          current_amount: number | null
+          id: string
+          period: string
+          threshold_amount: number
+          triggered_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          active?: boolean | null
+          alert_type: string
+          created_at?: string
+          current_amount?: number | null
+          id?: string
+          period?: string
+          threshold_amount: number
+          triggered_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          acknowledged_at?: string | null
+          active?: boolean | null
+          alert_type?: string
+          created_at?: string
+          current_amount?: number | null
+          id?: string
+          period?: string
+          threshold_amount?: number
+          triggered_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       sessions: {
         Row: {
           created_at: string
@@ -1664,6 +1825,48 @@ export type Database = {
           created_by?: string | null
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_router_preferences: {
+        Row: {
+          blocked_providers: Json | null
+          cost_alert_threshold: number | null
+          created_at: string
+          custom_rules: Json | null
+          default_priority: string
+          id: string
+          max_cost_per_request: number | null
+          max_latency_ms: number | null
+          preferred_providers: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          blocked_providers?: Json | null
+          cost_alert_threshold?: number | null
+          created_at?: string
+          custom_rules?: Json | null
+          default_priority?: string
+          id?: string
+          max_cost_per_request?: number | null
+          max_latency_ms?: number | null
+          preferred_providers?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          blocked_providers?: Json | null
+          cost_alert_threshold?: number | null
+          created_at?: string
+          custom_rules?: Json | null
+          default_priority?: string
+          id?: string
+          max_cost_per_request?: number | null
+          max_latency_ms?: number | null
+          preferred_providers?: Json | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
