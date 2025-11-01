@@ -27,8 +27,8 @@ import {
   Trophy,
   Workflow,
 } from "lucide-react";
-import { InteractiveDemo } from "@/components/landing/InteractiveDemo";
-import { TrustSignals } from "@/components/landing/TrustSignals";
+import { EnhancedInteractiveDemo } from "@/components/landing/EnhancedInteractiveDemo";
+import { EnhancedTrustSignals } from "@/components/landing/EnhancedTrustSignals";
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -187,17 +187,17 @@ const Landing = () => {
             <div className="text-center lg:text-left space-y-4 md:space-y-6 animate-fade-in">
               <Badge variant="secondary" className="mb-2 md:mb-4 text-xs md:text-sm">
                 <Sparkles className="w-3 h-3 mr-1" />
-                Production-Ready AI Platform
+                9 Integrated AI Systems • Production Ready
               </Badge>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
-                The Most Advanced
+                Enterprise-Grade AI
                 <span className="bg-gradient-to-r from-[hsl(var(--ai-gradient-start))] to-[hsl(var(--ai-gradient-end))] bg-clip-text text-transparent block mt-1">
-                  AI Platform Ever Built
+                  Built to Scale
                 </span>
               </h1>
               <p className="text-base md:text-lg lg:text-xl text-muted-foreground">
-                Multi-agent orchestration • Voice AI • Agent marketplace • Social intelligence • Self-learning evolution. 
-                Experience the future of AI with 9 integrated systems working together seamlessly.
+                From voice conversations to autonomous evolution - 9 specialized AI systems work in perfect harmony. 
+                Production-ready, enterprise-grade, and built for teams that demand excellence.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center lg:justify-start pt-2 md:pt-4">
                 <Button size="lg" className="text-base md:text-lg px-6 md:px-8 hover-scale w-full sm:w-auto" onClick={() => navigate("/chat")}>
@@ -211,12 +211,12 @@ const Landing = () => {
                 )}
               </div>
               <p className="text-xs md:text-sm text-muted-foreground">
-                Start with Starter plan at $49/month • 500 credits
+                ⚡ Start from $49/month • 🎯 500 free credits daily • 🔒 Enterprise security • 📈 99.9% uptime
               </p>
             </div>
             
             <div className="hidden lg:block animate-fade-in" style={{ animationDelay: '0.2s' }}>
-              <InteractiveDemo />
+              <EnhancedInteractiveDemo />
             </div>
           </div>
         </div>
@@ -226,9 +226,9 @@ const Landing = () => {
       <section className="py-12 md:py-20 px-4 bg-muted/30">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-8 md:mb-16">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">Revolutionary AI Capabilities</h2>
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">9 Production-Ready AI Systems</h2>
             <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
-              9 integrated systems working together to deliver the most advanced AI experience
+              Each system battle-tested, optimized, and ready to scale from prototype to millions of users
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -301,7 +301,7 @@ const Landing = () => {
             </p>
           </div>
           
-          <TrustSignals />
+          <EnhancedTrustSignals />
 
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mt-12">
             <Card>

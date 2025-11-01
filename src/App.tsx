@@ -11,51 +11,55 @@ import { HelmetProvider } from "react-helmet-async";
 import { NavigationNew as Navigation } from "@/components/NavigationNew";
 import { InstallPrompt } from "@/components/mobile/InstallPrompt";
 import { ConnectionStatus } from "@/components/mobile/ConnectionStatus";
-import Landing from "./pages/Landing";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import NotFound from "./pages/NotFound";
-import KnowledgeGraph from "./pages/KnowledgeGraph";
-import ProblemSolver from "./pages/ProblemSolver";
-import Analytics from "./pages/Analytics";
-import LLMAnalytics from "./pages/LLMAnalytics";
 import { CommandPalette } from "./components/onboarding/CommandPalette";
 import { KeyboardShortcutsDialog } from "./components/onboarding/KeyboardShortcutsDialog";
 import { useGlobalShortcuts } from "./hooks/useKeyboardShortcuts";
 import { useReferralProcessor } from "./hooks/useReferralProcessor";
 import { useReferralConversion } from "./hooks/useReferralConversion";
 import { SelfLearningBadge } from "./components/SelfLearningBadge";
-import Capabilities from "./pages/Capabilities";
-import Evolution from "./pages/Evolution";
-import SuperAdmin from "./pages/SuperAdmin";
+import { lazy, Suspense } from "react";
+import { LoadingPage } from "@/components/layout/LoadingPage";
+import Landing from "./pages/Landing";
+import Index from "./pages/Index";
+import Auth from "./pages/Auth";
+import NotFound from "./pages/NotFound";
 import Pricing from "./pages/Pricing";
-import Account from "./pages/Account";
-import Achievements from "./pages/Achievements";
-import Referrals from "./pages/Referrals";
-import SocialIntelligence from "./pages/SocialIntelligence";
-import SystemHealth from "./pages/SystemHealth";
-import AgentStudio from "./pages/AgentStudio";
-import AgentMarketplace from "./pages/AgentMarketplace";
-import Integrations from "./pages/Integrations";
-import AdvancedAI from "./pages/AdvancedAI";
-import MultimodalStudio from "./pages/MultimodalStudio";
-import VoiceAgent from "./pages/VoiceAgent";
 import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
-import ModelComparison from "./pages/ModelComparison";
-import BrowserAI from "./pages/BrowserAI";
-import AIHub from "./pages/AIHub";
-import AdvancedBrowserAI from "./pages/AdvancedBrowserAI";
-import RouterDashboard from "./pages/RouterDashboard";
-import EnterpriseRouter from "./pages/EnterpriseRouter";
-import UnifiedRouterDemo from "./pages/UnifiedRouterDemo";
 import GettingStarted from "./pages/GettingStarted";
-import Collaboration from "./pages/Collaboration";
-import Teams from "./pages/Teams";
-import APIAccess from "./pages/APIAccess";
-import AdvancedAnalytics from "./pages/AdvancedAnalytics";
-import Webhooks from "./pages/Webhooks";
-import AgentRevenue from "./pages/AgentRevenue";
+import Account from "./pages/Account";
+
+// Lazy load heavy pages for better performance
+const Analytics = lazy(() => import("./pages/Analytics"));
+const LLMAnalytics = lazy(() => import("./pages/LLMAnalytics"));
+const AdvancedAnalytics = lazy(() => import("./pages/AdvancedAnalytics"));
+const KnowledgeGraph = lazy(() => import("./pages/KnowledgeGraph"));
+const ProblemSolver = lazy(() => import("./pages/ProblemSolver"));
+const Capabilities = lazy(() => import("./pages/Capabilities"));
+const Evolution = lazy(() => import("./pages/Evolution"));
+const SuperAdmin = lazy(() => import("./pages/SuperAdmin"));
+const Achievements = lazy(() => import("./pages/Achievements"));
+const Referrals = lazy(() => import("./pages/Referrals"));
+const SocialIntelligence = lazy(() => import("./pages/SocialIntelligence"));
+const SystemHealth = lazy(() => import("./pages/SystemHealth"));
+const AgentStudio = lazy(() => import("./pages/AgentStudio"));
+const AgentMarketplace = lazy(() => import("./pages/AgentMarketplace"));
+const AgentRevenue = lazy(() => import("./pages/AgentRevenue"));
+const Integrations = lazy(() => import("./pages/Integrations"));
+const AdvancedAI = lazy(() => import("./pages/AdvancedAI"));
+const MultimodalStudio = lazy(() => import("./pages/MultimodalStudio"));
+const VoiceAgent = lazy(() => import("./pages/VoiceAgent"));
+const ModelComparison = lazy(() => import("./pages/ModelComparison"));
+const BrowserAI = lazy(() => import("./pages/BrowserAI"));
+const AIHub = lazy(() => import("./pages/AIHub"));
+const AdvancedBrowserAI = lazy(() => import("./pages/AdvancedBrowserAI"));
+const RouterDashboard = lazy(() => import("./pages/RouterDashboard"));
+const EnterpriseRouter = lazy(() => import("./pages/EnterpriseRouter"));
+const UnifiedRouterDemo = lazy(() => import("./pages/UnifiedRouterDemo"));
+const Collaboration = lazy(() => import("./pages/Collaboration"));
+const Teams = lazy(() => import("./pages/Teams"));
+const APIAccess = lazy(() => import("./pages/APIAccess"));
+const Webhooks = lazy(() => import("./pages/Webhooks"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -86,10 +90,23 @@ const RoutesWithShortcuts = () => {
   useReferralConversion(); // Track conversion after 3+ interactions
   return (
     <>
-      <Routes>
+      <Suspense fallback={<LoadingPage />}>
+        <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/chat" element={<Index />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/getting-started" element={<GettingStarted />} />
+          <Route
+            path="/account"
+            element={
+              <ProtectedRoute>
+                <Account />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/knowledge-graph"
             element={
@@ -345,7 +362,8 @@ const RoutesWithShortcuts = () => {
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </>
+      </Suspense>
+    </>
   );
 };
 
