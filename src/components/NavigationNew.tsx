@@ -221,6 +221,24 @@ export const NavigationNew = () => {
                         API Access
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/webhooks" className="flex items-center gap-2">
+                        <Zap className="w-4 h-4" />
+                        Webhooks
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/agent-revenue" className="flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4" />
+                        Agent Revenue
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/advanced-analytics" className="flex items-center gap-2">
+                        <BarChart3 className="w-4 h-4" />
+                        Analytics
+                      </Link>
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
 

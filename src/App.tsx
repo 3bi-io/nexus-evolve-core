@@ -54,6 +54,8 @@ import Collaboration from "./pages/Collaboration";
 import Teams from "./pages/Teams";
 import APIAccess from "./pages/APIAccess";
 import AdvancedAnalytics from "./pages/AdvancedAnalytics";
+import Webhooks from "./pages/Webhooks";
+import AgentRevenue from "./pages/AgentRevenue";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -321,6 +323,22 @@ const RoutesWithShortcuts = () => {
             element={
               <ProtectedRoute>
                 <AdvancedAnalytics />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/webhooks"
+            element={
+              <ProtectedRoute>
+                <Webhooks />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/agent-revenue"
+            element={
+              <ProtectedRoute>
+                <AgentRevenue />
               </ProtectedRoute>
             }
           />
