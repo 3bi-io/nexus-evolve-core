@@ -115,19 +115,27 @@ export class PerformanceMonitoring {
     try {
       const { data: { user } } = await supabase.auth.getUser();
 
+      // Convert to plain object to ensure JSON compatibility
+      const eventData: Record<string, any> = {
+        fcp: this.metrics.fcp,
+        lcp: this.metrics.lcp,
+        fid: this.metrics.fid,
+        cls: this.metrics.cls,
+        ttfb: this.metrics.ttfb,
+        tti: this.metrics.tti,
+        thresholds: this.THRESHOLDS,
+        passed: this.checkThresholds(),
+        connection: (navigator as any).connection?.effectiveType,
+        device_memory: (navigator as any).deviceMemory,
+        hardware_concurrency: navigator.hardwareConcurrency,
+        url: window.location.href,
+        timestamp: new Date().toISOString(),
+      };
+
       await supabase.from('user_events').insert([{
         user_id: user?.id,
         event_type: 'performance',
-        event_data: {
-          metrics: this.metrics,
-          thresholds: this.THRESHOLDS,
-          passed: this.checkThresholds(),
-          connection: (navigator as any).connection?.effectiveType,
-          device_memory: (navigator as any).deviceMemory,
-          hardware_concurrency: navigator.hardwareConcurrency,
-          url: window.location.href,
-          timestamp: new Date().toISOString(),
-        },
+        event_data: eventData,
         page_url: window.location.pathname,
       }]);
 

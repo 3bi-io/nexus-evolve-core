@@ -5,11 +5,13 @@ import { SEOHelper } from '@/lib/seo-helper';
 interface SEOProps {
   title?: string;
   description?: string;
-  keywords?: string[];
+  keywords?: string | string[]; // Support both string and string[] for backward compatibility
   ogImage?: string;
   ogType?: string;
+  canonical?: string; // Keep old prop for backward compatibility
   canonicalUrl?: string;
   structuredData?: object;
+  schema?: object; // Keep old prop for backward compatibility
   author?: string;
   publishedTime?: string;
   modifiedTime?: string;
@@ -21,8 +23,10 @@ export function SEO({
   keywords,
   ogImage,
   ogType = "website",
-  canonicalUrl,
+  canonical, // Old prop
+  canonicalUrl, // New prop
   structuredData,
+  schema, // Old prop
   author,
   publishedTime,
   modifiedTime,
@@ -33,13 +37,23 @@ export function SEO({
   const pageMetadata = SEOHelper.generatePageMetadata(location.pathname);
   const finalTitle = title || pageMetadata.title;
   const finalDescription = description || pageMetadata.description;
-  const finalKeywords = keywords || pageMetadata.keywords || [];
+  
+  // Handle both string and string[] for keywords (backward compatibility)
+  const keywordsArray = Array.isArray(keywords) 
+    ? keywords 
+    : keywords 
+    ? [keywords] 
+    : pageMetadata.keywords || [];
+  
   const finalImage = ogImage || pageMetadata.image || '/og-image.png';
   
   const fullImageUrl = finalImage.startsWith('http') ? finalImage : `${siteUrl}${finalImage}`;
-  const canonical = canonicalUrl || SEOHelper.getCanonicalUrl(location.pathname);
+  
+  // Support both old 'canonical' and new 'canonicalUrl' props
+  const finalCanonical = canonicalUrl || canonical || SEOHelper.getCanonicalUrl(location.pathname);
 
-  const defaultStructuredData = SEOHelper.generateStructuredData('software', {
+  // Support both old 'schema' and new 'structuredData' props
+  const finalStructuredData = structuredData || schema || SEOHelper.generateStructuredData('software', {
     name: finalTitle,
     description: finalDescription,
     image: fullImageUrl,
@@ -50,13 +64,13 @@ export function SEO({
       <title>{finalTitle}</title>
       <meta name="title" content={finalTitle} />
       <meta name="description" content={finalDescription} />
-      {finalKeywords.length > 0 && (
-        <meta name="keywords" content={finalKeywords.join(', ')} />
+      {keywordsArray.length > 0 && (
+        <meta name="keywords" content={keywordsArray.join(', ')} />
       )}
-      <link rel="canonical" href={canonical} />
+      <link rel="canonical" href={finalCanonical} />
 
       <meta property="og:type" content={ogType} />
-      <meta property="og:url" content={canonical} />
+      <meta property="og:url" content={finalCanonical} />
       <meta property="og:title" content={finalTitle} />
       <meta property="og:description" content={finalDescription} />
       <meta property="og:image" content={fullImageUrl} />
@@ -66,7 +80,7 @@ export function SEO({
       {modifiedTime && <meta property="article:modified_time" content={modifiedTime} />}
 
       <meta property="twitter:card" content="summary_large_image" />
-      <meta property="twitter:url" content={canonical} />
+      <meta property="twitter:url" content={finalCanonical} />
       <meta property="twitter:title" content={finalTitle} />
       <meta property="twitter:description" content={finalDescription} />
       <meta property="twitter:image" content={fullImageUrl} />
@@ -75,7 +89,7 @@ export function SEO({
       <meta name="author" content={author || "Oneiros.me"} />
 
       <script type="application/ld+json">
-        {JSON.stringify(structuredData || defaultStructuredData)}
+        {JSON.stringify(finalStructuredData)}
       </script>
 
       <link rel="preconnect" href="https://fonts.googleapis.com" />
