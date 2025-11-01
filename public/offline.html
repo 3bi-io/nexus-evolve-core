@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - Oneiros.me</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #0f0a1e 0%, #1a0f2e 100%);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      text-align: center;
+      max-width: 500px;
+    }
+
+    .icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 30px;
+      opacity: 0.5;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #8B5CF6 0%, #D946EF 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    p {
+      font-size: 18px;
+      color: #a0a0a0;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+
+    button {
+      background: linear-gradient(135deg, #8B5CF6 0%, #D946EF 100%);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .status {
+      margin-top: 30px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .online {
+      color: #10b981;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M1 1l6 6m0 0l6-6M7 7l6 6m0 0l6-6m-6 6l-6 6m6-6l6 6" />
+      <circle cx="12" cy="12" r="11" />
+    </svg>
+    
+    <h1>You're Offline</h1>
+    <p>
+      It looks like you've lost your internet connection. Don't worry, some features may still work while offline.
+    </p>
+    
+    <button onclick="location.reload()">Try Again</button>
+    
+    <div class="status">
+      <span id="connection-status">Checking connection...</span>
+    </div>
+  </div>
+
+  <script>
+    function updateConnectionStatus() {
+      const statusEl = document.getElementById('connection-status');
+      if (navigator.onLine) {
+        statusEl.textContent = 'Connection restored!';
+        statusEl.className = 'online';
+        setTimeout(() => location.reload(), 1000);
+      } else {
+        statusEl.textContent = 'Still offline...';
+      }
+    }
+
+    window.addEventListener('online', updateConnectionStatus);
+    window.addEventListener('offline', updateConnectionStatus);
+    
+    // Check every 3 seconds
+    setInterval(updateConnectionStatus, 3000);
+    updateConnectionStatus();
+  </script>
+</body>
+</html>

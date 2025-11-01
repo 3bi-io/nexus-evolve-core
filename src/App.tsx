@@ -9,6 +9,8 @@ import { Onboarding } from "@/components/Onboarding";
 import { ThemeProvider } from "next-themes";
 import { HelmetProvider } from "react-helmet-async";
 import { NavigationNew as Navigation } from "@/components/NavigationNew";
+import { InstallPrompt } from "@/components/mobile/InstallPrompt";
+import { ConnectionStatus } from "@/components/mobile/ConnectionStatus";
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -334,6 +336,8 @@ const AppContent = () => {
     <>
       <Onboarding />
       <SelfLearningBadge />
+      <InstallPrompt />
+      <ConnectionStatus />
       <BrowserRouter>
         <CommandPalette />
         <KeyboardShortcutsDialog />
