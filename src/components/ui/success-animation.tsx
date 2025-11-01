@@ -1,50 +1,49 @@
 import { motion } from "framer-motion";
-import { Check, Sparkles } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Check } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface SuccessAnimationProps {
   message?: string;
-  className?: string;
+  onComplete?: () => void;
 }
 
-export function SuccessAnimation({ message, className }: SuccessAnimationProps) {
+export function SuccessAnimation({ message, onComplete }: SuccessAnimationProps) {
+  useEffect(() => {
+    if (onComplete) {
+      const timer = setTimeout(onComplete, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [onComplete]);
+
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.8 }}
+      initial={{ opacity: 0, scale: 0.5 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3 }}
-      className={cn("flex flex-col items-center justify-center gap-4", className)}
+      exit={{ opacity: 0, scale: 0.5 }}
+      className="flex flex-col items-center justify-center gap-4"
     >
       <motion.div
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
-        transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
+        transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
         className="relative"
       >
-        <div className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center">
-          <motion.div
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-          >
-            <Check className="w-10 h-10 text-success" strokeWidth={3} />
-          </motion.div>
+        <div className="h-16 w-16 rounded-full bg-success/20 flex items-center justify-center">
+          <Check className="h-8 w-8 text-success" />
         </div>
-        
         <motion.div
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: [0, 1.5, 0], opacity: [0, 1, 0] }}
-          transition={{ duration: 1, delay: 0.3 }}
-          className="absolute inset-0 rounded-full border-4 border-success"
+          initial={{ scale: 1, opacity: 1 }}
+          animate={{ scale: 2, opacity: 0 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          className="absolute inset-0 rounded-full border-2 border-success"
         />
       </motion.div>
-
       {message && (
         <motion.p
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="text-lg font-medium text-success"
+          transition={{ delay: 0.3 }}
+          className="text-lg font-medium text-foreground"
         >
           {message}
         </motion.p>
@@ -53,72 +52,68 @@ export function SuccessAnimation({ message, className }: SuccessAnimationProps) 
   );
 }
 
-export function CelebrationAnimation() {
+export function ConfettiAnimation() {
+  const confetti = Array.from({ length: 30 });
+
   return (
-    <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-      {[...Array(20)].map((_, i) => (
+    <div className="fixed inset-0 pointer-events-none z-50">
+      {confetti.map((_, i) => (
         <motion.div
           key={i}
           initial={{
-            x: Math.random() * window.innerWidth,
-            y: -20,
-            rotate: 0,
+            x: "50vw",
+            y: "50vh",
+            opacity: 1,
+            scale: 1,
           }}
           animate={{
-            y: window.innerHeight + 20,
-            rotate: 360,
+            x: `${Math.random() * 100}vw`,
+            y: `${Math.random() * 100}vh`,
+            opacity: 0,
+            scale: 0,
+            rotate: Math.random() * 360,
           }}
           transition={{
-            duration: 2 + Math.random() * 2,
-            delay: Math.random() * 0.5,
-            ease: "linear",
+            duration: 1 + Math.random(),
+            ease: "easeOut",
           }}
-          className="absolute"
-        >
-          <Sparkles
-            className="text-primary"
-            size={16 + Math.random() * 16}
-            style={{ opacity: 0.7 }}
-          />
-        </motion.div>
+          className="absolute h-3 w-3 rounded"
+          style={{
+            backgroundColor: `hsl(${Math.random() * 360}, 70%, 60%)`,
+          }}
+        />
       ))}
     </div>
   );
 }
 
-export function ConfettiAnimation() {
-  const colors = [
-    "bg-primary",
-    "bg-success",
-    "bg-warning",
-    "bg-destructive",
-    "bg-accent",
-  ];
+export function CelebrationAnimation() {
+  const [show, setShow] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShow(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!show) return null;
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-      {[...Array(30)].map((_, i) => (
+    <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+      {Array.from({ length: 8 }).map((_, i) => (
         <motion.div
           key={i}
-          initial={{
-            x: Math.random() * window.innerWidth,
-            y: -20,
-            rotate: 0,
-          }}
+          initial={{ scale: 0, rotate: i * 45 }}
           animate={{
-            y: window.innerHeight + 20,
-            rotate: Math.random() * 720,
-            x: Math.random() * window.innerWidth * 0.2 - window.innerWidth * 0.1,
+            scale: [0, 1, 0],
+            y: [0, -100],
+            opacity: [1, 1, 0],
           }}
           transition={{
-            duration: 2 + Math.random() * 1,
-            delay: Math.random() * 0.3,
-            ease: "easeIn",
+            duration: 1.5,
+            delay: i * 0.1,
+            ease: "easeOut",
           }}
-          className={cn(
-            "absolute w-3 h-3 rounded",
-            colors[Math.floor(Math.random() * colors.length)]
-          )}
+          className="absolute h-2 w-2 rounded-full bg-primary"
         />
       ))}
     </div>

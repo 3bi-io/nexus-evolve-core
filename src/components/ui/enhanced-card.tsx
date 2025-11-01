@@ -1,33 +1,33 @@
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./card";
 import { cn } from "@/lib/utils";
+import { LucideIcon } from "lucide-react";
 
 interface EnhancedCardProps {
+  children: ReactNode;
   title?: string;
   description?: string;
-  children: ReactNode;
-  className?: string;
   hover?: boolean;
   glow?: boolean;
   gradient?: boolean;
+  className?: string;
 }
 
 export function EnhancedCard({
+  children,
   title,
   description,
-  children,
-  className,
   hover = true,
   glow = false,
   gradient = false,
+  className,
 }: EnhancedCardProps) {
   const cardContent = (
     <Card
       className={cn(
         "transition-all duration-300",
-        gradient && "bg-gradient-to-br from-card via-card to-primary/5",
-        glow && "hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.3)]",
+        gradient && "bg-gradient-to-br from-card to-card/50",
         className
       )}
     >
@@ -41,11 +41,20 @@ export function EnhancedCard({
     </Card>
   );
 
-  if (hover) {
+  if (hover || glow) {
     return (
       <motion.div
-        whileHover={{ y: -5, scale: 1.01 }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        whileHover={
+          hover
+            ? {
+                y: -5,
+                boxShadow: glow
+                  ? "0 10px 40px hsl(var(--primary) / 0.3)"
+                  : "0 10px 30px -10px rgba(0,0,0,0.3)",
+              }
+            : undefined
+        }
+        transition={{ duration: 0.2 }}
       >
         {cardContent}
       </motion.div>
@@ -55,65 +64,52 @@ export function EnhancedCard({
   return cardContent;
 }
 
-export function StatCard({
-  icon: Icon,
-  label,
-  value,
-  trend,
-  className,
-}: {
-  icon: any;
+interface StatCardProps {
+  icon: LucideIcon;
   label: string;
   value: string | number;
-  trend?: { value: string; positive: boolean };
+  trend?: {
+    value: string;
+    positive: boolean;
+  };
   className?: string;
-}) {
+}
+
+export function StatCard({ icon: Icon, label, value, trend, className }: StatCardProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
-      whileHover={{ y: -5 }}
-      transition={{ type: "spring", stiffness: 300 }}
-    >
-      <Card className={cn("overflow-hidden", className)}>
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground mb-1">{label}</p>
-              <p className="text-2xl font-bold">{value}</p>
-              {trend && (
-                <p
-                  className={cn(
-                    "text-xs mt-1 font-medium",
-                    trend.positive ? "text-success" : "text-destructive"
-                  )}
-                >
-                  {trend.value}
-                </p>
+    <EnhancedCard hover glow className={className}>
+      <div className="flex items-start justify-between">
+        <div className="space-y-2">
+          <p className="text-sm text-muted-foreground">{label}</p>
+          <p className="text-3xl font-bold">{value}</p>
+          {trend && (
+            <p
+              className={cn(
+                "text-sm font-medium",
+                trend.positive ? "text-success" : "text-destructive"
               )}
-            </div>
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Icon className="w-6 h-6 text-primary" />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
+            >
+              {trend.value}
+            </p>
+          )}
+        </div>
+        <div className="p-3 rounded-lg bg-primary/10">
+          <Icon className="h-6 w-6 text-primary" />
+        </div>
+      </div>
+    </EnhancedCard>
   );
 }
 
 export function GlassCard({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ scale: 1.02 }}
+    <Card
       className={cn(
-        "backdrop-blur-xl bg-card/80 border border-white/10 rounded-xl p-6 shadow-xl",
+        "backdrop-blur-xl bg-card/40 border-border/50 shadow-2xl",
         className
       )}
     >
-      {children}
-    </motion.div>
+      <CardContent className="p-6">{children}</CardContent>
+    </Card>
   );
 }

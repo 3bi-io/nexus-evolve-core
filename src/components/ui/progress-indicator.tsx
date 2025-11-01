@@ -1,6 +1,5 @@
-import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
 import { Check } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface ProgressIndicatorProps {
   steps: string[];
@@ -12,78 +11,68 @@ export function ProgressIndicator({ steps, currentStep, className }: ProgressInd
   return (
     <div className={cn("w-full", className)}>
       <div className="flex items-center justify-between">
-        {steps.map((step, index) => (
-          <div key={step} className="flex-1 relative">
-            <div className="flex flex-col items-center">
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: index * 0.1 }}
-                className="relative"
-              >
+        {steps.map((step, index) => {
+          const isCompleted = index < currentStep;
+          const isCurrent = index === currentStep;
+
+          return (
+            <div key={index} className="flex flex-1 items-center">
+              <div className="flex flex-col items-center">
                 <div
                   className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all",
-                    index < currentStep
-                      ? "bg-success border-success text-success-foreground"
-                      : index === currentStep
-                      ? "bg-primary border-primary text-primary-foreground animate-pulse-glow"
-                      : "bg-muted border-muted-foreground/20 text-muted-foreground"
+                    "flex h-10 w-10 items-center justify-center rounded-full border-2 transition-all duration-300",
+                    isCompleted && "border-primary bg-primary text-primary-foreground",
+                    isCurrent && "border-primary bg-background text-primary scale-110",
+                    !isCompleted && !isCurrent && "border-muted bg-background text-muted-foreground"
                   )}
                 >
-                  {index < currentStep ? (
-                    <Check className="w-5 h-5" />
-                  ) : (
-                    <span>{index + 1}</span>
+                  {isCompleted ? <Check className="h-5 w-5" /> : index + 1}
+                </div>
+                <p
+                  className={cn(
+                    "mt-2 text-xs font-medium transition-colors",
+                    (isCompleted || isCurrent) && "text-foreground",
+                    !isCompleted && !isCurrent && "text-muted-foreground"
                   )}
-                </div>
-              </motion.div>
-
-              <motion.p
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 + 0.2 }}
-                className={cn(
-                  "text-xs mt-2 text-center",
-                  index <= currentStep ? "text-foreground font-medium" : "text-muted-foreground"
-                )}
-              >
-                {step}
-              </motion.p>
-            </div>
-
-            {index < steps.length - 1 && (
-              <div className="absolute top-5 left-[50%] w-full h-0.5 -z-10">
-                <div className="w-full h-full bg-muted-foreground/20">
-                  <motion.div
-                    initial={{ width: 0 }}
-                    animate={{ width: index < currentStep ? "100%" : "0%" }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="h-full bg-success"
-                  />
-                </div>
+                >
+                  {step}
+                </p>
               </div>
-            )}
-          </div>
-        ))}
+              {index < steps.length - 1 && (
+                <div className="flex-1 mx-2">
+                  <div className="h-0.5 bg-muted">
+                    <div
+                      className={cn(
+                        "h-full bg-primary transition-all duration-300",
+                        isCompleted ? "w-full" : "w-0"
+                      )}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 }
 
-export function CircularProgress({
-  value,
-  max = 100,
-  size = 120,
-  strokeWidth = 8,
-  className,
-}: {
+interface CircularProgressProps {
   value: number;
-  max?: number;
+  max: number;
   size?: number;
   strokeWidth?: number;
   className?: string;
-}) {
+}
+
+export function CircularProgress({
+  value,
+  max,
+  size = 120,
+  strokeWidth = 8,
+  className,
+}: CircularProgressProps) {
   const percentage = (value / max) * 100;
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
@@ -96,29 +85,26 @@ export function CircularProgress({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="currentColor"
+          stroke="hsl(var(--muted))"
           strokeWidth={strokeWidth}
           fill="none"
-          className="text-muted"
         />
-        <motion.circle
+        <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="currentColor"
+          stroke="hsl(var(--primary))"
           strokeWidth={strokeWidth}
           fill="none"
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
           strokeLinecap="round"
-          className="text-primary"
-          initial={{ strokeDashoffset: circumference }}
-          animate={{ strokeDashoffset: offset }}
-          transition={{ duration: 1, ease: "easeInOut" }}
-          style={{
-            strokeDasharray: circumference,
-          }}
+          className="transition-all duration-500 ease-out"
         />
       </svg>
-      <span className="absolute text-xl font-bold">{Math.round(percentage)}%</span>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="text-2xl font-bold">{Math.round(percentage)}%</span>
+      </div>
     </div>
   );
 }

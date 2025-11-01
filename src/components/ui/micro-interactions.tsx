@@ -1,71 +1,51 @@
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
-import { cn } from "@/lib/utils";
 
-interface HoverScaleProps {
+interface MicroInteractionProps {
   children: ReactNode;
-  className?: string;
-  scale?: number;
 }
 
-export function HoverScale({ children, className, scale = 1.05 }: HoverScaleProps) {
+export function HoverScale({ children, scale = 1.05 }: MicroInteractionProps & { scale?: number }) {
   return (
-    <motion.div
-      whileHover={{ scale }}
-      whileTap={{ scale: scale - 0.02 }}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
-      className={className}
-    >
+    <motion.div whileHover={{ scale }} transition={{ duration: 0.2 }}>
       {children}
     </motion.div>
   );
 }
 
-export function HoverLift({ children, className }: { children: ReactNode; className?: string }) {
+export function HoverLift({ children }: MicroInteractionProps) {
   return (
     <motion.div
-      whileHover={{ y: -5 }}
-      transition={{ type: "spring", stiffness: 300 }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-export function HoverGlow({ children, className }: { children: ReactNode; className?: string }) {
-  return (
-    <motion.div
-      whileHover={{ boxShadow: "0 0 20px rgba(var(--primary-rgb), 0.5)" }}
+      whileHover={{ y: -5, boxShadow: "0 10px 30px -10px rgba(0,0,0,0.3)" }}
       transition={{ duration: 0.2 }}
-      className={cn("rounded-lg", className)}
     >
       {children}
     </motion.div>
   );
 }
 
-export function PressEffect({ children, className }: { children: ReactNode; className?: string }) {
+export function HoverGlow({ children }: MicroInteractionProps) {
   return (
     <motion.div
-      whileTap={{ scale: 0.95 }}
-      transition={{ type: "spring", stiffness: 400, damping: 17 }}
-      className={className}
+      whileHover={{
+        boxShadow: "0 0 20px rgba(var(--primary), 0.5)",
+      }}
+      transition={{ duration: 0.2 }}
     >
       {children}
     </motion.div>
   );
 }
 
-export function FloatingElement({ 
-  children, 
-  className,
-  delay = 0 
-}: { 
-  children: ReactNode; 
-  className?: string;
-  delay?: number;
-}) {
+export function PressEffect({ children }: MicroInteractionProps) {
+  return (
+    <motion.div whileTap={{ scale: 0.95 }} transition={{ duration: 0.1 }}>
+      {children}
+    </motion.div>
+  );
+}
+
+export function FloatingElement({ children, delay = 0 }: MicroInteractionProps & { delay?: number }) {
   return (
     <motion.div
       animate={{
@@ -77,48 +57,38 @@ export function FloatingElement({
         ease: "easeInOut",
         delay,
       }}
-      className={className}
     >
       {children}
     </motion.div>
   );
 }
 
-export function RotateOnHover({ children, className }: { children: ReactNode; className?: string }) {
+export function RotateOnHover({ children }: MicroInteractionProps) {
+  return (
+    <motion.div whileHover={{ rotate: 360 }} transition={{ duration: 0.5 }}>
+      {children}
+    </motion.div>
+  );
+}
+
+export function ShakeOnError({ children, trigger }: MicroInteractionProps & { trigger: boolean }) {
   return (
     <motion.div
-      whileHover={{ rotate: 5 }}
-      transition={{ type: "spring", stiffness: 300 }}
-      className={className}
+      animate={
+        trigger
+          ? {
+              x: [0, -10, 10, -10, 10, 0],
+            }
+          : {}
+      }
+      transition={{ duration: 0.5 }}
     >
       {children}
     </motion.div>
   );
 }
 
-export function ShakeOnError({ 
-  children, 
-  className,
-  trigger 
-}: { 
-  children: ReactNode; 
-  className?: string;
-  trigger: boolean;
-}) {
-  return (
-    <motion.div
-      animate={trigger ? {
-        x: [0, -10, 10, -10, 10, 0],
-      } : {}}
-      transition={{ duration: 0.4 }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
-export function PulseEffect({ children, className }: { children: ReactNode; className?: string }) {
+export function PulseEffect({ children }: MicroInteractionProps) {
   return (
     <motion.div
       animate={{
@@ -129,7 +99,6 @@ export function PulseEffect({ children, className }: { children: ReactNode; clas
         repeat: Infinity,
         ease: "easeInOut",
       }}
-      className={className}
     >
       {children}
     </motion.div>
