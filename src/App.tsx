@@ -8,6 +8,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Onboarding } from "@/components/Onboarding";
 import { ThemeProvider } from "next-themes";
 import { HelmetProvider } from "react-helmet-async";
+import { NavigationNew as Navigation } from "@/components/NavigationNew";
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -45,6 +46,7 @@ import AIHub from "./pages/AIHub";
 import AdvancedBrowserAI from "./pages/AdvancedBrowserAI";
 import RouterDashboard from "./pages/RouterDashboard";
 import EnterpriseRouter from "./pages/EnterpriseRouter";
+import UnifiedRouterDemo from "./pages/UnifiedRouterDemo";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -271,6 +273,14 @@ const RoutesWithShortcuts = () => {
             element={
               <ProtectedRoute>
                 <EnterpriseRouter />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/unified-router"
+            element={
+              <ProtectedRoute>
+                <UnifiedRouterDemo />
               </ProtectedRoute>
             }
           />
