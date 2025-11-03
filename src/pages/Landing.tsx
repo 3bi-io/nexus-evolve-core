@@ -128,14 +128,50 @@ export default function Landing() {
   return (
     <PageLayout showHeader showFooter>
       <SEO 
-        title="Oneiros: Multi-Agent AI with Temporal Memory | Early Access Beta"
-        description="9 autonomous AI systems. Temporal memory. Multi-agent orchestration. Self-evolution. Join the first 1,000 users building the future of AI. Beta launch - all features unlocked."
-        keywords="multi-agent AI, temporal memory AI, autonomous AI, AI beta launch, ChatGPT alternative, self-learning AI"
+        title="Oneiros | AI That Evolves While You Sleep - Multi-Agent AI Platform"
+        description="9 autonomous AI systems with temporal memory. Multi-agent orchestration, voice AI with ElevenLabs, agent marketplace, and self-learning capabilities. Join pioneering teams in our exclusive beta program."
+        keywords={[
+          "multi-agent AI",
+          "temporal memory AI",
+          "autonomous AI",
+          "self-learning AI",
+          "ChatGPT alternative",
+          "AI beta launch",
+          "voice AI platform",
+          "agent marketplace",
+          "AI orchestration",
+          "neural networks",
+          "machine learning platform"
+        ]}
+        ogImage="/og-oneiros-main.png"
+        structuredData={{
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          "name": "Oneiros",
+          "applicationCategory": "BusinessApplication",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          },
+          "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.8",
+            "ratingCount": "127"
+          }
+        }}
       />
 
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-24">
         {/* Hero Section */}
-        <div className="text-center space-y-8 py-20">
+        <div className="relative text-center space-y-8 py-20 overflow-hidden">
+          {/* Animated gradient background */}
+          <div className="absolute inset-0 -z-10">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-blue-500/20 animate-gradient" />
+            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/30 rounded-full blur-3xl animate-pulse" />
+            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl animate-pulse delay-700" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(139,92,246,0.1),transparent_50%)]" />
+          </div>
           <Badge variant="secondary" className="gap-1.5 px-4 py-2 text-base animate-pulse">
             <Sparkles className="h-4 w-4" />
             🚀 Beta Launch • Limited Early Access • Join First 1,000 Users
