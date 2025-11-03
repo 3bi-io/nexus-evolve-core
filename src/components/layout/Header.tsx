@@ -80,8 +80,8 @@ export function Header() {
             <span className="font-bold text-base sm:text-lg hidden xs:inline truncate">Oneiros</span>
           </Link>
 
-          {/* Desktop Navigation - Primary Links Only */}
-          <div className="hidden lg:flex items-center gap-1 flex-1 justify-center min-w-0">
+          {/* Desktop/Tablet Navigation - Primary Links */}
+          <div className="hidden md:flex items-center gap-1 flex-1 justify-center min-w-0">
             {visiblePrimaryLinks.map((link) => (
               <Link key={link.to} to={link.to} className="flex-shrink-0">
                 <Button
@@ -93,7 +93,8 @@ export function Header() {
                   )}
                 >
                   <link.icon className="w-4 h-4" />
-                  <span>{link.label}</span>
+                  <span className="hidden lg:inline">{link.label}</span>
+                  <span className="lg:hidden">{link.label.slice(0, 1)}</span>
                 </Button>
               </Link>
             ))}
@@ -130,14 +131,14 @@ export function Header() {
               </Link>
             )}
 
-            {/* Mobile Menu Trigger */}
+            {/* Mobile/Tablet Menu Trigger */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   className={cn(
-                    "lg:hidden h-9 w-9 p-0",
+                    "md:hidden h-9 w-9 p-0",
                     "min-h-[44px] min-w-[44px]" // Touch target
                   )}
                   aria-label="Menu"

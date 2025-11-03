@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Brain, Send, ThumbsUp, ThumbsDown, TrendingUp } from "lucide-react";
+import { Brain, Send, ThumbsUp, ThumbsDown, TrendingUp, Globe } from "lucide-react";
 import { streamChat } from "@/lib/chat";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -19,6 +19,9 @@ import { AlertCircle } from "lucide-react";
 import { ResponsiveChatLayout } from "./chat/ResponsiveChatLayout";
 import { ChatHeader } from "./chat/ChatHeader";
 import { useMobile } from "@/hooks/useMobile";
+import { useWebSearch } from "@/hooks/useWebSearch";
+import { WebSearchResults } from "./chat/WebSearchResults";
+import { cn } from "@/lib/utils";
 
 type Message = {
   role: "user" | "assistant";
@@ -32,6 +35,7 @@ export const ChatInterface = () => {
   const { isMobile } = useMobile();
   const { ipAddress } = useClientIP();
   const { criticalIssues } = useSecretValidation();
+  const { searchWeb, isSearching, searchResults, clearResults } = useWebSearch();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -44,6 +48,7 @@ export const ChatInterface = () => {
   const [upgradePromptOpen, setUpgradePromptOpen] = useState(false);
   const [currentCredits, setCurrentCredits] = useState(5);
   const [suggestedTier, setSuggestedTier] = useState<string | undefined>();
+  const [webSearchEnabled, setWebSearchEnabled] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -141,6 +146,25 @@ export const ChatInterface = () => {
   const sendMessage = async () => {
     if (!input.trim() || isLoading || !sessionId) return;
 
+    // Web search if enabled
+    if (webSearchEnabled) {
+      toast({
+        title: "Searching the web...",
+        description: "Gathering real-time information",
+      });
+      
+      const searchData = await searchWeb(input);
+      setWebSearchEnabled(false); // Reset after use
+      
+      if (!searchData) {
+        toast({
+          title: "Search failed",
+          description: "Proceeding without web results",
+          variant: "destructive",
+        });
+      }
+    }
+
     // Check credits before sending
     try {
       const { data: creditCheck } = await supabase.functions.invoke('check-and-deduct-credits', {
@@ -169,7 +193,10 @@ export const ChatInterface = () => {
       return;
     }
 
-    const userMessage: Message = { role: "user", content: input };
+    const userMessage: Message = { 
+      role: "user", 
+      content: webSearchEnabled ? `[SEARCH] ${input}` : input 
+    };
     const isFirstMessage = messages.length === 0;
     
     setMessages((prev) => [...prev, userMessage]);
@@ -373,6 +400,13 @@ export const ChatInterface = () => {
         />
 
         <ScrollArea ref={scrollRef} className="flex-1 my-3 sm:my-4 px-1">
+          {searchResults && (
+            <WebSearchResults 
+              results={searchResults} 
+              onClose={clearResults}
+            />
+          )}
+          
           {messages.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center px-4 py-6 sm:py-8">
               <Brain className="w-16 h-16 sm:w-20 sm:h-20 text-primary mb-4 sm:mb-6" />
@@ -431,17 +465,32 @@ export const ChatInterface = () => {
         </ScrollArea>
 
         <div className="flex gap-2 pt-2 pb-safe">
-          <Textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={isMobile ? "Message..." : "Type your message..."}
-            className="min-h-[56px] sm:min-h-[60px] resize-none text-sm sm:text-base leading-relaxed"
-            disabled={isLoading || !sessionId}
-          />
+          <div className="flex-1 flex gap-2">
+            <Button
+              variant={webSearchEnabled ? "default" : "outline"}
+              size="icon"
+              onClick={() => setWebSearchEnabled(!webSearchEnabled)}
+              disabled={isLoading || isSearching}
+              className={cn(
+                "flex-shrink-0",
+                webSearchEnabled && "shadow-lg shadow-primary/20"
+              )}
+              title="Enable web search for real-time information"
+            >
+              <Globe className="w-5 h-5" />
+            </Button>
+            <Textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={webSearchEnabled ? "Search the web..." : (isMobile ? "Message..." : "Type your message...")}
+              className="min-h-[56px] sm:min-h-[60px] resize-none text-sm sm:text-base leading-relaxed"
+              disabled={isLoading || !sessionId || isSearching}
+            />
+          </div>
           <Button
             onClick={sendMessage}
-            disabled={isLoading || !input.trim() || !sessionId}
+            disabled={isLoading || !input.trim() || !sessionId || isSearching}
             className="h-auto px-3 sm:px-4 self-end"
           >
             <Send className="w-5 h-5" />
