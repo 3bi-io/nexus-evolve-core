@@ -1,132 +1,108 @@
 project_id = "coobieessxvnujkkiadc"
 
-[functions.huggingface-inference]
-verify_jwt = true
-
-[functions.lovable-ai-router]
-verify_jwt = true
-
-[functions.computer-use]
-verify_jwt = true
-
-[functions.pinecone-vector]
-verify_jwt = true
-
-[functions.langchain-orchestrator]
-verify_jwt = true
-
-[functions.replicate-runner]
-verify_jwt = true
-
-[functions.mem0-memory]
-verify_jwt = true
-
-[functions.auto-prune-memories]
-verify_jwt = false
-
-[functions.grok-reality-agent]
-verify_jwt = true
-
-[functions.meta-router-agent]
-verify_jwt = true
-
-[functions.custom-agent-executor]
-verify_jwt = true
-
-[functions.trigger-integration]
-verify_jwt = true
-
-[functions.generate-image]
-verify_jwt = true
-
-[functions.voice-to-text]
-verify_jwt = true
-
-[functions.text-to-voice]
-verify_jwt = true
-
-[functions.get-elevenlabs-signed-url]
-verify_jwt = true
-
-[functions.check-and-deduct-credits]
-verify_jwt = false
-
-[functions.manage-subscription]
-verify_jwt = true
-
-[functions.chat-stream-with-routing]
-verify_jwt = true
-
-[functions.extract-learnings]
+[functions.coordinator-agent]
 verify_jwt = true
 
 [functions.reasoning-agent]
-verify_jwt = false
-
-[functions.analyze-feedback]
-verify_jwt = true
-
-[functions.learning-agent]
 verify_jwt = true
 
 [functions.creative-agent]
 verify_jwt = true
 
-[functions.coordinator-agent]
+[functions.learning-agent]
 verify_jwt = true
 
-[functions.discover-capabilities]
+[functions.prompt-optimizer]
 verify_jwt = true
 
-[functions.evolve-system]
+[functions.chat-stream-with-routing]
 verify_jwt = true
 
-[functions.generate-embeddings]
-verify_jwt = true
-
-[functions.semantic-search]
-verify_jwt = true
-
-[functions.reset-daily-credits]
-verify_jwt = false
-
-[functions.process-referral-conversion]
-verify_jwt = false
-
-[functions.send-low-credit-alert]
-verify_jwt = false
-
-[functions.llamaindex-rag]
-verify_jwt = true
-
-[functions.track-llm-observation]
-verify_jwt = false
-
-[functions.claude-chat]
-verify_jwt = true
-
-[functions.tavily-search]
-verify_jwt = true
-
-[functions.system-health]
-verify_jwt = true
-
-[functions.validate-secrets]
-verify_jwt = true
-
-[functions.cross-agent-learner]
+[functions.custom-agent-executor]
 verify_jwt = true
 
 [functions.multi-agent-orchestrator]
 verify_jwt = true
 
+[functions.langchain-orchestrator]
+verify_jwt = true
+
+[functions.check-and-deduct-credits]
+verify_jwt = false
+
+[functions.claude-chat]
+verify_jwt = true
+
+[functions.computer-use]
+verify_jwt = true
+
+[functions.meta-router-agent]
+verify_jwt = true
+
+[functions.grok-reality-agent]
+verify_jwt = true
+
+[functions.reset-daily-credits]
+verify_jwt = false
+
+[functions.send-low-credit-alert]
+verify_jwt = false
+
+[functions.auto-prune-memories]
+verify_jwt = false
+
+[functions.extract-learnings]
+verify_jwt = false
+
+[functions.evolve-system]
+verify_jwt = false
+
+[functions.system-health]
+verify_jwt = false
+
+[functions.manage-subscription]
+verify_jwt = true
+
+[functions.process-referral-conversion]
+verify_jwt = false
+
+[functions.generate-image]
+verify_jwt = true
+
+[functions.text-to-voice]
+verify_jwt = true
+
+[functions.voice-to-text]
+verify_jwt = true
+
+[functions.get-elevenlabs-signed-url]
+verify_jwt = true
+
+[functions.analyze-feedback]
+verify_jwt = true
+
+[functions.trigger-webhook]
+verify_jwt = true
+
+[functions.trigger-integration]
+verify_jwt = true
+
+[functions.semantic-search]
+verify_jwt = true
+
+[functions.discover-capabilities]
+verify_jwt = true
+
 [functions.predict-capabilities]
 verify_jwt = true
 
-[functions.meta-optimizer]
+[functions.generate-embeddings]
+verify_jwt = false
+
+[functions.mem0-memory]
 verify_jwt = true
 
-[functions.prompt-optimizer]
+[functions.cross-agent-learner]
 verify_jwt = true
 
 [functions.emotional-analyzer]
@@ -134,3 +110,30 @@ verify_jwt = true
 
 [functions.uncertainty-calculator]
 verify_jwt = true
+
+[functions.pinecone-vector]
+verify_jwt = true
+
+[functions.llamaindex-rag]
+verify_jwt = true
+
+[functions.replicate-runner]
+verify_jwt = true
+
+[functions.huggingface-inference]
+verify_jwt = true
+
+[functions.tavily-search]
+verify_jwt = true
+
+[functions.track-llm-observation]
+verify_jwt = false
+
+[functions.lovable-ai-router]
+verify_jwt = true
+
+[functions.validate-secrets]
+verify_jwt = false
+
+[functions.geo-validator]
+verify_jwt = false

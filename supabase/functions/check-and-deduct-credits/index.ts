@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
+import { performSecurityCheck } from '../_shared/advanced-security.ts';
 
 const CREDIT_COSTS = {
   'chat': 1,
@@ -16,9 +17,9 @@ const getUTCDateString = () => {
   return now.toISOString().split('T')[0];
 };
 
-// Helper to hash IP address
+// Helper to hash IP address with salt
 const hashIP = async (ip: string): Promise<string> => {
-  const msgBuffer = new TextEncoder().encode(ip);
+  const msgBuffer = new TextEncoder().encode(ip + 'oneiros-salt-2025');
   const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
@@ -36,6 +37,45 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const { operation, userId, ipAddress, interactionId } = await req.json();
+
+    // Perform comprehensive security checks
+    const securityCheck = await performSecurityCheck(req, supabase, {
+      checkGeo: true,
+      checkBot: true,
+      checkBruteForce: false
+    });
+
+    // Block if security check fails
+    if (!securityCheck.allowed) {
+      console.log('Security check failed:', securityCheck.reason);
+      return new Response(
+        JSON.stringify({ 
+          allowed: false, 
+          remaining: 0, 
+          creditCost: 0,
+          error: securityCheck.reason || 'Access denied'
+        }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Log suspicious activity
+    if (securityCheck.suspicionScore > 40) {
+      const ipHash = await hashIP(ipAddress || 'unknown');
+      await supabase.from('security_events').insert({
+        event_type: 'suspicious_pattern',
+        severity: securityCheck.suspicionScore > 60 ? 'medium' : 'low',
+        ip_hash: ipHash,
+        user_id: userId || null,
+        details: { 
+          operation, 
+          suspicion_score: securityCheck.suspicionScore,
+          country: securityCheck.countryCode,
+          risk_level: securityCheck.riskLevel
+        },
+        blocked: false
+      } as any);
+    }
 
     if (!operation) {
       return new Response(

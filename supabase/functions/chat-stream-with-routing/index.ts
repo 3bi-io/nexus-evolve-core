@@ -352,25 +352,23 @@ serve(async (req) => {
       });
     }
 
-    // For non-streaming agents, return JSON response
+    // For non-streaming agents, return JSON response (hide technical details)
     await supabase.from("interactions").insert({
       user_id: user.id,
       session_id: sessionId,
       message: userMessage,
       response: responseText,
+      model_used: 'oneiros-ai', // Generic name for security
       context: { 
         agent_used: selectedAgent,
-        coordinator_analysis: agentAnalysis,
-        agent_response: agentResponse
-      },
-      model_used: "google/gemini-2.5-flash",
+        session_id: sessionId
+      }
     });
 
     return new Response(
       JSON.stringify({ 
         response: responseText,
-        agent: selectedAgent,
-        analysis: agentAnalysis
+        success: true
       }),
       { headers: { 
         ...corsHeaders, 
