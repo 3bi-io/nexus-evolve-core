@@ -131,6 +131,45 @@ export type Database = {
         }
         Relationships: []
       }
+      agent_collaborations: {
+        Row: {
+          agents_involved: string[]
+          collaboration_type: string
+          created_at: string | null
+          duration_ms: number | null
+          id: string
+          quality_score: number | null
+          session_id: string | null
+          synthesis_result: Json | null
+          task_description: string
+          user_id: string
+        }
+        Insert: {
+          agents_involved: string[]
+          collaboration_type: string
+          created_at?: string | null
+          duration_ms?: number | null
+          id?: string
+          quality_score?: number | null
+          session_id?: string | null
+          synthesis_result?: Json | null
+          task_description: string
+          user_id: string
+        }
+        Update: {
+          agents_involved?: string[]
+          collaboration_type?: string
+          created_at?: string | null
+          duration_ms?: number | null
+          id?: string
+          quality_score?: number | null
+          session_id?: string | null
+          synthesis_result?: Json | null
+          task_description?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       agent_executions: {
         Row: {
           agent_id: string
@@ -186,6 +225,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      agent_learning_network: {
+        Row: {
+          agent_type: string
+          applied_count: number | null
+          context: Json | null
+          created_at: string | null
+          id: string
+          learning_event: string
+          shared_to_agents: string[] | null
+          success_score: number
+          user_id: string
+        }
+        Insert: {
+          agent_type: string
+          applied_count?: number | null
+          context?: Json | null
+          created_at?: string | null
+          id?: string
+          learning_event: string
+          shared_to_agents?: string[] | null
+          success_score?: number
+          user_id: string
+        }
+        Update: {
+          agent_type?: string
+          applied_count?: number | null
+          context?: Json | null
+          created_at?: string | null
+          id?: string
+          learning_event?: string
+          shared_to_agents?: string[] | null
+          success_score?: number
+          user_id?: string
+        }
+        Relationships: []
       }
       agent_marketplace: {
         Row: {
@@ -593,6 +668,39 @@ export type Database = {
         }
         Relationships: []
       }
+      capability_predictions: {
+        Row: {
+          confidence_score: number
+          confirmed_at: string | null
+          created_at: string | null
+          id: string
+          predicted_capability: string
+          reasoning: string | null
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          confidence_score: number
+          confirmed_at?: string | null
+          created_at?: string | null
+          id?: string
+          predicted_capability: string
+          reasoning?: string | null
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number
+          confirmed_at?: string | null
+          created_at?: string | null
+          id?: string
+          predicted_capability?: string
+          reasoning?: string | null
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       capability_suggestions: {
         Row: {
           capability_name: string
@@ -625,6 +733,42 @@ export type Database = {
           reasoning?: string | null
           reviewed_at?: string | null
           status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      causal_relationships: {
+        Row: {
+          cause_event: string
+          context: Json | null
+          created_at: string | null
+          effect_event: string
+          evidence_count: number | null
+          id: string
+          strength: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cause_event: string
+          context?: Json | null
+          created_at?: string | null
+          effect_event: string
+          evidence_count?: number | null
+          id?: string
+          strength?: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cause_event?: string
+          context?: Json | null
+          created_at?: string | null
+          effect_event?: string
+          evidence_count?: number | null
+          id?: string
+          strength?: number
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -796,6 +940,42 @@ export type Database = {
           tools_enabled?: string[] | null
           updated_at?: string
           usage_count?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      emotional_context: {
+        Row: {
+          created_at: string | null
+          detected_sentiment: string | null
+          emotion_scores: Json | null
+          id: string
+          intensity: number | null
+          message_id: string | null
+          response_tone_adjustment: string | null
+          session_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          detected_sentiment?: string | null
+          emotion_scores?: Json | null
+          id?: string
+          intensity?: number | null
+          message_id?: string | null
+          response_tone_adjustment?: string | null
+          session_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          detected_sentiment?: string | null
+          emotion_scores?: Json | null
+          id?: string
+          intensity?: number | null
+          message_id?: string | null
+          response_tone_adjustment?: string | null
+          session_id?: string | null
           user_id?: string
         }
         Relationships: []
@@ -1138,6 +1318,48 @@ export type Database = {
         }
         Relationships: []
       }
+      long_term_goals: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          due_date: string | null
+          goal_description: string
+          id: string
+          priority: string | null
+          progress: number | null
+          status: string | null
+          subtasks: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          due_date?: string | null
+          goal_description: string
+          id?: string
+          priority?: string | null
+          progress?: number | null
+          status?: string | null
+          subtasks?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          due_date?: string | null
+          goal_description?: string
+          id?: string
+          priority?: string | null
+          progress?: number | null
+          status?: string | null
+          subtasks?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       memory_pruning_logs: {
         Row: {
           created_at: string | null
@@ -1203,6 +1425,42 @@ export type Database = {
           last_accessed?: string | null
           memory_id?: string
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      meta_learning_metrics: {
+        Row: {
+          auto_adjusted: boolean | null
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          metric_name: string
+          metric_type: string
+          metric_value: number
+          optimization_direction: string | null
+          user_id: string
+        }
+        Insert: {
+          auto_adjusted?: boolean | null
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          metric_name: string
+          metric_type: string
+          metric_value: number
+          optimization_direction?: string | null
+          user_id: string
+        }
+        Update: {
+          auto_adjusted?: boolean | null
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          metric_name?: string
+          metric_type?: string
+          metric_value?: number
+          optimization_direction?: string | null
           user_id?: string
         }
         Relationships: []
@@ -1365,6 +1623,51 @@ export type Database = {
           solution?: string | null
           solution_path?: Json | null
           success_score?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      prompt_experiments: {
+        Row: {
+          agent_type: string
+          avg_latency_ms: number | null
+          avg_satisfaction: number | null
+          created_at: string | null
+          id: string
+          parent_prompt_id: string | null
+          promoted_at: string | null
+          prompt_variant: string
+          status: string | null
+          success_count: number | null
+          test_count: number | null
+          user_id: string
+        }
+        Insert: {
+          agent_type: string
+          avg_latency_ms?: number | null
+          avg_satisfaction?: number | null
+          created_at?: string | null
+          id?: string
+          parent_prompt_id?: string | null
+          promoted_at?: string | null
+          prompt_variant: string
+          status?: string | null
+          success_count?: number | null
+          test_count?: number | null
+          user_id: string
+        }
+        Update: {
+          agent_type?: string
+          avg_latency_ms?: number | null
+          avg_satisfaction?: number | null
+          created_at?: string | null
+          id?: string
+          parent_prompt_id?: string | null
+          promoted_at?: string | null
+          prompt_variant?: string
+          status?: string | null
+          success_count?: number | null
+          test_count?: number | null
           user_id?: string
         }
         Relationships: []
@@ -1972,6 +2275,42 @@ export type Database = {
           user_id?: string
           verified?: boolean | null
           verified_at?: string | null
+        }
+        Relationships: []
+      }
+      uncertainty_scores: {
+        Row: {
+          agent_type: string
+          clarification_requested: boolean | null
+          confidence_score: number
+          created_at: string | null
+          id: string
+          query: string
+          session_id: string | null
+          uncertainty_reasons: string[] | null
+          user_id: string
+        }
+        Insert: {
+          agent_type: string
+          clarification_requested?: boolean | null
+          confidence_score: number
+          created_at?: string | null
+          id?: string
+          query: string
+          session_id?: string | null
+          uncertainty_reasons?: string[] | null
+          user_id: string
+        }
+        Update: {
+          agent_type?: string
+          clarification_requested?: boolean | null
+          confidence_score?: number
+          created_at?: string | null
+          id?: string
+          query?: string
+          session_id?: string | null
+          uncertainty_reasons?: string[] | null
+          user_id?: string
         }
         Relationships: []
       }

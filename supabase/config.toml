@@ -113,3 +113,24 @@ verify_jwt = true
 
 [functions.validate-secrets]
 verify_jwt = true
+
+[functions.cross-agent-learner]
+verify_jwt = true
+
+[functions.multi-agent-orchestrator]
+verify_jwt = true
+
+[functions.predict-capabilities]
+verify_jwt = true
+
+[functions.meta-optimizer]
+verify_jwt = true
+
+[functions.prompt-optimizer]
+verify_jwt = true
+
+[functions.emotional-analyzer]
+verify_jwt = true
+
+[functions.uncertainty-calculator]
+verify_jwt = true

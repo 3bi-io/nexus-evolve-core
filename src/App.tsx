@@ -26,6 +26,7 @@ const LLMAnalytics = lazy(() => import("./pages/LLMAnalytics"));
 const SuperAdmin = lazy(() => import("./pages/SuperAdmin"));
 const ProblemSolver = lazy(() => import("./pages/ProblemSolver"));
 const Evolution = lazy(() => import("./pages/Evolution"));
+const AGIDashboard = lazy(() => import("./pages/AGIDashboard"));
 const Referrals = lazy(() => import("./pages/Referrals"));
 const Integrations = lazy(() => import("./pages/Integrations"));
 const UsageAnalytics = lazy(() => import("./pages/UsageAnalytics"));
@@ -138,6 +139,14 @@ const RoutesWithShortcuts = () => {
             element={
               <ProtectedRoute>
                 <Evolution />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/agi-dashboard"
+            element={
+              <ProtectedRoute>
+                <AGIDashboard />
               </ProtectedRoute>
             }
           />
