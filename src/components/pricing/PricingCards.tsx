@@ -166,7 +166,7 @@ export const PricingCards = () => {
                 </p>
               )}
               <p className="text-sm sm:text-base text-muted-foreground mt-2">
-                {tier.credits === 0 ? "Custom credits" : tier.credits === 500 ? "500 daily credits" : `${tier.credits} credits/month`}
+                {tier.credits === 0 ? "Custom credits" : tier.credits === 500 ? "500 daily credits" : `${tier.credits.toLocaleString()} credits/month`}
               </p>
             </CardHeader>
             <CardContent className="space-mobile">
