@@ -34,6 +34,7 @@ const SocialIntelligence = lazy(() => import("./pages/SocialIntelligence"));
 const AgentMarketplace = lazy(() => import("./pages/AgentMarketplace"));
 const AgentStudio = lazy(() => import("./pages/AgentStudio"));
 const AgentRevenue = lazy(() => import("./pages/AgentRevenue"));
+const AgentExecutor = lazy(() => import("./pages/AgentExecutor"));
 const AdvancedAnalytics = lazy(() => import("./pages/AdvancedAnalytics"));
 const AdvancedAI = lazy(() => import("./pages/AdvancedAI"));
 const SystemHealth = lazy(() => import("./pages/SystemHealth"));
@@ -221,6 +222,22 @@ const RoutesWithShortcuts = () => {
             element={
               <ProtectedRoute>
                 <AgentStudio />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/agent-studio/edit/:agentId"
+            element={
+              <ProtectedRoute>
+                <AgentStudio />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/agent-executor/:agentId"
+            element={
+              <ProtectedRoute>
+                <AgentExecutor />
               </ProtectedRoute>
             }
           />

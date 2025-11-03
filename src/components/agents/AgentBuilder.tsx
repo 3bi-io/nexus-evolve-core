@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
-import { Sparkles, Save, TestTube } from 'lucide-react';
+import { Sparkles, Save, TestTube, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -20,8 +20,13 @@ const AVAILABLE_TOOLS = [
   { id: 'grok_trends', name: 'Grok Trends', description: 'Access real-time X trends' },
 ];
 
-export function AgentBuilder() {
+interface AgentBuilderProps {
+  agentId?: string;
+}
+
+export function AgentBuilder({ agentId }: AgentBuilderProps) {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [agent, setAgent] = useState({
     name: '',
@@ -32,6 +37,43 @@ export function AgentBuilder() {
     temperature: 0.7,
     is_public: false,
   });
+
+  useEffect(() => {
+    if (agentId) {
+      fetchAgent();
+    }
+  }, [agentId]);
+
+  const fetchAgent = async () => {
+    if (!agentId) return;
+    
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('custom_agents')
+        .select('*')
+        .eq('id', agentId)
+        .single();
+
+      if (error) throw error;
+      
+      setAgent({
+        name: data.name,
+        description: data.description || '',
+        system_prompt: data.system_prompt,
+        tools_enabled: data.tools_enabled || [],
+        model_preference: data.model_preference || 'auto',
+        temperature: data.temperature || 0.7,
+        is_public: data.is_public || false,
+      });
+    } catch (error) {
+      console.error('Error fetching agent:', error);
+      toast.error('Failed to load agent');
+      navigate('/agent-studio');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSave = async () => {
     if (!agent.name.trim() || !agent.system_prompt.trim()) {
@@ -44,20 +86,39 @@ export function AgentBuilder() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
-      const { error } = await supabase.from('custom_agents').insert({
-        user_id: user.id,
-        name: agent.name,
-        description: agent.description,
-        system_prompt: agent.system_prompt,
-        tools_enabled: agent.tools_enabled,
-        model_preference: agent.model_preference,
-        temperature: agent.temperature,
-        is_public: agent.is_public,
-      });
+      if (agentId) {
+        // Update existing agent
+        const { error } = await supabase
+          .from('custom_agents')
+          .update({
+            name: agent.name,
+            description: agent.description,
+            system_prompt: agent.system_prompt,
+            tools_enabled: agent.tools_enabled,
+            model_preference: agent.model_preference,
+            temperature: agent.temperature,
+            is_public: agent.is_public,
+          })
+          .eq('id', agentId);
 
-      if (error) throw error;
+        if (error) throw error;
+        toast.success('Agent updated successfully!');
+      } else {
+        // Create new agent
+        const { error } = await supabase.from('custom_agents').insert({
+          user_id: user.id,
+          name: agent.name,
+          description: agent.description,
+          system_prompt: agent.system_prompt,
+          tools_enabled: agent.tools_enabled,
+          model_preference: agent.model_preference,
+          temperature: agent.temperature,
+          is_public: agent.is_public,
+        });
 
-      toast.success('Agent created successfully!');
+        if (error) throw error;
+        toast.success('Agent created successfully!');
+      }
       navigate('/agent-studio');
     } catch (error: any) {
       console.error('Error creating agent:', error);
@@ -75,6 +136,14 @@ export function AgentBuilder() {
         : [...prev.tools_enabled, toolId],
     }));
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -182,12 +251,17 @@ export function AgentBuilder() {
       <div className="flex gap-3">
         <Button onClick={handleSave} disabled={saving} className="flex-1">
           <Save className="w-4 h-4 mr-2" />
-          {saving ? 'Saving...' : 'Save Agent'}
+          {saving ? 'Saving...' : agentId ? 'Update Agent' : 'Save Agent'}
         </Button>
-        <Button variant="outline" disabled>
-          <TestTube className="w-4 h-4 mr-2" />
-          Test
-        </Button>
+        {agentId && (
+          <Button 
+            variant="outline" 
+            onClick={() => navigate(`/agent-executor/${agentId}`)}
+          >
+            <TestTube className="w-4 h-4 mr-2" />
+            Test
+          </Button>
+        )}
       </div>
     </div>
   );

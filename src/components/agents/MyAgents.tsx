@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Sparkles, Trash2, Edit, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface Agent {
   id: string;
@@ -19,6 +20,7 @@ interface Agent {
 }
 
 export function MyAgents() {
+  const navigate = useNavigate();
   const [agents, setAgents] = useState<Agent[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -76,7 +78,7 @@ export function MyAgents() {
         <p className="text-muted-foreground mb-4">
           Create your first custom agent to get started
         </p>
-        <Button>Create Agent</Button>
+        <Button onClick={() => navigate('/agent-studio?tab=create')}>Create Agent</Button>
       </Card>
     );
   }
@@ -116,16 +118,27 @@ export function MyAgents() {
               </div>
             </div>
             <div className="flex gap-2 ml-4">
-              <Button size="sm" variant="outline">
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={() => navigate(`/agent-studio/edit/${agent.id}`)}
+                title="Edit Agent"
+              >
                 <Edit className="w-4 h-4" />
               </Button>
-              <Button size="sm" variant="outline">
+              <Button 
+                size="sm" 
+                variant="outline"
+                onClick={() => navigate(`/agent-executor/${agent.id}`)}
+                title="Open Agent Chat"
+              >
                 <ExternalLink className="w-4 h-4" />
               </Button>
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => handleDelete(agent.id)}
+                title="Delete Agent"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>

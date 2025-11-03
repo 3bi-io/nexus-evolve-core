@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { AgentBuilder } from '@/components/agents/AgentBuilder';
 import { AgentTemplates } from '@/components/agents/AgentTemplates';
@@ -6,9 +6,18 @@ import { MyAgents } from '@/components/agents/MyAgents';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Sparkles, Plus, Library } from 'lucide-react';
 import { SEO } from '@/components/SEO';
+import { useParams, useNavigate } from 'react-router-dom';
 
 export default function AgentStudio() {
+  const { agentId } = useParams<{ agentId: string }>();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('my-agents');
+
+  useEffect(() => {
+    if (agentId) {
+      setActiveTab('create');
+    }
+  }, [agentId]);
 
   return (
     <PageLayout>
@@ -50,7 +59,7 @@ export default function AgentStudio() {
           </TabsContent>
 
           <TabsContent value="create" className="mt-6">
-            <AgentBuilder />
+            <AgentBuilder agentId={agentId} />
           </TabsContent>
 
           <TabsContent value="templates" className="mt-6">

@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Star, Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface Template {
   id: string;
@@ -18,6 +19,7 @@ interface Template {
 }
 
 export function AgentTemplates() {
+  const navigate = useNavigate();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -54,17 +56,18 @@ export function AgentTemplates() {
         .eq('id', template.id)
         .single();
 
-      const { error } = await supabase.from('custom_agents').insert({
+      const { data, error } = await supabase.from('custom_agents').insert({
         user_id: user.id,
         name: `${template.name} (Copy)`,
         description: template.description,
         system_prompt: fullTemplate?.system_prompt || '',
         tools_enabled: template.tools_enabled,
         is_template: false,
-      });
+      }).select().single();
 
       if (error) throw error;
       toast.success('Agent created from template!');
+      navigate('/agent-studio?tab=my-agents');
     } catch (error: any) {
       console.error('Error using template:', error);
       toast.error('Failed to create agent: ' + error.message);
