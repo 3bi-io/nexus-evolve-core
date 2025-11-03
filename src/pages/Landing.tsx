@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
 import { EnhancedInteractiveDemo } from '@/components/landing/EnhancedInteractiveDemo';
-import { EnhancedTrustSignals } from '@/components/landing/EnhancedTrustSignals';
+import { BetaTrustSignals } from '@/components/landing/BetaTrustSignals';
 import { SEO } from '@/components/SEO';
 import { ExitIntentPopup } from '@/components/conversion/ExitIntentPopup';
 import { SocialProofNotification } from '@/components/conversion/SocialProofNotification';
@@ -89,25 +89,29 @@ const pricingTiers = [
     name: 'Starter',
     price: 0,
     credits: '500 daily credits forever',
-    features: ['9 AI systems', 'Multi-agent orchestration', 'Voice AI', 'Agent marketplace', 'Community support'],
-    cta: 'Start Free',
+    features: ['9 AI systems', 'Multi-agent orchestration', 'Voice AI', 'Agent marketplace', 'Beta tester badge'],
+    cta: 'Join Beta Free',
     popular: false,
+    badge: '🎁 Forever Free',
   },
   {
     name: 'Professional',
-    price: 49,
+    price: 29,
+    originalPrice: 49,
     credits: '10,000 credits/month',
-    features: ['Everything in Starter', 'Priority support', 'Advanced analytics', 'Custom agents', 'API access'],
-    cta: 'Upgrade Now',
+    features: ['Everything in Starter', 'Priority support', 'Advanced analytics', 'Founder badge', 'Locked-in rate forever'],
+    cta: 'Lock In Founder Rate',
     popular: true,
+    badge: '🔥 Founder Rate',
   },
   {
     name: 'Enterprise',
-    price: 999,
-    credits: 'Unlimited credits',
-    features: ['Everything in Professional', 'Dedicated support', 'Custom integrations', 'SLA guarantee', 'Training & onboarding'],
-    cta: 'Contact Sales',
+    price: null,
+    credits: 'Custom credits',
+    features: ['Everything in Professional', 'Dedicated support', 'Custom integrations', 'Shape development', 'Direct dev access'],
+    cta: 'Schedule Call',
     popular: false,
+    badge: '🚀 Beta Custom',
   },
 ];
 
@@ -124,17 +128,17 @@ export default function Landing() {
   return (
     <PageLayout showHeader showFooter>
       <SEO 
-        title="Oneiros: The AI That Gets Smarter While You Sleep | 10,847 Teams Ship 3x Faster"
-        description="9 AI systems working 24/7. Autonomous evolution. Temporal memory. Voice conversations. Join 10K+ teams using AI that learns, predicts, and improves itself. Start free with 500 daily credits."
-        keywords="AI platform that learns, autonomous AI system, AI with memory, multi-agent AI, ChatGPT alternative, AI that improves itself"
+        title="Oneiros: Multi-Agent AI with Temporal Memory | Early Access Beta"
+        description="9 autonomous AI systems. Temporal memory. Multi-agent orchestration. Self-evolution. Join the first 1,000 users building the future of AI. Beta launch - all features unlocked."
+        keywords="multi-agent AI, temporal memory AI, autonomous AI, AI beta launch, ChatGPT alternative, self-learning AI"
       />
 
       <div className="container mx-auto px-4 py-8 max-w-7xl space-y-24">
         {/* Hero Section */}
         <div className="text-center space-y-8 py-20">
-          <Badge variant="secondary" className="gap-1.5 px-4 py-2 text-base">
-            <Sparkles className="h-4 w-4 animate-pulse" />
-            9 AI Systems • 10,847 Teams • 4.9★ Rating
+          <Badge variant="secondary" className="gap-1.5 px-4 py-2 text-base animate-pulse">
+            <Sparkles className="h-4 w-4" />
+            🚀 Beta Launch • Limited Early Access • Join First 1,000 Users
           </Badge>
           
           <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight max-w-5xl mx-auto leading-[1.1]">
@@ -145,12 +149,29 @@ export default function Landing() {
           </h1>
           
           <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            9 AI systems working <strong>24/7</strong> to multiply your productivity.
+            <strong>9 autonomous AI systems</strong> with temporal memory and multi-agent orchestration.
             <br className="hidden sm:block" />
-            <strong>10,847 teams</strong> already shipping <strong className="text-primary">3x faster</strong> with Oneiros.
+            Join pioneering teams in our <strong className="text-primary">exclusive beta program</strong>.
           </p>
 
-          <LiveMetrics />
+          <div className="flex flex-wrap justify-center gap-4 text-sm max-w-3xl mx-auto">
+            <Badge variant="outline" className="gap-1.5">
+              <Zap className="h-3 w-3" />
+              9 Production AI Systems
+            </Badge>
+            <Badge variant="outline" className="gap-1.5">
+              <Shield className="h-3 w-3" />
+              68 Database Tables
+            </Badge>
+            <Badge variant="outline" className="gap-1.5">
+              <Brain className="h-3 w-3" />
+              20+ Edge Functions
+            </Badge>
+            <Badge variant="outline" className="gap-1.5">
+              <Sparkles className="h-3 w-3" />
+              Enterprise Security
+            </Badge>
+          </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button 
@@ -158,7 +179,7 @@ export default function Landing() {
               onClick={() => navigate('/auth')}
               className="text-lg px-10 py-7 shadow-xl hover:shadow-2xl transition-all hover:scale-105 group"
             >
-              Start Shipping 3x Faster
+              Get Early Access Free
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Button>
             <Button 
@@ -167,7 +188,7 @@ export default function Landing() {
               onClick={() => navigate('/getting-started')}
               className="text-lg px-10 py-7 hover:bg-primary/10"
             >
-              Watch 2-Min Demo
+              Explore Live Demo
               <Sparkles className="ml-2 h-5 w-5" />
             </Button>
           </div>
@@ -175,15 +196,19 @@ export default function Landing() {
           <div className="flex flex-wrap justify-center gap-6 text-sm">
             <div className="flex items-center gap-1.5">
               <Shield className="h-4 w-4 text-primary" />
-              <span>No credit card required</span>
+              <span>100% functional beta</span>
             </div>
             <div className="flex items-center gap-1.5">
               <Zap className="h-4 w-4 text-primary" />
               <span>500 free credits daily forever</span>
             </div>
             <div className="flex items-center gap-1.5">
+              <Users className="h-4 w-4 text-primary" />
+              <span>All features unlocked</span>
+            </div>
+            <div className="flex items-center gap-1.5">
               <Clock className="h-4 w-4 text-primary" />
-              <span>5-minute setup</span>
+              <span>No credit card required</span>
             </div>
           </div>
         </div>
@@ -199,7 +224,7 @@ export default function Landing() {
 
         {/* Social Proof */}
         <section className="py-16">
-          <EnhancedTrustSignals />
+          <BetaTrustSignals />
         </section>
 
         {/* Core Benefits */}
@@ -326,11 +351,11 @@ export default function Landing() {
             <div className="text-center space-y-4">
               <Badge variant="outline" className="text-base px-4 py-2">
                 <TrendingUp className="h-4 w-4 mr-2" />
-                ROI in 2 Weeks
+                Beta Pricing - Lock It In Forever
               </Badge>
-              <h2 className="text-3xl md:text-4xl font-bold">Pricing That Scales With You</h2>
+              <h2 className="text-3xl md:text-4xl font-bold">Founder Rates for Early Users</h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Start free. Scale unlimited. Save <strong>$8,400/year</strong> vs hiring.
+                Join now and <strong>lock in founder pricing for life</strong>. Rates increase after beta.
               </p>
             </div>
 
@@ -339,15 +364,24 @@ export default function Landing() {
                 <Card key={tier.name} className={`p-8 hover:shadow-xl transition-all ${tier.popular ? 'border-primary shadow-lg scale-[1.05]' : 'hover:scale-[1.02]'}`}>
                   <CardContent className="p-0 space-y-6">
                     <div className="flex items-center justify-between">
-                      {tier.popular && (
-                        <Badge className="text-sm px-3 py-1">⭐ Most Popular</Badge>
-                      )}
+                      <Badge variant={tier.popular ? 'default' : 'secondary'} className="text-sm px-3 py-1">
+                        {tier.badge}
+                      </Badge>
                     </div>
                     <div className="space-y-2">
                       <h3 className="text-2xl font-bold">{tier.name}</h3>
                       <div className="flex items-baseline gap-2">
-                        <span className="text-5xl font-bold">${tier.price}</span>
-                        <span className="text-muted-foreground">/month</span>
+                        {tier.price !== null ? (
+                          <>
+                            <span className="text-5xl font-bold">${tier.price}</span>
+                            {tier.originalPrice && (
+                              <span className="text-2xl text-muted-foreground line-through">${tier.originalPrice}</span>
+                            )}
+                            <span className="text-muted-foreground">/month</span>
+                          </>
+                        ) : (
+                          <span className="text-4xl font-bold">Custom</span>
+                        )}
                       </div>
                       <p className="text-sm text-primary font-semibold">{tier.credits}</p>
                     </div>
@@ -384,18 +418,19 @@ export default function Landing() {
         <section className="py-20">
           <Card className="p-12 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/20 text-center">
             <div className="space-y-8 max-w-3xl mx-auto">
-              <Badge variant="default" className="text-base px-4 py-2 animate-pulse">
-                🔥 427 teams signed up in the last 24 hours
+              <Badge variant="default" className="text-base px-4 py-2">
+                <Sparkles className="h-4 w-4 mr-2" />
+                Early Access Beta - Shape the Future
               </Badge>
               
               <div className="space-y-4">
                 <h2 className="text-4xl md:text-5xl font-bold">
-                  Join 10,847 Teams Shipping Faster
+                  Join the First 1,000 Users
                 </h2>
                 <p className="text-xl text-muted-foreground">
-                  Start free today. No credit card. Cancel anytime.
+                  Be among the pioneers. Lock in founder pricing forever.
                   <br />
-                  <strong className="text-foreground">ROI in 2 weeks or your money back.</strong>
+                  <strong className="text-foreground">Full platform access. All features unlocked.</strong>
                 </p>
               </div>
               
@@ -405,16 +440,16 @@ export default function Landing() {
                   onClick={() => navigate('/auth')}
                   className="text-lg px-12 py-7 shadow-2xl hover:scale-105 transition-all"
                 >
-                  Start Shipping 3x Faster
+                  Get Beta Access Free
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
                 <Button 
                   size="lg" 
                   variant="outline"
-                  onClick={() => window.location.href = 'mailto:sales@oneiros.me'}
+                  onClick={() => navigate('/pricing')}
                   className="text-lg px-12 py-7"
                 >
-                  Talk to Sales
+                  View Founder Pricing
                 </Button>
               </div>
             </div>

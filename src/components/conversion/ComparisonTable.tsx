@@ -3,18 +3,16 @@ import { Badge } from '@/components/ui/badge';
 import { Check, X } from 'lucide-react';
 
 const FEATURES = [
+  { name: 'Multi-Agent Orchestration (5 agents)', oneiros: true, chatgpt: false, claude: false, traditional: false },
   { name: 'Temporal Memory System', oneiros: true, chatgpt: false, claude: false, traditional: false },
-  { name: 'Multi-Agent Orchestration', oneiros: true, chatgpt: false, claude: false, traditional: false },
-  { name: 'Voice Conversations', oneiros: true, chatgpt: true, claude: false, traditional: false },
-  { name: 'Self-Evolution & Learning', oneiros: true, chatgpt: false, claude: false, traditional: false },
-  { name: 'Knowledge Graphs', oneiros: true, chatgpt: false, claude: false, traditional: false },
-  { name: 'Agent Marketplace', oneiros: true, chatgpt: false, claude: false, traditional: false },
-  { name: 'Social Intelligence', oneiros: true, chatgpt: false, claude: false, traditional: false },
-  { name: 'Predictive Capabilities', oneiros: true, chatgpt: false, claude: false, traditional: false },
-  { name: 'Emotional Intelligence', oneiros: true, chatgpt: false, claude: false, traditional: false },
-  { name: 'Browser AI (local models)', oneiros: true, chatgpt: false, claude: false, traditional: false },
-  { name: 'Custom Agent Builder', oneiros: true, chatgpt: true, claude: false, traditional: false },
-  { name: 'Enterprise Security', oneiros: true, chatgpt: true, claude: true, traditional: true },
+  { name: 'Autonomous Evolution (Daily Crons)', oneiros: true, chatgpt: false, claude: false, traditional: false },
+  { name: 'Voice AI Conversations', oneiros: true, chatgpt: true, claude: false, traditional: false },
+  { name: 'Agent Marketplace & Builder', oneiros: true, chatgpt: true, claude: false, traditional: false },
+  { name: 'Knowledge Graph', oneiros: true, chatgpt: false, claude: false, traditional: false },
+  { name: 'Predictive Intelligence', oneiros: true, chatgpt: false, claude: false, traditional: false },
+  { name: 'Custom Integrations', oneiros: true, chatgpt: true, claude: true, traditional: true },
+  { name: 'API Access', oneiros: true, chatgpt: true, claude: true, traditional: true },
+  { name: 'Basic Chat', oneiros: true, chatgpt: true, claude: true, traditional: true },
 ];
 
 const PRODUCTS = [
@@ -28,7 +26,10 @@ export function ComparisonTable() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Why Choose Oneiros?</CardTitle>
+        <CardTitle>What Makes Us Different</CardTitle>
+        <p className="text-muted-foreground mt-2">
+          Honest comparison based on unique technical features we've actually built
+        </p>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">

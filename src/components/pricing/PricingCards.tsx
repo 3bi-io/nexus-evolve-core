@@ -20,44 +20,44 @@ interface PricingTier {
 const tiers: PricingTier[] = [
   {
     name: "Starter",
-    monthlyPrice: 49,
-    yearlyPrice: 470,
+    monthlyPrice: 0,
+    yearlyPrice: 0,
     credits: 500,
     features: [
-      "500 credits per month",
-      "All basic features",
-      "Email support",
-      "Community access",
-      "Standard response time",
+      "500 daily credits forever",
+      "All 9 AI systems",
+      "Multi-agent orchestration",
+      "Beta tester badge",
+      "Community support",
     ],
   },
   {
     name: "Professional",
-    monthlyPrice: 149,
-    yearlyPrice: 1430,
-    credits: 2000,
+    monthlyPrice: 29,
+    yearlyPrice: 290,
+    credits: 10000,
     popular: true,
     features: [
-      "2,000 credits per month",
-      "All features unlocked",
+      "10,000 credits/month",
+      "Everything in Starter",
       "Priority support",
       "Advanced analytics",
-      "API access",
-      "Faster response time",
+      "Founder badge",
+      "Locked-in rate forever",
     ],
   },
   {
     name: "Enterprise",
-    monthlyPrice: 999,
-    yearlyPrice: 9990,
-    credits: 999999,
+    monthlyPrice: 0,
+    yearlyPrice: 0,
+    credits: 0,
     features: [
-      "Unlimited credits",
-      "White-label options",
+      "Custom credits",
+      "Everything in Professional",
       "Dedicated support",
       "Custom integrations",
-      "SLA guarantees",
-      "Custom AI training",
+      "Shape development roadmap",
+      "Direct dev access",
     ],
   },
 ];
@@ -139,19 +139,34 @@ export const PricingCards = () => {
             )}
             <CardHeader className="pb-4 sm:pb-6">
               <CardTitle className="text-xl sm:text-2xl">{tier.name}</CardTitle>
+              {tier.popular && (
+                <Badge variant="secondary" className="w-fit mt-2">🔥 Founder Rate</Badge>
+              )}
+              {tier.name === "Starter" && (
+                <Badge variant="secondary" className="w-fit mt-2">🎁 Forever Free</Badge>
+              )}
+              {tier.name === "Enterprise" && (
+                <Badge variant="secondary" className="w-fit mt-2">🚀 Beta Custom</Badge>
+              )}
               <div className="mt-3 sm:mt-4">
-                <span className="text-3xl sm:text-4xl md:text-5xl font-bold">
-                  ${isYearly ? Math.round(tier.yearlyPrice / 12) : tier.monthlyPrice}
-                </span>
-                <span className="text-base sm:text-lg text-muted-foreground">/month</span>
+                {tier.monthlyPrice === 0 && tier.name === "Enterprise" ? (
+                  <span className="text-3xl sm:text-4xl md:text-5xl font-bold">Custom</span>
+                ) : (
+                  <>
+                    <span className="text-3xl sm:text-4xl md:text-5xl font-bold">
+                      ${isYearly ? Math.round(tier.yearlyPrice / 12) : tier.monthlyPrice}
+                    </span>
+                    <span className="text-base sm:text-lg text-muted-foreground">/month</span>
+                  </>
+                )}
               </div>
-              {isYearly && (
+              {isYearly && tier.yearlyPrice > 0 && (
                 <p className="text-xs sm:text-sm text-muted-foreground mt-2">
                   Billed ${tier.yearlyPrice} annually
                 </p>
               )}
               <p className="text-sm sm:text-base text-muted-foreground mt-2">
-                {tier.credits === 999999 ? "Unlimited" : tier.credits} credits/month
+                {tier.credits === 0 ? "Custom credits" : tier.credits === 500 ? "500 daily credits" : `${tier.credits} credits/month`}
               </p>
             </CardHeader>
             <CardContent className="space-mobile">
@@ -160,7 +175,7 @@ export const PricingCards = () => {
                 variant={tier.popular ? "default" : "outline"}
                 className="w-full h-12 sm:h-14 text-base sm:text-lg touch-feedback mb-6"
               >
-                {user ? "Subscribe Now" : "Get Started"}
+                {tier.name === "Starter" ? "Join Beta Free" : tier.name === "Enterprise" ? "Schedule Call" : tier.popular ? "Lock In Founder Rate" : "Get Started"}
               </Button>
               <ul className="space-y-3 sm:space-y-4">
                 {tier.features.map((feature, idx) => (
@@ -177,9 +192,9 @@ export const PricingCards = () => {
 
       <div className="text-center text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto mt-8 px-4">
         <p>
-          All plans include access to our multi-agent system, temporal memory, and
-          autonomous evolution features. Credits are used for AI interactions and
-          replenish monthly.
+          <strong>Beta Pricing:</strong> Lock in founder rates for life. All plans include access to our 
+          9 AI systems, multi-agent orchestration, and autonomous evolution. 
+          Rates increase after beta launch.
         </p>
       </div>
     </div>

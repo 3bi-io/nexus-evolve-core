@@ -3,15 +3,15 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles } from 'lucide-react';
 
-const SAMPLE_ACTIVITIES = [
-  { name: 'Sarah M.', location: 'San Francisco', action: 'just created an agent' },
-  { name: 'Alex K.', location: 'New York', action: 'upgraded to Professional' },
-  { name: 'Jamie L.', location: 'London', action: 'deployed a voice agent' },
-  { name: 'Chris P.', location: 'Berlin', action: 'earned 100 credits' },
-  { name: 'Taylor R.', location: 'Austin', action: 'completed onboarding' },
-  { name: 'Morgan F.', location: 'Seattle', action: 'shared an agent' },
-  { name: 'Jordan B.', location: 'Boston', action: 'hit 1,000 interactions' },
-  { name: 'Casey W.', location: 'Toronto', action: 'unlocked an achievement' },
+const BETA_ACTIVITIES = [
+  { name: 'Beta tester', location: 'San Francisco', action: 'joined early access' },
+  { name: 'Early user', location: 'New York', action: 'locked in founder rate' },
+  { name: 'Pioneer', location: 'London', action: 'testing voice AI' },
+  { name: 'Beta user', location: 'Berlin', action: 'building custom agent' },
+  { name: 'Early adopter', location: 'Austin', action: 'joined the beta' },
+  { name: 'Founder', location: 'Seattle', action: 'claimed beta access' },
+  { name: 'Beta tester', location: 'Boston', action: 'exploring features' },
+  { name: 'Pioneer', location: 'Toronto', action: 'got early access' },
 ];
 
 export function SocialProofNotification() {
@@ -27,11 +27,11 @@ export function SocialProofNotification() {
     // Show first notification after 3 seconds
     const initialTimeout = setTimeout(showNotification, 3000);
 
-    // Then cycle through notifications every 15 seconds
-    const interval = setInterval(() => {
-      setCurrentActivity((prev) => (prev + 1) % SAMPLE_ACTIVITIES.length);
-      showNotification();
-    }, 15000);
+      // Then cycle through notifications every 15 seconds
+      const interval = setInterval(() => {
+        setCurrentActivity((prev) => (prev + 1) % BETA_ACTIVITIES.length);
+        showNotification();
+      }, 15000);
 
     return () => {
       clearTimeout(initialTimeout);
@@ -39,7 +39,7 @@ export function SocialProofNotification() {
     };
   }, []);
 
-  const activity = SAMPLE_ACTIVITIES[currentActivity];
+  const activity = BETA_ACTIVITIES[currentActivity];
 
   return (
     <AnimatePresence>
