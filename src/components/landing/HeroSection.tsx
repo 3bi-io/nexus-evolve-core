@@ -2,6 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Sparkles, Zap, Shield, Brain, Users, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 export function HeroSection() {
   const navigate = useNavigate();
@@ -16,17 +17,38 @@ export function HeroSection() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(139,92,246,0.1),transparent_50%)]" />
       </div>
 
-      <Badge variant="secondary" className="gap-1.5 px-4 py-2 text-base animate-pulse">
-        <Sparkles className="h-4 w-4" />
-        🚀 Beta Launch • Limited Early Access • Join First 1,000 Users
-      </Badge>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm"
+      >
+        <motion.span 
+          className="text-base sm:text-lg font-semibold text-primary"
+          animate={{ scale: [1, 1.1, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          🚀 Beta Access
+        </motion.span>
+        <span className="text-xs sm:text-sm text-muted-foreground hidden xs:inline">
+          Live now - 500 free daily interactions
+        </span>
+        <span className="text-xs sm:text-sm text-muted-foreground xs:hidden">
+          500 free daily
+        </span>
+      </motion.div>
       
-      <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight max-w-5xl mx-auto leading-[1.1]">
-        The AI That Gets
-        <span className="text-primary block mt-2 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+      <motion.h1
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight"
+      >
+        <span className="block sm:inline">The AI That Gets</span>{' '}
+        <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient block sm:inline">
           Smarter While You Sleep
         </span>
-      </h1>
+      </motion.h1>
       
       <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
         <strong>9 autonomous AI systems</strong> with temporal memory and multi-agent orchestration.

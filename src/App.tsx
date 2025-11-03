@@ -11,6 +11,7 @@ import { LoadingPage } from "@/components/layout/LoadingPage";
 import { useGlobalShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useReferralProcessor } from "@/hooks/useReferralProcessor";
 import { useReferralConversion } from "@/hooks/useReferralConversion";
+import { MobileOnboarding } from "@/components/mobile/MobileOnboarding";
 
 // Lazy load pages for better performance and code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -388,6 +389,7 @@ function App() {
           <QueryClientProvider client={queryClient}>
             <AuthProvider>
               <BrowserRouter>
+                <MobileOnboarding />
                 <RoutesWithShortcuts />
               </BrowserRouter>
             </AuthProvider>

@@ -4,14 +4,20 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { AnimatedCreditDisplay } from "@/components/credits/AnimatedCreditDisplay";
+import { CompactCreditDisplay } from "@/components/credits/CompactCreditDisplay";
+import { useMobile } from "@/hooks/useMobile";
 
 export const CreditBalance = () => {
   const { user, credits, refreshCredits } = useAuth();
   const navigate = useNavigate();
+  const { isMobile } = useMobile();
 
   useEffect(() => {
     refreshCredits();
   }, [user]);
+
+  // For anonymous users on mobile, show simple free searches message
+  const isAnonymous = !user;
 
   return (
     <TooltipProvider>
@@ -19,23 +25,33 @@ export const CreditBalance = () => {
         <Tooltip>
           <TooltipTrigger asChild>
             <div>
-              <AnimatedCreditDisplay credits={credits} />
+              {isMobile ? (
+                <CompactCreditDisplay credits={credits} isAnonymous={isAnonymous} />
+              ) : (
+                <AnimatedCreditDisplay credits={credits} />
+              )}
             </div>
           </TooltipTrigger>
           <TooltipContent>
             <div className="space-y-1">
-              <p className="font-semibold">AI Interactions Balance</p>
+              <p className="font-semibold">
+                {isAnonymous ? 'Free Searches' : 'AI Interactions Balance'}
+              </p>
               <p className="text-sm text-muted-foreground">
-                {credits} interactions remaining
+                {isAnonymous 
+                  ? '5 free searches today' 
+                  : `${credits} interactions remaining`}
               </p>
               <p className="text-xs text-muted-foreground">
-                Each AI operation uses 1-3 interactions
+                {isAnonymous 
+                  ? 'Sign up for 500 daily credits' 
+                  : 'Each AI operation uses 1-3 interactions'}
               </p>
             </div>
           </TooltipContent>
         </Tooltip>
         
-        {user && credits <= 10 && (
+        {user && credits <= 10 && !isMobile && (
           <Button
             size="sm"
             variant="default"
@@ -46,7 +62,7 @@ export const CreditBalance = () => {
           </Button>
         )}
         
-        {!user && (
+        {!user && !isMobile && (
           <Button
             size="sm"
             variant="default"

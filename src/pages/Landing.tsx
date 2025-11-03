@@ -19,6 +19,7 @@ import { HeroSection } from '@/components/landing/HeroSection';
 import { FeaturesSection } from '@/components/landing/FeaturesSection';
 import { DemoSection } from '@/components/landing/DemoSection';
 import { PricingSection } from '@/components/landing/PricingSection';
+import { StickySignupCTA } from '@/components/mobile/StickySignupCTA';
 
 const steps = [
   {
@@ -309,6 +310,7 @@ export default function Landing() {
         {/* Conversion Components */}
         <ExitIntentPopup />
         <SocialProofNotification />
+        <StickySignupCTA />
       </div>
     </PageLayout>
   );

@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { useMobile, useHaptics } from "@/hooks/useMobile";
 
 interface PricingTier {
   name: string;
@@ -67,8 +68,11 @@ export const PricingCards = () => {
   const [isYearly, setIsYearly] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isMobile } = useMobile();
+  const { light } = useHaptics();
 
   const handleSelectPlan = (tierName: string) => {
+    light();
     if (!user) {
       // Redirect to auth with post-login redirect to account with plan selection
       navigate('/auth', { 
@@ -119,15 +123,23 @@ export const PricingCards = () => {
       </div>
 
       {/* Pricing Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+      <div className={`
+        ${isMobile 
+          ? 'flex overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 gap-4 px-4 -mx-4' 
+          : 'grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8'
+        }
+      `}>
         {tiers.map((tier) => (
           <Card
             key={tier.name}
-            className={`card-mobile relative ${
-              tier.popular
-                ? "border-2 border-primary shadow-lg md:scale-105"
-                : "border-border"
-            }`}
+            className={`
+              ${isMobile ? 'snap-center shrink-0 w-[85vw]' : ''} 
+              card-mobile relative ${
+                tier.popular
+                  ? "border-2 border-primary shadow-lg md:scale-105"
+                  : "border-border"
+              }
+            `}
           >
             {tier.popular && (
               <Badge
