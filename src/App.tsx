@@ -214,14 +214,8 @@ const RoutesWithShortcuts = () => {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/agent-marketplace"
-            element={
-              <ProtectedRoute>
-                <AgentMarketplace />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/agent-marketplace" element={<AgentMarketplace />} />
+          <Route path="/voice-agent" element={<VoiceAgent />} />
           <Route
             path="/agent-studio"
             element={
@@ -302,22 +296,7 @@ const RoutesWithShortcuts = () => {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/voice-agent"
-            element={
-              <ProtectedRoute>
-                <VoiceAgent />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/model-comparison"
-            element={
-              <ProtectedRoute>
-                <ModelComparison />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/model-comparison" element={<ModelComparison />} />
           <Route
             path="/browser-ai"
             element={

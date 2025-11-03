@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
   MessageSquare, Network, Brain, LogOut, Shield, BarChart3, 
-  Store, Phone, Sparkles, Menu, X
+  Store, Phone, Sparkles, Menu, X, Rocket
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -54,6 +54,7 @@ export function Header() {
 
   const primaryNavLinks = [
     { to: "/", icon: MessageSquare, label: "Chat", public: true, badge: null },
+    { to: "/getting-started", icon: Rocket, label: "Getting Started", public: true, badge: null },
     { to: "/agent-marketplace", icon: Store, label: "Marketplace", public: true, badge: null },
     { to: "/voice-agent", icon: Phone, label: "Voice AI", public: true, badge: null },
     { to: "/pricing", icon: Sparkles, label: "Pricing", public: true, badge: null },

@@ -128,7 +128,7 @@ export const BetaTrustSignals = () => {
                 <Award className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <div className="font-semibold">Your Name Here</div>
+                <div className="font-semibold">Cody Forbes</div>
                 <Badge variant="secondary" className="text-xs">Founder</Badge>
               </div>
             </div>
