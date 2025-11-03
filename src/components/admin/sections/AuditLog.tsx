@@ -3,9 +3,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { FileWarning, Search, Filter } from "lucide-react";
+import { FileWarning, Search } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 export function AuditLog() {
   const [logs, setLogs] = useState<any[]>([]);
@@ -15,7 +16,6 @@ export function AuditLog() {
   useEffect(() => {
     fetchLogs();
     
-    // Set up realtime subscription
     const channel = supabase
       .channel("admin_actions_changes")
       .on(
@@ -59,13 +59,13 @@ export function AuditLog() {
   };
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Audit Log</h1>
-        <p className="text-muted-foreground">Real-time admin action tracking</p>
+    <div className="space-mobile">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Audit Log</h1>
+        <p className="text-sm sm:text-base text-muted-foreground mt-1">Real-time admin action tracking</p>
       </div>
 
-      <Card>
+      <Card className="card-mobile">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileWarning className="w-5 h-5" />
@@ -81,7 +81,7 @@ export function AuditLog() {
                 placeholder="Search actions..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-10 min-h-[48px] sm:min-h-[40px]"
               />
             </div>
           </div>
@@ -99,7 +99,7 @@ export function AuditLog() {
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <Badge variant={getActionColor(log.action_type)}>
                             {log.action_type.replace(/_/g, " ")}
                           </Badge>
@@ -112,7 +112,7 @@ export function AuditLog() {
                           {log.ip_address && ` • IP: ${log.ip_address}`}
                         </p>
                         {log.details && Object.keys(log.details).length > 0 && (
-                          <pre className="text-xs mt-2 p-2 bg-muted rounded">
+                          <pre className="text-xs mt-2 p-2 bg-muted rounded overflow-x-auto">
                             {JSON.stringify(log.details, null, 2)}
                           </pre>
                         )}

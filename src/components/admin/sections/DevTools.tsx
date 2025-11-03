@@ -3,13 +3,13 @@ import { Code, Database, Terminal } from "lucide-react";
 
 export function DevTools() {
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Developer Tools</h1>
-        <p className="text-muted-foreground">Advanced tools for system developers</p>
+    <div className="space-mobile">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Developer Tools</h1>
+        <p className="text-sm sm:text-base text-muted-foreground mt-1">Advanced tools for system developers</p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

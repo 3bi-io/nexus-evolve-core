@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Trash2, Database, Brain, MessageSquare, RefreshCw, AlertTriangle } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export function DataManagement() {
   const { toast } = useToast();
@@ -74,19 +75,28 @@ export function DataManagement() {
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
+    <div className="space-mobile">
+      <div className={cn(
+        "flex flex-col sm:flex-row",
+        "items-start sm:items-center justify-between",
+        "gap-4 mb-6 sm:mb-8"
+      )}>
         <div>
-          <h1 className="text-4xl font-bold mb-2">Data Management</h1>
-          <p className="text-muted-foreground">Manage knowledge, memories, and system data</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Data Management</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">Manage knowledge, memories, and system data</p>
         </div>
-        <Button onClick={loadStats} variant="outline" size="sm">
+        <Button 
+          onClick={loadStats} 
+          variant="outline" 
+          size="default"
+          className="w-full sm:w-auto min-h-[48px] sm:min-h-[36px]"
+        >
           <RefreshCw className="w-4 h-4 mr-2" />
           Refresh
         </Button>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 mb-8">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 md:grid-cols-2 mb-6 sm:mb-8">
         <Card>
           <CardHeader>
             <CardTitle>Knowledge Base</CardTitle>

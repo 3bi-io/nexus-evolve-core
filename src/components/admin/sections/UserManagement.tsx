@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Search, UserCog, Shield, Ban, RefreshCw } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 interface UserData {
   id: string;
@@ -60,13 +61,23 @@ export function UserManagement() {
   );
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
+    <div className="space-mobile">
+      <div className={cn(
+        "flex flex-col sm:flex-row",
+        "items-start sm:items-center justify-between",
+        "gap-4 mb-6 sm:mb-8"
+      )}>
         <div>
-          <h1 className="text-4xl font-bold mb-2">User Management</h1>
-          <p className="text-muted-foreground">Manage users, roles, and permissions</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">User Management</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">Manage users, roles, and permissions</p>
         </div>
-        <Button onClick={loadUsers} variant="outline" size="sm" disabled={loading}>
+        <Button 
+          onClick={loadUsers} 
+          variant="outline" 
+          size="default"
+          className="w-full sm:w-auto min-h-[48px] sm:min-h-[36px]"
+          disabled={loading}
+        >
           <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
           Refresh
         </Button>
@@ -90,15 +101,18 @@ export function UserManagement() {
             </div>
           </div>
 
-          <div className="rounded-md border">
-            <Table>
+          <div className={cn(
+            "overflow-x-auto -mx-4 sm:mx-0",
+            "scrollbar-hide sm:scrollbar-auto"
+          )}>
+            <Table className="min-w-[600px] sm:min-w-full">
               <TableHeader>
                 <TableRow>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Credits</TableHead>
-                  <TableHead>Created</TableHead>
-                  <TableHead>Role</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="text-xs sm:text-sm">Email</TableHead>
+                  <TableHead className="text-xs sm:text-sm hidden md:table-cell">Credits</TableHead>
+                  <TableHead className="text-xs sm:text-sm hidden lg:table-cell">Created</TableHead>
+                  <TableHead className="text-xs sm:text-sm">Role</TableHead>
+                  <TableHead className="text-xs sm:text-sm">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

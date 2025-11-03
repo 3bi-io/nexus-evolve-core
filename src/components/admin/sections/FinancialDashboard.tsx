@@ -3,13 +3,13 @@ import { DollarSign, TrendingUp, CreditCard } from "lucide-react";
 
 export function FinancialDashboard() {
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Financial Dashboard</h1>
-        <p className="text-muted-foreground">Revenue analytics and credit management</p>
+    <div className="space-mobile">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Financial Dashboard</h1>
+        <p className="text-sm sm:text-base text-muted-foreground mt-1">Revenue analytics and credit management</p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>

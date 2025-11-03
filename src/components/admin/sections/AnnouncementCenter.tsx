@@ -68,13 +68,13 @@ export function AnnouncementCenter() {
   };
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2">Announcement Center</h1>
-        <p className="text-muted-foreground">Create and manage system-wide announcements</p>
+    <div className="space-mobile">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Announcement Center</h1>
+        <p className="text-sm sm:text-base text-muted-foreground mt-1">Create and manage system-wide announcements</p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

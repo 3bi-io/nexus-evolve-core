@@ -52,12 +52,17 @@ All colors MUST be HSL.
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-primary: 262 83% 58%; /* Use brand purple */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 262 83% 58%; /* Match brand */
+    --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-ring: 262 83% 58%;
+    
+    /* Admin-specific colors */
+    --admin-sidebar-header: 0 84% 60%; /* Destructive red for admin */
+    --admin-sidebar-active: 262 83% 98%; /* Very light purple */
+    --admin-sidebar-hover: 262 83% 95%;
     
     /* Mobile-optimized color tokens */
     --mobile-touch-feedback: 262 83% 58%;
@@ -105,14 +110,19 @@ All colors MUST be HSL.
     --warning-foreground: 0 0% 100%;
     
     --shadow-glow: 0 0 40px hsl(var(--ai-glow) / 0.4);
-    --sidebar-background: 240 5.9% 10%;
+    --sidebar-background: 240 8% 12%; /* Slightly lighter for better separation */
     --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary: 262 83% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent: 262 83% 20%; /* Darker purple for hover */
     --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-border: 240 4% 20%;
+    --sidebar-ring: 262 83% 58%;
+    
+    /* Admin-specific dark colors */
+    --admin-sidebar-header: 0 63% 31%;
+    --admin-sidebar-active: 262 83% 15%;
+    --admin-sidebar-hover: 262 83% 18%;
     
     /* Mobile-optimized dark mode tokens */
     --mobile-touch-feedback: 262 83% 58%;
@@ -130,6 +140,38 @@ All colors MUST be HSL.
     --muted: 0 0% 8%;
     --border: 0 0% 15%;
     --input: 0 0% 15%;
+    
+    /* OLED-optimized sidebar */
+    --sidebar-background: 0 0% 0%; /* Pure black */
+    --sidebar-border: 0 0% 10%;
+    --admin-sidebar-active: 262 83% 8%;
+    --admin-sidebar-hover: 262 83% 10%;
+  }
+  
+  /* Admin panel theme override */
+  .admin-panel {
+    /* Light mode: Subtle purple tint */
+    --background: 260 30% 98%;
+    --card: 0 0% 100%;
+    --border: 260 15% 88%;
+  }
+
+  .dark.admin-panel {
+    /* Dark mode: Deep purple-gray */
+    --background: 260 15% 8%;
+    --card: 260 12% 12%;
+    --border: 260 10% 18%;
+  }
+
+  /* High contrast mode for accessibility */
+  @media (prefers-contrast: high) {
+    .admin-panel {
+      --sidebar-border: 240 10% 70%;
+    }
+    
+    .dark.admin-panel {
+      --sidebar-border: 240 10% 30%;
+    }
   }
 }
 

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { RefreshCw, Database, Brain, MessageSquare, Users, Bot, TrendingUp } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function SystemOverview() {
   const { toast } = useToast();
@@ -57,27 +58,43 @@ export function SystemOverview() {
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8">
+    <div className="space-mobile">
+      <div className={cn(
+        "flex flex-col sm:flex-row",
+        "items-start sm:items-center justify-between",
+        "gap-4 mb-6 sm:mb-8"
+      )}>
         <div>
-          <h1 className="text-4xl font-bold mb-2">System Overview</h1>
-          <p className="text-muted-foreground">Real-time platform statistics and metrics</p>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">System Overview</h1>
+          <p className="text-sm sm:text-base text-muted-foreground mt-1">Real-time platform statistics</p>
         </div>
-        <Button onClick={loadStats} variant="outline" size="sm" disabled={loading}>
+        <Button 
+          onClick={loadStats} 
+          variant="outline" 
+          size="default"
+          className="w-full sm:w-auto min-h-[48px] sm:min-h-[36px]"
+          disabled={loading}
+        >
           <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
           Refresh
         </Button>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+      <div className={cn(
+        "grid gap-4 sm:gap-6",
+        "grid-cols-1",
+        "sm:grid-cols-2",
+        "lg:grid-cols-3",
+        "xl:grid-cols-4"
+      )}>
+        <Card className="card-mobile">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="text-sm sm:text-base font-medium">Total Users</CardTitle>
+            <Users className="h-5 w-5 sm:h-6 sm:w-6 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.users.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Registered accounts</p>
+            <div className="text-3xl sm:text-4xl font-bold">{stats.users.toLocaleString()}</div>
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">Registered accounts</p>
           </CardContent>
         </Card>
 

@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,6 +19,9 @@ import { AuditLog } from "@/components/admin/sections/AuditLog";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbNav } from "@/components/BreadcrumbNav";
+import { cn } from "@/lib/utils";
+import { useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 
 export default function SuperAdmin() {
   const { user } = useAuth();
@@ -118,15 +120,41 @@ export default function SuperAdmin() {
         description="Comprehensive super admin dashboard for managing users, agents, data, finances, security, and system configuration."
         canonical="https://oneiros.me/admin"
       />
-      <div className="flex h-[calc(100vh-4rem)]">
-        <AdminSidebar section={section} onSectionChange={(s) => navigate(`/admin/${s}`)} />
-        <div className="flex-1 overflow-y-auto">
-          <div className="max-w-7xl mx-auto px-6 py-8">
-            <BreadcrumbNav />
+      {/* Mobile-First Layout with admin theme */}
+      <div className={cn(
+        "admin-panel",
+        "flex flex-col md:flex-row",
+        "min-h-screen md:h-[calc(100vh-4rem)]"
+      )}>
+        <AdminSidebar 
+          section={section} 
+          onSectionChange={(s) => navigate(`/admin/${s}`)} 
+        />
+        
+        {/* Main Content Area */}
+        <main className={cn(
+          "flex-1",
+          "overflow-y-auto",
+          "pb-20 md:pb-0", // Space for mobile bottom nav
+          "safe-bottom"
+        )}>
+          <div className={cn(
+            "container-mobile", // Responsive padding
+            "py-4 sm:py-6 md:py-8",
+            "space-mobile" // Responsive spacing
+          )}>
+            {/* Breadcrumbs - Hidden on small mobile */}
+            <div className="hidden sm:block">
+              <BreadcrumbNav />
+            </div>
+            
+            {/* Stats Header - Responsive */}
             <StatsHeader />
+            
+            {/* Section Content */}
             {renderSection()}
           </div>
-        </div>
+        </main>
       </div>
     </PageLayout>
   );
