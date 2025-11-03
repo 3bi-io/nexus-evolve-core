@@ -170,6 +170,63 @@ export type Database = {
         }
         Relationships: []
       }
+      agent_conversations: {
+        Row: {
+          agent_id: string | null
+          created_at: string | null
+          id: string
+          is_archived: boolean | null
+          is_pinned: boolean | null
+          messages: Json
+          metadata: Json | null
+          tags: string[] | null
+          title: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          agent_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_archived?: boolean | null
+          is_pinned?: boolean | null
+          messages?: Json
+          metadata?: Json | null
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          agent_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_archived?: boolean | null
+          is_pinned?: boolean | null
+          messages?: Json
+          metadata?: Json | null
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_conversations_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_revenue_analytics"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "agent_conversations_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "custom_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_executions: {
         Row: {
           agent_id: string
@@ -179,10 +236,15 @@ export type Database = {
           execution_time_ms: number | null
           id: string
           input_message: string
+          input_type: string | null
+          knowledge_items_retrieved: Json | null
+          media_urls: Json | null
           output_message: string | null
+          output_type: string | null
           session_id: string | null
           success: boolean | null
           tokens_used: number | null
+          tool_results: Json | null
           tools_used: string[] | null
           user_id: string
         }
@@ -194,10 +256,15 @@ export type Database = {
           execution_time_ms?: number | null
           id?: string
           input_message: string
+          input_type?: string | null
+          knowledge_items_retrieved?: Json | null
+          media_urls?: Json | null
           output_message?: string | null
+          output_type?: string | null
           session_id?: string | null
           success?: boolean | null
           tokens_used?: number | null
+          tool_results?: Json | null
           tools_used?: string[] | null
           user_id: string
         }
@@ -209,10 +276,15 @@ export type Database = {
           execution_time_ms?: number | null
           id?: string
           input_message?: string
+          input_type?: string | null
+          knowledge_items_retrieved?: Json | null
+          media_urls?: Json | null
           output_message?: string | null
+          output_type?: string | null
           session_id?: string | null
           success?: boolean | null
           tokens_used?: number | null
+          tool_results?: Json | null
           tools_used?: string[] | null
           user_id?: string
         }
@@ -221,7 +293,105 @@ export type Database = {
             foreignKeyName: "agent_executions_agent_id_fkey"
             columns: ["agent_id"]
             isOneToOne: false
+            referencedRelation: "agent_revenue_analytics"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "agent_executions_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
             referencedRelation: "custom_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_improvement_suggestions: {
+        Row: {
+          agent_id: string | null
+          confidence_score: number | null
+          created_at: string | null
+          id: string
+          reasoning: string | null
+          status: string | null
+          suggestion: string | null
+          suggestion_type: string | null
+        }
+        Insert: {
+          agent_id?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          id?: string
+          reasoning?: string | null
+          status?: string | null
+          suggestion?: string | null
+          suggestion_type?: string | null
+        }
+        Update: {
+          agent_id?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          id?: string
+          reasoning?: string | null
+          status?: string | null
+          suggestion?: string | null
+          suggestion_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_improvement_suggestions_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_revenue_analytics"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "agent_improvement_suggestions_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "custom_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_knowledge_links: {
+        Row: {
+          added_at: string | null
+          agent_id: string | null
+          id: string
+          knowledge_id: string | null
+        }
+        Insert: {
+          added_at?: string | null
+          agent_id?: string | null
+          id?: string
+          knowledge_id?: string | null
+        }
+        Update: {
+          added_at?: string | null
+          agent_id?: string | null
+          id?: string
+          knowledge_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_knowledge_links_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_revenue_analytics"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "agent_knowledge_links_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "custom_agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_knowledge_links_knowledge_id_fkey"
+            columns: ["knowledge_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_base"
             referencedColumns: ["id"]
           },
         ]
@@ -319,6 +489,13 @@ export type Database = {
             foreignKeyName: "agent_marketplace_agent_id_fkey"
             columns: ["agent_id"]
             isOneToOne: false
+            referencedRelation: "agent_revenue_analytics"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "agent_marketplace_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
             referencedRelation: "custom_agents"
             referencedColumns: ["id"]
           },
@@ -377,6 +554,45 @@ export type Database = {
           },
         ]
       }
+      agent_preview_interactions: {
+        Row: {
+          agent_id: string | null
+          created_at: string | null
+          id: string
+          interaction_type: string | null
+          user_id: string | null
+        }
+        Insert: {
+          agent_id?: string | null
+          created_at?: string | null
+          id?: string
+          interaction_type?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          agent_id?: string | null
+          created_at?: string | null
+          id?: string
+          interaction_type?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_preview_interactions_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_revenue_analytics"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "agent_preview_interactions_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "custom_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_purchases: {
         Row: {
           agent_id: string
@@ -406,6 +622,13 @@ export type Database = {
           transaction_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "agent_purchases_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_revenue_analytics"
+            referencedColumns: ["agent_id"]
+          },
           {
             foreignKeyName: "agent_purchases_agent_id_fkey"
             columns: ["agent_id"]
@@ -452,6 +675,64 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "agent_reviews_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_revenue_analytics"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "agent_reviews_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "custom_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_schedules: {
+        Row: {
+          agent_id: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          last_executed_at: string | null
+          next_execution_at: string | null
+          schedule_config: Json
+          schedule_type: string | null
+          user_id: string
+        }
+        Insert: {
+          agent_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_executed_at?: string | null
+          next_execution_at?: string | null
+          schedule_config: Json
+          schedule_type?: string | null
+          user_id: string
+        }
+        Update: {
+          agent_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_executed_at?: string | null
+          next_execution_at?: string | null
+          schedule_config?: Json
+          schedule_type?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_schedules_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_revenue_analytics"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "agent_schedules_agent_id_fkey"
             columns: ["agent_id"]
             isOneToOne: false
             referencedRelation: "custom_agents"
@@ -513,6 +794,164 @@ export type Database = {
           temperature?: number | null
           tools_enabled?: string[] | null
           usage_count?: number | null
+        }
+        Relationships: []
+      }
+      agent_test_results: {
+        Row: {
+          agent_version_id: string | null
+          executed_at: string | null
+          id: string
+          results: Json
+          success_rate: number | null
+          test_suite_id: string | null
+        }
+        Insert: {
+          agent_version_id?: string | null
+          executed_at?: string | null
+          id?: string
+          results: Json
+          success_rate?: number | null
+          test_suite_id?: string | null
+        }
+        Update: {
+          agent_version_id?: string | null
+          executed_at?: string | null
+          id?: string
+          results?: Json
+          success_rate?: number | null
+          test_suite_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_test_results_test_suite_id_fkey"
+            columns: ["test_suite_id"]
+            isOneToOne: false
+            referencedRelation: "agent_test_suites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_test_suites: {
+        Row: {
+          agent_id: string | null
+          created_at: string | null
+          id: string
+          name: string
+          test_cases: Json
+          updated_at: string | null
+        }
+        Insert: {
+          agent_id?: string | null
+          created_at?: string | null
+          id?: string
+          name: string
+          test_cases: Json
+          updated_at?: string | null
+        }
+        Update: {
+          agent_id?: string | null
+          created_at?: string | null
+          id?: string
+          name?: string
+          test_cases?: Json
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_test_suites_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_revenue_analytics"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "agent_test_suites_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "custom_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_versions: {
+        Row: {
+          agent_id: string | null
+          change_summary: string | null
+          changed_fields: string[] | null
+          created_at: string | null
+          created_by: string
+          id: string
+          snapshot: Json
+          version_number: number
+        }
+        Insert: {
+          agent_id?: string | null
+          change_summary?: string | null
+          changed_fields?: string[] | null
+          created_at?: string | null
+          created_by: string
+          id?: string
+          snapshot: Json
+          version_number: number
+        }
+        Update: {
+          agent_id?: string | null
+          change_summary?: string | null
+          changed_fields?: string[] | null
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          snapshot?: Json
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_versions_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_revenue_analytics"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "agent_versions_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "custom_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_workflows: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          updated_at: string | null
+          user_id: string
+          workflow_definition: Json
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          updated_at?: string | null
+          user_id: string
+          workflow_definition: Json
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          updated_at?: string | null
+          user_id?: string
+          workflow_definition?: Json
         }
         Relationships: []
       }
@@ -773,6 +1212,35 @@ export type Database = {
         }
         Relationships: []
       }
+      conversation_titles: {
+        Row: {
+          auto_generated_title: string | null
+          conversation_id: string
+          title_generated_at: string | null
+          user_title: string | null
+        }
+        Insert: {
+          auto_generated_title?: string | null
+          conversation_id: string
+          title_generated_at?: string | null
+          user_title?: string | null
+        }
+        Update: {
+          auto_generated_title?: string | null
+          conversation_id?: string
+          title_generated_at?: string | null
+          user_title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_titles_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: true
+            referencedRelation: "agent_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       credit_transactions: {
         Row: {
           balance_after: number
@@ -869,6 +1337,7 @@ export type Database = {
           avatar_url: string | null
           capabilities: string[] | null
           created_at: string
+          current_version: number | null
           description: string | null
           id: string
           is_public: boolean | null
@@ -895,6 +1364,7 @@ export type Database = {
           avatar_url?: string | null
           capabilities?: string[] | null
           created_at?: string
+          current_version?: number | null
           description?: string | null
           id?: string
           is_public?: boolean | null
@@ -921,6 +1391,7 @@ export type Database = {
           avatar_url?: string | null
           capabilities?: string[] | null
           created_at?: string
+          current_version?: number | null
           description?: string | null
           id?: string
           is_public?: boolean | null
@@ -2233,6 +2704,54 @@ export type Database = {
         }
         Relationships: []
       }
+      tool_execution_metrics: {
+        Row: {
+          agent_id: string | null
+          avg_duration_ms: number | null
+          created_at: string | null
+          execution_count: number | null
+          id: string
+          last_executed_at: string | null
+          success_count: number | null
+          tool_name: string
+        }
+        Insert: {
+          agent_id?: string | null
+          avg_duration_ms?: number | null
+          created_at?: string | null
+          execution_count?: number | null
+          id?: string
+          last_executed_at?: string | null
+          success_count?: number | null
+          tool_name: string
+        }
+        Update: {
+          agent_id?: string | null
+          avg_duration_ms?: number | null
+          created_at?: string | null
+          execution_count?: number | null
+          id?: string
+          last_executed_at?: string | null
+          success_count?: number | null
+          tool_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tool_execution_metrics_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_revenue_analytics"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "tool_execution_metrics_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "custom_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trend_predictions: {
         Row: {
           actual_data: Json | null
@@ -2872,8 +3391,94 @@ export type Database = {
         }
         Relationships: []
       }
+      workflow_executions: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          duration_ms: number | null
+          execution_trace: Json | null
+          id: string
+          input_data: Json | null
+          output_data: Json | null
+          status: string | null
+          user_id: string
+          workflow_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          duration_ms?: number | null
+          execution_trace?: Json | null
+          id?: string
+          input_data?: Json | null
+          output_data?: Json | null
+          status?: string | null
+          user_id: string
+          workflow_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          duration_ms?: number | null
+          execution_trace?: Json | null
+          id?: string
+          input_data?: Json | null
+          output_data?: Json | null
+          status?: string | null
+          user_id?: string
+          workflow_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workflow_executions_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "agent_workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
+      agent_analytics_daily: {
+        Row: {
+          agent_id: string | null
+          avg_execution_time: number | null
+          avg_tokens: number | null
+          date: string | null
+          execution_count: number | null
+          success_rate: number | null
+          total_credits_used: number | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_executions_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "agent_revenue_analytics"
+            referencedColumns: ["agent_id"]
+          },
+          {
+            foreignKeyName: "agent_executions_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "custom_agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agent_revenue_analytics: {
+        Row: {
+          agent_id: string | null
+          creator_earnings: number | null
+          creator_id: string | null
+          month: string | null
+          total_revenue: number | null
+          total_sales: number | null
+        }
+        Relationships: []
+      }
       cron_job_status: {
         Row: {
           active: boolean | null
