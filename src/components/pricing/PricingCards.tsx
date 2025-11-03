@@ -97,76 +97,76 @@ export const PricingCards = () => {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-center gap-4">
-        <Label htmlFor="billing-toggle" className={!isYearly ? "font-semibold" : ""}>
+    <div className="space-mobile">
+      {/* Billing Toggle */}
+      <div className="flex items-center justify-center gap-3 mb-8 sm:mb-12">
+        <Label htmlFor="billing-toggle" className="text-base sm:text-lg font-medium">
           Monthly
         </Label>
         <Switch
           id="billing-toggle"
           checked={isYearly}
           onCheckedChange={setIsYearly}
+          className="data-[state=checked]:bg-primary scale-110"
         />
-        <Label htmlFor="billing-toggle" className={isYearly ? "font-semibold" : ""}>
+        <Label htmlFor="billing-toggle" className="text-base sm:text-lg font-medium flex items-center gap-2">
           Yearly
-        </Label>
-        {isYearly && (
-          <Badge variant="default" className="ml-2">
-            Save up to {calculateSavings(tiers[1].monthlyPrice, tiers[1].yearlyPrice)}%
+          <Badge variant="secondary" className="text-xs sm:text-sm">
+            Save {calculateSavings(149, 1430)}%
           </Badge>
-        )}
+        </Label>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+      {/* Pricing Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
         {tiers.map((tier) => (
           <Card
             key={tier.name}
-            className={`relative ${
+            className={`card-mobile relative ${
               tier.popular
-                ? "border-primary shadow-lg scale-105"
+                ? "border-2 border-primary shadow-lg md:scale-105"
                 : "border-border"
             }`}
           >
             {tier.popular && (
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                <Badge variant="default" className="gap-1">
-                  <Sparkles className="w-3 h-3" />
-                  Most Popular
-                </Badge>
-              </div>
+              <Badge
+                variant="default"
+                className="absolute -top-3 left-1/2 transform -translate-x-1/2 px-4 py-1.5 text-sm"
+              >
+                <Sparkles className="w-3 h-3 mr-1" />
+                Most Popular
+              </Badge>
             )}
-            <CardHeader>
-              <CardTitle className="text-2xl">{tier.name}</CardTitle>
-              <div className="mt-4">
-                <div className="flex items-baseline gap-2">
-                  <span className="text-4xl font-bold">
-                    ${isYearly ? Math.round(tier.yearlyPrice / 12) : tier.monthlyPrice}
-                  </span>
-                  <span className="text-muted-foreground">/month</span>
-                </div>
-                {isYearly && (
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Billed annually (${tier.yearlyPrice}/year)
-                  </p>
-                )}
+            <CardHeader className="pb-4 sm:pb-6">
+              <CardTitle className="text-xl sm:text-2xl">{tier.name}</CardTitle>
+              <div className="mt-3 sm:mt-4">
+                <span className="text-3xl sm:text-4xl md:text-5xl font-bold">
+                  ${isYearly ? Math.round(tier.yearlyPrice / 12) : tier.monthlyPrice}
+                </span>
+                <span className="text-base sm:text-lg text-muted-foreground">/month</span>
               </div>
-              <p className="text-muted-foreground mt-2">
+              {isYearly && (
+                <p className="text-xs sm:text-sm text-muted-foreground mt-2">
+                  Billed ${tier.yearlyPrice} annually
+                </p>
+              )}
+              <p className="text-sm sm:text-base text-muted-foreground mt-2">
                 {tier.credits === 999999 ? "Unlimited" : tier.credits} credits/month
               </p>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-mobile">
               <Button
-                className="w-full"
-                variant={tier.popular ? "default" : "outline"}
                 onClick={() => handleSelectPlan(tier.name.toLowerCase())}
+                variant={tier.popular ? "default" : "outline"}
+                className="w-full h-12 sm:h-14 text-base sm:text-lg touch-feedback mb-6"
               >
                 {user ? "Subscribe Now" : "Get Started"}
               </Button>
-              <ul className="space-y-3">
-                {tier.features.map((feature, index) => (
-                  <li key={index} className="flex items-start gap-2">
+              <ul className="space-y-3 sm:space-y-4">
+                {tier.features.map((feature, idx) => (
+                  <li key={idx} className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-success flex-shrink-0 mt-0.5" />
-                    <span className="text-sm">{feature}</span>
+                    <span className="text-sm sm:text-base">{feature}</span>
                   </li>
                 ))}
               </ul>
@@ -175,9 +175,9 @@ export const PricingCards = () => {
         ))}
       </div>
 
-      <div className="text-center text-sm text-muted-foreground max-w-2xl mx-auto">
+      <div className="text-center text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto mt-8 px-4">
         <p>
-          All plans include access to our multi-agent system, semantic memory, and
+          All plans include access to our multi-agent system, temporal memory, and
           autonomous evolution features. Credits are used for AI interactions and
           replenish monthly.
         </p>

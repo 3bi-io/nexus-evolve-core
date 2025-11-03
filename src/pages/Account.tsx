@@ -216,24 +216,24 @@ const Account = () => {
         keywords="account settings, subscription management, credit usage, AI plan"
         canonical="https://oneiros.me/account"
       />
-      <div className="container mx-auto px-4 py-6 md:py-8 max-w-6xl">
+      <div className="container-mobile mx-auto px-4 py-6 md:py-8 max-w-6xl">
         <div className="mb-6 md:mb-8">
-          <h1 className="text-2xl md:text-4xl font-bold mb-2">Account Settings</h1>
-          <p className="text-sm md:text-base text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">Account Settings</h1>
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground">
             Manage your subscription and monitor credit usage
           </p>
         </div>
 
         {loading ? (
-          <div className="space-y-4">
+          <div className="space-y-4 sm:space-y-6">
             <Skeleton className="h-48 w-full" />
             <Skeleton className="h-64 w-full" />
           </div>
         ) : (
-          <div className="grid gap-6">
+          <div className="space-mobile">
             {/* Subscription Overview */}
-            <div className="grid md:grid-cols-3 gap-6">
-              <Card>
+            <div className="grid-mobile">
+              <Card className="card-mobile">
                 <CardHeader>
                   <CardTitle className="text-lg">Current Plan</CardTitle>
                 </CardHeader>
@@ -274,24 +274,24 @@ const Account = () => {
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
+              <Card className="card-mobile">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base sm:text-lg flex items-center gap-2">
                     <CreditCard className="w-5 h-5" />
                     Credits Remaining
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="text-3xl font-bold">
+                    <div className="text-3xl sm:text-4xl font-bold">
                       {subscription?.credits_remaining || 5}
-                      <span className="text-muted-foreground text-xl">
+                      <span className="text-muted-foreground text-xl sm:text-2xl">
                         {" "}/ {subscription?.credits_total || 5}
                       </span>
                     </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
+                    <div className="w-full bg-secondary rounded-full h-3">
                       <div
-                        className={`h-2 rounded-full transition-all ${
+                        className={`h-3 rounded-full transition-all ${
                           usagePercentage > 50
                             ? "bg-success"
                             : usagePercentage > 20
@@ -301,14 +301,14 @@ const Account = () => {
                         style={{ width: `${usagePercentage}%` }}
                       />
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm sm:text-base text-muted-foreground">
                       {usagePercentage}% remaining
                     </p>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="card-mobile">
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
                     <Calendar className="w-5 h-5" />
@@ -362,23 +362,22 @@ const Account = () => {
               </Alert>
             )}
 
-            {/* Memory Management */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="w-5 h-5" />
+            <Card className="card-mobile">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
+                  <Brain className="w-5 h-5 sm:w-6 sm:h-6" />
                   Memory Management
                 </CardTitle>
-                <CardDescription>
+                <CardDescription className="text-sm sm:text-base">
                   Configure automatic memory pruning to optimize storage and performance
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="space-mobile">
                 {/* Auto-pruning Toggle */}
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label>Auto-Pruning</Label>
-                    <p className="text-sm text-muted-foreground">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="space-y-1 flex-1">
+                    <Label className="text-sm sm:text-base">Auto-Pruning</Label>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
                       Automatically remove low-relevance memories
                     </p>
                   </div>
@@ -387,12 +386,13 @@ const Account = () => {
                     onCheckedChange={(checked) =>
                       setMemoryPrefs({ ...memoryPrefs, auto_pruning_enabled: checked })
                     }
+                    className="scale-110"
                   />
                 </div>
 
                 {/* Aggressiveness */}
                 <div className="space-y-2">
-                  <Label>Pruning Aggressiveness</Label>
+                  <Label className="text-sm sm:text-base">Pruning Aggressiveness</Label>
                   <Select
                     value={memoryPrefs.pruning_aggressiveness}
                     onValueChange={(value) => {
@@ -401,13 +401,13 @@ const Account = () => {
                       }
                     }}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-12">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="conservative">Conservative (Keep more)</SelectItem>
-                      <SelectItem value="moderate">Moderate (Balanced)</SelectItem>
-                      <SelectItem value="aggressive">Aggressive (Keep less)</SelectItem>
+                      <SelectItem value="conservative" className="text-base">Conservative (Keep more)</SelectItem>
+                      <SelectItem value="moderate" className="text-base">Moderate (Balanced)</SelectItem>
+                      <SelectItem value="aggressive" className="text-base">Aggressive (Keep less)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -416,33 +416,33 @@ const Account = () => {
                 <div className="grid grid-cols-2 gap-4 pt-4 border-t">
                   <div>
                     <p className="text-sm text-muted-foreground">Total Pruned</p>
-                    <p className="text-2xl font-bold">{pruningStats.total_pruned}</p>
+                    <p className="text-2xl sm:text-3xl font-bold">{pruningStats.total_pruned}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Storage Saved</p>
-                    <p className="text-2xl font-bold">{pruningStats.storage_saved_kb} KB</p>
+                    <p className="text-2xl sm:text-3xl font-bold">{pruningStats.storage_saved_kb} KB</p>
                   </div>
                 </div>
 
                 {pruningStats.last_pruned_at && (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-xs sm:text-sm text-muted-foreground">
                     Last pruned: {formatDistance(new Date(pruningStats.last_pruned_at), new Date(), { addSuffix: true })}
                   </p>
                 )}
 
                 {/* Actions */}
-                <div className="flex gap-2 pt-4">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-4">
                   <Button
                     onClick={saveMemoryPreferences}
                     disabled={savingPrefs}
-                    className="flex-1"
+                    className="flex-1 h-12 touch-feedback text-base"
                   >
                     {savingPrefs ? "Saving..." : "Save Preferences"}
                   </Button>
                   <Button
                     onClick={manualPrune}
                     variant="outline"
-                    className="flex-1"
+                    className="flex-1 h-12 touch-feedback text-base"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
                     Prune Now
@@ -450,6 +450,7 @@ const Account = () => {
                   <Button
                     onClick={() => navigate("/memory-graph")}
                     variant="outline"
+                    className="h-12 touch-feedback text-base"
                   >
                     <Brain className="w-4 h-4 mr-2" />
                     View Graph

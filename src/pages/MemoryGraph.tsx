@@ -133,56 +133,56 @@ const MemoryGraph = () => {
         keywords="memory graph, knowledge network, AI visualization, memory management"
         canonical="https://oneiros.me/memory-graph"
       />
-      <div className="container mx-auto px-4 py-6 max-w-7xl">
-        <div className="mb-6 flex items-center justify-between">
+      <div className="container-mobile mx-auto px-4 py-6 max-w-7xl">
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Memory Graph</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Memory Graph</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Interactive visualization of your memory network
             </p>
           </div>
-          <Button onClick={loadMemories} disabled={loading} variant="outline">
-            <RefreshCw className={`w-4 h-4 mr-2 ${loading ? "animate-spin" : ""}`} />
+          <Button onClick={loadMemories} disabled={loading} variant="outline" className="h-11 touch-feedback w-full sm:w-auto">
+            <RefreshCw className={`w-4 h-4 sm:w-5 sm:h-5 mr-2 ${loading ? "animate-spin" : ""}`} />
             Refresh
           </Button>
         </div>
 
         {/* Stats Cards */}
-        <div className="grid md:grid-cols-3 gap-4 mb-6">
-          <Card>
+        <div className="grid-mobile mb-6">
+          <Card className="card-mobile">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Brain className="w-4 h-4" />
+              <CardTitle className="text-sm sm:text-base flex items-center gap-2">
+                <Brain className="w-4 h-4 sm:w-5 sm:h-5" />
                 Total Memories
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold">{stats.total}</p>
+              <p className="text-2xl sm:text-3xl font-bold">{stats.total}</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="card-mobile">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm">High Relevance</CardTitle>
+              <CardTitle className="text-sm sm:text-base">High Relevance</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-success">{stats.highRelevance}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-success">{stats.highRelevance}</p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="card-mobile">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Low Relevance</CardTitle>
+              <CardTitle className="text-sm sm:text-base">Low Relevance</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-destructive">{stats.lowRelevance}</p>
+              <p className="text-2xl sm:text-3xl font-bold text-destructive">{stats.lowRelevance}</p>
             </CardContent>
           </Card>
         </div>
 
         {/* Time Filter */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
+        <Card className="mb-6 card-mobile">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm sm:text-base flex items-center gap-2">
+              <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
               Time Filter: Last {timeFilter} days
             </CardTitle>
           </CardHeader>
@@ -195,7 +195,7 @@ const MemoryGraph = () => {
               step={7}
               className="w-full"
             />
-            <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+            <div className="flex justify-between mt-3 text-xs sm:text-sm text-muted-foreground">
               <span>7 days</span>
               <span>1 year</span>
             </div>
@@ -203,7 +203,7 @@ const MemoryGraph = () => {
         </Card>
 
         {/* Graph Visualization */}
-        <Card className="h-[600px]">
+        <Card className="h-[500px] sm:h-[600px] md:h-[700px]">
           <CardContent className="p-0 h-full">
             {nodes.length > 0 ? (
               <ReactFlow
@@ -235,13 +235,13 @@ const MemoryGraph = () => {
         </Card>
 
         {/* Legend */}
-        <div className="mt-4 flex gap-4 items-center justify-center text-sm">
+        <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center text-sm sm:text-base">
           <div className="flex items-center gap-2">
-            <Badge className="bg-success">High Relevance</Badge>
+            <Badge className="bg-success text-success-foreground">High Relevance</Badge>
             <span className="text-muted-foreground">&gt; 0.7</span>
           </div>
           <div className="flex items-center gap-2">
-            <Badge className="bg-warning">Medium Relevance</Badge>
+            <Badge className="bg-warning text-warning-foreground">Medium Relevance</Badge>
             <span className="text-muted-foreground">0.4 - 0.7</span>
           </div>
           <div className="flex items-center gap-2">

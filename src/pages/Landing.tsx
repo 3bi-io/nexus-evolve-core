@@ -187,17 +187,17 @@ const Landing = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-20 md:pt-32 pb-12 md:pb-20 px-4">
-        <div className="container mx-auto max-w-6xl">
+      <section className="pt-24 sm:pt-28 md:pt-32 pb-12 md:pb-20 px-4">
+        <div className="container-mobile mx-auto max-w-6xl">
           <div className="grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
-            <div className="text-center lg:text-left space-y-4 md:space-y-6 animate-fade-in">
-              <Badge variant="secondary" className="mb-2 md:mb-4 text-xs md:text-sm">
-                <Sparkles className="w-3 h-3 mr-1" />
+            <div className="text-center lg:text-left space-mobile animate-fade-in">
+              <Badge variant="secondary" className="mb-4 text-sm sm:text-base px-3 py-1.5">
+                <Sparkles className="w-4 h-4 mr-2" />
                 10 Integrated AI Systems • Production Ready
               </Badge>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.15]">
                 Enterprise-Grade AI
-                <span className="bg-gradient-to-r from-[hsl(var(--ai-gradient-start))] to-[hsl(var(--ai-gradient-end))] bg-clip-text text-transparent block mt-1">
+                <span className="bg-gradient-to-r from-[hsl(var(--ai-gradient-start))] to-[hsl(var(--ai-gradient-end))] bg-clip-text text-transparent block mt-2">
                   Built to Scale
                 </span>
               </h1>
@@ -229,32 +229,32 @@ const Landing = () => {
       </section>
 
       {/* Features Section */}
-      <section className="py-12 md:py-20 px-4 bg-muted/30">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-8 md:mb-16">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">9 Production-Ready AI Systems</h2>
-            <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
+      <section className="section-spacing px-4 bg-muted/30">
+        <div className="container-mobile mx-auto max-w-6xl">
+          <div className="text-center mb-8 sm:mb-12 md:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">10 Production-Ready AI Systems</h2>
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
               Each system battle-tested, optimized, and ready to scale from prototype to millions of users
             </p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid-mobile">
             {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
-                <Card key={index} className="hover:shadow-lg transition-all hover:-translate-y-1 group">
-                  <CardContent className="pt-6">
+                <Card key={index} className="card-mobile hover:shadow-lg transition-all hover:-translate-y-1 group touch-feedback">
+                  <CardContent className="pt-5 sm:pt-6">
                     <div className="flex items-start justify-between mb-4">
-                      <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                        <Icon className="w-6 h-6 text-primary" />
+                      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                        <Icon className="w-6 h-6 sm:w-7 sm:h-7 text-primary" />
                       </div>
                       {feature.badge && (
-                        <Badge variant={feature.badge === "New" ? "default" : "secondary"} className="text-xs">
+                        <Badge variant={feature.badge === "New" ? "default" : "secondary"} className="text-xs sm:text-sm">
                           {feature.badge}
                         </Badge>
                       )}
                     </div>
-                    <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-                    <p className="text-muted-foreground text-sm">{feature.description}</p>
+                    <h3 className="text-lg sm:text-xl font-semibold mb-2">{feature.title}</h3>
+                    <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">{feature.description}</p>
                   </CardContent>
                 </Card>
               );
@@ -264,15 +264,15 @@ const Landing = () => {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-12 md:py-20 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-8 md:mb-16">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">How It Works</h2>
-            <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
+      <section className="section-spacing px-4">
+        <div className="container-mobile mx-auto max-w-6xl">
+          <div className="text-center mb-8 sm:mb-12 md:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">How It Works</h2>
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
               Three simple steps to autonomous AI evolution
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-8 sm:gap-10">
             {steps.map((step, index) => {
               const Icon = step.icon;
               return (
@@ -280,15 +280,15 @@ const Landing = () => {
                   {index < steps.length - 1 && (
                     <div className="hidden md:block absolute top-12 left-1/2 w-full h-0.5 bg-border -z-10"></div>
                   )}
-                  <div className="text-center space-y-4">
-                    <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto relative">
-                      <span className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center">
+                  <div className="text-center space-mobile">
+                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto relative">
+                      <span className="absolute -top-2 -right-2 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary text-primary-foreground text-sm sm:text-base font-bold flex items-center justify-center">
                         {step.number}
                       </span>
-                      <Icon className="w-10 h-10 text-primary" />
+                      <Icon className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
                     </div>
-                    <h3 className="text-2xl font-semibold">{step.title}</h3>
-                    <p className="text-muted-foreground">{step.description}</p>
+                    <h3 className="text-xl sm:text-2xl font-semibold">{step.title}</h3>
+                    <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">{step.description}</p>
                   </div>
                 </div>
               );
@@ -298,25 +298,25 @@ const Landing = () => {
       </section>
 
       {/* Trust Indicators */}
-      <section className="py-12 md:py-20 px-4 bg-muted/30">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-8 md:mb-12">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">Trusted by Thousands</h2>
-            <p className="text-base md:text-lg lg:text-xl text-muted-foreground px-4">
+      <section className="section-spacing px-4 bg-muted/30">
+        <div className="container-mobile mx-auto max-w-6xl">
+          <div className="text-center mb-8 sm:mb-10 md:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">Trusted by Thousands</h2>
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground px-4">
               Join a growing community of users building with AI
             </p>
           </div>
           
           <EnhancedTrustSignals />
 
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mt-12">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-4">
-                  <Shield className="w-8 h-8 text-primary flex-shrink-0" />
+          <div className="grid-mobile max-w-4xl mx-auto mt-8 sm:mt-12">
+            <Card className="card-mobile">
+              <CardContent className="pt-5 sm:pt-6">
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <Shield className="w-7 h-7 sm:w-8 sm:h-8 text-primary flex-shrink-0" />
                   <div>
-                    <h3 className="text-xl font-semibold mb-2">Enterprise Features</h3>
-                    <ul className="space-y-2 text-sm text-muted-foreground">
+                    <h3 className="text-lg sm:text-xl font-semibold mb-3">Enterprise Features</h3>
+                    <ul className="space-y-2 sm:space-y-3 text-sm sm:text-base text-muted-foreground">
                       {benefits.slice(0, 6).map((benefit, i) => (
                         <li key={i} className="flex items-start gap-2">
                           <Check className="w-4 h-4 text-success mt-1 flex-shrink-0" />
@@ -351,15 +351,15 @@ const Landing = () => {
       </section>
 
       {/* Pricing Preview */}
-      <section className="py-12 md:py-20 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-8 md:mb-16">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3 md:mb-4">Simple, Transparent Pricing</h2>
-            <p className="text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
+      <section className="section-spacing px-4">
+        <div className="container-mobile mx-auto max-w-6xl">
+          <div className="text-center mb-8 sm:mb-12 md:mb-16">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">Simple, Transparent Pricing</h2>
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
               Choose the plan that fits your needs. Start from $49/month.
             </p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid-mobile">
             <Card>
               <CardContent className="pt-6 space-y-4">
                 <h3 className="text-2xl font-bold">Starter</h3>

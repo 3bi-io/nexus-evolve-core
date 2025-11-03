@@ -92,33 +92,34 @@ const Pricing = () => {
       />
       <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-lg">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/95 backdrop-blur-lg safe-top">
+        <div className="container-mobile mx-auto h-16 sm:h-18 flex items-center justify-between">
           <Button
             variant="ghost"
             onClick={() => navigate(-1)}
-            className="gap-2"
+            className="gap-2 touch-feedback h-12 px-3 sm:px-4"
+            size="sm"
           >
-            <ArrowLeft className="w-4 h-4" />
-            Back
+            <ArrowLeft className="w-5 h-5" />
+            <span className="hidden sm:inline">Back</span>
           </Button>
           <div className="flex items-center gap-2">
-            <Brain className="w-8 h-8 text-primary" />
-            <span className="font-bold text-xl">Oneiros.me</span>
+            <Brain className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
+            <span className="font-bold text-lg sm:text-xl">Oneiros.me</span>
           </div>
-          <div className="w-20" /> {/* Spacer for center alignment */}
+          <div className="w-16 sm:w-20" /> {/* Spacer for center alignment */}
         </div>
       </nav>
 
       {/* Pricing Section */}
-      <section className="pt-32 pb-20 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center space-y-4 mb-16">
-            <h1 className="text-5xl font-bold">
+      <section className="pt-24 sm:pt-28 md:pt-32 pb-12 sm:pb-16 md:pb-20 px-4">
+        <div className="container-mobile mx-auto max-w-6xl">
+          <div className="text-center space-mobile mb-12 sm:mb-16">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold">
               Choose Your Plan
             </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Start free with 5 daily credits. Upgrade for more credits and advanced features.
+            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
+              Start free with 500 daily credits. Upgrade for more credits and advanced features.
             </p>
           </div>
 
@@ -127,18 +128,18 @@ const Pricing = () => {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-20 px-4 bg-muted/30">
-        <div className="container mx-auto max-w-3xl">
-          <h2 className="text-4xl font-bold text-center mb-12">
+      <section className="section-spacing px-4 bg-muted/30">
+        <div className="container-mobile mx-auto max-w-3xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 sm:mb-12">
             Frequently Asked Questions
           </h2>
-          <Accordion type="single" collapsible className="space-y-4">
+          <Accordion type="single" collapsible className="space-y-3 sm:space-y-4">
             {faqs.map((faq, index) => (
-              <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger className="text-left">
+              <AccordionItem key={index} value={`item-${index}`} className="border rounded-lg px-4 sm:px-6">
+                <AccordionTrigger className="text-left text-base sm:text-lg py-4 sm:py-5 hover:no-underline">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
+                <AccordionContent className="text-muted-foreground text-sm sm:text-base pb-4 sm:pb-5">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
