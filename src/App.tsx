@@ -1,52 +1,46 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import "./App.css";
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { Onboarding } from "@/components/Onboarding";
 import { ThemeProvider } from "next-themes";
 import { HelmetProvider } from "react-helmet-async";
-import { NavigationNew as Navigation } from "@/components/NavigationNew";
-import { InstallPrompt } from "@/components/mobile/InstallPrompt";
-import { ConnectionStatus } from "@/components/mobile/ConnectionStatus";
-import { CommandPalette } from "./components/onboarding/CommandPalette";
-import { KeyboardShortcutsDialog } from "./components/onboarding/KeyboardShortcutsDialog";
-import { useGlobalShortcuts } from "./hooks/useKeyboardShortcuts";
-import { useReferralProcessor } from "./hooks/useReferralProcessor";
-import { useReferralConversion } from "./hooks/useReferralConversion";
-import { SelfLearningBadge } from "./components/SelfLearningBadge";
-import { lazy, Suspense } from "react";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { LoadingPage } from "@/components/layout/LoadingPage";
-import Landing from "./pages/Landing";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import NotFound from "./pages/NotFound";
-import Pricing from "./pages/Pricing";
-import Privacy from "./pages/Privacy";
-import Terms from "./pages/Terms";
-import GettingStarted from "./pages/GettingStarted";
-import Account from "./pages/Account";
+import { useGlobalShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { useReferralProcessor } from "@/hooks/useReferralProcessor";
+import { useReferralConversion } from "@/hooks/useReferralConversion";
 
-// Lazy load heavy pages for better performance
+// Lazy load pages for better performance and code splitting
+const Index = lazy(() => import("./pages/Index"));
+const Landing = lazy(() => import("./pages/Landing"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Account = lazy(() => import("./pages/Account"));
+const Pricing = lazy(() => import("./pages/Pricing"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
+const Achievements = lazy(() => import("./pages/Achievements"));
 const Analytics = lazy(() => import("./pages/Analytics"));
 const LLMAnalytics = lazy(() => import("./pages/LLMAnalytics"));
-const AdvancedAnalytics = lazy(() => import("./pages/AdvancedAnalytics"));
-const KnowledgeGraph = lazy(() => import("./pages/KnowledgeGraph"));
-const ProblemSolver = lazy(() => import("./pages/ProblemSolver"));
-const Capabilities = lazy(() => import("./pages/Capabilities"));
-const Evolution = lazy(() => import("./pages/Evolution"));
 const SuperAdmin = lazy(() => import("./pages/SuperAdmin"));
-const Achievements = lazy(() => import("./pages/Achievements"));
+const ProblemSolver = lazy(() => import("./pages/ProblemSolver"));
+const Evolution = lazy(() => import("./pages/Evolution"));
 const Referrals = lazy(() => import("./pages/Referrals"));
-const SocialIntelligence = lazy(() => import("./pages/SocialIntelligence"));
-const SystemHealth = lazy(() => import("./pages/SystemHealth"));
-const AgentStudio = lazy(() => import("./pages/AgentStudio"));
-const AgentMarketplace = lazy(() => import("./pages/AgentMarketplace"));
-const AgentRevenue = lazy(() => import("./pages/AgentRevenue"));
 const Integrations = lazy(() => import("./pages/Integrations"));
+const UsageAnalytics = lazy(() => import("./pages/UsageAnalytics"));
+const SocialIntelligence = lazy(() => import("./pages/SocialIntelligence"));
+const AgentMarketplace = lazy(() => import("./pages/AgentMarketplace"));
+const AgentStudio = lazy(() => import("./pages/AgentStudio"));
+const AgentRevenue = lazy(() => import("./pages/AgentRevenue"));
+const AdvancedAnalytics = lazy(() => import("./pages/AdvancedAnalytics"));
 const AdvancedAI = lazy(() => import("./pages/AdvancedAI"));
+const SystemHealth = lazy(() => import("./pages/SystemHealth"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const KnowledgeGraph = lazy(() => import("./pages/KnowledgeGraph"));
+const MemoryGraph = lazy(() => import("./pages/MemoryGraph"));
+const Capabilities = lazy(() => import("./pages/Capabilities"));
+const GettingStarted = lazy(() => import("./pages/GettingStarted"));
 const MultimodalStudio = lazy(() => import("./pages/MultimodalStudio"));
 const VoiceAgent = lazy(() => import("./pages/VoiceAgent"));
 const ModelComparison = lazy(() => import("./pages/ModelComparison"));
@@ -116,10 +110,10 @@ const RoutesWithShortcuts = () => {
             }
           />
           <Route
-            path="/problem-solver"
+            path="/memory-graph"
             element={
               <ProtectedRoute>
-                <ProblemSolver />
+                <MemoryGraph />
               </ProtectedRoute>
             }
           />
@@ -128,6 +122,14 @@ const RoutesWithShortcuts = () => {
             element={
               <ProtectedRoute>
                 <Capabilities />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/problem-solver"
+            element={
+              <ProtectedRoute>
+                <ProblemSolver />
               </ProtectedRoute>
             }
           />
@@ -180,18 +182,26 @@ const RoutesWithShortcuts = () => {
             }
           />
           <Route
-            path="/social-intelligence"
+            path="/integrations"
             element={
               <ProtectedRoute>
-                <SocialIntelligence />
+                <Integrations />
               </ProtectedRoute>
             }
           />
           <Route
-            path="/agent-studio"
+            path="/usage-analytics"
             element={
               <ProtectedRoute>
-                <AgentStudio />
+                <UsageAnalytics />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/social-intelligence"
+            element={
+              <ProtectedRoute>
+                <SocialIntelligence />
               </ProtectedRoute>
             }
           />
@@ -204,10 +214,26 @@ const RoutesWithShortcuts = () => {
             }
           />
           <Route
-            path="/integrations"
+            path="/agent-studio"
             element={
               <ProtectedRoute>
-                <Integrations />
+                <AgentStudio />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/agent-revenue"
+            element={
+              <ProtectedRoute>
+                <AgentRevenue />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/advanced-analytics"
+            element={
+              <ProtectedRoute>
+                <AdvancedAnalytics />
               </ProtectedRoute>
             }
           />
@@ -220,7 +246,47 @@ const RoutesWithShortcuts = () => {
             }
           />
           <Route
-            path="/multimodal"
+            path="/system-health"
+            element={
+              <ProtectedRoute>
+                <SystemHealth />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/collaboration"
+            element={
+              <ProtectedRoute>
+                <Collaboration />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/teams"
+            element={
+              <ProtectedRoute>
+                <Teams />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/api-access"
+            element={
+              <ProtectedRoute>
+                <APIAccess />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/webhooks"
+            element={
+              <ProtectedRoute>
+                <Webhooks />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/multimodal-studio"
             element={
               <ProtectedRoute>
                 <MultimodalStudio />
@@ -232,14 +298,6 @@ const RoutesWithShortcuts = () => {
             element={
               <ProtectedRoute>
                 <VoiceAgent />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/system-health"
-            element={
-              <ProtectedRoute>
-                <SystemHealth />
               </ProtectedRoute>
             }
           />
@@ -299,94 +357,30 @@ const RoutesWithShortcuts = () => {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/collaboration"
-            element={
-              <ProtectedRoute>
-                <Collaboration />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/teams"
-            element={
-              <ProtectedRoute>
-                <Teams />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/api-access"
-            element={
-              <ProtectedRoute>
-                <APIAccess />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/advanced-analytics"
-            element={
-              <ProtectedRoute>
-                <AdvancedAnalytics />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/webhooks"
-            element={
-              <ProtectedRoute>
-                <Webhooks />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/agent-revenue"
-            element={
-              <ProtectedRoute>
-                <AgentRevenue />
-              </ProtectedRoute>
-            }
-          />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
+      <Toaster position="top-center" />
     </>
   );
 };
 
-const AppContent = () => {
+function App() {
   return (
-    <>
-      <Onboarding />
-      <SelfLearningBadge />
-      <InstallPrompt />
-      <ConnectionStatus />
-      <BrowserRouter>
-        <CommandPalette />
-        <KeyboardShortcutsDialog />
-        <RoutesWithShortcuts />
-      </BrowserRouter>
-    </>
-  );
-};
-
-const App = () => (
-  <ErrorBoundary>
     <HelmetProvider>
-      <QueryClientProvider client={queryClient}>
+      <ErrorBoundary>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <AuthProvider>
-            <TooltipProvider>
-              <Toaster />
-              <Sonner />
-              <AppContent />
-            </TooltipProvider>
-          </AuthProvider>
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+              <BrowserRouter>
+                <RoutesWithShortcuts />
+              </BrowserRouter>
+            </AuthProvider>
+          </QueryClientProvider>
         </ThemeProvider>
-      </QueryClientProvider>
+      </ErrorBoundary>
     </HelmetProvider>
-  </ErrorBoundary>
-);
+  );
+}
 
 export default App;

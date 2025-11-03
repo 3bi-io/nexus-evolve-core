@@ -105,13 +105,71 @@ serve(async (req) => {
     const result = await response.json();
     const latencyMs = Date.now() - startTime;
 
+    // Track temporal access for search/get operations
+    if ((action === "search" || action === "get") && result?.results) {
+      const memoryIds = result.results.map((m: any) => m.id);
+      
+      // Update temporal scores for accessed memories
+      for (const memoryId of memoryIds) {
+        const { data: existingScore } = await supabase
+          .from("memory_temporal_scores")
+          .select("*")
+          .eq("user_id", user.id)
+          .eq("memory_id", memoryId)
+          .maybeSingle();
+
+        if (existingScore) {
+          // Calculate new relevance
+          const { data: relevance } = await supabase.rpc('calculate_temporal_relevance', {
+            p_access_count: existingScore.access_count + 1,
+            p_importance_score: existingScore.importance_score,
+            p_last_accessed: new Date().toISOString(),
+            p_decay_rate: existingScore.decay_rate
+          }) as { data: number };
+
+          await supabase.from("memory_temporal_scores").update({
+            access_count: existingScore.access_count + 1,
+            last_accessed: new Date().toISOString(),
+            calculated_relevance: relevance
+          }).eq("id", existingScore.id);
+        } else {
+          // Create new score
+          await supabase.from("memory_temporal_scores").insert({
+            user_id: user.id,
+            memory_id: memoryId,
+            access_count: 1,
+            last_accessed: new Date().toISOString(),
+            calculated_relevance: 0.5
+          });
+        }
+      }
+
+      // Fetch updated temporal scores and re-rank results
+      const { data: scores } = await supabase
+        .from("memory_temporal_scores")
+        .select("*")
+        .eq("user_id", user.id)
+        .in("memory_id", memoryIds);
+
+      if (scores) {
+        // Add temporal relevance to results and sort
+        result.results = result.results.map((memory: any) => {
+          const score = scores.find(s => s.memory_id === memory.id);
+          return {
+            ...memory,
+            temporal_relevance: score?.calculated_relevance || 0.5
+          };
+        }).sort((a: any, b: any) => (b.temporal_relevance || 0) - (a.temporal_relevance || 0));
+      }
+    }
+
     // Log the memory operation
     await supabase.from("llm_observations").insert({
       user_id: user.id,
       model_name: "mem0",
       task_type: `memory_${action}`,
       latency_ms: latencyMs,
-      cost_credits: 1, // Fixed cost for memory operations
+      cost_credits: 1,
       success: true,
       metadata: {
         action,

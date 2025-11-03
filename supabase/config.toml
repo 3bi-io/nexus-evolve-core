@@ -21,6 +21,9 @@ verify_jwt = true
 [functions.mem0-memory]
 verify_jwt = true
 
+[functions.auto-prune-memories]
+verify_jwt = false
+
 [functions.grok-reality-agent]
 verify_jwt = true
 

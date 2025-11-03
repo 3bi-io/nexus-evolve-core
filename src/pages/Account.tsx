@@ -8,10 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { UsageHistory } from "@/components/pricing/UsageHistory";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router-dom";
-import { CreditCard, TrendingUp, Calendar, AlertCircle } from "lucide-react";
+import { CreditCard, TrendingUp, Calendar, AlertCircle, Brain, Trash2 } from "lucide-react";
 import { formatDistance } from "date-fns";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { SEO } from "@/components/SEO";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
 
 interface Subscription {
   tier_name: string;
@@ -23,14 +27,41 @@ interface Subscription {
   status: string;
 }
 
+interface MemoryPreferences {
+  auto_pruning_enabled: boolean;
+  pruning_aggressiveness: "conservative" | "moderate" | "aggressive";
+  min_age_days: number;
+  relevance_threshold: number;
+}
+
+interface PruningStats {
+  total_pruned: number;
+  last_pruned_at: string | null;
+  storage_saved_kb: number;
+}
+
 const Account = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [subscription, setSubscription] = useState<Subscription | null>(null);
   const [loading, setLoading] = useState(true);
+  const [memoryPrefs, setMemoryPrefs] = useState<MemoryPreferences>({
+    auto_pruning_enabled: true,
+    pruning_aggressiveness: "moderate",
+    min_age_days: 90,
+    relevance_threshold: 0.3,
+  });
+  const [pruningStats, setPruningStats] = useState<PruningStats>({
+    total_pruned: 0,
+    last_pruned_at: null,
+    storage_saved_kb: 0,
+  });
+  const [savingPrefs, setSavingPrefs] = useState(false);
 
   useEffect(() => {
     fetchSubscription();
+    fetchMemoryPreferences();
+    fetchPruningStats();
   }, [user]);
 
   const fetchSubscription = async () => {
@@ -74,6 +105,102 @@ const Account = () => {
       console.error("Error fetching subscription:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchMemoryPreferences = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("user_memory_preferences")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (error && error.code !== "PGRST116") throw error;
+
+      if (data) {
+        const aggressiveness = data.pruning_aggressiveness as "conservative" | "moderate" | "aggressive";
+        setMemoryPrefs({
+          auto_pruning_enabled: data.auto_pruning_enabled,
+          pruning_aggressiveness: aggressiveness,
+          min_age_days: data.min_age_days,
+          relevance_threshold: data.relevance_threshold,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching memory preferences:", error);
+    }
+  };
+
+  const fetchPruningStats = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from("memory_pruning_logs")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+
+      if (data && data.length > 0) {
+        const totalPruned = data.reduce((sum, log) => sum + log.pruned_count, 0);
+        const totalStorage = data.reduce((sum, log) => sum + log.storage_saved_kb, 0);
+        setPruningStats({
+          total_pruned: totalPruned,
+          last_pruned_at: data[0].created_at,
+          storage_saved_kb: totalStorage,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching pruning stats:", error);
+    }
+  };
+
+  const saveMemoryPreferences = async () => {
+    if (!user) return;
+
+    setSavingPrefs(true);
+    try {
+      const { error } = await supabase
+        .from("user_memory_preferences")
+        .upsert({
+          user_id: user.id,
+          ...memoryPrefs,
+        });
+
+      if (error) throw error;
+
+      toast.success("Memory preferences saved");
+    } catch (error) {
+      console.error("Error saving preferences:", error);
+      toast.error("Failed to save preferences");
+    } finally {
+      setSavingPrefs(false);
+    }
+  };
+
+  const manualPrune = async () => {
+    if (!user) return;
+
+    try {
+      toast.info("Starting memory pruning...");
+      
+      const { error } = await supabase.functions.invoke("auto-prune-memories", {
+        body: { user_id: user.id },
+      });
+
+      if (error) throw error;
+
+      toast.success("Memory pruning completed");
+      fetchPruningStats();
+    } catch (error) {
+      console.error("Error pruning memories:", error);
+      toast.error("Failed to prune memories");
     }
   };
 
@@ -234,6 +361,102 @@ const Account = () => {
                 </AlertDescription>
               </Alert>
             )}
+
+            {/* Memory Management */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Brain className="w-5 h-5" />
+                  Memory Management
+                </CardTitle>
+                <CardDescription>
+                  Configure automatic memory pruning to optimize storage and performance
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Auto-pruning Toggle */}
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Auto-Pruning</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Automatically remove low-relevance memories
+                    </p>
+                  </div>
+                  <Switch
+                    checked={memoryPrefs.auto_pruning_enabled}
+                    onCheckedChange={(checked) =>
+                      setMemoryPrefs({ ...memoryPrefs, auto_pruning_enabled: checked })
+                    }
+                  />
+                </div>
+
+                {/* Aggressiveness */}
+                <div className="space-y-2">
+                  <Label>Pruning Aggressiveness</Label>
+                  <Select
+                    value={memoryPrefs.pruning_aggressiveness}
+                    onValueChange={(value) => {
+                      if (value === "conservative" || value === "moderate" || value === "aggressive") {
+                        setMemoryPrefs({ ...memoryPrefs, pruning_aggressiveness: value });
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="conservative">Conservative (Keep more)</SelectItem>
+                      <SelectItem value="moderate">Moderate (Balanced)</SelectItem>
+                      <SelectItem value="aggressive">Aggressive (Keep less)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Stats */}
+                <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Pruned</p>
+                    <p className="text-2xl font-bold">{pruningStats.total_pruned}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Storage Saved</p>
+                    <p className="text-2xl font-bold">{pruningStats.storage_saved_kb} KB</p>
+                  </div>
+                </div>
+
+                {pruningStats.last_pruned_at && (
+                  <p className="text-sm text-muted-foreground">
+                    Last pruned: {formatDistance(new Date(pruningStats.last_pruned_at), new Date(), { addSuffix: true })}
+                  </p>
+                )}
+
+                {/* Actions */}
+                <div className="flex gap-2 pt-4">
+                  <Button
+                    onClick={saveMemoryPreferences}
+                    disabled={savingPrefs}
+                    className="flex-1"
+                  >
+                    {savingPrefs ? "Saving..." : "Save Preferences"}
+                  </Button>
+                  <Button
+                    onClick={manualPrune}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Prune Now
+                  </Button>
+                  <Button
+                    onClick={() => navigate("/memory-graph")}
+                    variant="outline"
+                  >
+                    <Brain className="w-4 h-4 mr-2" />
+                    View Graph
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Usage History */}
             <UsageHistory />

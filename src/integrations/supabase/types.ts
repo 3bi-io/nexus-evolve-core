@@ -1138,6 +1138,75 @@ export type Database = {
         }
         Relationships: []
       }
+      memory_pruning_logs: {
+        Row: {
+          created_at: string | null
+          id: string
+          pruned_count: number | null
+          pruned_memory_ids: string[] | null
+          storage_saved_kb: number | null
+          threshold_used: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          pruned_count?: number | null
+          pruned_memory_ids?: string[] | null
+          storage_saved_kb?: number | null
+          threshold_used?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          pruned_count?: number | null
+          pruned_memory_ids?: string[] | null
+          storage_saved_kb?: number | null
+          threshold_used?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      memory_temporal_scores: {
+        Row: {
+          access_count: number | null
+          calculated_relevance: number | null
+          created_at: string | null
+          decay_rate: number | null
+          id: string
+          importance_score: number | null
+          last_accessed: string | null
+          memory_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_count?: number | null
+          calculated_relevance?: number | null
+          created_at?: string | null
+          decay_rate?: number | null
+          id?: string
+          importance_score?: number | null
+          last_accessed?: string | null
+          memory_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_count?: number | null
+          calculated_relevance?: number | null
+          created_at?: string | null
+          decay_rate?: number | null
+          id?: string
+          importance_score?: number | null
+          last_accessed?: string | null
+          memory_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       model_performance: {
         Row: {
           avg_cost_credits: number | null
@@ -2058,6 +2127,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_memory_preferences: {
+        Row: {
+          auto_pruning_enabled: boolean | null
+          created_at: string | null
+          id: string
+          min_age_days: number | null
+          pruning_aggressiveness: string | null
+          relevance_threshold: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          auto_pruning_enabled?: boolean | null
+          created_at?: string | null
+          id?: string
+          min_age_days?: number | null
+          pruning_aggressiveness?: string | null
+          relevance_threshold?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          auto_pruning_enabled?: boolean | null
+          created_at?: string | null
+          id?: string
+          min_age_days?: number | null
+          pruning_aggressiveness?: string | null
+          relevance_threshold?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           auto_approval_threshold: number | null
@@ -2471,6 +2573,15 @@ export type Database = {
       }
     }
     Functions: {
+      calculate_temporal_relevance: {
+        Args: {
+          p_access_count: number
+          p_decay_rate: number
+          p_importance_score: number
+          p_last_accessed: string
+        }
+        Returns: number
+      }
       check_achievements: {
         Args: {
           p_achievement_key: string
