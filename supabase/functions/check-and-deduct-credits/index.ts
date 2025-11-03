@@ -155,7 +155,59 @@ Deno.serve(async (req) => {
           suggestedTier = 'starter';
         }
       } else {
-        // Has active subscription
+        // Phase 4.1 & 4.2: Handle unlimited tiers (enterprise & professional_unlimited)
+        const unlimitedTiers = ['enterprise', 'professional_unlimited'];
+        if (unlimitedTiers.includes(subscription.subscription_tiers.tier_name)) {
+          // Soft cap check: 1000 interactions per day for unlimited users
+          const todayStart = new Date();
+          todayStart.setHours(0, 0, 0, 0);
+
+          const { count: todayUsage } = await supabase
+            .from('credit_transactions')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId)
+            .eq('transaction_type', 'usage')
+            .gte('created_at', todayStart.toISOString());
+
+          if (todayUsage && todayUsage >= 1000) {
+            return new Response(
+              JSON.stringify({ 
+                error: 'Daily soft cap reached (1000 interactions/day). Contact support for higher limits.',
+                allowed: false,
+                remaining: 0,
+                soft_cap_reached: true
+              }),
+              { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            );
+          }
+
+          // Log the interaction but don't deduct
+          await supabase.from('credit_transactions').insert({
+            user_id: userId,
+            transaction_type: 'usage',
+            credits_amount: -creditCost,
+            balance_after: 999999, // Unlimited marker
+            operation_type: operation,
+            interaction_id: interactionId,
+            metadata: { unlimited_tier: true, tier: subscription.subscription_tiers.tier_name }
+          });
+
+          return new Response(
+            JSON.stringify({ 
+              allowed: true,
+              unlimited: true,
+              remaining: 999999,
+              creditCost: 0,
+              suggestedTier: null,
+              isAnonymous: false,
+              daily_usage: todayUsage || 0,
+              message: 'Unlimited plan - no deduction needed'
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        // Has active subscription with limited credits
         remaining = subscription.credits_remaining;
 
         if (remaining >= creditCost) {

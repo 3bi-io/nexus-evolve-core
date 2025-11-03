@@ -20,22 +20,22 @@ export const UpgradePrompt = ({
 
   const tierInfo = {
     starter: {
-      name: "Starter",
-      price: 49,
-      credits: 500,
-      savings: "Get 10x more credits",
+      name: "Professional",
+      price: 29,
+      credits: "10,000",
+      savings: "Get 20x more AI interactions",
     },
     professional: {
       name: "Professional",
-      price: 149,
-      credits: 2000,
-      savings: "Best value for power users",
+      price: 29,
+      credits: "10,000",
+      savings: "Best value - founder rate",
     },
     enterprise: {
       name: "Enterprise",
-      price: 999,
+      price: 199,
       credits: "Unlimited",
-      savings: "Never worry about credits again",
+      savings: "Never worry about limits again",
     },
   };
 
@@ -59,10 +59,10 @@ export const UpgradePrompt = ({
             <AlertTriangle className="w-6 h-6 text-warning" />
           </div>
           <DialogTitle className="text-center text-2xl">
-            You're Out of Credits
+            You're Out of AI Interactions
           </DialogTitle>
           <DialogDescription className="text-center">
-            You have {currentCredits} credits remaining. Upgrade to continue using
+            You have {currentCredits} interactions remaining. Upgrade to continue using
             all platform features without interruption.
           </DialogDescription>
         </DialogHeader>
@@ -78,7 +78,7 @@ export const UpgradePrompt = ({
             </div>
             <div className="flex items-center gap-2 text-sm">
               <Zap className="w-4 h-4 text-primary" />
-              <span>{tier.credits} credits per month</span>
+              <span>{tier.credits} AI interactions per month</span>
             </div>
             <p className="text-sm text-muted-foreground">{tier.savings}</p>
           </div>
@@ -94,7 +94,7 @@ export const UpgradePrompt = ({
           </div>
 
           <p className="text-xs text-center text-muted-foreground">
-            Free users get 5 daily credits. Come back tomorrow for more!
+            Free users get 500 daily AI interactions. Come back tomorrow for more!
           </p>
         </div>
       </DialogContent>

@@ -25,7 +25,7 @@ const Pricing = () => {
     {
       question: "What's included in the free tier?",
       answer:
-        "The free tier includes: 500 daily credits (resets every day), access to all 9 AI systems, multi-agent orchestration, temporal memory, voice AI, agent marketplace access, browser AI, knowledge graphs, beta tester badge, and community support. It's genuinely free forever - no credit card required, no surprise charges.",
+        "The free tier includes: 500 daily AI interactions (resets every day), access to all 9 AI systems, multi-agent orchestration, temporal memory, voice AI, agent marketplace access, browser AI, knowledge graphs, beta tester badge, and community support. It's genuinely free forever - no credit card required, no surprise charges.",
     },
     {
       question: "What does 'locked in forever' mean?",
@@ -35,12 +35,12 @@ const Pricing = () => {
     {
       question: "Can I upgrade or downgrade anytime?",
       answer:
-        "Yes! Upgrade instantly and we'll prorate your remaining credits. Downgrade at any time - you keep your paid features until the billing cycle ends. No penalties, no hassle. Beta users get flexible terms because we want you to find the right fit.",
+        "Yes! Upgrade instantly and we'll add remaining interactions to your new tier. Downgrade at any time - you keep your paid features until the billing cycle ends. No penalties, no hassle. Beta users get flexible terms because we want you to find the right fit.",
     },
     {
-      question: "What happens when I run out of credits?",
+      question: "What happens when I run out of AI interactions?",
       answer:
-        "Free users get 500 fresh credits every day automatically. Paid subscribers can upgrade mid-cycle for instant access to more credits, or wait until next billing cycle for automatic refill. You'll get notifications at 80% and 95% usage so you're never surprised. Credits never expire within your billing period.",
+        "Free users get 500 fresh AI interactions every day automatically. Paid subscribers can upgrade mid-cycle for instant access to more interactions, or wait until next billing cycle for automatic refill. You'll get notifications at 80% and 95% usage so you're never surprised. Interactions never expire within your billing period.",
     },
     {
       question: "Is this really production-ready if it's beta?",
@@ -80,8 +80,8 @@ const Pricing = () => {
             Beta Pricing for Early Users
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Join the first 1,000 users. Start free forever or lock in <strong className="text-primary">founder rates for life</strong>. 
-            Rates increase after beta launch.
+            Join the first 100 founder rate users. Start free forever or lock in <strong className="text-primary">$29/mo for life</strong>. 
+            Price increases to $49/mo after beta.
           </p>
           <div className="flex flex-wrap justify-center gap-6 text-sm pt-2">
             <div className="flex items-center gap-2">
@@ -125,7 +125,7 @@ const Pricing = () => {
               <DollarSign className="h-10 w-10 text-success mx-auto mb-3" />
               <p className="text-3xl font-bold text-success">$0/mo</p>
               <p className="text-sm font-semibold">Forever Free Tier</p>
-              <p className="text-xs text-muted-foreground">500 daily credits, all features</p>
+              <p className="text-xs text-muted-foreground">500 daily AI interactions, all features</p>
             </div>
           </div>
         </div>

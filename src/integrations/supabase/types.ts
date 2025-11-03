@@ -3224,6 +3224,8 @@ export type Database = {
           credits_remaining: number
           credits_total: number
           id: string
+          is_grandfathered: boolean | null
+          original_price: number | null
           renews_at: string
           started_at: string
           status: string
@@ -3239,6 +3241,8 @@ export type Database = {
           credits_remaining: number
           credits_total: number
           id?: string
+          is_grandfathered?: boolean | null
+          original_price?: number | null
           renews_at: string
           started_at?: string
           status?: string
@@ -3254,6 +3258,8 @@ export type Database = {
           credits_remaining?: number
           credits_total?: number
           id?: string
+          is_grandfathered?: boolean | null
+          original_price?: number | null
           renews_at?: string
           started_at?: string
           status?: string

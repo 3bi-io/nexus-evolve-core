@@ -17,6 +17,7 @@ interface PricingTier {
   popular?: boolean;
 }
 
+// Phase 2.2: Updated with AI interactions terminology
 const tiers: PricingTier[] = [
   {
     name: "Starter",
@@ -24,7 +25,7 @@ const tiers: PricingTier[] = [
     yearlyPrice: 0,
     credits: 500,
     features: [
-      "500 daily credits forever",
+      "500 daily AI interactions",
       "All 9 AI systems",
       "Multi-agent orchestration",
       "Beta tester badge",
@@ -38,12 +39,12 @@ const tiers: PricingTier[] = [
     credits: 10000,
     popular: true,
     features: [
-      "10,000 credits/month",
+      "10,000 AI interactions/month",
       "Everything in Starter",
       "Priority support",
       "Advanced analytics",
       "Founder badge",
-      "Locked-in rate forever",
+      "Rate locked forever",
     ],
   },
   {
@@ -52,11 +53,11 @@ const tiers: PricingTier[] = [
     yearlyPrice: 0,
     credits: 0,
     features: [
-      "Custom credits",
+      "Unlimited AI interactions",
       "Everything in Professional",
       "Dedicated support",
       "Custom integrations",
-      "Shape development roadmap",
+      "Shape development",
       "Direct dev access",
     ],
   },
@@ -166,7 +167,7 @@ export const PricingCards = () => {
                 </p>
               )}
               <p className="text-sm sm:text-base text-muted-foreground mt-2">
-                {tier.credits === 0 ? "Custom credits" : tier.credits === 500 ? "500 daily credits" : `${tier.credits.toLocaleString()} credits/month`}
+                {tier.credits === 0 ? "Unlimited AI interactions" : tier.credits === 500 ? "500 daily AI interactions" : `${tier.credits.toLocaleString()} AI interactions/month`}
               </p>
             </CardHeader>
             <CardContent className="space-mobile">

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, TrendingUp, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { pricingTiers } from '@/data/landing-pricing';
+import { FounderRateCounter } from '@/components/pricing/FounderRateCounter';
 
 export function PricingSection() {
   const navigate = useNavigate();
@@ -60,11 +61,14 @@ export function PricingSection() {
                   className="w-full text-base py-6" 
                   size="lg"
                   variant={tier.popular ? 'default' : 'outline'}
-                  onClick={() => navigate(tier.cta === 'Start Free' ? '/auth' : '/pricing')}
+                  onClick={() => navigate(tier.cta === 'Join Beta Free' ? '/auth' : '/pricing')}
                 >
                   {tier.cta}
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
+                {tier.isFounderRate && tier.slotsRemaining && (
+                  <FounderRateCounter slotsRemaining={tier.slotsRemaining} />
+                )}
               </CardContent>
             </Card>
           ))}

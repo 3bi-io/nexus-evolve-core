@@ -48,18 +48,37 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Get tier details
-      const { data: tier, error: tierError } = await supabase
+      // Phase 6.1: Check if professional_unlimited tier (for founder rate validation)
+      const { data: tierCheck, error: tierCheckError } = await supabase
         .from('subscription_tiers')
         .select('*')
         .eq('id', tierId)
         .single();
 
-      if (tierError || !tier) {
+      if (tierCheckError || !tierCheck) {
         return new Response(
           JSON.stringify({ error: 'Invalid tier' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
+      }
+
+      if (tierCheck.tier_name === 'professional_unlimited') {
+        // Check if founder slots are still available (first 100 users)
+        const { count: professionalCount } = await supabase
+          .from('user_subscriptions')
+          .select('*', { count: 'exact', head: true })
+          .eq('tier_id', tierId)
+          .eq('is_grandfathered', true);
+
+        if (professionalCount && professionalCount >= 100) {
+          return new Response(
+            JSON.stringify({ 
+              error: 'Founder rate slots are full. Please select the standard Professional tier.',
+              founder_slots_full: true
+            }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
       }
 
       // Check if user already has a subscription
@@ -84,18 +103,22 @@ Deno.serve(async (req) => {
         renewsAt.setFullYear(renewsAt.getFullYear() + 1);
       }
 
-      // Create subscription
+      // Phase 6.2: Create subscription with grandfathering support
+      const isFounderRate = tierCheck.tier_name === 'professional' && tierCheck.monthly_price === 29.00;
+      
       const { data: subscription, error: subError } = await supabase
         .from('user_subscriptions')
         .insert({
           user_id: user.id,
           tier_id: tierId,
-          credits_remaining: tier.monthly_credits,
-          credits_total: tier.monthly_credits,
+          credits_remaining: tierCheck.monthly_credits,
+          credits_total: tierCheck.monthly_credits,
           billing_cycle: billingCycle,
           status: 'active',
           renews_at: renewsAt.toISOString(),
-          stripe_subscription_id: stripeSubscriptionId
+          stripe_subscription_id: stripeSubscriptionId,
+          is_grandfathered: isFounderRate,
+          original_price: isFounderRate ? 29.00 : null
         })
         .select()
         .single();
@@ -108,10 +131,10 @@ Deno.serve(async (req) => {
       await supabase.from('credit_transactions').insert({
         user_id: user.id,
         transaction_type: 'purchase',
-        credits_amount: tier.monthly_credits,
-        balance_after: tier.monthly_credits,
+        credits_amount: tierCheck.monthly_credits,
+        balance_after: tierCheck.monthly_credits,
         metadata: {
-          tier: tier.tier_name,
+          tier: tierCheck.tier_name,
           billing_cycle: billingCycle,
           action: 'create'
         }

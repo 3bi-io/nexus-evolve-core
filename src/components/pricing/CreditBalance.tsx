@@ -24,12 +24,12 @@ export const CreditBalance = () => {
           </TooltipTrigger>
           <TooltipContent>
             <div className="space-y-1">
-              <p className="font-semibold">Credit Balance</p>
+              <p className="font-semibold">AI Interactions Balance</p>
               <p className="text-sm text-muted-foreground">
-                {credits} credits remaining
+                {credits} interactions remaining
               </p>
               <p className="text-xs text-muted-foreground">
-                Each operation costs 1-3 credits
+                Each AI operation uses 1-3 interactions
               </p>
             </div>
           </TooltipContent>
