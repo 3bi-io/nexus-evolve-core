@@ -1,29 +1,33 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, Network, Brain, Trophy, User, BarChart3, GitBranch } from "lucide-react";
+import { Home, Store, BarChart3, User, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useHaptics } from "@/hooks/useMobile";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function MobileBottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { light } = useHaptics();
+  const { user } = useAuth();
 
-  const navItems = [
-    { icon: Home, label: "Chat", path: "/chat" },
-    { icon: Network, label: "Knowledge", path: "/knowledge-graph" },
-    { icon: GitBranch, label: "Memory", path: "/memory-graph" },
+  const navItems = user ? [
+    { icon: Home, label: "Chat", path: "/" },
+    { icon: Store, label: "Market", path: "/agent-marketplace" },
+    { icon: Sparkles, label: "AGI", path: "/agi-dashboard" },
     { icon: BarChart3, label: "Stats", path: "/analytics" },
     { icon: User, label: "Account", path: "/account" },
+  ] : [
+    { icon: Home, label: "Home", path: "/" },
+    { icon: Store, label: "Market", path: "/agent-marketplace" },
+    { icon: Sparkles, label: "Pricing", path: "/pricing" },
+    { icon: User, label: "Sign In", path: "/auth" },
   ];
 
   const handleNavigation = (path: string) => {
-    light();
     navigate(path);
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border safe-bottom">
-      <div className="flex items-center justify-around px-2 py-2">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-sm border-t border-border safe-bottom lg:hidden">
+      <div className="flex items-center justify-around px-1 py-2">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           const Icon = item.icon;
@@ -33,14 +37,21 @@ export function MobileBottomNav() {
               key={item.path}
               onClick={() => handleNavigation(item.path)}
               className={cn(
-                "flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-all min-w-[60px]",
+                "flex flex-col items-center gap-1 px-2 py-2 rounded-lg transition-all",
+                "min-w-[56px] min-h-[56px]", // Touch target
+                "active:scale-95",
                 isActive
                   ? "text-primary bg-primary/10"
                   : "text-muted-foreground active:bg-muted"
               )}
+              aria-label={item.label}
+              aria-current={isActive ? 'page' : undefined}
             >
-              <Icon className={cn("w-5 h-5", isActive && "animate-bounce-subtle")} />
-              <span className="text-xs font-medium">{item.label}</span>
+              <Icon className={cn(
+                "w-5 h-5",
+                isActive && "scale-110"
+              )} />
+              <span className="text-[10px] font-medium leading-none">{item.label}</span>
             </button>
           );
         })}

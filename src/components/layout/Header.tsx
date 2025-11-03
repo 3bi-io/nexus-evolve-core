@@ -2,8 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
   MessageSquare, Network, Brain, LogOut, Shield, BarChart3, 
-  Keyboard, Store, Phone, Layers, Activity, Settings, GitBranch, 
-  Sparkles, Plug, Cpu, Menu
+  Store, Phone, Sparkles, Menu, X
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -13,12 +12,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { useSecretValidation } from "@/hooks/useSecretValidation";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
   Sheet,
   SheetContent,
   SheetHeader,
@@ -26,6 +19,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 
 export function Header() {
   const location = useLocation();
@@ -51,122 +45,126 @@ export function Header() {
     checkAdminStatus();
   }, [user]);
 
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
   const isActive = (path: string) => location.pathname === path;
 
-  const navLinks = [
-    { to: "/chat", icon: MessageSquare, label: "Chat", public: true },
-    { to: "/knowledge-graph", icon: Network, label: "Knowledge", public: false },
-    { to: "/memory-graph", icon: GitBranch, label: "Memory", public: false },
-    { to: "/problem-solver", icon: Brain, label: "Solver", public: false },
-    { to: "/analytics", icon: BarChart3, label: "Analytics", public: false },
-    { to: "/agi-dashboard", icon: Sparkles, label: "AGI Dashboard", public: false },
-    { to: "/agent-marketplace", icon: Store, label: "Market", public: false },
-    { to: "/voice-agent", icon: Phone, label: "Voice AI", public: false },
-    { to: "/ai-hub", icon: Layers, label: "AI Hub", public: false },
-    { to: "/advanced-browser-ai", icon: Sparkles, label: "Phase 3B", public: false },
-    { to: "/router-dashboard", icon: Activity, label: "Router", public: false },
-    { to: "/enterprise-router", icon: Settings, label: "Enterprise", public: false },
-    { to: "/integrations", icon: Plug, label: "Phase 2", public: false },
-    { to: "/advanced-ai", icon: Cpu, label: "Phase 3", public: false },
-    { to: "/system-health", icon: Shield, label: "Health", public: false, badge: hasIssues ? (criticalIssues || '!') : null },
+  const primaryNavLinks = [
+    { to: "/", icon: MessageSquare, label: "Chat", public: true, badge: null },
+    { to: "/agent-marketplace", icon: Store, label: "Marketplace", public: true, badge: null },
+    { to: "/voice-agent", icon: Phone, label: "Voice AI", public: true, badge: null },
+    { to: "/pricing", icon: Sparkles, label: "Pricing", public: true, badge: null },
   ];
 
-  const visibleLinks = user ? navLinks : navLinks.filter(link => link.public);
+  const userNavLinks = user ? [
+    { to: "/knowledge-graph", icon: Network, label: "Knowledge Graph", badge: null },
+    { to: "/analytics", icon: BarChart3, label: "Analytics", badge: null },
+    { to: "/agi-dashboard", icon: Sparkles, label: "AGI Dashboard", badge: null },
+    { to: "/system-health", icon: Shield, label: "System Health", badge: hasIssues ? (criticalIssues || '!') : null },
+  ] : [];
+
+  const allNavLinks = [...primaryNavLinks, ...userNavLinks];
+  const visiblePrimaryLinks = user ? primaryNavLinks : primaryNavLinks.filter(link => link.public);
 
   return (
-    <header className="border-b border-border bg-card sticky top-0 z-50 safe-top">
-      <nav className="max-w-7xl mx-auto px-4 lg:px-6 py-3">
-        <div className="flex items-center justify-between gap-4">
+    <header className="border-b border-border bg-card/95 backdrop-blur-sm sticky top-0 z-50 safe-top">
+      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+        <div className="flex items-center justify-between gap-3 sm:gap-4">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-            <Brain className="w-6 h-6 text-primary" />
-            <span className="font-semibold text-lg hidden sm:inline">Oneiros.me</span>
+          <Link to="/" className="flex items-center gap-2 flex-shrink-0 min-w-0">
+            <Brain className="w-6 h-6 sm:w-7 sm:h-7 text-primary flex-shrink-0" />
+            <span className="font-bold text-base sm:text-lg hidden xs:inline truncate">Oneiros</span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-2 overflow-x-auto scrollbar-hide flex-1 min-w-0">
-            {visibleLinks.map((link) => (
+          {/* Desktop Navigation - Primary Links Only */}
+          <div className="hidden lg:flex items-center gap-1 flex-1 justify-center min-w-0">
+            {visiblePrimaryLinks.map((link) => (
               <Link key={link.to} to={link.to} className="flex-shrink-0">
                 <Button
                   variant={isActive(link.to) ? "default" : "ghost"}
                   size="sm"
-                  className="gap-2 relative"
+                  className={cn(
+                    "gap-2 h-9 px-3",
+                    "hover:bg-accent hover:text-accent-foreground transition-colors"
+                  )}
                 >
                   <link.icon className="w-4 h-4" />
-                  <span className="hidden xl:inline">{link.label}</span>
-                  {link.badge && (
-                    <Badge variant="destructive" className="absolute -top-1 -right-1 px-1 h-4 text-xs min-w-4">
-                      {link.badge}
-                    </Badge>
-                  )}
+                  <span>{link.label}</span>
                 </Button>
               </Link>
             ))}
-            {isAdmin && (
-              <Link to="/admin" className="flex-shrink-0">
-                <Button
-                  variant={isActive("/admin") ? "default" : "ghost"}
-                  size="sm"
-                  className="gap-2"
-                >
-                  <Shield className="w-4 h-4" />
-                  <span className="hidden xl:inline">Admin</span>
-                </Button>
-              </Link>
-            )}
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <TooltipProvider delayDuration={300}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => window.dispatchEvent(new CustomEvent('show-shortcuts'))}
-                    className="hidden lg:flex"
-                  >
-                    <Keyboard className="w-4 h-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Keyboard shortcuts (Ctrl+/)</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            
-            <CreditBalance />
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+            {user && <CreditBalance />}
             <ThemeToggle />
             
             {user ? (
-              <Button onClick={signOut} variant="ghost" size="sm" className="gap-2 hidden sm:flex">
+              <Button 
+                onClick={signOut} 
+                variant="ghost" 
+                size="sm" 
+                className="gap-2 hidden sm:flex h-9 px-3"
+              >
                 <LogOut className="w-4 h-4" />
-                <span className="hidden lg:inline">Sign Out</span>
+                <span className="hidden md:inline">Sign Out</span>
               </Button>
             ) : (
               <Link to="/auth">
-                <Button variant="default" size="sm" className="gap-2 touch-feedback">
-                  <span className="hidden sm:inline">Sign Up Free</span>
-                  <span className="sm:hidden">Sign Up</span>
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  className={cn(
+                    "gap-1.5 h-9 px-3 sm:px-4",
+                    "min-h-[44px] sm:min-h-0", // Touch target for mobile
+                    "hover:shadow-lg transition-shadow"
+                  )}
+                >
+                  <span className="text-sm sm:text-base font-semibold">Start Free</span>
                 </Button>
               </Link>
             )}
 
-            {/* Mobile Menu */}
+            {/* Mobile Menu Trigger */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-              <SheetTrigger asChild className="lg:hidden">
-                <Button variant="ghost" size="sm">
-                  <Menu className="w-5 h-5" />
+              <SheetTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={cn(
+                    "lg:hidden h-9 w-9 p-0",
+                    "min-h-[44px] min-w-[44px]" // Touch target
+                  )}
+                  aria-label="Menu"
+                >
+                  {mobileMenuOpen ? (
+                    <X className="w-5 h-5" />
+                  ) : (
+                    <Menu className="w-5 h-5" />
+                  )}
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-72">
-                <SheetHeader>
-                  <SheetTitle>Menu</SheetTitle>
+              <SheetContent 
+                side="right" 
+                className="w-[280px] sm:w-[320px] bg-background/98 backdrop-blur-sm"
+              >
+                <SheetHeader className="text-left">
+                  <SheetTitle className="flex items-center gap-2">
+                    <Brain className="w-5 h-5 text-primary" />
+                    Menu
+                  </SheetTitle>
                 </SheetHeader>
-                <ScrollArea className="h-[calc(100vh-8rem)] mt-6">
-                  <div className="flex flex-col space-mobile">
-                    {visibleLinks.map((link) => (
+                <ScrollArea className="h-[calc(100vh-8rem)] mt-6 pr-4">
+                  <div className="flex flex-col gap-1.5">
+                    {/* Primary Links */}
+                    <div className="text-xs font-semibold text-muted-foreground mb-2 px-3">
+                      Main
+                    </div>
+                    {allNavLinks.map((link) => (
                       <Link 
                         key={link.to} 
                         to={link.to}
@@ -174,32 +172,42 @@ export function Header() {
                       >
                         <Button
                           variant={isActive(link.to) ? "default" : "ghost"}
-                          className="w-full justify-start gap-3 relative touch-feedback"
+                          className={cn(
+                            "w-full justify-start gap-3 h-11 px-3",
+                            "relative touch-feedback"
+                          )}
                         >
-                          <link.icon className="w-5 h-5" />
-                          <span>{link.label}</span>
+                          <link.icon className="w-5 h-5 flex-shrink-0" />
+                          <span className="flex-1 text-left">{link.label}</span>
                           {link.badge && (
-                            <Badge variant="destructive" className="ml-auto">
+                            <Badge variant="destructive" className="ml-auto text-xs px-1.5">
                               {link.badge}
                             </Badge>
                           )}
                         </Button>
                       </Link>
                     ))}
+                    
                     {isAdmin && (
-                      <Link 
-                        to="/admin"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <Button
-                          variant={isActive("/admin") ? "default" : "ghost"}
-                          className="w-full justify-start gap-3 touch-feedback"
+                      <>
+                        <div className="text-xs font-semibold text-muted-foreground mb-2 mt-4 px-3">
+                          Admin
+                        </div>
+                        <Link 
+                          to="/admin"
+                          onClick={() => setMobileMenuOpen(false)}
                         >
-                          <Shield className="w-5 h-5" />
-                          <span>Admin</span>
-                        </Button>
-                      </Link>
+                          <Button
+                            variant={isActive("/admin") ? "default" : "ghost"}
+                            className="w-full justify-start gap-3 h-11 px-3 touch-feedback"
+                          >
+                            <Shield className="w-5 h-5" />
+                            <span>Admin Panel</span>
+                          </Button>
+                        </Link>
+                      </>
                     )}
+                    
                     {user && (
                       <>
                         <div className="border-t border-border my-4" />
@@ -209,7 +217,11 @@ export function Header() {
                             setMobileMenuOpen(false);
                           }} 
                           variant="ghost" 
-                          className="w-full justify-start gap-3 text-destructive hover:text-destructive hover:bg-destructive/10 touch-feedback"
+                          className={cn(
+                            "w-full justify-start gap-3 h-11 px-3",
+                            "text-destructive hover:text-destructive hover:bg-destructive/10",
+                            "touch-feedback"
+                          )}
                         >
                           <LogOut className="w-5 h-5" />
                           <span>Sign Out</span>
