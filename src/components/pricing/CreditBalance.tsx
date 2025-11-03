@@ -19,7 +19,7 @@ export const CreditBalance = () => {
         <Tooltip>
           <TooltipTrigger asChild>
             <div>
-              <AnimatedCreditDisplay credits={credits} onCreditDeduct={refreshCredits} />
+              <AnimatedCreditDisplay credits={credits} />
             </div>
           </TooltipTrigger>
           <TooltipContent>

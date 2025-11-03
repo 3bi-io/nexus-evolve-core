@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useRef } from "react";
 import { User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   credits: number;
-  refreshCredits: () => Promise<void>;
+  refreshCredits: (force?: boolean) => Promise<void>;
   deductCredits: (amount: number) => void;
   signUp: (email: string, password: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
@@ -19,10 +19,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [credits, setCredits] = useState(0);
+  const lastRefreshTime = useRef<number>(0);
+  const REFRESH_COOLDOWN = 2 * 60 * 1000; // 2 minutes in milliseconds
 
-  const refreshCredits = async () => {
+  const refreshCredits = async (force = false) => {
     if (!user) {
       setCredits(0);
+      return;
+    }
+
+    // Check if cooldown period has passed
+    const now = Date.now();
+    const timeSinceLastRefresh = now - lastRefreshTime.current;
+    
+    if (!force && timeSinceLastRefresh < REFRESH_COOLDOWN) {
+      console.log('Credit refresh throttled, waiting for cooldown');
       return;
     }
 
@@ -36,6 +47,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (!error && data?.allowed) {
         setCredits(data.remaining || 0);
+        lastRefreshTime.current = now; // Update last refresh timestamp
       }
     } catch (error) {
       console.error('Failed to refresh credits:', error);
