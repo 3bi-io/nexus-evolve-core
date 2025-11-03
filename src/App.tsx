@@ -171,17 +171,6 @@ const RoutesWithShortcuts = () => {
               </ProtectedRoute>
             }
           />
-          <Route path="/pricing" element={<Pricing />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route
-            path="/account"
-            element={
-              <ProtectedRoute>
-                <Account />
-              </ProtectedRoute>
-            }
-          />
           <Route
             path="/referrals"
             element={
@@ -310,7 +299,6 @@ const RoutesWithShortcuts = () => {
               </ProtectedRoute>
             }
           />
-          <Route path="/getting-started" element={<GettingStarted />} />
           <Route
             path="/collaboration"
             element={
