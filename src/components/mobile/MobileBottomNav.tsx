@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, Network, Brain, Trophy, User, BarChart3 } from "lucide-react";
+import { Home, Network, Brain, Trophy, User, BarChart3, GitBranch } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useHaptics } from "@/hooks/useMobile";
 
@@ -11,7 +11,7 @@ export function MobileBottomNav() {
   const navItems = [
     { icon: Home, label: "Chat", path: "/chat" },
     { icon: Network, label: "Knowledge", path: "/knowledge-graph" },
-    { icon: Brain, label: "Solver", path: "/problem-solver" },
+    { icon: GitBranch, label: "Memory", path: "/memory-graph" },
     { icon: BarChart3, label: "Stats", path: "/analytics" },
     { icon: User, label: "Account", path: "/account" },
   ];

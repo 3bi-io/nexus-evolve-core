@@ -24,6 +24,7 @@ import {
   Users,
   BookOpen,
   Code,
+  GitBranch,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -155,6 +156,13 @@ export const NavigationNew = () => {
                       <Link to="/knowledge-graph" className="flex items-center gap-2">
                         <Network className="w-4 h-4" />
                         Knowledge Graph
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/memory-graph" className="flex items-center gap-2">
+                        <GitBranch className="w-4 h-4" />
+                        Memory Graph
+                        <Badge variant="secondary" className="ml-auto text-xs">New</Badge>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>

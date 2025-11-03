@@ -49,6 +49,12 @@ const Landing = () => {
       badge: "New",
     },
     {
+      icon: Brain,
+      title: "Temporal Memory System",
+      description: "Advanced memory management with decay scoring, auto-pruning, and visual memory graphs for optimized knowledge retention",
+      badge: "New",
+    },
+    {
       icon: Network,
       title: "Multi-Agent Orchestration",
       description: "5 specialized agents (Coordinator, Reasoning, Creative, Learning, Grok Reality) work in harmony",
@@ -121,25 +127,25 @@ const Landing = () => {
 
   const benefits = [
     "Voice AI with ElevenLabs integration",
+    "Temporal memory with auto-pruning",
     "5-agent orchestration system",
     "Custom agent builder & marketplace",
     "Real-time social intelligence",
     "Vector-based semantic search",
     "Multimodal capabilities (text, image, voice)",
-    "Time-based credit system",
+    "Visual memory & knowledge graphs",
     "Gamification & achievements",
     "Mobile-responsive PWA",
     "Enterprise-grade security",
-    "Built on React, Supabase, OpenAI",
     "Self-evolving autonomous AI",
   ];
 
   return (
     <PageTransition>
       <SEO 
-        title="The Most Advanced AI Platform - Voice AI, Multi-Agent System & More"
-        description="Experience 9 integrated AI systems: Voice conversations with ElevenLabs, multi-agent orchestration, agent marketplace, social intelligence powered by Grok, multimodal capabilities, and autonomous evolution. Start with 500 free daily credits."
-        keywords="AI platform, voice AI, multi-agent system, agent marketplace, ChatGPT alternative, ElevenLabs integration, Grok AI, multimodal AI, autonomous AI"
+        title="The Most Advanced AI Platform - Voice AI, Multi-Agent System & Temporal Memory"
+        description="Experience 10 integrated AI systems: Temporal memory with auto-pruning, voice conversations with ElevenLabs, multi-agent orchestration, agent marketplace, social intelligence powered by Grok, and autonomous evolution. Start with 500 free daily credits."
+        keywords="AI platform, temporal memory, voice AI, multi-agent system, agent marketplace, ChatGPT alternative, ElevenLabs integration, Grok AI, multimodal AI, autonomous AI, memory management"
         canonical="https://oneiros.me"
         ogImage="/og-image-new.png"
         schema={{
@@ -153,7 +159,7 @@ const Landing = () => {
             "highPrice": "999",
             "priceCurrency": "USD"
           },
-          "description": "The most advanced AI platform with voice AI, multi-agent orchestration, and social intelligence",
+          "description": "The most advanced AI platform with temporal memory, voice AI, multi-agent orchestration, and social intelligence",
           "operatingSystem": "Web",
           "url": "https://oneiros.me"
         }}
@@ -187,7 +193,7 @@ const Landing = () => {
             <div className="text-center lg:text-left space-y-4 md:space-y-6 animate-fade-in">
               <Badge variant="secondary" className="mb-2 md:mb-4 text-xs md:text-sm">
                 <Sparkles className="w-3 h-3 mr-1" />
-                9 Integrated AI Systems • Production Ready
+                10 Integrated AI Systems • Production Ready
               </Badge>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
                 Enterprise-Grade AI
