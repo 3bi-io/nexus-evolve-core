@@ -39,10 +39,16 @@ const sidebarSections = [
     description: "Dashboard & stats",
   },
   {
-    id: "analytics",
-    label: "Analytics",
-    icon: BarChart3,
-    description: "Platform metrics",
+    id: "user-analytics",
+    label: "User Analytics",
+    icon: TrendingUp,
+    description: "Growth & retention",
+  },
+  {
+    id: "agent-analytics",
+    label: "Agent Analytics",
+    icon: Activity,
+    description: "Agent performance",
   },
   {
     id: "users",
@@ -85,6 +91,12 @@ const sidebarSections = [
     label: "Announcements",
     icon: Megaphone,
     description: "System messages",
+  },
+  {
+    id: "audit-log",
+    label: "Audit Log",
+    icon: FileWarning,
+    description: "Admin actions",
   },
   {
     id: "devtools",

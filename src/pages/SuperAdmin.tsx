@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { StatsHeader } from "@/components/admin/StatsHeader";
 import { SystemOverview } from "@/components/admin/sections/SystemOverview";
 import { UserManagement } from "@/components/admin/sections/UserManagement";
 import { DataManagement } from "@/components/admin/sections/DataManagement";
@@ -11,14 +13,19 @@ import { SystemConfig } from "@/components/admin/sections/SystemConfig";
 import { SecurityCenter } from "@/components/admin/sections/SecurityCenter";
 import { AnnouncementCenter } from "@/components/admin/sections/AnnouncementCenter";
 import { DevTools } from "@/components/admin/sections/DevTools";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AgentManagement } from "@/components/admin/sections/AgentManagement";
+import { UserAnalytics } from "@/components/admin/sections/UserAnalytics";
+import { AgentAnalyticsOverview } from "@/components/admin/sections/AgentAnalyticsOverview";
+import { AuditLog } from "@/components/admin/sections/AuditLog";
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbNav } from "@/components/BreadcrumbNav";
 
 export default function SuperAdmin() {
   const { user } = useAuth();
+  const { section = "overview" } = useParams();
+  const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
-  const [section, setSection] = useState("overview");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -77,12 +84,10 @@ export default function SuperAdmin() {
     switch (section) {
       case "overview":
         return <SystemOverview />;
-      case "analytics":
-        return <SystemOverview />;
       case "users":
         return <UserManagement />;
       case "agents":
-        return <DataManagement />;
+        return <AgentManagement />;
       case "data":
         return <DataManagement />;
       case "financial":
@@ -95,6 +100,12 @@ export default function SuperAdmin() {
         return <AnnouncementCenter />;
       case "devtools":
         return <DevTools />;
+      case "user-analytics":
+        return <UserAnalytics />;
+      case "agent-analytics":
+        return <AgentAnalyticsOverview />;
+      case "audit-log":
+        return <AuditLog />;
       default:
         return <SystemOverview />;
     }
@@ -108,10 +119,11 @@ export default function SuperAdmin() {
         canonical="https://oneiros.me/admin"
       />
       <div className="flex h-[calc(100vh-4rem)]">
-        <AdminSidebar section={section} onSectionChange={setSection} />
+        <AdminSidebar section={section} onSectionChange={(s) => navigate(`/admin/${s}`)} />
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-7xl mx-auto px-6 py-8">
             <BreadcrumbNav />
+            <StatsHeader />
             {renderSection()}
           </div>
         </div>

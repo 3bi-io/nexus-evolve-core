@@ -12,8 +12,8 @@ import { Fragment } from "react";
 
 const routeLabels: Record<string, string> = {
   chat: "Chat",
-  account: "Account",
-  pricing: "Pricing",
+  account: "Account Settings",
+  pricing: "Pricing & Plans",
   "knowledge-graph": "Knowledge Graph",
   "memory-graph": "Memory Graph",
   capabilities: "Capabilities",
@@ -33,7 +33,6 @@ const routeLabels: Record<string, string> = {
   "agent-studio": "Agent Studio",
   "agent-executor": "Agent Executor",
   "agent-revenue": "Agent Revenue",
-  "agent-analytics": "Agent Analytics",
   "advanced-analytics": "Advanced Analytics",
   "advanced-ai": "Advanced AI",
   "system-health": "System Health",
@@ -50,6 +49,18 @@ const routeLabels: Record<string, string> = {
   "enterprise-router": "Enterprise Router",
   "unified-router": "Unified Router",
   "getting-started": "Getting Started",
+  // Admin subsections
+  overview: "System Overview",
+  users: "User Management",
+  agents: "Agent Management",
+  data: "Data Management",
+  financial: "Financial Dashboard",
+  config: "System Configuration",
+  security: "Security Center",
+  announcements: "Announcements",
+  devtools: "Developer Tools",
+  "audit-log": "Audit Log",
+  "user-analytics": "User Analytics",
 };
 
 export function BreadcrumbNav() {

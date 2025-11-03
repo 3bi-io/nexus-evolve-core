@@ -50,51 +50,48 @@ export function UserAccountMenu() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link to="/account" className="flex items-center gap-2 cursor-pointer">
-            <User className="w-4 h-4" />
-            <span>Profile</span>
+          <Link to="/account" className="cursor-pointer">
+            <Settings className="mr-2 h-4 w-4" />
+            <span>Profile & Settings</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link to="/account" className="flex items-center gap-2 cursor-pointer">
-            <Settings className="w-4 h-4" />
-            <span>Account Settings</span>
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/pricing" className="flex items-center gap-2 cursor-pointer">
-            <CreditCard className="w-4 h-4" />
+          <Link to="/pricing" className="cursor-pointer">
+            <CreditCard className="mr-2 h-4 w-4" />
             <span>Billing & Plans</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
+        <DropdownMenuLabel className="text-xs text-muted-foreground">
+          My Activity
+        </DropdownMenuLabel>
         <DropdownMenuItem asChild>
-          <Link to="/achievements" className="flex items-center gap-2 cursor-pointer">
-            <Trophy className="w-4 h-4" />
+          <Link to="/achievements" className="cursor-pointer">
+            <Trophy className="mr-2 h-4 w-4" />
             <span>Achievements</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link to="/referrals" className="flex items-center gap-2 cursor-pointer">
-            <Gift className="w-4 h-4" />
+          <Link to="/referrals" className="cursor-pointer">
+            <Gift className="mr-2 h-4 w-4" />
             <span>Referrals</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link to="/analytics" className="flex items-center gap-2 cursor-pointer">
-            <BarChart3 className="w-4 h-4" />
+          <Link to="/analytics" className="cursor-pointer">
+            <BarChart3 className="mr-2 h-4 w-4" />
             <span>My Analytics</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link to="/agent-studio" className="flex items-center gap-2 cursor-pointer">
-            <Bot className="w-4 h-4" />
+          <Link to="/agent-studio" className="cursor-pointer">
+            <Bot className="mr-2 h-4 w-4" />
             <span>My Agents</span>
           </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
-          <Link to="/api-access" className="flex items-center gap-2 cursor-pointer">
-            <Key className="w-4 h-4" />
+          <Link to="/api-access" className="cursor-pointer">
+            <Key className="mr-2 h-4 w-4" />
             <span>API Keys</span>
           </Link>
         </DropdownMenuItem>

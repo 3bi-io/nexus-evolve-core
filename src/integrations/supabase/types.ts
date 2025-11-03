@@ -3652,6 +3652,7 @@ export type Database = {
         Returns: string
       }
       generate_referral_code: { Args: never; Returns: string }
+      get_admin_stats: { Args: never; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -3668,6 +3669,15 @@ export type Database = {
         Returns: undefined
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      log_admin_action: {
+        Args: {
+          _action_type: string
+          _details?: Json
+          _target_id?: string
+          _target_type?: string
+        }
+        Returns: string
+      }
       match_knowledge_base: {
         Args: {
           match_count?: number

@@ -176,8 +176,9 @@ const RoutesWithShortcuts = () => {
               </ProtectedRoute>
             }
           />
+          <Route path="/admin" element={<Navigate to="/admin/overview" replace />} />
           <Route
-            path="/admin"
+            path="/admin/:section"
             element={
               <ProtectedRoute>
                 <SuperAdmin />
