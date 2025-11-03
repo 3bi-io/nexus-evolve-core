@@ -7,6 +7,12 @@ import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Gift } from "lucide-react";
+import { z } from "zod";
+
+const signupSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
 
 export const SignUpForm = ({ onToggle }: { onToggle: () => void }) => {
   const [email, setEmail] = useState("");
@@ -33,6 +39,18 @@ export const SignUpForm = ({ onToggle }: { onToggle: () => void }) => {
     setLoading(true);
 
     try {
+      // Validate input
+      const validation = signupSchema.safeParse({ email, password });
+      if (!validation.success) {
+        toast({
+          title: "Validation error",
+          description: validation.error.issues[0].message,
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       await signUp(email, password);
       
       // If there's a referral code, store it to process after email verification
@@ -42,14 +60,25 @@ export const SignUpForm = ({ onToggle }: { onToggle: () => void }) => {
       
       toast({ 
         title: referralCode ? "Success! Check your email to verify and claim your bonus!" : "Success! Please check your email to verify your account.",
-        description: referralCode ? "You'll receive 50 bonus credits after verification!" : undefined
+        description: referralCode ? "You'll receive 50 bonus credits after verification!" : "Click the link in the email to complete signup."
       });
     } catch (error: any) {
-      toast({
-        title: "Sign up failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      const errorMessage = error.message || "An error occurred during signup";
+      
+      // Handle specific error cases
+      if (errorMessage.includes("User already registered")) {
+        toast({
+          title: "Account exists",
+          description: "An account with this email already exists. Please sign in instead.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Sign up failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
     } finally {
       setLoading(false);
     }

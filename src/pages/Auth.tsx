@@ -1,12 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { SignUpForm } from "@/components/auth/SignUpForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { SEO } from "@/components/SEO";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  // Redirect authenticated users to chat
+  useEffect(() => {
+    if (!loading && user) {
+      navigate('/chat', { replace: true });
+    }
+  }, [user, loading, navigate]);
 
   return (
     <PageLayout showHeader={false} showFooter={false} transition={true}>
