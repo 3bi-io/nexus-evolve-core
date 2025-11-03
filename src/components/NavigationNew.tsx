@@ -4,7 +4,6 @@ import {
   MessageSquare,
   Network,
   Brain,
-  TrendingUp,
   LogOut,
   Shield,
   Trophy,
@@ -25,10 +24,23 @@ import {
   BookOpen,
   Code,
   GitBranch,
+  TestTube,
+  Palette,
+  Scale,
+  TrendingUp,
+  FileText,
+  Gauge,
+  Calendar,
+  DollarSign,
+  Gift,
+  Rocket,
+  Target,
+  Workflow,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CreditBalance } from "@/components/pricing/CreditBalance";
+import { UserAccountMenu } from "@/components/UserAccountMenu";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
@@ -40,6 +52,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   DropdownMenuLabel,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
   Tooltip,
@@ -50,7 +65,7 @@ import {
 
 export const NavigationNew = () => {
   const location = useLocation();
-  const { signOut, user } = useAuth();
+  const { user } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const { hasIssues, criticalIssues } = useSecretValidation();
 
@@ -99,30 +114,64 @@ export const NavigationNew = () => {
               </Button>
             </Link>
 
+            <Link to="/pricing">
+              <Button variant={isActive("/pricing") ? "default" : "ghost"} size="sm" className="gap-2">
+                <DollarSign className="w-4 h-4" />
+                <span className="hidden xl:inline">Pricing</span>
+              </Button>
+            </Link>
+
             {user && (
               <>
-                {/* AI Tools Dropdown */}
+                {/* AI Studio Dropdown */}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="sm" className="gap-1">
-                      <Cpu className="w-4 h-4" />
-                      <span className="hidden xl:inline">AI Tools</span>
+                      <Palette className="w-4 h-4" />
+                      <span className="hidden xl:inline">AI Studio</span>
                       <ChevronDown className="w-3 h-3" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="w-56">
-                    <DropdownMenuLabel>AI Capabilities</DropdownMenuLabel>
+                    <DropdownMenuLabel>Create & Build</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/agent-studio" className="flex items-center gap-2">
+                        <Bot className="w-4 h-4" />
+                        Agent Studio
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/multimodal-studio" className="flex items-center gap-2">
+                        <Layers className="w-4 h-4" />
+                        Multimodal Studio
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/problem-solver" className="flex items-center gap-2">
+                        <Target className="w-4 h-4" />
+                        Problem Solver
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel>AI Tools</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                       <Link to="/ai-hub" className="flex items-center gap-2">
-                        <Layers className="w-4 h-4" />
+                        <Cpu className="w-4 h-4" />
                         AI Hub
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/browser-ai" className="flex items-center gap-2">
+                        <Brain className="w-4 h-4" />
+                        Browser AI
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to="/advanced-browser-ai" className="flex items-center gap-2">
                         <Sparkles className="w-4 h-4" />
-                        Browser AI
+                        Advanced Browser AI
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
@@ -131,10 +180,11 @@ export const NavigationNew = () => {
                         Voice Agent
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                      <Link to="/problem-solver" className="flex items-center gap-2">
-                        <Brain className="w-4 h-4" />
-                        Problem Solver
+                      <Link to="/model-comparison" className="flex items-center gap-2">
+                        <Scale className="w-4 h-4" />
+                        Model Comparison
                       </Link>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -150,7 +200,7 @@ export const NavigationNew = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="w-56">
-                    <DropdownMenuLabel>Knowledge & Analytics</DropdownMenuLabel>
+                    <DropdownMenuLabel>Knowledge</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                       <Link to="/knowledge-graph" className="flex items-center gap-2">
@@ -165,12 +215,42 @@ export const NavigationNew = () => {
                         <Badge variant="secondary" className="ml-auto text-xs">New</Badge>
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel>Analytics</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                       <Link to="/analytics" className="flex items-center gap-2">
                         <BarChart3 className="w-4 h-4" />
-                        Analytics
+                        Analytics Dashboard
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/llm-analytics" className="flex items-center gap-2">
+                        <Activity className="w-4 h-4" />
+                        LLM Analytics
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/usage-analytics" className="flex items-center gap-2">
+                        <Gauge className="w-4 h-4" />
+                        Usage Analytics
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/advanced-analytics" className="flex items-center gap-2">
+                        <TrendingUp className="w-4 h-4" />
+                        Advanced Analytics
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/social-intelligence" className="flex items-center gap-2">
+                        <Users className="w-4 h-4" />
+                        Social Intelligence
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuLabel>Routing</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                       <Link to="/unified-router" className="flex items-center gap-2">
                         <Zap className="w-4 h-4" />
@@ -183,17 +263,36 @@ export const NavigationNew = () => {
                         Router Metrics
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Agents Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="gap-1">
+                      <Bot className="w-4 h-4" />
+                      <span className="hidden xl:inline">Agents</span>
+                      <ChevronDown className="w-3 h-3" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56">
                     <DropdownMenuItem asChild>
-                      <Link to="/getting-started" className="flex items-center gap-2">
-                        <BookOpen className="w-4 h-4" />
-                        Getting Started
+                      <Link to="/agent-marketplace" className="flex items-center gap-2">
+                        <Store className="w-4 h-4" />
+                        Marketplace
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/advanced-analytics" className="flex items-center gap-2">
-                        <BarChart3 className="w-4 h-4" />
-                        Analytics
+                      <Link to="/agent-studio" className="flex items-center gap-2">
+                        <Palette className="w-4 h-4" />
+                        Create Agent
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/agent-revenue" className="flex items-center gap-2">
+                        <DollarSign className="w-4 h-4" />
+                        Revenue Dashboard
                       </Link>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -209,8 +308,6 @@ export const NavigationNew = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="w-56">
-                    <DropdownMenuLabel>Team & Collaboration</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                       <Link to="/teams" className="flex items-center gap-2">
                         <Users className="w-4 h-4" />
@@ -223,6 +320,7 @@ export const NavigationNew = () => {
                         Collaboration
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                       <Link to="/api-access" className="flex items-center gap-2">
                         <Code className="w-4 h-4" />
@@ -236,27 +334,13 @@ export const NavigationNew = () => {
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link to="/agent-revenue" className="flex items-center gap-2">
-                        <TrendingUp className="w-4 h-4" />
-                        Agent Revenue
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/advanced-analytics" className="flex items-center gap-2">
-                        <BarChart3 className="w-4 h-4" />
-                        Analytics
+                      <Link to="/integrations" className="flex items-center gap-2">
+                        <Plug className="w-4 h-4" />
+                        Integrations
                       </Link>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-
-                {/* Marketplace */}
-                <Link to="/agent-marketplace">
-                  <Button variant={isActive("/agent-marketplace") ? "default" : "ghost"} size="sm" className="gap-2">
-                    <Store className="w-4 h-4" />
-                    <span className="hidden xl:inline">Marketplace</span>
-                  </Button>
-                </Link>
 
                 {/* System Dropdown */}
                 <DropdownMenu>
@@ -273,26 +357,6 @@ export const NavigationNew = () => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuLabel>System & Config</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link to="/enterprise-router" className="flex items-center gap-2">
-                        <Zap className="w-4 h-4" />
-                        Enterprise Router
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/integrations" className="flex items-center gap-2">
-                        <Plug className="w-4 h-4" />
-                        Integrations
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/advanced-ai" className="flex items-center gap-2">
-                        <Bot className="w-4 h-4" />
-                        Advanced AI
-                      </Link>
-                    </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to="/system-health" className="flex items-center gap-2">
                         <Shield className="w-4 h-4" />
@@ -304,13 +368,64 @@ export const NavigationNew = () => {
                         )}
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/evolution" className="flex items-center gap-2">
+                        <Rocket className="w-4 h-4" />
+                        Evolution System
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/agi-dashboard" className="flex items-center gap-2">
+                        <Brain className="w-4 h-4" />
+                        AGI Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/capabilities" className="flex items-center gap-2">
+                        <Workflow className="w-4 h-4" />
+                        Capabilities
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/achievements" className="flex items-center gap-2">
+                        <Trophy className="w-4 h-4" />
+                        Achievements
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/referrals" className="flex items-center gap-2">
+                        <Gift className="w-4 h-4" />
+                        Referrals
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/advanced-ai" className="flex items-center gap-2">
+                        <Bot className="w-4 h-4" />
+                        Advanced AI
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/enterprise-router" className="flex items-center gap-2">
+                        <Zap className="w-4 h-4" />
+                        Enterprise Router
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/getting-started" className="flex items-center gap-2">
+                        <BookOpen className="w-4 h-4" />
+                        Getting Started
+                      </Link>
+                    </DropdownMenuItem>
                     {isAdmin && (
                       <>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
                           <Link to="/admin" className="flex items-center gap-2">
                             <Shield className="w-4 h-4 text-destructive" />
-                            <span className="text-destructive font-semibold">Admin Panel</span>
+                            <span className="text-destructive font-semibold">Super Admin</span>
                           </Link>
                         </DropdownMenuItem>
                       </>
@@ -345,10 +460,7 @@ export const NavigationNew = () => {
             <ThemeToggle />
             
             {user ? (
-              <Button onClick={signOut} variant="ghost" size="sm" className="gap-2">
-                <LogOut className="w-4 h-4" />
-                <span className="hidden lg:inline">Sign Out</span>
-              </Button>
+              <UserAccountMenu />
             ) : (
               <Link to="/auth">
                 <Button variant="default" size="sm" className="gap-2">

@@ -131,6 +131,39 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_actions: {
+        Row: {
+          action_type: string
+          admin_user_id: string | null
+          created_at: string | null
+          details: Json | null
+          id: string
+          ip_address: string | null
+          target_id: string | null
+          target_type: string | null
+        }
+        Insert: {
+          action_type: string
+          admin_user_id?: string | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Update: {
+          action_type?: string
+          admin_user_id?: string | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Relationships: []
+      }
       agent_collaborations: {
         Row: {
           agents_involved: string[]
@@ -1484,6 +1517,33 @@ export type Database = {
         }
         Relationships: []
       }
+      feature_flags: {
+        Row: {
+          description: string | null
+          flag_name: string
+          id: string
+          is_enabled: boolean | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          description?: string | null
+          flag_name: string
+          id?: string
+          is_enabled?: boolean | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          description?: string | null
+          flag_name?: string
+          id?: string
+          is_enabled?: boolean | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       feature_usage: {
         Row: {
           created_at: string
@@ -2642,6 +2702,42 @@ export type Database = {
           sort_order?: number
           tier_name?: string
           yearly_price?: number
+        }
+        Relationships: []
+      }
+      system_announcements: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          end_date: string | null
+          id: string
+          is_active: boolean | null
+          message: string
+          start_date: string | null
+          title: string
+          type: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          message: string
+          start_date?: string | null
+          title: string
+          type?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          message?: string
+          start_date?: string | null
+          title?: string
+          type?: string | null
         }
         Relationships: []
       }
