@@ -3,12 +3,17 @@ import { Badge } from '@/components/ui/badge';
 import { Check, X } from 'lucide-react';
 
 const FEATURES = [
+  { name: 'Persistent Agent Conversations', oneiros: true, chatgpt: false, claude: false, traditional: false },
+  { name: 'Knowledge Base Integration & RAG', oneiros: true, chatgpt: true, claude: false, traditional: false },
+  { name: 'Agent Analytics Dashboard', oneiros: true, chatgpt: false, claude: false, traditional: false },
+  { name: 'Agent Version Control & Rollback', oneiros: true, chatgpt: false, claude: false, traditional: false },
+  { name: 'Agent Testing Playground', oneiros: true, chatgpt: false, claude: false, traditional: false },
+  { name: 'Agent Scheduling & Automation', oneiros: true, chatgpt: false, claude: false, traditional: false },
   { name: 'Multi-Agent Orchestration (5 agents)', oneiros: true, chatgpt: false, claude: false, traditional: false },
   { name: 'Enterprise Security (Bot Detection)', oneiros: true, chatgpt: false, claude: false, traditional: false },
   { name: 'Geographic Risk Blocking', oneiros: true, chatgpt: false, claude: false, traditional: false },
   { name: 'Temporal Memory System', oneiros: true, chatgpt: false, claude: false, traditional: false },
   { name: 'Autonomous Evolution (Daily Crons)', oneiros: true, chatgpt: false, claude: false, traditional: false },
-  { name: 'Brute Force Protection', oneiros: true, chatgpt: false, claude: false, traditional: false },
   { name: 'Voice AI Conversations', oneiros: true, chatgpt: true, claude: false, traditional: false },
   { name: 'Agent Marketplace & Builder', oneiros: true, chatgpt: true, claude: false, traditional: false },
   { name: 'Knowledge Graph', oneiros: true, chatgpt: false, claude: false, traditional: false },
