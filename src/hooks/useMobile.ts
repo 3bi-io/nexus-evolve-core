@@ -8,6 +8,7 @@ export function useMobile() {
   const [isMobile, setIsMobile] = useState(false);
   const [isNative, setIsNative] = useState(false);
   const [platform, setPlatform] = useState<'ios' | 'android' | 'web'>('web');
+  const [isOled, setIsOled] = useState(false);
 
   useEffect(() => {
     const checkMobile = () => {
@@ -15,6 +16,11 @@ export function useMobile() {
       setIsMobile(mobile);
       setIsNative(Capacitor.isNativePlatform());
       setPlatform(Capacitor.getPlatform() as 'ios' | 'android' | 'web');
+      
+      // Check for OLED display capability (primarily for mobile)
+      const hasOledSupport = mobile && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const oledEnabled = localStorage.getItem('oled-mode') === 'true';
+      setIsOled(hasOledSupport && oledEnabled);
     };
 
     checkMobile();
@@ -32,7 +38,7 @@ export function useMobile() {
     }
   }, [isNative, platform]);
 
-  return { isMobile, isNative, platform };
+  return { isMobile, isNative, platform, isOled };
 }
 
 export function useKeyboard() {

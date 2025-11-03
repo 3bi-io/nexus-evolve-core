@@ -57,6 +57,12 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        mobile: {
+          touch: "hsl(var(--mobile-touch-feedback))",
+          active: "hsl(var(--mobile-active-state))",
+          focus: "hsl(var(--mobile-focus-ring))",
+          border: "hsl(var(--mobile-border-strong))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

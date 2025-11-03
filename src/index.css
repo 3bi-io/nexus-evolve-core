@@ -58,6 +58,12 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    /* Mobile-optimized color tokens */
+    --mobile-touch-feedback: 262 83% 58%;
+    --mobile-active-state: 262 83% 48%;
+    --mobile-focus-ring: 262 83% 58%;
+    --mobile-border-strong: 240 6% 80%;
   }
 
   .dark {
@@ -107,6 +113,23 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    
+    /* Mobile-optimized dark mode tokens */
+    --mobile-touch-feedback: 262 83% 58%;
+    --mobile-active-state: 262 83% 68%;
+    --mobile-focus-ring: 262 83% 58%;
+    --mobile-border-strong: 240 4% 24%;
+  }
+  
+  /* OLED-optimized dark mode for mobile devices */
+  .dark.oled {
+    --background: 0 0% 0%;
+    --card: 0 0% 5%;
+    --popover: 0 0% 5%;
+    --secondary: 0 0% 8%;
+    --muted: 0 0% 8%;
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
   }
 }
 
@@ -237,6 +260,46 @@ All colors MUST be HSL.
   .grid-mobile {
     @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6;
   }
+  
+  /* Mobile-specific color enhancements */
+  @media (max-width: 768px) {
+    .mobile-strong-border {
+      border-color: hsl(var(--mobile-border-strong));
+      border-width: 1.5px;
+    }
+    
+    .touch-active:active {
+      background-color: hsl(var(--mobile-active-state) / 0.15);
+      transform: scale(0.97);
+    }
+    
+    .mobile-focus-ring:focus-visible {
+      outline: 3px solid hsl(var(--mobile-focus-ring));
+      outline-offset: 3px;
+    }
+    
+    /* Enhanced contrast for better mobile readability */
+    :root {
+      --foreground: 240 10% 5%;
+      --border: 240 6% 85%;
+    }
+    
+    .dark {
+      --foreground: 240 5% 98%;
+      --border: 240 4% 20%;
+    }
+  }
+  
+  /* OLED optimization utilities */
+  .oled-optimized {
+    background-color: #000000;
+    color: hsl(var(--foreground));
+  }
+  
+  .oled-card {
+    background-color: hsl(0 0% 5%);
+    border-color: hsl(0 0% 15%);
+  }
 }
 
 /* Hide scrollbar for horizontal scroll elements */
@@ -273,6 +336,14 @@ All colors MUST be HSL.
   outline: 2px solid hsl(var(--ring));
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+/* Enhanced mobile focus rings */
+@media (max-width: 768px) {
+  *:focus-visible {
+    outline: 3px solid hsl(var(--mobile-focus-ring));
+    outline-offset: 3px;
+  }
 }
 
 /* Selection colors */

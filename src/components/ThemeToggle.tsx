@@ -1,4 +1,4 @@
-import { Moon, Sun, Monitor } from "lucide-react";
+import { Moon, Sun, Monitor, Smartphone } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,9 +7,34 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useEffect, useState } from "react";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
+  const [isOledMode, setIsOledMode] = useState(false);
+  
+  useEffect(() => {
+    const savedOledMode = localStorage.getItem('oled-mode') === 'true';
+    setIsOledMode(savedOledMode);
+    if (savedOledMode && theme === 'dark') {
+      document.documentElement.classList.add('oled');
+    }
+  }, [theme]);
+  
+  const toggleOledMode = () => {
+    const newOledMode = !isOledMode;
+    setIsOledMode(newOledMode);
+    localStorage.setItem('oled-mode', String(newOledMode));
+    
+    if (newOledMode) {
+      document.documentElement.classList.add('oled');
+      if (theme !== 'dark') {
+        setTheme('dark');
+      }
+    } else {
+      document.documentElement.classList.remove('oled');
+    }
+  };
 
   return (
     <DropdownMenu>
@@ -35,6 +60,11 @@ export function ThemeToggle() {
           <Monitor className="mr-2 h-4 w-4" />
           <span>System</span>
           {theme === "system" && <span className="ml-auto">✓</span>}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={toggleOledMode} className="cursor-pointer md:hidden">
+          <Smartphone className="mr-2 h-4 w-4" />
+          <span>OLED Mode</span>
+          {isOledMode && <span className="ml-auto">✓</span>}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

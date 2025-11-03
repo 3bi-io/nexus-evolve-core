@@ -26,7 +26,7 @@ export function MobileBottomNav() {
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-sm border-t border-border safe-bottom lg:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-sm border-t mobile-strong-border safe-bottom lg:hidden dark:oled:oled-card">
       <div className="flex items-center justify-around px-1 py-2">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
@@ -39,10 +39,10 @@ export function MobileBottomNav() {
               className={cn(
                 "flex flex-col items-center gap-1 px-2 py-2 rounded-lg transition-all",
                 "min-w-[56px] min-h-[56px]", // Touch target
-                "active:scale-95",
+                "touch-active",
                 isActive
-                  ? "text-primary bg-primary/10"
-                  : "text-muted-foreground active:bg-muted"
+                  ? "text-primary bg-primary/10 dark:bg-primary/20"
+                  : "text-muted-foreground hover:bg-muted/50"
               )}
               aria-label={item.label}
               aria-current={isActive ? 'page' : undefined}

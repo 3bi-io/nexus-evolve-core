@@ -33,7 +33,7 @@ export function MobileHeader({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-lg border-b border-border safe-top">
+    <header className="sticky top-0 z-40 bg-card/95 backdrop-blur-lg border-b mobile-strong-border safe-top">
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-3 flex-1">
           {showBack && (
@@ -41,7 +41,7 @@ export function MobileHeader({
               variant="ghost"
               size="icon"
               onClick={handleBack}
-              className="active:scale-95 transition-transform"
+              className="touch-active transition-transform"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
@@ -61,7 +61,7 @@ export function MobileHeader({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="active:scale-95 transition-transform"
+                  className="touch-active transition-transform"
                 >
                   <MoreVertical className="w-5 h-5" />
                 </Button>
