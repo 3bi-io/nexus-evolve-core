@@ -27,6 +27,13 @@ const features = [
     stat: '3x faster',
   },
   {
+    icon: Shield,
+    title: 'Enterprise-Grade Security',
+    description: 'Advanced bot detection, geographic risk blocking, brute force protection, and real-time threat monitoring.',
+    badge: 'Security',
+    stat: 'Bank-level',
+  },
+  {
     icon: Users,
     title: 'Never Repeat Yourself Again',
     description: 'Temporal memory that remembers every conversation forever. AI gets sharper over time, not dumber.',
@@ -89,7 +96,7 @@ const pricingTiers = [
     name: 'Starter',
     price: 0,
     credits: '500 daily credits forever',
-    features: ['9 AI systems', 'Multi-agent orchestration', 'Voice AI', 'Agent marketplace', 'Beta tester badge'],
+    features: ['9 AI systems', 'Enterprise security', 'Multi-agent orchestration', 'Voice AI', 'Agent marketplace', 'Beta tester badge'],
     cta: 'Join Beta Free',
     popular: false,
     badge: '🎁 Forever Free',
@@ -99,7 +106,7 @@ const pricingTiers = [
     price: 29,
     originalPrice: 49,
     credits: '10,000 credits/month',
-    features: ['Everything in Starter', 'Priority support', 'Advanced analytics', 'Founder badge', 'Locked-in rate forever'],
+    features: ['Everything in Starter', 'Priority support', 'Advanced analytics', 'Enhanced security monitoring', 'Founder badge', 'Locked-in rate forever'],
     cta: 'Lock In Founder Rate',
     popular: true,
     badge: '🔥 Founder Rate',
@@ -108,7 +115,7 @@ const pricingTiers = [
     name: 'Enterprise',
     price: null,
     credits: 'Custom credits',
-    features: ['Everything in Professional', 'Dedicated support', 'Custom integrations', 'Shape development', 'Direct dev access'],
+    features: ['Everything in Professional', 'Dedicated support', 'Custom security rules', 'White-label options', 'Shape development', 'Direct dev access'],
     cta: 'Schedule Call',
     popular: false,
     badge: '🚀 Beta Custom',
@@ -197,7 +204,7 @@ export default function Landing() {
             </Badge>
             <Badge variant="outline" className="gap-1.5">
               <Shield className="h-3 w-3" />
-              68 Database Tables
+              Bank-Level Security
             </Badge>
             <Badge variant="outline" className="gap-1.5">
               <Brain className="h-3 w-3" />
@@ -205,7 +212,7 @@ export default function Landing() {
             </Badge>
             <Badge variant="outline" className="gap-1.5">
               <Sparkles className="h-3 w-3" />
-              Enterprise Security
+              Bot & Fraud Protection
             </Badge>
           </div>
 
@@ -232,7 +239,7 @@ export default function Landing() {
           <div className="flex flex-wrap justify-center gap-6 text-sm">
             <div className="flex items-center gap-1.5">
               <Shield className="h-4 w-4 text-primary" />
-              <span>100% functional beta</span>
+              <span>Enterprise security included</span>
             </div>
             <div className="flex items-center gap-1.5">
               <Zap className="h-4 w-4 text-primary" />
@@ -274,8 +281,8 @@ export default function Landing() {
               Never Lose Context. Never Stop Learning.
             </h2>
             <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
-              Unlike ChatGPT or Claude, Oneiros is a <strong>complete AI ecosystem</strong> that remembers, 
-              evolves, and predicts what you need before you ask.
+              Unlike ChatGPT or Claude, Oneiros is a <strong>complete AI ecosystem</strong> with enterprise security,
+              temporal memory, and autonomous evolution. Protected by advanced bot detection and geographic risk blocking.
             </p>
           </div>
 
