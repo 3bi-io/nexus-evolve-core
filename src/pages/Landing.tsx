@@ -55,6 +55,12 @@ const Landing = () => {
       badge: "New",
     },
     {
+      icon: Sparkles,
+      title: "AGI Dashboard",
+      description: "Monitor cross-agent learning, predictive capabilities, meta-learning optimization, and emotional intelligence in real-time",
+      badge: "New",
+    },
+    {
       icon: Network,
       title: "Multi-Agent Orchestration",
       description: "5 specialized agents (Coordinator, Reasoning, Creative, Learning, Grok Reality) work in harmony",
@@ -128,7 +134,9 @@ const Landing = () => {
   const benefits = [
     "Voice AI with ElevenLabs integration",
     "Temporal memory with auto-pruning",
+    "AGI Dashboard with predictive intelligence",
     "5-agent orchestration system",
+    "Cross-agent learning network",
     "Custom agent builder & marketplace",
     "Real-time social intelligence",
     "Vector-based semantic search",

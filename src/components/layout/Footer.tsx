@@ -54,6 +54,16 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link to="/agi-dashboard" className="text-muted-foreground hover:text-foreground transition-colors">
+                  AGI Dashboard
+                </Link>
+              </li>
+              <li>
+                <Link to="/evolution" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Evolution
+                </Link>
+              </li>
+              <li>
                 <Link to="/integrations" className="text-muted-foreground hover:text-foreground transition-colors">
                   Integrations
                 </Link>

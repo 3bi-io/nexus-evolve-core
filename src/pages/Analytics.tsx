@@ -38,7 +38,144 @@ const Analytics = () => {
 
   const loadAnalytics = async () => {
     try {
-      // Placeholder - original implementation had incompatible queries
+      setLoading(true);
+      
+      // Get total interactions
+      const { count: interactionCount } = await supabase
+        .from("interactions")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user!.id);
+
+      // Get total sessions
+      const { count: sessionCount } = await supabase
+        .from("usage_sessions")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user!.id);
+
+      // Get knowledge items
+      const { count: knowledgeCount } = await supabase
+        .from("knowledge_base")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user!.id);
+
+      // Get memories
+      const { count: memoryCount } = await supabase
+        .from("agent_memory")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user!.id);
+
+      // Get quality ratings
+      const { data: qualityData } = await supabase
+        .from("interactions")
+        .select("quality_rating, created_at")
+        .eq("user_id", user!.id)
+        .not("quality_rating", "is", null)
+        .order("created_at", { ascending: false })
+        .limit(100);
+
+      const avgQuality = qualityData && qualityData.length > 0
+        ? qualityData.reduce((sum, i) => sum + (i.quality_rating || 0), 0) / qualityData.length
+        : 0;
+
+      // Get quality trend (last 7 days)
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+      
+      const { data: trendData } = await supabase
+        .from("interactions")
+        .select("quality_rating, created_at")
+        .eq("user_id", user!.id)
+        .not("quality_rating", "is", null)
+        .gte("created_at", sevenDaysAgo.toISOString())
+        .order("created_at", { ascending: true });
+
+      const qualityByDay: Record<string, { sum: number; count: number }> = {};
+      trendData?.forEach(item => {
+        const day = new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        if (!qualityByDay[day]) {
+          qualityByDay[day] = { sum: 0, count: 0 };
+        }
+        qualityByDay[day].sum += item.quality_rating || 0;
+        qualityByDay[day].count += 1;
+      });
+
+      const qualityTrend = Object.entries(qualityByDay).map(([date, data]) => ({
+        date,
+        rating: data.sum / data.count
+      }));
+
+      // Get activity by day (last 7 days)
+      const { data: activityData } = await supabase
+        .from("interactions")
+        .select("created_at")
+        .eq("user_id", user!.id)
+        .gte("created_at", sevenDaysAgo.toISOString());
+
+      const activityByDay: Record<string, number> = {};
+      activityData?.forEach(item => {
+        const day = new Date(item.created_at).toLocaleDateString('en-US', { weekday: 'short' });
+        activityByDay[day] = (activityByDay[day] || 0) + 1;
+      });
+
+      const activityChart = Object.entries(activityByDay).map(([day, count]) => ({
+        day,
+        count
+      }));
+
+      // Get top agent usage - using coordinator logs
+      const { data: coordinatorLogs } = await supabase
+        .from("evolution_logs")
+        .select("description")
+        .eq("user_id", user!.id)
+        .eq("log_type", "coordinator_routing")
+        .limit(100);
+
+      const agentCounts: Record<string, number> = {
+        "Reasoning": 0,
+        "Creative": 0,
+        "Learning": 0,
+        "General": 0,
+        "Coordinator": 0,
+      };
+
+      // Parse agent names from descriptions
+      coordinatorLogs?.forEach(log => {
+        const desc = log.description?.toLowerCase() || "";
+        Object.keys(agentCounts).forEach(agent => {
+          if (desc.includes(agent.toLowerCase())) {
+            agentCounts[agent]++;
+          }
+        });
+      });
+
+      const topAgents = Object.entries(agentCounts)
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 5);
+
+      // Get achievement progress
+      const { data: achievements } = await supabase
+        .from("user_achievements")
+        .select("completed_at")
+        .eq("user_id", user!.id);
+
+      const completedCount = achievements?.filter(a => a.completed_at).length || 0;
+      const totalAchievements = achievements?.length || 1;
+      const achievementProgress = (completedCount / totalAchievements) * 100;
+
+      setData({
+        totalInteractions: interactionCount || 0,
+        totalSessions: sessionCount || 0,
+        knowledgeItems: knowledgeCount || 0,
+        memories: memoryCount || 0,
+        avgQualityRating: avgQuality,
+        achievementProgress,
+        topAgents,
+        activityByDay: activityChart,
+        qualityTrend,
+      });
+    } catch (error) {
+      console.error("Error loading analytics:", error);
       setData({
         totalInteractions: 0,
         totalSessions: 0,
@@ -50,8 +187,6 @@ const Analytics = () => {
         activityByDay: [],
         qualityTrend: [],
       });
-    } catch (error) {
-      console.error("Error loading analytics:", error);
     } finally {
       setLoading(false);
     }

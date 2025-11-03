@@ -59,6 +59,7 @@ export function Header() {
     { to: "/memory-graph", icon: GitBranch, label: "Memory", public: false },
     { to: "/problem-solver", icon: Brain, label: "Solver", public: false },
     { to: "/analytics", icon: BarChart3, label: "Analytics", public: false },
+    { to: "/agi-dashboard", icon: Sparkles, label: "AGI Dashboard", public: false },
     { to: "/agent-marketplace", icon: Store, label: "Market", public: false },
     { to: "/voice-agent", icon: Phone, label: "Voice AI", public: false },
     { to: "/ai-hub", icon: Layers, label: "AI Hub", public: false },
