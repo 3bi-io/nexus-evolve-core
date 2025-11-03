@@ -1,11 +1,11 @@
-import { PageTransition } from "@/components/ui/page-transition";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { SEO } from "@/components/SEO";
 
 const Terms = () => {
   return (
-    <PageTransition>
+    <PageLayout showHeader={true} showFooter={true} transition={true}>
       <SEO 
         title="Terms of Service - Legal Agreement & Usage Policies"
         description="Read the Terms of Service for Oneiros.me. Learn about acceptable use, user responsibilities, subscriptions, intellectual property rights, and more."
@@ -374,7 +374,7 @@ const Terms = () => {
           <p>© {new Date().getFullYear()} Oneiros.me. All rights reserved.</p>
         </div>
       </div>
-    </PageTransition>
+    </PageLayout>
   );
 };
 

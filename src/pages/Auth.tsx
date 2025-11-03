@@ -2,21 +2,21 @@ import { useState } from "react";
 import { LoginForm } from "@/components/auth/LoginForm";
 import { SignUpForm } from "@/components/auth/SignUpForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageTransition } from "@/components/ui/page-transition";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { SEO } from "@/components/SEO";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
 
   return (
-    <PageTransition>
+    <PageLayout showHeader={false} showFooter={false} transition={true}>
       <SEO 
         title={isLogin ? "Login - Access Your AI Platform" : "Sign Up - Start Your AI Journey"}
         description={isLogin ? "Sign in to Oneiros.me to access your AI agents, chat history, and premium features." : "Create your free Oneiros.me account and get 500 daily credits to start using our advanced AI platform."}
         keywords="AI login, AI signup, AI platform access, create AI account"
         canonical="https://oneiros.me/auth"
       />
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <div className="min-h-screen flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>{isLogin ? "Welcome back" : "Create an account"}</CardTitle>
@@ -35,7 +35,7 @@ const Auth = () => {
         </CardContent>
       </Card>
       </div>
-    </PageTransition>
+    </PageLayout>
   );
 };
 

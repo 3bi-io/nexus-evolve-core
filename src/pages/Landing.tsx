@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
-import { PageTransition } from "@/components/ui/page-transition";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { SEO } from "@/components/SEO";
 import {
   Brain,
@@ -141,7 +141,7 @@ const Landing = () => {
   ];
 
   return (
-    <PageTransition>
+    <PageLayout showHeader={false} showFooter={true} transition={true}>
       <SEO 
         title="The Most Advanced AI Platform - Voice AI, Multi-Agent System & Temporal Memory"
         description="Experience 10 integrated AI systems: Temporal memory with auto-pruning, voice conversations with ElevenLabs, multi-agent orchestration, agent marketplace, social intelligence powered by Grok, and autonomous evolution. Start with 500 free daily credits."
@@ -165,26 +165,26 @@ const Landing = () => {
         }}
       />
       <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-lg">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Brain className="w-6 h-6 md:w-8 md:h-8 text-primary" />
-            <span className="font-bold text-lg md:text-xl">Oneiros.me</span>
+        {/* Navigation */}
+        <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-lg">
+          <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Brain className="w-6 h-6 md:w-8 md:h-8 text-primary" />
+              <span className="font-bold text-lg md:text-xl">Oneiros.me</span>
+            </div>
+            <div className="flex items-center gap-2 md:gap-4">
+              {user ? (
+                <Button onClick={() => navigate('/chat')} size="sm" className="md:h-10">Dashboard</Button>
+              ) : (
+                <>
+                  <Button onClick={() => navigate('/chat')} size="sm" className="md:h-10">Try Free</Button>
+                  <Button onClick={() => navigate('/auth')} variant="ghost" size="sm" className="hidden sm:flex md:h-10">Sign In</Button>
+                  <Button onClick={() => navigate('/pricing')} variant="outline" size="sm" className="md:h-10">Pricing</Button>
+                </>
+              )}
+            </div>
           </div>
-          <div className="flex items-center gap-2 md:gap-4">
-            {user ? (
-              <Button onClick={() => navigate('/chat')} size="sm" className="md:h-10">Dashboard</Button>
-            ) : (
-              <>
-                <Button onClick={() => navigate('/chat')} size="sm" className="md:h-10">Try Free</Button>
-                <Button onClick={() => navigate('/auth')} variant="ghost" size="sm" className="hidden sm:flex md:h-10">Sign In</Button>
-                <Button onClick={() => navigate('/pricing')} variant="outline" size="sm" className="md:h-10">Pricing</Button>
-              </>
-            )}
-          </div>
-        </div>
-      </nav>
+        </nav>
 
       {/* Hero Section */}
       <section className="pt-24 sm:pt-28 md:pt-32 pb-12 md:pb-20 px-4">
@@ -432,27 +432,8 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border py-12 px-4">
-        <div className="container mx-auto max-w-6xl">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Brain className="w-6 h-6 text-primary" />
-              <span className="font-semibold">Oneiros.me</span>
-            </div>
-            <div className="flex gap-6 text-sm text-muted-foreground">
-              <button className="hover:text-foreground transition-colors">Documentation</button>
-              <button className="hover:text-foreground transition-colors">Privacy</button>
-              <button className="hover:text-foreground transition-colors">Terms</button>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              © 2025 Oneiros.me. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
       </div>
-    </PageTransition>
+    </PageLayout>
   );
 };
 

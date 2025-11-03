@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
-import { Brain, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { PricingCards } from "@/components/pricing/PricingCards";
-import { PageTransition } from "@/components/ui/page-transition";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { SEO } from "@/components/SEO";
 import {
   Accordion,
@@ -48,7 +47,7 @@ const Pricing = () => {
   ];
 
   return (
-    <PageTransition>
+    <PageLayout showHeader={true} showFooter={true} transition={true}>
       <SEO 
         title="Pricing Plans - Starter $49, Professional $149, Enterprise $999"
         description="Choose the perfect AI plan for your needs. Starter: 500 credits/month at $49. Professional: 2,000 credits at $149. Enterprise: Unlimited at $999. Free tier with 500 daily credits available."
@@ -90,26 +89,6 @@ const Pricing = () => {
           ]
         }}
       />
-      <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/95 backdrop-blur-lg safe-top">
-        <div className="container-mobile mx-auto h-16 sm:h-18 flex items-center justify-between">
-          <Button
-            variant="ghost"
-            onClick={() => navigate(-1)}
-            className="gap-2 touch-feedback h-12 px-3 sm:px-4"
-            size="sm"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="hidden sm:inline">Back</span>
-          </Button>
-          <div className="flex items-center gap-2">
-            <Brain className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
-            <span className="font-bold text-lg sm:text-xl">Oneiros.me</span>
-          </div>
-          <div className="w-16 sm:w-20" /> {/* Spacer for center alignment */}
-        </div>
-      </nav>
 
       {/* Pricing Section */}
       <section className="pt-24 sm:pt-28 md:pt-32 pb-12 sm:pb-16 md:pb-20 px-4">
@@ -162,8 +141,7 @@ const Pricing = () => {
           </Button>
         </div>
       </section>
-      </div>
-    </PageTransition>
+    </PageLayout>
   );
 };
 

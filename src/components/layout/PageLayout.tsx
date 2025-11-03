@@ -1,12 +1,14 @@
 import { ReactNode } from "react";
-import { Navigation } from "@/components/Navigation";
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
 import { PageTransition } from "@/components/ui/page-transition";
 import { MobileLayout } from "@/components/mobile/MobileLayout";
 import { useMobile } from "@/hooks/useMobile";
 
 interface PageLayoutProps {
   children: ReactNode;
-  showNavigation?: boolean;
+  showHeader?: boolean;
+  showFooter?: boolean;
   className?: string;
   transition?: boolean;
   title?: string;
@@ -16,7 +18,8 @@ interface PageLayoutProps {
 
 export function PageLayout({ 
   children, 
-  showNavigation = true, 
+  showHeader = true,
+  showFooter = true,
   className = "",
   transition = true,
   title,
@@ -31,14 +34,16 @@ export function PageLayout({
       showBack={showBack} 
       showBottomNav={showBottomNav}
     >
-      <div className={`safe-top ${className}`}>
+      <div className={className}>
         {children}
       </div>
+      {showFooter && <Footer />}
     </MobileLayout>
   ) : (
-    <div className={`min-h-screen bg-background ${className}`}>
-      {showNavigation && <Navigation />}
-      <main className="pt-16">{children}</main>
+    <div className="min-h-screen bg-background flex flex-col">
+      {showHeader && <Header />}
+      <main className={`flex-1 ${className}`}>{children}</main>
+      {showFooter && <Footer />}
     </div>
   );
 
