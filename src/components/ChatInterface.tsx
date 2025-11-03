@@ -4,19 +4,21 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Brain, Send, LogOut, ThumbsUp, ThumbsDown, Sparkles, TrendingUp, Search } from "lucide-react";
+import { Brain, Send, ThumbsUp, ThumbsDown, TrendingUp } from "lucide-react";
 import { streamChat } from "@/lib/chat";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { SessionSidebar } from "./SessionSidebar";
-import { AgentSelector } from "./AgentSelector";
 import { UpgradePrompt } from "./pricing/UpgradePrompt";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useClientIP } from "@/hooks/useClientIP";
 import { useSecretValidation } from "@/hooks/useSecretValidation";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { ResponsiveChatLayout } from "./chat/ResponsiveChatLayout";
+import { ChatHeader } from "./chat/ChatHeader";
+import { useMobile } from "@/hooks/useMobile";
 
 type Message = {
   role: "user" | "assistant";
@@ -26,10 +28,10 @@ type Message = {
 };
 
 export const ChatInterface = () => {
-  const { user, signOut } = useAuth();
-  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { isMobile } = useMobile();
   const { ipAddress } = useClientIP();
-  const { validation, criticalIssues } = useSecretValidation();
+  const { criticalIssues } = useSecretValidation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -335,134 +337,89 @@ export const ChatInterface = () => {
     }
   };
 
+  const sidebar = user && !isMobile ? (
+    <SessionSidebar
+      currentSessionId={sessionId}
+      onSessionSelect={loadSession}
+      onNewSession={createNewSession}
+    />
+  ) : null;
+
   return (
-    <div className="flex h-full md:h-[calc(100vh-57px)]">
-      {user && (
-        <SessionSidebar
-          currentSessionId={sessionId}
-          onSessionSelect={loadSession}
-          onNewSession={createNewSession}
-        />
-      )}
-      <div className="flex flex-col flex-1 max-w-4xl mx-auto w-full p-3 sm:p-4 md:p-6">
+    <ResponsiveChatLayout sidebar={sidebar}>
+      <div className="flex flex-col h-full max-w-4xl mx-auto w-full p-3 sm:p-4 md:p-6">
         {user && criticalIssues > 0 && (
-          <Alert variant="destructive" className="mb-4">
+          <Alert variant="destructive" className="mb-3 sm:mb-4">
             <AlertCircle className="h-5 w-5" />
             <AlertDescription className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-              <span className="text-sm sm:text-base">Critical API keys need configuration</span>
+              <span className="text-sm">Critical API keys need configuration</span>
               <Link to="/system-health">
-                <Button variant="outline" size="sm" className="h-10">Fix Now</Button>
+                <Button variant="outline" size="sm" className="h-9">Fix Now</Button>
               </Link>
             </AlertDescription>
           </Alert>
         )}
         
-        <div className="flex items-center justify-between gap-2 sm:gap-3 pb-4 border-b border-border">
-          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-            <Brain className="w-7 h-7 sm:w-8 sm:h-8 text-primary flex-shrink-0" />
-            <div className="min-w-0 flex-1">
-              <h1 className="text-xl sm:text-2xl font-bold truncate">AI Assistant</h1>
-              <div className="flex items-center gap-2 flex-wrap">
-                {contextCount > 0 && (
-                  <Badge 
-                    variant="secondary" 
-                    className="text-xs sm:text-sm cursor-pointer hover:bg-secondary/80 touch-feedback h-7"
-                    onClick={() => navigate('/')}
-                  >
-                    <Brain className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                    <span className="hidden sm:inline">{contextCount} memories</span>
-                    <span className="sm:hidden">{contextCount}</span>
-                  </Badge>
-                )}
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-            <div className="hidden md:flex items-center gap-2">
-              <AgentSelector 
-                selectedAgent={selectedAgent}
-                onSelectAgent={setSelectedAgent}
-              />
-              {contextCount > 0 && (
-                <Link to="/evolution">
-                  <Button variant="outline" size="sm" className="h-10">
-                    <TrendingUp className="w-4 h-4 mr-2" />
-                    Dashboard
-                  </Button>
-                </Link>
-              )}
-              {user && messages.length >= 4 && (
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={extractLearnings}
-                  disabled={isExtracting}
-                  className="h-10"
-                >
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  {isExtracting ? "Extracting..." : "Extract Learnings"}
-                </Button>
-              )}
-            </div>
-            {user ? (
-              <Button variant="ghost" size="sm" onClick={signOut} className="hidden sm:flex h-10 touch-feedback">
-                <LogOut className="w-4 h-4 sm:mr-2" />
-                <span className="hidden sm:inline">Sign Out</span>
-              </Button>
-            ) : (
-              <Button variant="default" size="sm" onClick={() => navigate('/auth')} className="h-10 sm:h-11 px-4 sm:px-6 touch-feedback">
-                <span className="text-sm sm:text-base">Sign Up Free</span>
-              </Button>
-            )}
-          </div>
-        </div>
+        <ChatHeader
+          contextCount={contextCount}
+          selectedAgent={selectedAgent}
+          onSelectAgent={setSelectedAgent}
+          messagesLength={messages.length}
+          isExtracting={isExtracting}
+          onExtractLearnings={extractLearnings}
+          currentSessionId={sessionId}
+          onSessionSelect={loadSession}
+          onNewSession={createNewSession}
+        />
 
-        <ScrollArea ref={scrollRef} className="flex-1 my-3 sm:my-4">
+        <ScrollArea ref={scrollRef} className="flex-1 my-3 sm:my-4 px-1">
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center px-4 py-8">
+            <div className="flex flex-col items-center justify-center h-full text-center px-4 py-6 sm:py-8">
               <Brain className="w-16 h-16 sm:w-20 sm:h-20 text-primary mb-4 sm:mb-6" />
-              <h2 className="text-xl sm:text-2xl font-semibold mb-3">Welcome to Oneiros</h2>
-              <p className="text-base sm:text-lg text-muted-foreground max-w-md leading-relaxed">
+              <h2 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-3">Welcome to Oneiros</h2>
+              <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-md leading-relaxed">
                 {user 
-                  ? "Your AI learns from every interaction. Start with 500 credits (41+ hours) and watch your AI evolve with your dreams."
-                  : "Experience AI that learns from you. Sign up for 500 free credits—that's 2,500 minutes (41+ hours) of intelligent conversation!"
+                  ? "Your AI learns from every interaction. Start with 500 credits (41+ hours) and watch your AI evolve."
+                  : "Experience AI that learns from you. Sign up for 500 free credits—that's 41+ hours of intelligent conversation!"
                 }
               </p>
             </div>
           ) : (
-            <div className="space-y-4 sm:space-y-5">
+            <div className="space-y-3 sm:space-y-4 pb-2">
               {messages.map((message, idx) => (
                 <div
                   key={idx}
                   className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                 >
-                  <div className="flex flex-col gap-2 max-w-[90%] sm:max-w-[85%] md:max-w-[80%]">
+                  <div className="flex flex-col gap-2 max-w-[85%] sm:max-w-[80%] md:max-w-[75%]">
                     <div
-                      className={`rounded-xl sm:rounded-2xl px-4 py-3 sm:px-5 sm:py-3.5 ${
+                      className={`rounded-2xl px-4 py-2.5 sm:px-5 sm:py-3 ${
                         message.role === "user"
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted"
                       }`}
                     >
-                      <p className="whitespace-pre-wrap text-base sm:text-lg leading-relaxed break-words">{message.content}</p>
+                      <p className="whitespace-pre-wrap text-sm sm:text-base leading-relaxed break-words">
+                        {message.content}
+                      </p>
                     </div>
                     {message.role === "assistant" && message.interactionId && (
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
                         <Button
                           variant="ghost"
-                          size="sm"
+                          size="icon"
                           onClick={() => rateResponse(message.interactionId!, 1)}
-                          className={`h-10 w-10 p-0 touch-feedback ${message.rating === 1 ? "text-green-600" : ""}`}
+                          className={`h-9 w-9 ${message.rating === 1 ? "text-green-600" : ""}`}
                         >
-                          <ThumbsUp className="w-5 h-5" />
+                          <ThumbsUp className="w-4 h-4" />
                         </Button>
                         <Button
                           variant="ghost"
-                          size="sm"
+                          size="icon"
                           onClick={() => rateResponse(message.interactionId!, -1)}
-                          className={`h-10 w-10 p-0 touch-feedback ${message.rating === -1 ? "text-red-600" : ""}`}
+                          className={`h-9 w-9 ${message.rating === -1 ? "text-red-600" : ""}`}
                         >
-                          <ThumbsDown className="w-5 h-5" />
+                          <ThumbsDown className="w-4 h-4" />
                         </Button>
                       </div>
                     )}
@@ -473,22 +430,21 @@ export const ChatInterface = () => {
           )}
         </ScrollArea>
 
-        <div className="flex gap-2 sm:gap-3 pb-safe pt-2">
+        <div className="flex gap-2 pt-2 pb-safe">
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Type your message..."
-            className="min-h-[60px] sm:min-h-[64px] resize-none text-base sm:text-lg leading-relaxed"
+            placeholder={isMobile ? "Message..." : "Type your message..."}
+            className="min-h-[56px] sm:min-h-[60px] resize-none text-sm sm:text-base leading-relaxed"
             disabled={isLoading || !sessionId}
           />
           <Button
             onClick={sendMessage}
             disabled={isLoading || !input.trim() || !sessionId}
-            className="h-[60px] w-[60px] sm:h-[64px] sm:w-[64px] flex-shrink-0 touch-feedback"
-            size="icon"
+            className="h-auto px-3 sm:px-4 self-end"
           >
-            <Send className="w-5 h-5 sm:w-6 sm:h-6" />
+            <Send className="w-5 h-5" />
           </Button>
         </div>
       </div>
@@ -547,6 +503,6 @@ export const ChatInterface = () => {
         currentCredits={currentCredits}
         suggestedTier={suggestedTier}
       />
-    </div>
+    </ResponsiveChatLayout>
   );
 };

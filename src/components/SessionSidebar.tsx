@@ -80,28 +80,28 @@ export const SessionSidebar = ({ currentSessionId, onSessionSelect, onNewSession
   };
 
   return (
-    <div className="w-64 border-r border-border bg-card h-full flex flex-col">
-      <div className="p-4 border-b border-border">
-        <Button onClick={onNewSession} className="w-full" size="sm">
+    <div className="w-64 lg:w-72 border-r border-border bg-card h-full flex flex-col flex-shrink-0">
+      <div className="p-3 border-b border-border">
+        <Button onClick={onNewSession} className="w-full h-10">
           <Plus className="w-4 h-4 mr-2" />
           New Chat
         </Button>
       </div>
       <ScrollArea className="flex-1">
-        <div className="p-2 space-y-1">
+        <div className="p-2 space-y-0.5">
           {loading ? (
-            <p className="text-sm text-muted-foreground p-2">Loading...</p>
+            <p className="text-sm text-muted-foreground p-3">Loading...</p>
           ) : sessions.length === 0 ? (
-            <p className="text-sm text-muted-foreground p-2">No sessions yet</p>
+            <p className="text-sm text-muted-foreground p-3">No sessions yet</p>
           ) : (
             sessions.map((session) => (
               <button
                 key={session.id}
                 onClick={() => onSessionSelect(session.id)}
-                className={`w-full text-left p-2 rounded-md transition-colors ${
+                className={`w-full text-left p-2.5 rounded-lg transition-colors ${
                   currentSessionId === session.id
-                    ? "bg-accent text-accent-foreground"
-                    : "hover:bg-accent/50"
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-muted"
                 }`}
               >
                 <div className="flex items-start gap-2">
@@ -110,7 +110,11 @@ export const SessionSidebar = ({ currentSessionId, onSessionSelect, onNewSession
                     <p className="text-sm font-medium truncate">
                       {session.title || "New conversation"}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className={`text-xs mt-0.5 ${
+                      currentSessionId === session.id 
+                        ? "opacity-80" 
+                        : "text-muted-foreground"
+                    }`}>
                       {formatDate(session.last_message_at || session.created_at)}
                     </p>
                   </div>
