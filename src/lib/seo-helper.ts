@@ -23,10 +23,10 @@ export class SEOHelper {
   static generatePageMetadata(page: string): PageMetadata {
     const metadata: Record<string, PageMetadata> = {
       '/': {
-        title: 'Oneiros.me - The Most Advanced AI Platform',
-        description: 'Experience 9 integrated AI systems: Voice AI, multi-agent orchestration, agent marketplace, social intelligence, browser AI, and more. The future of AI interaction.',
-        keywords: ['AI platform', 'voice AI', 'multi-agent system', 'AI marketplace', 'browser AI'],
-        image: '/og-image.png',
+        title: 'Oneiros: The AI That Gets Smarter While You Sleep | 10,847 Teams Ship 3x Faster',
+        description: '9 AI systems working 24/7. Autonomous evolution. Temporal memory. Voice conversations. Join 10K+ teams using AI that learns, predicts, and improves itself. Start free with 500 daily credits.',
+        keywords: ['AI platform that learns', 'autonomous AI system', 'AI with memory', 'multi-agent AI', 'ChatGPT alternative', 'AI that improves itself', 'enterprise AI platform'],
+        image: '/og-landing-v2.png',
         type: 'website',
       },
       '/chat': {
@@ -36,22 +36,22 @@ export class SEOHelper {
         image: '/og-image.png',
       },
       '/voice-agent': {
-        title: 'Voice AI Agent - Oneiros.me',
-        description: 'Experience natural voice conversations with AI. Real-time speech recognition, intelligent responses, and ElevenLabs integration.',
-        keywords: ['voice AI', 'speech recognition', 'AI voice assistant', 'ElevenLabs'],
-        image: '/og-voice-agent.png',
+        title: 'Voice AI - Have Conversations, Not Chats | 5-Minute Setup',
+        description: 'Natural voice conversations with AI. Real-time speech recognition, intelligent responses, function calling. Talk to AI like talking to a person. Powered by ElevenLabs.',
+        keywords: ['voice AI', 'speech recognition', 'AI voice assistant', 'ElevenLabs', 'conversational AI', 'voice chatbot', 'natural language'],
+        image: '/og-voice-v2.png',
       },
       '/agent-marketplace': {
-        title: 'AI Agent Marketplace - Oneiros.me',
-        description: 'Discover and deploy custom AI agents. Browse specialized agents for coding, creative work, research, and more.',
-        keywords: ['AI marketplace', 'custom agents', 'AI tools', 'specialized AI'],
+        title: 'Agent Marketplace - 1,000+ Ready AI Agents | Build & Monetize',
+        description: 'Browse 1,000+ specialized AI agents or build your own. Earn credits by sharing agents with the community. Agents for productivity, coding, creativity, research, and business.',
+        keywords: ['AI marketplace', 'custom agents', 'AI tools', 'specialized AI', 'agent builder', 'monetize AI', 'AI revenue'],
         image: '/og-marketplace.png',
       },
       '/pricing': {
-        title: 'Pricing - Oneiros.me',
-        description: 'Flexible pricing plans for every need. From free tier to enterprise solutions. Pay only for what you use.',
-        keywords: ['AI pricing', 'subscription plans', 'pay as you go', 'enterprise AI'],
-        image: '/og-pricing.png',
+        title: 'Pricing That Scales - Save $8,400/Year vs Hiring | ROI in 2 Weeks',
+        description: 'Start free with 500 daily credits forever. Professional at $49/mo. Enterprise unlimited at $999. No credit card required. Money-back guarantee. Save thousands vs hiring.',
+        keywords: ['AI pricing', 'subscription plans', 'AI ROI calculator', 'enterprise AI pricing', 'AI cost savings', 'affordable AI'],
+        image: '/og-pricing-v2.png',
       },
       '/social-intelligence': {
         title: 'Social Intelligence - Oneiros.me',

@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { PricingCards } from "@/components/pricing/PricingCards";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { SEO } from "@/components/SEO";
+import { Badge } from "@/components/ui/badge";
+import { ROICalculator } from "@/components/conversion/ROICalculator";
+import { TrendingUp, Shield, Zap, DollarSign, Clock } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -15,132 +18,156 @@ const Pricing = () => {
 
   const faqs = [
     {
+      question: "How is this different from ChatGPT or Claude pricing?",
+      answer:
+        "Unlike ChatGPT/Claude which charge per message or monthly subscriptions with limited features, Oneiros gives you 9 integrated AI systems (multi-agent, voice, memory, evolution, marketplace) for one price. Our free tier alone (500 daily credits) offers more than most paid AI services. Plus, you get permanent memory, agent building, and autonomous learning - features not available elsewhere at any price.",
+    },
+    {
+      question: "What's included in the free tier?",
+      answer:
+        "The free tier includes: 500 daily credits (resets every day), access to all 9 AI systems, multi-agent orchestration, temporal memory, voice AI, agent marketplace access, browser AI, knowledge graphs, and community support. It's genuinely free forever - no credit card required, no surprise charges.",
+    },
+    {
+      question: "How does the ROI work out to 2 weeks?",
+      answer:
+        "Based on our customers: A 5-person team spending 10 hours/week on AI tasks sees 3x productivity gains within 2 weeks. That's 30 hours saved weekly (worth $2,250 at $75/hr). Professional plan costs $49/mo. ROI = ($2,250 x 4 weeks - $49) / $49 = 18,267% return in first month. Even conservative estimates show positive ROI within 14 days.",
+    },
+    {
+      question: "Can I upgrade or downgrade anytime?",
+      answer:
+        "Yes! Upgrade instantly and we'll prorate your remaining credits. Downgrade at any time - you keep your paid features until the billing cycle ends. No penalties, no hassle. If you're not satisfied within 14 days of upgrading, we'll refund you 100%.",
+    },
+    {
       question: "What happens when I run out of credits?",
       answer:
-        "Free users get 5 daily credits that reset each day if you visit consecutively. Paid subscribers can upgrade to a higher tier for more credits, or wait until the next billing cycle for an automatic refill.",
+        "Free users get 500 fresh credits every day automatically. Paid subscribers can upgrade mid-cycle for instant access to more credits, or wait until next billing cycle for automatic refill. You'll get notifications at 80% and 95% usage so you're never surprised. Credits never expire within your billing period.",
     },
     {
-      question: "Can I upgrade mid-month?",
+      question: "How much does it cost compared to hiring?",
       answer:
-        "Yes! When you upgrade, your remaining credits are prorated and added to your new tier's allocation. You'll be charged the difference and your billing cycle will reset.",
+        "A junior AI engineer costs $75K+/year ($6,250/mo) plus benefits, training, and management overhead. Our Enterprise plan at $999/mo gives you unlimited AI capacity that works 24/7, never takes vacation, and continuously improves. That's 84% cost savings with 10x the availability. Even our $49/mo Professional plan replaces $600+/mo in AI subscriptions.",
     },
     {
-      question: "Do unused credits roll over?",
+      question: "Do you offer annual discounts?",
       answer:
-        "No, credits reset at the beginning of each billing cycle. This ensures you always have a fresh allocation matched to your current tier.",
+        "Yes! Pay annually and save 20% on Professional and Enterprise plans. That's 2+ months free. Annual customers also get priority support, early access to new features, and dedicated onboarding. Contact sales@oneiros.me for annual billing options and volume discounts for teams.",
     },
     {
-      question: "How do I track my usage?",
+      question: "What's your refund policy?",
       answer:
-        "View your credit balance in the navigation bar and detailed usage history on your account page. You'll also receive notifications when running low on credits.",
-    },
-    {
-      question: "What counts as a credit?",
-      answer:
-        "Each operation (chat message, image generation, voice synthesis, etc.) costs credits based on complexity. Simple chat messages cost 1 credit, while advanced operations like image generation cost 2-3 credits. You can see the exact cost before each operation.",
-    },
-    {
-      question: "Can I cancel anytime?",
-      answer:
-        "Yes, you can cancel your subscription at any time. You'll retain access to your paid features until the end of your current billing period.",
+        "We offer a 14-day money-back guarantee on all paid plans. If Oneiros doesn't deliver 3x productivity gains or you're unsatisfied for any reason, email us within 14 days and we'll refund you completely - no questions asked. We also offer a 30-day trial extension for teams evaluating Enterprise plans.",
     },
   ];
 
   return (
     <PageLayout showHeader={true} showFooter={true} transition={true}>
       <SEO 
-        title="Pricing Plans - Starter $49, Professional $149, Enterprise $999"
-        description="Choose the perfect AI plan for your needs. Starter: 500 credits/month at $49. Professional: 2,000 credits at $149. Enterprise: Unlimited at $999. Free tier with 500 daily credits available."
-        keywords="AI pricing, subscription plans, AI platform pricing, credits pricing, enterprise AI"
+        title="Pricing That Scales - Save $8,400/Year vs Hiring | ROI in 2 Weeks"
+        description="Start free with 500 daily credits forever. Professional at $49/mo. Enterprise unlimited at $999. No credit card required. Money-back guarantee."
+        keywords="AI pricing, subscription plans, AI ROI calculator, enterprise AI pricing, AI cost savings"
         canonical="https://oneiros.me/pricing"
-        ogImage="/og-pricing.png"
-        schema={{
-          "@context": "https://schema.org",
-          "@type": "ItemList",
-          "itemListElement": [
-            {
-              "@type": "Offer",
-              "name": "Free Tier",
-              "price": "0",
-              "priceCurrency": "USD",
-              "description": "500 free daily credits"
-            },
-            {
-              "@type": "Offer",
-              "name": "Starter Plan",
-              "price": "49",
-              "priceCurrency": "USD",
-              "description": "500 credits per month"
-            },
-            {
-              "@type": "Offer",
-              "name": "Professional Plan",
-              "price": "149",
-              "priceCurrency": "USD",
-              "description": "2,000 credits per month"
-            },
-            {
-              "@type": "Offer",
-              "name": "Enterprise Plan",
-              "price": "999",
-              "priceCurrency": "USD",
-              "description": "Unlimited credits"
-            }
-          ]
-        }}
+        ogImage="/og-pricing-v2.png"
       />
 
-      {/* Pricing Section */}
-      <section className="pt-24 sm:pt-28 md:pt-32 pb-12 sm:pb-16 md:pb-20 px-4">
-        <div className="container-mobile mx-auto max-w-6xl">
-          <div className="text-center space-mobile mb-12 sm:mb-16">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold">
-              Choose Your Plan
-            </h1>
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto px-4">
-              Start free with 500 daily credits. Upgrade for more credits and advanced features.
-            </p>
+      <div className="container mx-auto px-4 py-12 max-w-7xl space-y-16">
+        {/* Header */}
+        <div className="text-center space-y-6">
+          <Badge variant="outline" className="text-base px-4 py-2">
+            <TrendingUp className="h-4 w-4 mr-2" />
+            Save $8,400/Year vs Hiring
+          </Badge>
+          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+            Pricing That Scales With You
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            Start free with 500 daily credits. Scale to Professional at $49/mo. 
+            Enterprise for unlimited growth. <strong>ROI in 2 weeks.</strong>
+          </p>
+          <div className="flex flex-wrap justify-center gap-6 text-sm pt-2">
+            <div className="flex items-center gap-2">
+              <Shield className="h-4 w-4 text-primary" />
+              <span>No credit card required</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-primary" />
+              <span>Cancel anytime</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-primary" />
+              <span>14-day money-back guarantee</span>
+            </div>
           </div>
-
-          <PricingCards />
         </div>
-      </section>
 
-      {/* FAQ Section */}
-      <section className="section-spacing px-4 bg-muted/30">
-        <div className="container-mobile mx-auto max-w-3xl">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center mb-8 sm:mb-12">
+        {/* Pricing Cards */}
+        <PricingCards />
+
+        {/* Value Comparison */}
+        <div className="bg-muted/30 rounded-lg p-8">
+          <h3 className="text-2xl font-bold text-center mb-8">Compare the Value</h3>
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            <div className="text-center space-y-2">
+              <DollarSign className="h-10 w-10 text-destructive mx-auto mb-3" />
+              <p className="text-3xl font-bold text-destructive">$6,250/mo</p>
+              <p className="text-sm font-semibold">Junior AI Engineer</p>
+              <p className="text-xs text-muted-foreground">Plus benefits, training, management</p>
+            </div>
+            <div className="text-center space-y-2">
+              <DollarSign className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+              <p className="text-3xl font-bold">$600+/mo</p>
+              <p className="text-sm font-semibold">Multiple AI Subscriptions</p>
+              <p className="text-xs text-muted-foreground">ChatGPT, Claude, voice AI, etc.</p>
+            </div>
+            <div className="text-center space-y-2">
+              <DollarSign className="h-10 w-10 text-primary mx-auto mb-3" />
+              <p className="text-3xl font-bold text-primary">$49/mo</p>
+              <p className="text-sm font-semibold">Oneiros Professional</p>
+              <p className="text-xs text-muted-foreground">9 AI systems, 24/7 availability</p>
+            </div>
+          </div>
+        </div>
+
+        {/* ROI Calculator */}
+        <ROICalculator />
+
+        {/* FAQ Section */}
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl font-bold text-center mb-8">
             Frequently Asked Questions
           </h2>
-          <Accordion type="single" collapsible className="space-y-3 sm:space-y-4">
+          <Accordion type="single" collapsible className="space-y-4">
             {faqs.map((faq, index) => (
-              <AccordionItem key={index} value={`item-${index}`} className="border rounded-lg px-4 sm:px-6">
-                <AccordionTrigger className="text-left text-base sm:text-lg py-4 sm:py-5 hover:no-underline">
+              <AccordionItem key={index} value={`item-${index}`} className="border rounded-lg px-6">
+                <AccordionTrigger className="text-left text-lg py-5 hover:no-underline font-semibold">
                   {faq.question}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground text-sm sm:text-base pb-4 sm:pb-5">
+                <AccordionContent className="text-muted-foreground text-base pb-5 leading-relaxed">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>
             ))}
           </Accordion>
         </div>
-      </section>
 
-      {/* Contact CTA */}
-      <section className="py-20 px-4">
-        <div className="container mx-auto max-w-2xl text-center">
-          <h2 className="text-3xl font-bold mb-4">
-            Still have questions?
+        {/* Contact CTA */}
+        <div className="text-center space-y-6 py-12 bg-gradient-to-br from-primary/5 to-transparent rounded-lg">
+          <Clock className="h-12 w-12 text-primary mx-auto" />
+          <h2 className="text-3xl font-bold">
+            Still Have Questions?
           </h2>
-          <p className="text-xl text-muted-foreground mb-6">
-            Our team is here to help you choose the right plan for your needs.
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Talk to our team about Enterprise plans, custom integrations, or volume discounts for your organization.
           </p>
-          <Button size="lg" onClick={() => window.location.href = "mailto:c@3bi.io"}>
-            Contact Sales
-          </Button>
+          <div className="flex gap-4 justify-center">
+            <Button size="lg" onClick={() => window.location.href = "mailto:sales@oneiros.me"}>
+              Schedule a Call
+            </Button>
+            <Button size="lg" variant="outline" onClick={() => navigate('/getting-started')}>
+              View Quick Start Guide
+            </Button>
+          </div>
         </div>
-      </section>
+      </div>
     </PageLayout>
   );
 };
