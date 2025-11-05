@@ -9,7 +9,7 @@ export function MobileBottomNav() {
   const { user } = useAuth();
 
   const navItems = user ? [
-    { icon: Home, label: "Chat", path: "/" },
+    { icon: Home, label: "Chat", path: "/chat" },
     { icon: Store, label: "Market", path: "/agent-marketplace" },
     { icon: Sparkles, label: "AGI", path: "/agi-dashboard" },
     { icon: BarChart3, label: "Stats", path: "/analytics" },

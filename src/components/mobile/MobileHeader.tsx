@@ -82,7 +82,16 @@ export function MobileHeader({
                   <MoreVertical className="w-5 h-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" className="w-48 bg-card border-border z-50">
+                <DropdownMenuItem onClick={() => navigate("/agent-studio")}>
+                  Agent Studio
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/knowledge-graph")}>
+                  Knowledge Graph
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/memory-graph")}>
+                  Memory Graph
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate("/achievements")}>
                   Achievements
                 </DropdownMenuItem>
@@ -92,8 +101,8 @@ export function MobileHeader({
                 <DropdownMenuItem onClick={() => navigate("/capabilities")}>
                   Capabilities
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/pricing")}>
-                  Pricing
+                <DropdownMenuItem onClick={() => navigate("/system-health")}>
+                  System Health
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={signOut} className="text-destructive">
                   Sign Out

@@ -53,7 +53,7 @@ export function Header() {
   const isActive = (path: string) => location.pathname === path;
 
   const primaryNavLinks = [
-    { to: "/", icon: MessageSquare, label: "Chat", public: true, badge: null },
+    { to: "/chat", icon: MessageSquare, label: "Chat", public: false, badge: null },
     { to: "/getting-started", icon: Rocket, label: "Getting Started", public: true, badge: null },
     { to: "/agent-marketplace", icon: Store, label: "Marketplace", public: true, badge: null },
     { to: "/voice-agent", icon: Phone, label: "Voice AI", public: true, badge: null },
@@ -62,6 +62,7 @@ export function Header() {
 
   const userNavLinks = user ? [
     { to: "/knowledge-graph", icon: Network, label: "Knowledge Graph", badge: null },
+    { to: "/memory-graph", icon: Brain, label: "Memory Graph", badge: null },
     { to: "/analytics", icon: BarChart3, label: "Analytics", badge: null },
     { to: "/agi-dashboard", icon: Sparkles, label: "AGI Dashboard", badge: null },
     { to: "/system-health", icon: Shield, label: "System Health", badge: hasIssues ? (criticalIssues || '!') : null },
@@ -196,11 +197,11 @@ export function Header() {
                           Admin
                         </div>
                         <Link 
-                          to="/admin"
+                          to="/admin/overview"
                           onClick={() => setMobileMenuOpen(false)}
                         >
                           <Button
-                            variant={isActive("/admin") ? "default" : "ghost"}
+                            variant={location.pathname.startsWith("/admin") ? "default" : "ghost"}
                             className="w-full justify-start gap-3 h-11 px-3 touch-feedback"
                           >
                             <Shield className="w-5 h-5" />
