@@ -1,9 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { 
-  MessageSquare, Network, Brain, LogOut, Shield, BarChart3, 
-  Store, Phone, Sparkles, Menu, X, Rocket
-} from "lucide-react";
+import { Brain, LogOut, Menu, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CreditBalance } from "@/components/pricing/CreditBalance";
@@ -20,6 +17,7 @@ import {
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { primaryNavItems, navSections } from "@/config/navigation";
 
 export function Header() {
   const location = useLocation();
@@ -52,24 +50,12 @@ export function Header() {
 
   const isActive = (path: string) => location.pathname === path;
 
-  const primaryNavLinks = [
-    { to: "/chat", icon: MessageSquare, label: "Chat", public: false, badge: null },
-    { to: "/getting-started", icon: Rocket, label: "Getting Started", public: true, badge: null },
-    { to: "/agent-marketplace", icon: Store, label: "Marketplace", public: true, badge: null },
-    { to: "/voice-agent", icon: Phone, label: "Voice AI", public: true, badge: null },
-    { to: "/pricing", icon: Sparkles, label: "Pricing", public: true, badge: null },
-  ];
+  const visiblePrimaryLinks = user 
+    ? primaryNavItems 
+    : primaryNavItems.filter(item => item.public);
 
-  const userNavLinks = user ? [
-    { to: "/knowledge-graph", icon: Network, label: "Knowledge Graph", badge: null },
-    { to: "/memory-graph", icon: Brain, label: "Memory Graph", badge: null },
-    { to: "/analytics", icon: BarChart3, label: "Analytics", badge: null },
-    { to: "/agi-dashboard", icon: Sparkles, label: "AGI Dashboard", badge: null },
-    { to: "/system-health", icon: Shield, label: "System Health", badge: hasIssues ? (criticalIssues || '!') : null },
-  ] : [];
-
-  const allNavLinks = [...primaryNavLinks, ...userNavLinks];
-  const visiblePrimaryLinks = user ? primaryNavLinks : primaryNavLinks.filter(link => link.public);
+  // Get all nav items for mobile menu
+  const allNavItems = navSections.flatMap(section => section.items);
 
   return (
     <header className="border-b border-border bg-card/95 backdrop-blur-sm sticky top-0 z-50 safe-top">
@@ -163,32 +149,35 @@ export function Header() {
                 </SheetHeader>
                 <ScrollArea className="h-[calc(100vh-8rem)] mt-6 pr-4">
                   <div className="flex flex-col gap-1.5">
-                    {/* Primary Links */}
-                    <div className="text-xs font-semibold text-muted-foreground mb-2 px-3">
-                      Main
-                    </div>
-                    {allNavLinks.map((link) => (
-                      <Link 
-                        key={link.to} 
-                        to={link.to}
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <Button
-                          variant={isActive(link.to) ? "default" : "ghost"}
-                          className={cn(
-                            "w-full justify-start gap-3 h-11 px-3",
-                            "relative touch-feedback"
-                          )}
-                        >
-                          <link.icon className="w-5 h-5 flex-shrink-0" />
-                          <span className="flex-1 text-left">{link.label}</span>
-                          {link.badge && (
-                            <Badge variant="destructive" className="ml-auto text-xs px-1.5">
-                              {link.badge}
-                            </Badge>
-                          )}
-                        </Button>
-                      </Link>
+                    {navSections.map((section) => (
+                      <div key={section.id}>
+                        <div className="text-xs font-semibold text-muted-foreground mb-2 px-3 mt-3 first:mt-0">
+                          {section.label}
+                        </div>
+                        {section.items.map((item) => (
+                          <Link 
+                            key={item.to} 
+                            to={item.to}
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            <Button
+                              variant={isActive(item.to) ? "default" : "ghost"}
+                              className={cn(
+                                "w-full justify-start gap-3 h-11 px-3",
+                                "relative touch-feedback"
+                              )}
+                            >
+                              <item.icon className="w-5 h-5 flex-shrink-0" />
+                              <span className="flex-1 text-left">{item.label}</span>
+                              {item.badge && (
+                                <Badge variant="destructive" className="ml-auto text-xs px-1.5">
+                                  {item.badge}
+                                </Badge>
+                              )}
+                            </Button>
+                          </Link>
+                        ))}
+                      </div>
                     ))}
                     
                     {isAdmin && (
@@ -197,14 +186,14 @@ export function Header() {
                           Admin
                         </div>
                         <Link 
-                          to="/admin/overview"
+                          to="/admin"
                           onClick={() => setMobileMenuOpen(false)}
                         >
                           <Button
                             variant={location.pathname.startsWith("/admin") ? "default" : "ghost"}
                             className="w-full justify-start gap-3 h-11 px-3 touch-feedback"
                           >
-                            <Shield className="w-5 h-5" />
+                            <Brain className="w-5 h-5" />
                             <span>Admin Panel</span>
                           </Button>
                         </Link>

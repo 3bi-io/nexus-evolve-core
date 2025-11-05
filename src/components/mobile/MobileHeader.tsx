@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, MoreVertical } from "lucide-react";
+import { ArrowLeft, MoreVertical, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { CreditBalance } from "@/components/pricing/CreditBalance";
 import { useHaptics, useMobile } from "@/hooks/useMobile";
 import {
@@ -15,6 +14,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { navSections } from "@/config/navigation";
 
 interface MobileHeaderProps {
   title?: string;
@@ -105,136 +105,34 @@ export function MobileHeader({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 max-h-[70vh] overflow-y-auto bg-card border-border z-50">
-                <DropdownMenuLabel>AI Studio</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate("/agent-studio")}>
-                  Agent Studio
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/multimodal-studio")}>
-                  Multimodal Studio
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/problem-solver")}>
-                  Problem Solver
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/ai-hub")}>
-                  AI Hub
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/browser-ai")}>
-                  Browser AI
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/advanced-browser-ai")}>
-                  Advanced Browser AI
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/voice-agent")}>
-                  Voice Agent
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/voice-agent-manager")}>
-                  Voice Agent Manager
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/model-comparison")}>
-                  Model Comparison
-                </DropdownMenuItem>
-                
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel>Intelligence</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate("/knowledge-graph")}>
-                  Knowledge Graph
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/memory-graph")}>
-                  Memory Graph
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/analytics")}>
-                  Analytics Dashboard
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/llm-analytics")}>
-                  LLM Analytics
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/usage-analytics")}>
-                  Usage Analytics
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/advanced-analytics")}>
-                  Advanced Analytics
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/social-intelligence")}>
-                  Social Intelligence
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/unified-router")}>
-                  Unified Router
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/router-dashboard")}>
-                  Router Metrics
-                </DropdownMenuItem>
-                
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel>Agents</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate("/agent-marketplace")}>
-                  Agent Marketplace
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/agent-revenue")}>
-                  Revenue Dashboard
-                </DropdownMenuItem>
-                
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel>Enterprise</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate("/teams")}>
-                  Teams
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/collaboration")}>
-                  Collaboration
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/api-access")}>
-                  API Access
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/webhooks")}>
-                  Webhooks
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/integrations")}>
-                  Integrations
-                </DropdownMenuItem>
-                
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel>System</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate("/system-health")}>
-                  System Health
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/evolution")}>
-                  Evolution System
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/agi-dashboard")}>
-                  AGI Dashboard
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/capabilities")}>
-                  Capabilities
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/achievements")}>
-                  Achievements
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/referrals")}>
-                  Referrals
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/advanced-ai")}>
-                  Advanced AI
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/enterprise-router")}>
-                  Enterprise Router
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate("/getting-started")}>
-                  Getting Started
-                </DropdownMenuItem>
+                {navSections.map((section) => (
+                  <div key={section.id}>
+                    <DropdownMenuLabel>{section.label}</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {section.items.map((item) => (
+                      <DropdownMenuItem 
+                        key={item.to}
+                        onClick={() => navigate(item.to)}
+                      >
+                        {item.label}
+                      </DropdownMenuItem>
+                    ))}
+                    <DropdownMenuSeparator />
+                  </div>
+                ))}
                 
                 {isAdmin && (
                   <>
+                    <DropdownMenuLabel>Admin</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem 
                       onClick={() => navigate("/admin")}
-                      className="text-destructive font-semibold"
+                      className="text-primary font-semibold"
                     >
-                      🛡️ Super Admin Panel
+                      <Brain className="w-4 h-4 mr-2" />
+                      Admin Panel
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                   </>
                 )}
                 

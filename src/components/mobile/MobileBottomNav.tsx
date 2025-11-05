@@ -1,25 +1,16 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Home, Store, BarChart3, User, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { mobileBottomNavItems } from "@/config/navigation";
 
 export function MobileBottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const navItems = user ? [
-    { icon: Home, label: "Chat", path: "/chat" },
-    { icon: Store, label: "Market", path: "/agent-marketplace" },
-    { icon: Sparkles, label: "AGI", path: "/agi-dashboard" },
-    { icon: BarChart3, label: "Stats", path: "/analytics" },
-    { icon: User, label: "Account", path: "/account" },
-  ] : [
-    { icon: Home, label: "Home", path: "/" },
-    { icon: Store, label: "Market", path: "/agent-marketplace" },
-    { icon: Sparkles, label: "Pricing", path: "/pricing" },
-    { icon: User, label: "Sign In", path: "/auth" },
-  ];
+  const navItems = user 
+    ? mobileBottomNavItems.authenticated.map(item => ({ ...item, path: item.to }))
+    : mobileBottomNavItems.public.map(item => ({ ...item, path: item.to }));
 
   const handleNavigation = (path: string) => {
     navigate(path);
