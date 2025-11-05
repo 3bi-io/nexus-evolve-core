@@ -4,6 +4,8 @@ import { Footer } from "@/components/layout/Footer";
 import { PageTransition } from "@/components/ui/page-transition";
 import { MobileLayout } from "@/components/mobile/MobileLayout";
 import { BreadcrumbNav } from "@/components/BreadcrumbNav";
+import { AppSidebar } from "@/components/navigation/AppSidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { useMobile } from "@/hooks/useMobile";
 
 interface PageLayoutProps {
@@ -42,16 +44,21 @@ export function PageLayout({
       {showFooter && <Footer />}
     </MobileLayout>
   ) : (
-    <div className="min-h-screen bg-background flex flex-col">
-      {showHeader && <Header />}
-      <main className={`flex-1 ${className}`}>
-        <div className="container mx-auto px-4 pt-4">
-          <BreadcrumbNav />
+    <SidebarProvider defaultOpen={true}>
+      <div className="flex min-h-screen w-full bg-background">
+        <AppSidebar />
+        <div className="flex flex-col flex-1 min-w-0">
+          {showHeader && <Header />}
+          <main className={`flex-1 ${className}`}>
+            <div className="container mx-auto px-4 pt-4">
+              <BreadcrumbNav />
+            </div>
+            {children}
+          </main>
+          {showFooter && <Footer />}
         </div>
-        {children}
-      </main>
-      {showFooter && <Footer />}
-    </div>
+      </div>
+    </SidebarProvider>
   );
 
   return transition ? <PageTransition>{content}</PageTransition> : content;

@@ -11,6 +11,7 @@ export interface NavItem {
   icon: LucideIcon;
   label: string;
   shortLabel?: string;
+  description?: string;
   public?: boolean;
   adminOnly?: boolean;
   badge?: string | number | null;
@@ -24,11 +25,11 @@ export interface NavSection {
 
 // Primary navigation items (shown prominently)
 export const primaryNavItems: NavItem[] = [
-  { to: "/chat", icon: MessageSquare, label: "Chat", shortLabel: "Chat", public: false },
-  { to: "/getting-started", icon: Rocket, label: "Getting Started", shortLabel: "Start", public: true },
-  { to: "/agent-marketplace", icon: Store, label: "Marketplace", shortLabel: "Market", public: true },
-  { to: "/voice-agent", icon: Phone, label: "Voice AI", shortLabel: "Voice", public: true },
-  { to: "/pricing", icon: Sparkles, label: "Pricing", shortLabel: "Price", public: true },
+  { to: "/chat", icon: MessageSquare, label: "Chat", shortLabel: "Chat", description: "AI Chat Interface", public: false },
+  { to: "/getting-started", icon: Rocket, label: "Getting Started", shortLabel: "Start", description: "Quick Start Guide", public: true },
+  { to: "/agent-marketplace", icon: Store, label: "Marketplace", shortLabel: "Market", description: "Browse AI Agents", public: true },
+  { to: "/voice-agent", icon: Phone, label: "Voice AI", shortLabel: "Voice", description: "Voice Agent Studio", public: true },
+  { to: "/pricing", icon: Sparkles, label: "Pricing", shortLabel: "Price", description: "Plans & Pricing", public: true },
 ];
 
 // Mobile bottom nav items (simplified, most important routes)
@@ -54,10 +55,10 @@ export const navSections: NavSection[] = [
     id: "main",
     label: "Main",
     items: [
-      { to: "/chat", icon: MessageSquare, label: "Chat" },
-      { to: "/getting-started", icon: Rocket, label: "Getting Started" },
-      { to: "/agent-marketplace", icon: Store, label: "Marketplace" },
-      { to: "/pricing", icon: Sparkles, label: "Pricing" },
+      { to: "/chat", icon: MessageSquare, label: "Chat", description: "AI Chat Interface", public: false },
+      { to: "/getting-started", icon: Rocket, label: "Getting Started", description: "Quick Start Guide", public: true },
+      { to: "/agent-marketplace", icon: Store, label: "Marketplace", description: "Browse AI Agents", public: true },
+      { to: "/pricing", icon: Sparkles, label: "Pricing", description: "Plans & Pricing", public: true },
     ],
   },
   {
@@ -115,13 +116,20 @@ export const navSections: NavSection[] = [
     id: "system",
     label: "System",
     items: [
-      { to: "/system-health", icon: Shield, label: "System Health" },
-      { to: "/evolution", icon: Zap, label: "Evolution System" },
-      { to: "/agi-dashboard", icon: Brain, label: "AGI Dashboard" },
-      { to: "/capabilities", icon: BookOpen, label: "Capabilities" },
-      { to: "/achievements", icon: Trophy, label: "Achievements" },
-      { to: "/referrals", icon: TrendingUp, label: "Referrals" },
-      { to: "/advanced-ai", icon: Cpu, label: "Advanced AI" },
+      { to: "/system-health", icon: Shield, label: "System Health", description: "Monitor System Status" },
+      { to: "/evolution", icon: Zap, label: "Evolution System", description: "Self-Learning AI" },
+      { to: "/agi-dashboard", icon: Brain, label: "AGI Dashboard", description: "AGI Control Center" },
+      { to: "/capabilities", icon: BookOpen, label: "Capabilities", description: "System Capabilities" },
+      { to: "/achievements", icon: Trophy, label: "Achievements", description: "Your Achievements" },
+      { to: "/referrals", icon: TrendingUp, label: "Referrals", description: "Referral Program" },
+      { to: "/advanced-ai", icon: Cpu, label: "Advanced AI", description: "Advanced AI Features" },
+    ],
+  },
+  {
+    id: "admin",
+    label: "Administration",
+    items: [
+      { to: "/super-admin", icon: Settings, label: "Super Admin", description: "Admin Dashboard", adminOnly: true },
     ],
   },
 ];
