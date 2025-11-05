@@ -100,6 +100,11 @@ export function Footer() {
                   Terms of Service
                 </Link>
               </li>
+              <li>
+                <Link to="/sitemap" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Sitemap
+                </Link>
+              </li>
             </ul>
             <div className="flex gap-4 pt-2">
               <a 

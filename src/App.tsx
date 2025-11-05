@@ -49,6 +49,7 @@ const MultimodalStudio = lazy(() => import("./pages/MultimodalStudio"));
 const VoiceAgent = lazy(() => import("./pages/VoiceAgent"));
 const VoiceAgentManager = lazy(() => import("./pages/VoiceAgentManager"));
 const ModelComparison = lazy(() => import("./pages/ModelComparison"));
+const Sitemap = lazy(() => import("./pages/Sitemap"));
 const BrowserAI = lazy(() => import("./pages/BrowserAI"));
 const AIHub = lazy(() => import("./pages/AIHub"));
 const AdvancedBrowserAI = lazy(() => import("./pages/AdvancedBrowserAI"));
@@ -338,6 +339,7 @@ const RoutesWithShortcuts = () => {
             }
           />
           <Route path="/model-comparison" element={<ModelComparison />} />
+          <Route path="/sitemap" element={<Sitemap />} />
           <Route
             path="/browser-ai"
             element={
