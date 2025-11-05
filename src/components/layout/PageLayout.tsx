@@ -3,6 +3,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PageTransition } from "@/components/ui/page-transition";
 import { MobileLayout } from "@/components/mobile/MobileLayout";
+import { BreadcrumbNav } from "@/components/BreadcrumbNav";
 import { useMobile } from "@/hooks/useMobile";
 
 interface PageLayoutProps {
@@ -35,6 +36,7 @@ export function PageLayout({
       showBottomNav={showBottomNav}
     >
       <div className={className}>
+        <BreadcrumbNav />
         {children}
       </div>
       {showFooter && <Footer />}
@@ -42,7 +44,12 @@ export function PageLayout({
   ) : (
     <div className="min-h-screen bg-background flex flex-col">
       {showHeader && <Header />}
-      <main className={`flex-1 ${className}`}>{children}</main>
+      <main className={`flex-1 ${className}`}>
+        <div className="container mx-auto px-4 pt-4">
+          <BreadcrumbNav />
+        </div>
+        {children}
+      </main>
       {showFooter && <Footer />}
     </div>
   );
