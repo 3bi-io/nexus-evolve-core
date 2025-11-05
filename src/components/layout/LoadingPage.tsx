@@ -10,7 +10,7 @@ interface LoadingPageProps {
 export function LoadingPage({ showNavigation = true, cardCount = 1 }: LoadingPageProps) {
   return (
     <div className="min-h-screen bg-background">
-      {showNavigation && <Header />}
+      {showNavigation && <Header showSidebarTrigger={false} />}
       <div className="container mx-auto py-8 px-4">
         <div className="space-y-6">
           <div className="space-y-2">

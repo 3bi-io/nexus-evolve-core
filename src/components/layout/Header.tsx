@@ -3,10 +3,13 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
 import { CreditBalance } from "@/components/pricing/CreditBalance";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Brain } from "lucide-react";
 
-export function Header() {
+interface HeaderProps {
+  showSidebarTrigger?: boolean;
+}
+
+export function Header({ showSidebarTrigger = true }: HeaderProps) {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
 
@@ -18,9 +21,8 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-14 items-center px-4 gap-4">
-        {/* Left: Sidebar Toggle + Logo */}
+        {/* Left: Logo */}
         <div className="flex items-center gap-3">
-          <SidebarTrigger />
           <Link to="/" className="flex items-center gap-2">
             <Brain className="w-6 h-6 text-primary" />
             <span className="font-bold text-lg hidden sm:inline-block">Oneiros</span>
