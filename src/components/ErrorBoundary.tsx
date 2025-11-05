@@ -1,8 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { AlertTriangle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
+import { FallbackError } from './FallbackError';
 
 interface Props {
   children: ReactNode;
@@ -57,42 +55,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   public render() {
     if (this.state.hasError) {
-      return (
-        <div className="min-h-screen bg-background flex items-center justify-center p-4">
-          <Card className="max-w-lg w-full">
-            <CardHeader>
-              <div className="flex items-center gap-2 text-destructive mb-2">
-                <AlertTriangle className="h-6 w-6" />
-                <CardTitle>Something went wrong</CardTitle>
-              </div>
-              <CardDescription>
-                An unexpected error occurred. The error has been logged and we'll work on fixing it.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {this.state.error && (
-                <div className="bg-muted p-3 rounded-md">
-                  <p className="text-sm font-mono text-muted-foreground">
-                    {this.state.error.message}
-                  </p>
-                </div>
-              )}
-              <div className="flex gap-2">
-                <Button onClick={this.handleReset} className="flex-1">
-                  Try Again
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => window.location.href = '/'} 
-                  className="flex-1"
-                >
-                  Go Home
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      );
+      return <FallbackError error={this.state.error || undefined} resetErrorBoundary={this.handleReset} />;
     }
 
     return this.props.children;
