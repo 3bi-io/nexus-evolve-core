@@ -47,6 +47,7 @@ const Capabilities = lazy(() => import("./pages/Capabilities"));
 const GettingStarted = lazy(() => import("./pages/GettingStarted"));
 const MultimodalStudio = lazy(() => import("./pages/MultimodalStudio"));
 const VoiceAgent = lazy(() => import("./pages/VoiceAgent"));
+const VoiceAgentManager = lazy(() => import("./pages/VoiceAgentManager"));
 const ModelComparison = lazy(() => import("./pages/ModelComparison"));
 const BrowserAI = lazy(() => import("./pages/BrowserAI"));
 const AIHub = lazy(() => import("./pages/AIHub"));
@@ -220,6 +221,7 @@ const RoutesWithShortcuts = () => {
           />
           <Route path="/agent-marketplace" element={<AgentMarketplace />} />
           <Route path="/voice-agent" element={<VoiceAgent />} />
+          <Route path="/voice-agent-manager" element={<VoiceAgentManager />} />
           <Route
             path="/agent-studio"
             element={
