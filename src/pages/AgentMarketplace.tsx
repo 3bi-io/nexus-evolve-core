@@ -108,7 +108,7 @@ export default function AgentMarketplace() {
         <div className="text-center space-y-4">
           <Badge variant="secondary" className="text-base px-4 py-2">
             <Sparkles className="h-4 w-4 mr-2" />
-            1,000+ Ready-to-Deploy AI Agents
+            Beta Marketplace
           </Badge>
           <div className="flex items-center justify-center gap-3">
             <Store className="w-10 h-10 text-primary" />
@@ -117,16 +117,6 @@ export default function AgentMarketplace() {
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Deploy specialized agents instantly or build your own and earn credits from the community
           </p>
-          <div className="flex flex-wrap justify-center gap-4 text-sm">
-            <div className="flex items-center gap-1.5">
-              <Users className="h-4 w-4 text-primary" />
-              <span>2,847 active creators</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <DollarSign className="h-4 w-4 text-primary" />
-              <span>$127K+ earned by creators</span>
-            </div>
-          </div>
         </div>
 
         {/* Search & Filters */}
@@ -134,7 +124,7 @@ export default function AgentMarketplace() {
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
-              placeholder="Search 1,000+ agents..."
+              placeholder="Search agents..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"

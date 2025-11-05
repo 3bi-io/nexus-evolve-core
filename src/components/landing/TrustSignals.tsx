@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Shield, Zap, Users, TrendingUp, Clock } from 'lucide-react';
+import { Shield, Zap, Users, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const ACTIVITY_MESSAGES = [
@@ -63,19 +63,7 @@ export function TrustSignals() {
       </div>
 
       {/* Trust Metrics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="p-4 text-center hover:shadow-lg transition-all hover:-translate-y-1">
-          <Users className="h-8 w-8 mx-auto mb-2 text-primary" />
-          <div className="text-2xl font-bold">100,000+</div>
-          <div className="text-xs text-muted-foreground">AI Interactions</div>
-        </Card>
-
-        <Card className="p-4 text-center hover:shadow-lg transition-all hover:-translate-y-1">
-          <TrendingUp className="h-8 w-8 mx-auto mb-2 text-success" />
-          <div className="text-2xl font-bold">98%</div>
-          <div className="text-xs text-muted-foreground">Satisfaction Score</div>
-        </Card>
-
+      <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
         <Card className="p-4 text-center hover:shadow-lg transition-all hover:-translate-y-1">
           <Zap className="h-8 w-8 mx-auto mb-2 text-warning" />
           <div className="text-2xl font-bold">&lt;1.5s</div>
@@ -98,10 +86,6 @@ export function TrustSignals() {
         <Badge variant="outline" className="px-4 py-2 hover:bg-primary/10 transition-colors">
           <Shield className="h-4 w-4 mr-2" />
           GDPR Compliant
-        </Badge>
-        <Badge variant="outline" className="px-4 py-2 hover:bg-primary/10 transition-colors">
-          <Zap className="h-4 w-4 mr-2" />
-          99.9% Uptime
         </Badge>
         <Badge variant="outline" className="px-4 py-2 hover:bg-primary/10 transition-colors">
           <Users className="h-4 w-4 mr-2" />
