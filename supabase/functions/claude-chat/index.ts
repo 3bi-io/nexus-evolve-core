@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { anthropicFetch } from "../_shared/api-client.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -12,21 +13,11 @@ serve(async (req) => {
   
   try {
     const { messages, systemPrompt, maxTokens = 4096 } = await req.json();
-    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
-    
-    if (!ANTHROPIC_API_KEY) {
-      throw new Error("ANTHROPIC_API_KEY not configured");
-    }
     
     console.log(`[Claude] Processing ${messages.length} messages`);
     
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await anthropicFetch("/v1/messages", {
       method: "POST",
-      headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
       body: JSON.stringify({
         model: "claude-sonnet-4-5",
         max_tokens: maxTokens,
@@ -37,6 +28,9 @@ serve(async (req) => {
         })),
         stream: true
       }),
+    }, {
+      timeout: 60000, // 60s for streaming
+      maxRetries: 2,
     });
     
     if (!response.ok) {

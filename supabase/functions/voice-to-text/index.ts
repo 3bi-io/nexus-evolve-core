@@ -1,5 +1,6 @@
 import 'https://deno.land/x/xhr@0.1.0/mod.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
+import { fetchWithRetry } from '../_shared/api-client.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -80,12 +81,15 @@ Deno.serve(async (req) => {
       throw new Error('OPENAI_API_KEY not configured');
     }
 
-    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+    const response = await fetchWithRetry('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openaiKey}`,
       },
       body: formData,
+    }, {
+      timeout: 30000,
+      maxRetries: 2,
     });
 
     if (!response.ok) {

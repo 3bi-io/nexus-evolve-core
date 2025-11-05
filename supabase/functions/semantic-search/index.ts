@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { openAIFetch } from "../_shared/api-client.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -36,20 +37,15 @@ serve(async (req) => {
 
     console.log(`Semantic search in ${table}: "${query}"`);
 
-    // Generate real embedding for query using OpenAI
-    const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
-    if (!OPENAI_API_KEY) throw new Error("OPENAI_API_KEY not configured");
-
-    const embeddingResponse = await fetch("https://api.openai.com/v1/embeddings", {
+    const embeddingResponse = await openAIFetch("/v1/embeddings", {
       method: "POST",
-      headers: {
-        "Authorization": `Bearer ${OPENAI_API_KEY}`,
-        "Content-Type": "application/json"
-      },
       body: JSON.stringify({
         model: "text-embedding-3-small",
         input: query
       })
+    }, {
+      timeout: 15000,
+      maxRetries: 3,
     });
 
     if (!embeddingResponse.ok) {

@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
+import { lovableAIFetch } from '../_shared/api-client.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -49,15 +50,8 @@ Deno.serve(async (req) => {
       : `${prompt}. Ultra high resolution, professional quality.`;
 
     // Use Lovable AI Gateway for image generation
-    const apiKey = Deno.env.get('LOVABLE_API_KEY');
-    if (!apiKey) throw new Error('LOVABLE_API_KEY not configured');
-
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await lovableAIFetch('/v1/chat/completions', {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify({
         model: 'google/gemini-2.5-flash-image',
         messages: [
@@ -68,6 +62,9 @@ Deno.serve(async (req) => {
         ],
         modalities: ['image', 'text'],
       }),
+    }, {
+      timeout: 60000, // 60s for image generation
+      maxRetries: 2,
     });
 
     if (!response.ok) {

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { anthropicFetch } from "../_shared/api-client.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -31,9 +32,6 @@ serve(async (req) => {
     const { data: { user }, error: userError } = await supabase.auth.getUser(token);
     if (userError || !user) throw new Error("Invalid user token");
 
-    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
-    if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY not configured");
-
     const { task, context, max_steps = 5 }: ComputerUseRequest = await req.json();
 
     console.log(`Computer Use task: ${task}`);
@@ -44,13 +42,8 @@ Your goal is to complete the user's task efficiently and accurately.
 ${context ? `Additional context: ${context}` : ""}`;
 
     const startTime = Date.now();
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
+    const response = await anthropicFetch("/v1/messages", {
       method: "POST",
-      headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         model: "claude-sonnet-4-5",
         max_tokens: 4096,
@@ -79,6 +72,9 @@ ${context ? `Additional context: ${context}` : ""}`;
           },
         ],
       }),
+    }, {
+      timeout: 120000, // 2 minutes for computer use tasks
+      maxRetries: 2,
     });
 
     if (!response.ok) {
