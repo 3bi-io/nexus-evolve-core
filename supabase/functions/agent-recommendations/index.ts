@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
     }
 
     // Model recommendation
-    if (avgResponseTime > 8000 && agent.model === 'claude-3-opus-20240229') {
+    if (avgResponseTime > 8000 && agent.model === 'google/gemini-2.5-pro') {
       suggestions.push({
         suggestion_type: 'model',
         suggestion: 'Switch to claude-3-sonnet-20240229',

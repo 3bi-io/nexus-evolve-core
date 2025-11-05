@@ -139,8 +139,8 @@ export const useSmartAIRouter = () => {
         const modelMap: Record<AITask, string> = {
           "text-generation": "google/gemini-2.5-flash",
           "text-to-image": "google/gemini-2.5-flash-image",
-          "embeddings": "google/gemini-2.5-flash",
-          "classification": "google/gemini-2.5-flash"
+          "embeddings": "google/gemini-2.5-flash-lite",
+          "classification": "google/gemini-2.5-flash-lite"
         };
         model = request.model || modelMap[request.task];
 

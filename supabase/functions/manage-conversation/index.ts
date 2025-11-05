@@ -57,7 +57,7 @@ Deno.serve(async (req) => {
                 'anthropic-version': '2023-06-01'
               },
               body: JSON.stringify({
-                model: 'claude-3-haiku-20240307',
+                model: 'google/gemini-2.5-flash-lite',
                 max_tokens: 50,
                 messages: [{ role: 'user', content: prompt }]
               })

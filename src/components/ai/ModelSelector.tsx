@@ -66,11 +66,13 @@ export function ModelSelector({
   const lovableModels = {
     'text-generation': [
       { id: 'google/gemini-2.5-flash', name: 'Gemini 2.5 Flash', cost: 0.001, speed: 'Fast' },
+      { id: 'google/gemini-2.5-flash-lite', name: 'Gemini 2.5 Flash Lite', cost: 0.0005, speed: 'Fastest' },
       { id: 'google/gemini-2.5-pro', name: 'Gemini 2.5 Pro', cost: 0.005, speed: 'Medium' },
       { id: 'openai/gpt-5-mini', name: 'GPT-5 Mini', cost: 0.002, speed: 'Fast' },
+      { id: 'openai/gpt-5', name: 'GPT-5', cost: 0.01, speed: 'Slow' },
     ],
     'text-to-image': [
-      { id: 'google/gemini-2.5-flash-image-preview', name: 'Gemini Image', cost: 0.01, speed: 'Fast' },
+      { id: 'google/gemini-2.5-flash-image', name: 'Gemini Image', cost: 0.01, speed: 'Fast' },
     ],
     'feature-extraction': [],
   };

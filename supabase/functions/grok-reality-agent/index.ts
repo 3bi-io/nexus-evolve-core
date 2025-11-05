@@ -109,7 +109,7 @@ async function getTrendingTopics(apiKey: string, supabase: any, userId: string) 
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'grok-3-20260418',
+      model: 'grok-beta',
       messages: [
         {
           role: 'system',
@@ -183,7 +183,7 @@ async function analyzeSentiment(apiKey: string, supabase: any, userId: string, t
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'grok-3-20260418',
+      model: 'grok-beta',
       messages: [
         {
           role: 'system',
@@ -229,7 +229,7 @@ async function generateViralContent(apiKey: string, supabase: any, userId: strin
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'grok-3-20260418',
+      model: 'grok-beta',
       messages: [
         {
           role: 'system',
@@ -276,7 +276,7 @@ async function predictTrend(apiKey: string, supabase: any, userId: string, topic
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      model: 'grok-3-20260418',
+      model: 'grok-beta',
       messages: [
         {
           role: 'system',

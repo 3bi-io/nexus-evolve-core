@@ -112,7 +112,7 @@ Deno.serve(async (req) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'claude-3-haiku-20240307',
+            model: 'google/gemini-2.5-flash-lite',
             max_tokens: 1,
             messages: [{ role: 'user', content: 'test' }]
           })

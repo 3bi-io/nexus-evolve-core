@@ -119,7 +119,7 @@ export const useUnifiedAIRouter = () => {
           if ((priority === "privacy" || priority === "cost") && hasWebGPU) {
             return {
               provider: "browser",
-              model: "mixedbread-ai/mxbai-embed-xsmall-v1",
+              model: "Xenova/all-MiniLM-L6-v2",
               reason: "Free and private in-browser processing",
               estimatedCost: 0,
               estimatedLatency: metrics.browser.avgLatency,
@@ -129,7 +129,7 @@ export const useUnifiedAIRouter = () => {
           if (priority === "speed" && hasWebGPU) {
             return {
               provider: "browser",
-              model: "mixedbread-ai/mxbai-embed-xsmall-v1",
+              model: "Xenova/all-MiniLM-L6-v2",
               reason: "Fastest with WebGPU acceleration",
               estimatedCost: 0,
               estimatedLatency: metrics.browser.avgLatency,
