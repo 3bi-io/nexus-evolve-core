@@ -97,9 +97,9 @@ export default function AgentMarketplace() {
   return (
     <PageLayout>
       <SEO 
-        title="Agent Marketplace - 1,000+ Ready AI Agents | Build & Monetize"
-        description="Browse 1,000+ specialized AI agents or build your own. Earn credits by sharing agents with the community. Agents for productivity, coding, creativity, research, and business."
-        keywords="AI agent marketplace, custom AI agents, agent builder, AI marketplace, buy AI agents, monetize AI"
+        title="Agent Marketplace - 1,000+ Specialized Agents | Deploy Instantly"
+        description="Browse 1,000+ specialized AI agents ready to deploy. Build your own in Agent Studio and monetize across the unified platform. 70% creator revenue share. Accessible from sidebar."
+        keywords="AI agent marketplace, custom AI agents, agent builder, monetize AI agents, deploy agents, agent marketplace platform"
         canonical="https://oneiros.me/agent-marketplace"
         ogImage="/og-marketplace.png"
       />
@@ -115,7 +115,8 @@ export default function AgentMarketplace() {
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Agent Marketplace</h1>
           </div>
           <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Deploy specialized agents instantly or build your own and earn credits from the community
+            1,000+ specialized agents ready to deploy instantly. Build your own and earn forever. 
+            Access marketplace anytime from sidebar (Agents → Marketplace).
           </p>
         </div>
 
@@ -182,9 +183,9 @@ export default function AgentMarketplace() {
                 <h3 className="text-2xl font-bold">Earn While You Build</h3>
               </div>
               <p className="text-muted-foreground leading-relaxed">
-                Create custom agents in Agent Studio and list them on the marketplace. 
-                Top creators earn <strong>$2,000+/month</strong> in credits from their agents. 
-                Plus, build your reputation and help the community.
+                Build once, earn forever. Create custom agents in Agent Studio (accessible from sidebar) 
+                and list them on the marketplace. Top creators earn <strong>$2,000+/month</strong> in credits. 
+                Your agents work across the entire unified platform and integrate with all 9 AI systems.
               </p>
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm">
@@ -246,9 +247,9 @@ export default function AgentMarketplace() {
             </Card>
             <Card className="p-6 space-y-3">
               <Users className="h-8 w-8 text-primary" />
-              <p className="text-4xl font-bold">847</p>
+              <p className="text-4xl font-bold">1,000+</p>
               <p className="text-sm text-muted-foreground">
-                Active agents deployed by the community
+                Specialized agents ready to deploy across the platform
               </p>
             </Card>
             <Card className="p-6 space-y-3">

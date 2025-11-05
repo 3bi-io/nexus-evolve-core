@@ -24,15 +24,15 @@ const steps = [
   },
   {
     number: 2,
-    title: 'Choose a Template',
-    description: 'Pick from quick-start templates below or start with a blank chat.',
+    title: 'Explore the Sidebar',
+    description: 'Navigate all 9 AI systems from the unified sidebar. Press Cmd+B (or Ctrl+B) to toggle anytime.',
     time: '1 min',
-    action: 'Select template',
+    action: 'Discover navigation',
   },
   {
     number: 3,
     title: 'Start Your First Chat',
-    description: 'Ask anything. Our AI automatically routes to the best agent.',
+    description: 'Ask anything. Our AI automatically routes to the best agent for your query.',
     time: '2 min',
     action: 'Begin chatting',
   },
@@ -46,9 +46,9 @@ const steps = [
 ];
 
 const quickWins = [
-  { icon: Zap, title: 'Generate an image', description: 'Try: "Create a futuristic city landscape"' },
-  { icon: Play, title: 'Have a voice conversation', description: 'Go to Voice AI and start talking' },
-  { icon: CheckCircle2, title: 'Build a custom agent', description: 'Visit Agent Studio to create your first agent' },
+  { icon: Zap, title: 'Navigate with keyboard', description: 'Press Cmd+B (or Ctrl+B) to toggle sidebar - power user tip!' },
+  { icon: Play, title: 'Have a voice conversation', description: 'Click Voice AI in sidebar and start talking naturally' },
+  { icon: CheckCircle2, title: 'Build a custom agent', description: 'Visit Agent Studio from sidebar to create your first agent' },
 ];
 
 export default function GettingStarted() {
@@ -191,7 +191,7 @@ export default function GettingStarted() {
         <div className="text-center space-y-6">
           <h2 className="text-3xl font-bold">Ready to Transform Your Workflow?</h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Join 10,847 teams already shipping 3x faster with Oneiros
+            Join 10,847 teams using the unified AI platform to ship 3x faster
           </p>
           <div className="flex gap-4 justify-center">
             <Button size="lg" onClick={() => window.location.href = '/auth'}>

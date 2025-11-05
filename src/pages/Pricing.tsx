@@ -20,12 +20,12 @@ const Pricing = () => {
     {
       question: "Why beta pricing? What's the catch?",
       answer:
-        "No catch - we're transparent. We're in beta with a small but growing user base. Our tech is production-ready (68 database tables, 20+ edge functions, 9 AI systems), but we're building in public. Early users get lifetime founder rates as a thank you for joining early and providing feedback. When we officially launch, prices will increase - but yours stays locked in forever.",
+        "No catch - we're transparent. We're in beta with a small but growing user base. Our tech is production-ready (68 database tables, 20+ edge functions, 9 AI systems, unified sidebar navigation), but we're building in public. Early users get lifetime founder rates as a thank you for joining early and providing feedback. When we officially launch, prices will increase - but yours stays locked in forever.",
     },
     {
       question: "What's included in the free tier?",
       answer:
-        "The free tier includes: 500 daily AI interactions (resets every day), access to all 9 AI systems, multi-agent orchestration, temporal memory, voice AI, agent marketplace access, browser AI, knowledge graphs, beta tester badge, and community support. It's genuinely free forever - no credit card required, no surprise charges.",
+        "The free tier includes: 500 daily AI interactions (resets every day), unified sidebar navigation across all 9 AI systems, multi-agent orchestration, temporal memory, voice AI, agent marketplace access, browser AI, knowledge graphs, keyboard shortcuts (Cmd+B), beta tester badge, and community support. It's genuinely free forever - no credit card required, no surprise charges.",
     },
     {
       question: "What does 'locked in forever' mean?",
@@ -80,8 +80,8 @@ const Pricing = () => {
             Beta Pricing for Early Users
           </h1>
           <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Join the first 100 founder rate users. Start free forever or lock in <strong className="text-primary">$29/mo for life</strong>. 
-            Price increases to $49/mo after beta.
+            Join the first 1,000 founder rate users. Start free forever or lock in <strong className="text-primary">$29/mo for life</strong>. 
+            Price increases to $49/mo after beta. Includes unified platform experience with all features.
           </p>
           <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm pt-2">
             <div className="flex items-center gap-1.5 sm:gap-2">

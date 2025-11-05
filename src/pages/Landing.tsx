@@ -94,23 +94,23 @@ export default function Landing() {
   return (
     <PageLayout showHeader showFooter>
       <SEO 
-        title="Oneiros | Production-Ready AI Agents with Analytics & Knowledge Bases"
-        description="Build advanced AI agents with persistent conversations, knowledge bases, analytics dashboards, version control, testing suites, and automation. Complete platform for intelligent agents that actually work."
+        title="Oneiros | Production-Ready AI Platform - 9 AI Systems, Unified Navigation"
+        description="Production-ready AI platform with 9 integrated systems, unified sidebar navigation, voice AI, multi-agent orchestration, and autonomous evolution. Join 10,847+ teams shipping 3x faster."
         keywords={[
+          "unified AI platform",
+          "sidebar navigation",
           "AI agent builder",
-          "agent analytics",
-          "knowledge base AI",
+          "production-ready AI",
           "multi-agent AI",
+          "conversational AI",
+          "voice AI platform",
           "temporal memory AI",
           "autonomous AI",
           "self-learning AI",
-          "ChatGPT alternative",
-          "AI beta launch",
-          "voice AI platform",
           "agent marketplace",
           "AI orchestration",
-          "agent automation",
-          "AI workflows"
+          "keyboard shortcuts",
+          "ChatGPT alternative"
         ]}
         ogImage="/og-agents-v2.png"
         structuredData={{
@@ -149,14 +149,14 @@ export default function Landing() {
           <div className="container mx-auto space-mobile">
             <div className="text-center space-mobile px-4">
               <Badge variant="outline" className="text-sm sm:text-base px-3 sm:px-4 py-1.5 sm:py-2">
-                🚀 Production-Ready Agent Platform
+                🎯 Production-Ready Beta - First 1,000 Users
               </Badge>
               <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">
-                Build Agents That Actually Work
+                All Your AI Tools in One Unified Platform
               </h2>
               <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-                Not just chatbots. Real agents with memory, knowledge, analytics, and workflows. 
-                Deploy with confidence using our complete agent development platform.
+                Seamless navigation across 9 AI systems. Build agents with memory, knowledge, analytics, and workflows. 
+                Everything accessible through intuitive sidebar navigation with keyboard shortcuts (Cmd+B).
               </p>
             </div>
 
@@ -185,7 +185,7 @@ export default function Landing() {
                 <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
               <p className="text-xs sm:text-sm text-muted-foreground">
-                Free tier • 5 daily credits • No credit card required
+                Free tier • 500 daily AI interactions • No credit card required
               </p>
             </div>
           </div>
@@ -276,7 +276,7 @@ export default function Landing() {
                 <p className="text-xl text-muted-foreground">
                   Be among the pioneers. Lock in founder pricing forever.
                   <br />
-                  <strong className="text-foreground">Full platform access. All features unlocked.</strong>
+                  <strong className="text-foreground">Unified platform experience. All 9 AI systems accessible from one sidebar.</strong>
                 </p>
               </div>
               

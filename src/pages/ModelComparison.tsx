@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -135,10 +135,12 @@ const ModelComparison = () => {
 
   return (
     <PageLayout>
-      <Helmet>
-        <title>Model Comparison - Test AI Models Side-by-Side</title>
-        <meta name="description" content="Compare different AI models performance, cost, and quality" />
-      </Helmet>
+      <SEO 
+        title="Model Comparison - Compare AI Models Side-by-Side | Oneiros"
+        description="Compare AI models across the platform's 9 AI systems. Test performance, cost, and quality side-by-side. See how our router selects the best model for your query automatically."
+        keywords="AI model comparison, compare AI models, model performance, AI benchmarking, model testing, transparent AI"
+        canonical="https://oneiros.me/model-comparison"
+      />
 
       <div className="container mx-auto py-8 space-y-6">
         <div>
@@ -147,7 +149,8 @@ const ModelComparison = () => {
             Model Comparison
           </h1>
           <p className="text-muted-foreground">
-            Test multiple AI models side-by-side to compare performance, cost, and quality
+            Compare AI models across the platform's 9 systems. Results automatically saved to your session. 
+            See transparent AI - know exactly what's running under the hood.
           </p>
         </div>
 

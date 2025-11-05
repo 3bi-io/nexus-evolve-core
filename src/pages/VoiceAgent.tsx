@@ -14,27 +14,27 @@ import { SEO } from "@/components/SEO";
 const USE_CASES = [
   {
     icon: Users,
-    title: 'Customer Support',
-    description: '24/7 voice support that handles inquiries, resolves issues, and escalates complex cases.',
-    stat: '89% automation',
-  },
-  {
-    icon: Clock,
-    title: 'Scheduling & Reminders',
-    description: 'Voice-based calendar management, meeting scheduling, and automated reminders.',
-    stat: 'Saves 12h/week',
+    title: 'Team Meetings',
+    description: 'Have voice meetings with AI. Discuss complex topics, iterate on ideas in real-time like talking to a colleague.',
+    stat: '3x faster than typing',
   },
   {
     icon: Sparkles,
-    title: 'Content Creation',
-    description: 'Brainstorm ideas, draft content, and refine messaging through natural conversation.',
-    stat: '3x faster writing',
+    title: 'Creative Brainstorming',
+    description: 'Talk through ideas naturally. AI understands interruptions, context switches, and follows your train of thought.',
+    stat: '95% natural quality',
+  },
+  {
+    icon: Clock,
+    title: 'While Multitasking',
+    description: 'Get work done hands-free. Talk to AI while cooking, driving, or doing other tasks.',
+    stat: 'Works anywhere',
   },
   {
     icon: Zap,
-    title: 'Quick Research',
-    description: 'Ask questions, get instant answers, and have AI search your knowledge base.',
-    stat: 'Instant results',
+    title: 'Customer Support',
+    description: '24/7 natural conversations that handle inquiries, resolve issues, and escalate complex cases with empathy.',
+    stat: '89% automation',
   },
 ];
 
@@ -63,9 +63,9 @@ export default function VoiceAgent() {
   return (
     <PageLayout>
       <SEO 
-        title="Voice AI - Have Conversations, Not Chats | 5-Minute Setup"
-        description="Natural voice conversations with AI. Real-time speech recognition, intelligent responses, function calling. Talk to AI like talking to a person. Powered by ElevenLabs."
-        keywords="voice AI, ElevenLabs, conversational AI, voice agent, speech recognition, text to speech, voice chatbot, natural language"
+        title="Voice AI - Have Meetings, Not Messages | Natural Conversations"
+        description="Stop typing. Start talking. Natural voice conversations with AI that understands interruptions, context switches, and complex discussions. 3x faster than typing. Powered by ElevenLabs."
+        keywords="voice AI, ElevenLabs, conversational AI, natural voice, speech recognition, voice meetings, talk to AI, conversational interface, voice assistant"
         canonical="https://oneiros.me/voice-agent"
         ogImage="/og-voice-v2.png"
       />
@@ -78,31 +78,36 @@ export default function VoiceAgent() {
           </Badge>
           <div className="flex items-center justify-center gap-3">
             <Phone className="w-10 h-10 text-primary" />
-            <h1 className="text-4xl font-bold">Voice AI Agent</h1>
+            <h1 className="text-4xl font-bold">Voice AI - Have Meetings, Not Messages</h1>
           </div>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Have <strong>conversations</strong>, not chats. Natural voice interactions with AI that understands context, 
-            invokes tools, and responds like a real person.
+            <strong>Stop typing. Start talking.</strong> Natural back-and-forth conversations with AI. 
+            Handles interruptions, understands context switches, and feels human. Talk like you're in a meeting with a colleague.
           </p>
           <div className="flex flex-wrap justify-center gap-4 text-sm">
             <div className="flex items-center gap-1.5">
-              <Clock className="h-4 w-4 text-primary" />
-              <span>5-minute setup</span>
+              <Zap className="h-4 w-4 text-primary" />
+              <span>3x faster than typing</span>
             </div>
             <div className="flex items-center gap-1.5">
               <Mic className="h-4 w-4 text-primary" />
-              <span>Real-time speech</span>
+              <span>Natural interruptions</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Zap className="h-4 w-4 text-primary" />
-              <span>Function calling</span>
+              <Clock className="h-4 w-4 text-primary" />
+              <span>5-minute setup</span>
             </div>
           </div>
         </div>
 
         {/* Use Cases */}
         <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-center">Perfect For</h2>
+          <div className="text-center space-y-2">
+            <h2 className="text-2xl font-bold">Why Voice?</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Voice AI makes complex discussions feel natural and human
+            </p>
+          </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {USE_CASES.map((useCase) => {
               const Icon = useCase.icon;
@@ -168,24 +173,24 @@ export default function VoiceAgent() {
                   <div className="pt-4 border-t space-y-3">
                     <h4 className="font-semibold flex items-center gap-2">
                       <Phone className="h-4 w-4" />
-                      Quick Setup Guide
+                      5-Minute Setup - Unlock Unlimited Voice Conversations
                     </h4>
                     <ol className="space-y-2 text-sm text-muted-foreground">
                       <li className="flex gap-2">
                         <span className="font-semibold text-foreground">1.</span>
-                        <span>Go to <a href="https://elevenlabs.io" target="_blank" rel="noopener" className="text-primary hover:underline">elevenlabs.io</a> and sign in</span>
+                        <span>Go to <a href="https://elevenlabs.io" target="_blank" rel="noopener" className="text-primary hover:underline">elevenlabs.io</a> and create an account (free tier available)</span>
                       </li>
                       <li className="flex gap-2">
                         <span className="font-semibold text-foreground">2.</span>
-                        <span>Navigate to "Conversational AI" section</span>
+                        <span>Navigate to "Conversational AI" and create your agent with custom personality</span>
                       </li>
                       <li className="flex gap-2">
                         <span className="font-semibold text-foreground">3.</span>
-                        <span>Create a new agent or select an existing one</span>
+                        <span>Configure voice, language, and knowledge base in ElevenLabs dashboard</span>
                       </li>
                       <li className="flex gap-2">
                         <span className="font-semibold text-foreground">4.</span>
-                        <span>Copy the Agent ID from settings and paste it above</span>
+                        <span>Copy the Agent ID and paste it above to connect</span>
                       </li>
                     </ol>
                   </div>
@@ -213,10 +218,10 @@ export default function VoiceAgent() {
                   <div className="flex items-start gap-4">
                     <Sparkles className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
                     <div className="space-y-2">
-                      <p className="font-semibold">Pro Tip</p>
+                      <p className="font-semibold">From Support Calls to Creative Brainstorms</p>
                       <p className="text-sm text-muted-foreground">
-                        Configure your agent's personality, voice, and knowledge base in ElevenLabs. 
-                        Then connect it here for instant voice interactions with all Oneiros capabilities.
+                        Voice makes AI feel human. Perfect for customer support, team collaboration, content creation, 
+                        and any scenario where typing slows you down. Access from sidebar anytime with full platform integration.
                       </p>
                     </div>
                   </div>
