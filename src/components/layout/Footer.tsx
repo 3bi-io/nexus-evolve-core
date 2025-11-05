@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import { Brain, Github, Twitter, Linkedin } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function Footer() {
+  const { user } = useAuth();
+
   return (
     <footer className="border-t border-border bg-card mt-auto">
       <div className="container-mobile py-8 sm:py-12">
@@ -22,13 +25,8 @@ export function Footer() {
             <h3 className="font-semibold text-base">Product</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/chat" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Chat
-                </Link>
-              </li>
-              <li>
-                <Link to="/pricing" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Pricing
+                <Link to="/getting-started" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Getting Started
                 </Link>
               </li>
               <li>
@@ -37,44 +35,56 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/getting-started" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Getting Started
+                <Link to="/voice-agent" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Voice Agent
+                </Link>
+              </li>
+              <li>
+                <Link to="/model-comparison" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Model Comparison
+                </Link>
+              </li>
+              <li>
+                <Link to="/pricing" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Pricing
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Resources */}
-          <div className="space-y-4">
-            <h3 className="font-semibold text-base">Resources</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link to="/analytics" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Analytics
-                </Link>
-              </li>
-              <li>
-                <Link to="/agi-dashboard" className="text-muted-foreground hover:text-foreground transition-colors">
-                  AGI Dashboard
-                </Link>
-              </li>
-              <li>
-                <Link to="/evolution" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Evolution
-                </Link>
-              </li>
-              <li>
-                <Link to="/integrations" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Integrations
-                </Link>
-              </li>
-              <li>
-                <Link to="/api-access" className="text-muted-foreground hover:text-foreground transition-colors">
-                  API Access
-                </Link>
-              </li>
-            </ul>
-          </div>
+          {/* Resources - Only show for authenticated users */}
+          {user && (
+            <div className="space-y-4">
+              <h3 className="font-semibold text-base">For Members</h3>
+              <ul className="space-y-2 text-sm">
+                <li>
+                  <Link to="/analytics" className="text-muted-foreground hover:text-foreground transition-colors">
+                    Analytics
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/agi-dashboard" className="text-muted-foreground hover:text-foreground transition-colors">
+                    AGI Dashboard
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/evolution" className="text-muted-foreground hover:text-foreground transition-colors">
+                    Evolution
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/integrations" className="text-muted-foreground hover:text-foreground transition-colors">
+                    Integrations
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/api-access" className="text-muted-foreground hover:text-foreground transition-colors">
+                    API Access
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          )}
 
           {/* Legal & Social */}
           <div className="space-y-4">
