@@ -204,7 +204,7 @@ serve(async (req) => {
       // PHASE 1: Determine model to use (Claude for complex reasoning, Gemini for general)
       const complexity = agentAnalysis?.complexity || "medium";
       const useClaude = complexity === "high" || forceAgent === "claude";
-      const modelUsed = useClaude ? "claude-sonnet-4-20250514" : "google/gemini-2.5-flash";
+      const modelUsed = useClaude ? "claude-sonnet-4-5" : "google/gemini-2.5-flash";
       
       console.log(`[Phase 1] Using model: ${modelUsed} (complexity: ${complexity})`);
 
