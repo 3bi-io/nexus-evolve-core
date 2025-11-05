@@ -105,44 +105,44 @@ export default function AgentMarketplace() {
       />
       <div className="container max-w-7xl py-8 space-y-8">
         {/* Hero */}
-        <div className="text-center space-y-4">
-          <Badge variant="secondary" className="text-base px-4 py-2">
-            <Sparkles className="h-4 w-4 mr-2" />
+        <div className="text-center space-mobile px-4">
+          <Badge variant="secondary" className="text-sm sm:text-base px-3 sm:px-4 py-1.5 sm:py-2">
+            <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
             Beta Marketplace
           </Badge>
-          <div className="flex items-center justify-center gap-3">
-            <Store className="w-10 h-10 text-primary" />
-            <h1 className="text-4xl font-bold">Agent Marketplace</h1>
+          <div className="flex items-center justify-center gap-2 sm:gap-3">
+            <Store className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold">Agent Marketplace</h1>
           </div>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
             Deploy specialized agents instantly or build your own and earn credits from the community
           </p>
         </div>
 
         {/* Search & Filters */}
-        <div className="flex flex-col sm:flex-row gap-4">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 px-4 sm:px-0">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
             <Input
               placeholder="Search agents..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 h-12 text-base"
             />
           </div>
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2 h-12 touch-feedback min-h-[48px]">
             <Filter className="w-4 h-4" />
-            Filters
+            <span>Filters</span>
           </Button>
         </div>
 
         {/* Categories */}
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide snap-x snap-proximity px-4 sm:px-0 -mx-4 sm:mx-0">
           {categories.map((category) => (
             <Badge
               key={category}
               variant={selectedCategory === category ? 'default' : 'outline'}
-              className="cursor-pointer capitalize whitespace-nowrap text-base px-4 py-2"
+              className="cursor-pointer capitalize whitespace-nowrap text-sm sm:text-base px-3 sm:px-4 py-2 touch-feedback snap-start min-h-[44px] flex items-center"
               onClick={() => setSelectedCategory(category)}
             >
               {category}

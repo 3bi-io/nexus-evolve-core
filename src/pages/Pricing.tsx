@@ -69,32 +69,35 @@ const Pricing = () => {
         ogImage="/og-pricing-v2.png"
       />
 
-      <div className="container mx-auto px-4 py-12 max-w-7xl space-y-16">
+      <div className="container mx-auto px-4 py-8 sm:py-12 max-w-7xl space-y-12 sm:space-y-16">
         {/* Header */}
-        <div className="text-center space-y-6">
-          <Badge variant="outline" className="text-base px-4 py-2 animate-pulse">
-            <TrendingUp className="h-4 w-4 mr-2" />
+        <div className="text-center space-mobile">
+          <Badge variant="outline" className="text-sm sm:text-base px-3 sm:px-4 py-1.5 sm:py-2 animate-pulse">
+            <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
             🚀 Beta Launch - Lock In Founder Rates
           </Badge>
-          <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
             Beta Pricing for Early Users
           </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
             Join the first 100 founder rate users. Start free forever or lock in <strong className="text-primary">$29/mo for life</strong>. 
             Price increases to $49/mo after beta.
           </p>
-          <div className="flex flex-wrap justify-center gap-6 text-sm pt-2">
-            <div className="flex items-center gap-2">
-              <Shield className="h-4 w-4 text-primary" />
-              <span>No credit card required</span>
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm pt-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
+              <span className="hidden sm:inline">No credit card required</span>
+              <span className="sm:hidden">No card required</span>
             </div>
-            <div className="flex items-center gap-2">
-              <Zap className="h-4 w-4 text-primary" />
-              <span>Beta access to all features</span>
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
+              <span className="hidden sm:inline">Beta access to all features</span>
+              <span className="sm:hidden">All features</span>
             </div>
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-primary" />
-              <span>Lifetime founder pricing</span>
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
+              <span className="hidden sm:inline">Lifetime founder pricing</span>
+              <span className="sm:hidden">Locked price</span>
             </div>
           </div>
         </div>

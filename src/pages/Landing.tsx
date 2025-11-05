@@ -126,48 +126,48 @@ export default function Landing() {
         }}
       />
 
-      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-24">
+      <div className="container mx-auto px-4 py-6 sm:py-8 max-w-7xl space-y-16 sm:space-y-20 md:space-y-24">
         {/* Hero Section */}
         <HeroSection />
 
         {/* Problem/Solution */}
-        <section className="py-16">
-          <div className="text-center space-y-4 mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold">Sound Familiar?</h2>
-            <p className="text-lg text-muted-foreground">Traditional AI is holding you back</p>
+        <section className="section-spacing">
+          <div className="text-center space-mobile mb-8 sm:mb-12 px-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">Sound Familiar?</h2>
+            <p className="text-base sm:text-lg text-muted-foreground">Traditional AI is holding you back</p>
           </div>
           <ProblemSolution />
         </section>
 
         {/* Social Proof */}
-        <section className="py-16">
+        <section className="section-spacing">
           <BetaTrustSignals />
         </section>
 
         {/* Agent System Showcase - NEW */}
-        <section className="py-20 bg-gradient-to-b from-primary/5 to-background -mx-4 px-4 md:-mx-8 md:px-8 lg:-mx-12 lg:px-12">
-          <div className="container mx-auto space-y-12">
-            <div className="text-center space-y-4">
-              <Badge variant="outline" className="text-base px-4 py-2">
+        <section className="section-spacing bg-gradient-to-b from-primary/5 to-background -mx-4 px-4">
+          <div className="container mx-auto space-mobile">
+            <div className="text-center space-mobile px-4">
+              <Badge variant="outline" className="text-sm sm:text-base px-3 sm:px-4 py-1.5 sm:py-2">
                 🚀 Production-Ready Agent Platform
               </Badge>
-              <h2 className="text-3xl md:text-5xl font-bold">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">
                 Build Agents That Actually Work
               </h2>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
                 Not just chatbots. Real agents with memory, knowledge, analytics, and workflows. 
                 Deploy with confidence using our complete agent development platform.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            <div className="grid-mobile max-w-6xl mx-auto">
               {agentFeatures.map((feature, index) => {
                 const Icon = feature.icon;
                 return (
-                  <Card key={index} className="p-6 hover:shadow-xl transition-all hover:scale-105">
-                    <div className="space-y-3">
-                      <Icon className={`w-10 h-10 ${feature.color}`} />
-                      <h3 className="text-lg font-bold">{feature.title}</h3>
+                  <Card key={index} className="card-mobile hover:shadow-xl transition-all hover:scale-105 active:scale-95 touch-feedback">
+                    <div className="space-mobile">
+                      <Icon className={`w-8 h-8 sm:w-10 sm:h-10 ${feature.color}`} />
+                      <h3 className="text-base sm:text-lg font-bold">{feature.title}</h3>
                       <p className="text-sm text-muted-foreground">{feature.description}</p>
                     </div>
                   </Card>
@@ -175,16 +175,16 @@ export default function Landing() {
               })}
             </div>
 
-            <div className="text-center space-y-4">
+            <div className="text-center space-mobile px-4">
               <Button 
                 size="lg" 
                 onClick={() => navigate('/agent-studio')}
-                className="text-lg px-10 py-6 shadow-lg hover:scale-105 transition-all"
+                className="w-full sm:w-auto text-base sm:text-lg px-8 sm:px-10 py-6 shadow-lg hover:scale-105 active:scale-95 transition-all touch-feedback min-h-[56px]"
               >
                 Start Building Agents
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
               </Button>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 Free tier • 5 daily credits • No credit card required
               </p>
             </div>
