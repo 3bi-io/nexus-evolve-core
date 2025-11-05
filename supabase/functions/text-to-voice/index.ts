@@ -41,29 +41,35 @@ Deno.serve(async (req) => {
 
     console.log('Converting text to speech for user:', user.id);
 
-    const openaiKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openaiKey) {
-      throw new Error('OPENAI_API_KEY not configured');
+    const elevenLabsKey = Deno.env.get('ELEVENLABS_API_KEY');
+    if (!elevenLabsKey) {
+      throw new Error('ELEVENLABS_API_KEY not configured');
     }
 
-    // Generate speech from text
-    const response = await fetch('https://api.openai.com/v1/audio/speech', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openaiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'tts-1',
-        input: text,
-        voice: voice || 'alloy',
-        response_format: 'mp3',
-      }),
-    });
+    // Use ElevenLabs Turbo v2.5 for fast, high-quality text-to-speech
+    const response = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${voice || '9BWtsMINqrJLrRacOk9x'}`,
+      {
+        method: 'POST',
+        headers: {
+          'xi-api-key': elevenLabsKey,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text,
+          model_id: 'eleven_turbo_v2_5',
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.75,
+          },
+        }),
+      }
+    );
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error?.message || 'Failed to generate speech');
+      const error = await response.text();
+      console.error('ElevenLabs TTS error:', response.status, error);
+      throw new Error(`Failed to generate speech: ${response.status}`);
     }
 
     // Convert audio buffer to base64
@@ -78,7 +84,7 @@ Deno.serve(async (req) => {
       interaction_type: 'text_to_speech',
       input_text: text,
       audio_data: base64Audio.substring(0, 1000), // Store preview only
-      model_used: 'tts-1',
+      model_used: 'eleven_turbo_v2_5',
     });
 
     return new Response(

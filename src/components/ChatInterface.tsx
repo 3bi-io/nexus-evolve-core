@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Brain, Send, ThumbsUp, ThumbsDown, TrendingUp, Globe } from "lucide-react";
+import { TTSButton } from "@/components/voice/TTSButton";
 import { streamChat } from "@/lib/chat";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -439,6 +440,11 @@ export const ChatInterface = () => {
                     </div>
                     {message.role === "assistant" && message.interactionId && (
                       <div className="flex items-center gap-1">
+                        <TTSButton 
+                          text={message.content} 
+                          variant="ghost" 
+                          size="icon"
+                        />
                         <Button
                           variant="ghost"
                           size="icon"

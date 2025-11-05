@@ -11,19 +11,25 @@ import { Volume2, Loader2, Play, Pause, Download } from "lucide-react";
 export function TextToSpeech() {
   const { toast } = useToast();
   const [text, setText] = useState("");
-  const [voice, setVoice] = useState("alloy");
+  const [voice, setVoice] = useState("9BWtsMINqrJLrRacOk9x"); // Aria
   const [loading, setLoading] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // ElevenLabs voices
   const voices = [
-    { value: "alloy", label: "Alloy" },
-    { value: "echo", label: "Echo" },
-    { value: "fable", label: "Fable" },
-    { value: "onyx", label: "Onyx" },
-    { value: "nova", label: "Nova" },
-    { value: "shimmer", label: "Shimmer" },
+    { value: "9BWtsMINqrJLrRacOk9x", label: "Aria" },
+    { value: "CwhRBWXzGAHq8TQ4Fs17", label: "Roger" },
+    { value: "EXAVITQu4vr4xnSDxMaL", label: "Sarah" },
+    { value: "FGY2WhTYpPnrIDTdsKH5", label: "Laura" },
+    { value: "IKne3meq5aSn9XLyUdCD", label: "Charlie" },
+    { value: "JBFqnCBsd6RMkjVDRZzb", label: "George" },
+    { value: "N2lVS1w4EtoT3dr4eOWO", label: "Callum" },
+    { value: "SAz9YHcvj6GT2YYXdXww", label: "River" },
+    { value: "TX3LPaxmHKxFdv7VOQHJ", label: "Liam" },
+    { value: "XB0fDUnXU5powFXDhCwa", label: "Charlotte" },
+    { value: "Xb7hH8MSUJpSbSDYk0k2", label: "Alice" },
   ];
 
   const handleGenerate = async () => {
