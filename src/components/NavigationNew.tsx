@@ -180,6 +180,13 @@ export const NavigationNew = () => {
                         Voice Agent
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/voice-agent-manager" className="flex items-center gap-2">
+                        <Phone className="w-4 h-4" />
+                        Voice Agent Manager
+                        <Badge variant="secondary" className="ml-auto text-xs">New</Badge>
+                      </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                       <Link to="/model-comparison" className="flex items-center gap-2">

@@ -225,7 +225,14 @@ const RoutesWithShortcuts = () => {
           />
           <Route path="/agent-marketplace" element={<AgentMarketplace />} />
           <Route path="/voice-agent" element={<VoiceAgent />} />
-          <Route path="/voice-agent-manager" element={<VoiceAgentManager />} />
+          <Route
+            path="/voice-agent-manager"
+            element={
+              <ProtectedRoute>
+                <VoiceAgentManager />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/agent-studio"
             element={
