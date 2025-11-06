@@ -72,14 +72,12 @@ export function UnifiedHeader({
               >
                 Marketplace
               </Link>
-              <a 
-                href="https://docs.lovable.dev" 
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link 
+                to="/capabilities" 
                 className="text-sm font-medium hover:text-primary transition-colors"
               >
                 Docs
-              </a>
+              </Link>
             </nav>
 
             {/* Right Actions */}
