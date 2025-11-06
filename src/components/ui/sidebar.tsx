@@ -33,6 +33,10 @@ function useSidebar() {
   }
   return context;
 }
+
+function useSidebarOptional() {
+  return React.useContext(SidebarContext);
+}
 const SidebarProvider = React.forwardRef<HTMLDivElement, React.ComponentProps<"div"> & {
   defaultOpen?: boolean;
   open?: boolean;
@@ -157,9 +161,15 @@ const SidebarTrigger = React.forwardRef<React.ElementRef<typeof Button>, React.C
   onClick,
   ...props
 }, ref) => {
-  const {
-    toggleSidebar
-  } = useSidebar();
+  const context = useSidebarOptional();
+  
+  // Don't render if not within a SidebarProvider
+  if (!context) {
+    return null;
+  }
+  
+  const { toggleSidebar } = context;
+  
   return <Button ref={ref} data-sidebar="trigger" variant="ghost" size="icon" className={cn("h-7 w-7", className)} onClick={(event) => {
     onClick?.(event);
     toggleSidebar();
