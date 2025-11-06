@@ -22,7 +22,16 @@ export function TrendingTopicsPanel() {
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('grok-reality-agent', {
-        body: { action: 'trends' }
+        body: {
+          action: 'trends',
+          model: 'grok-3',
+          searchMode: 'on',
+          returnCitations: true,
+          sources: [
+            { type: 'x', xHandles: ['applyai', 'grok', 'xai'] },
+            { type: 'web' }
+          ]
+        }
       });
 
       if (error) throw error;

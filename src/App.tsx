@@ -61,6 +61,8 @@ const Teams = lazy(() => import("./pages/Teams"));
 const APIAccess = lazy(() => import("./pages/APIAccess"));
 const Webhooks = lazy(() => import("./pages/Webhooks"));
 const PlatformOptimizer = lazy(() => import("./pages/PlatformOptimizer"));
+const XAIStudio = lazy(() => import("./pages/XAIStudio"));
+const XAIAnalytics = lazy(() => import("./pages/XAIAnalytics"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -218,14 +220,21 @@ const RoutesWithShortcuts = () => {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/social-intelligence"
-            element={
-              <ProtectedRoute>
-                <SocialIntelligence />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/social-intelligence" element={
+            <ProtectedRoute>
+              <SocialIntelligence />
+            </ProtectedRoute>
+          } />
+          <Route path="/xai-studio" element={
+            <ProtectedRoute>
+              <XAIStudio />
+            </ProtectedRoute>
+          } />
+          <Route path="/xai-analytics" element={
+            <ProtectedRoute>
+              <XAIAnalytics />
+            </ProtectedRoute>
+          } />
           <Route path="/agent-marketplace" element={<AgentMarketplace />} />
           <Route path="/voice-agent" element={<VoiceAgent />} />
           <Route

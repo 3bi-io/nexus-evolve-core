@@ -164,3 +164,15 @@ verify_jwt = true
 
 [functions.upload-agent-document]
 verify_jwt = true
+
+[functions.xai-image-generator]
+verify_jwt = true
+
+[functions.xai-vision-analyzer]
+verify_jwt = true
+
+[functions.xai-function-registry]
+verify_jwt = true
+
+[functions.xai-code-analyzer]
+verify_jwt = true
