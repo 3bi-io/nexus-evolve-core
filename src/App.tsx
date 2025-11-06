@@ -184,6 +184,7 @@ const RoutesWithShortcuts = () => {
             }
           />
           <Route path="/admin" element={<Navigate to="/admin/overview" replace />} />
+          <Route path="/super-admin" element={<Navigate to="/admin/overview" replace />} />
           <Route
             path="/admin/:section"
             element={
