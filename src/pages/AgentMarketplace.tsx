@@ -101,7 +101,7 @@ export default function AgentMarketplace() {
         description="Browse 1,000+ specialized AI agents ready to deploy. Build your own in Agent Studio and monetize across the unified platform. 70% creator revenue share. Accessible from sidebar."
         keywords="AI agent marketplace, custom AI agents, agent builder, monetize AI agents, deploy agents, agent marketplace platform"
         canonical="https://oneiros.me/agent-marketplace"
-        ogImage="/og-marketplace.png"
+        ogImage="/og-platform-automation.png"
       />
       <div className="container max-w-7xl py-8 space-y-8">
         {/* Hero */}

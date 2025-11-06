@@ -56,7 +56,7 @@ export default function Landing() {
           "agent builder",
           "ChatGPT alternative"
         ]}
-        ogImage="/og-agents-v2.png"
+        ogImage="/og-platform-automation.png"
         structuredData={{
           "@context": "https://schema.org",
           "@type": "SoftwareApplication",

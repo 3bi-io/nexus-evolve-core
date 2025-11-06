@@ -66,7 +66,7 @@ const Pricing = () => {
         description="Join our beta. Start free with 500 daily credits forever. Founder rate $29/mo (normally $49). Lock in your rate for life. Limited to first 1,000 users."
         keywords="beta pricing, founder rates, early access pricing, AI beta launch, startup pricing"
         canonical="https://oneiros.me/pricing"
-        ogImage="/og-pricing-v2.png"
+        ogImage="/og-platform-automation.png"
       />
 
       <div className="container mx-auto px-4 py-8 sm:py-12 max-w-7xl space-y-12 sm:space-y-16">

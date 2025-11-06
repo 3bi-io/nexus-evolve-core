@@ -67,7 +67,7 @@ export default function VoiceAgent() {
         description="Stop typing. Start talking. Natural voice conversations with AI that understands interruptions, context switches, and complex discussions. 3x faster than typing. Powered by ElevenLabs."
         keywords="voice AI, ElevenLabs, conversational AI, natural voice, speech recognition, voice meetings, talk to AI, conversational interface, voice assistant"
         canonical="https://oneiros.me/voice-agent"
-        ogImage="/og-voice-v2.png"
+        ogImage="/og-platform-automation.png"
       />
       <div className="container mx-auto py-8 space-y-8">
         {/* Hero */}

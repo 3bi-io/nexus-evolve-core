@@ -19,7 +19,7 @@ export default function SocialIntelligence() {
         description="Real-time social intelligence powered by Grok AI. Track trending topics on X (Twitter), analyze sentiment, and create viral content with AI-powered insights."
         keywords="social intelligence, Grok AI, X trends, Twitter analytics, viral content, sentiment analysis, social media AI"
         canonical="https://oneiros.me/social-intelligence"
-        ogImage="/og-social.png"
+        ogImage="/og-platform-automation.png"
       />
       <div className="container max-w-7xl py-8 space-y-8">
         <div className="flex items-center justify-between">
