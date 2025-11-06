@@ -7,18 +7,32 @@ interface SwipeGestureOptions {
   onSwipeUp?: () => void;
   onSwipeDown?: () => void;
   threshold?: number;
+  edgeSwipe?: boolean; // Only trigger from screen edges
+  edgeThreshold?: number; // How far from edge to consider it an edge swipe
 }
 
 export function useSwipeGestures(options: SwipeGestureOptions) {
-  const { threshold = 50 } = options;
+  const { threshold = 50, edgeSwipe = false, edgeThreshold = 50 } = options;
   const { light } = useHaptics();
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      
+      // If edge swipe is enabled, only start tracking if touch is near edge
+      if (edgeSwipe) {
+        const isNearLeftEdge = touch.clientX < edgeThreshold;
+        const isNearRightEdge = touch.clientX > window.innerWidth - edgeThreshold;
+        
+        if (!isNearLeftEdge && !isNearRightEdge) {
+          return; // Ignore touches not near edges
+        }
+      }
+
       touchStartRef.current = {
-        x: e.touches[0].clientX,
-        y: e.touches[0].clientY,
+        x: touch.clientX,
+        y: touch.clientY,
       };
     };
 
@@ -54,14 +68,14 @@ export function useSwipeGestures(options: SwipeGestureOptions) {
       touchStartRef.current = null;
     };
 
-    document.addEventListener('touchstart', handleTouchStart);
-    document.addEventListener('touchend', handleTouchEnd);
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
       document.removeEventListener('touchstart', handleTouchStart);
       document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [options, threshold, light]);
+  }, [options, threshold, edgeSwipe, edgeThreshold, light]);
 
   return null;
 }

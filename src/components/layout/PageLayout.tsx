@@ -3,7 +3,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Footer } from "@/components/layout/Footer";
 import { PageTransition } from "@/components/ui/page-transition";
-import { MobileLayout } from "@/components/mobile/MobileLayout";
 import { BreadcrumbNav } from "@/components/BreadcrumbNav";
 import { AppSidebar } from "@/components/navigation/AppSidebar";
 import { SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
@@ -11,7 +10,9 @@ import { useMobile } from "@/hooks/useMobile";
 import { useAuth } from "@/contexts/AuthContext";
 import { CreditBalance } from "@/components/pricing/CreditBalance";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Brain } from "lucide-react";
+import { useSwipeGestures } from "@/hooks/useSwipeGestures";
+import { Brain, Sparkles } from "lucide-react";
+import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
 
 interface PageLayoutProps {
   children: ReactNode;
@@ -24,10 +25,11 @@ interface PageLayoutProps {
   showBottomNav?: boolean;
 }
 
-function DesktopLayout({
+function MainLayout({
   children,
   showHeader,
   showFooter,
+  showBottomNav,
   className,
   user,
   signOut,
@@ -36,12 +38,25 @@ function DesktopLayout({
   children: ReactNode;
   showHeader: boolean;
   showFooter: boolean;
+  showBottomNav: boolean;
   className: string;
   user: any;
   signOut: () => Promise<void>;
   navigate: (path: string) => void;
 }) {
-  const { toggleSidebar } = useSidebar();
+  const { toggleSidebar, setOpenMobile, isMobile } = useSidebar();
+
+  // Add swipe gestures for mobile - swipe from left edge to open
+  useSwipeGestures({
+    onSwipeRight: () => {
+      if (isMobile) {
+        setOpenMobile(true);
+      }
+    },
+    threshold: 80,
+    edgeSwipe: true, // Only trigger from screen edges
+    edgeThreshold: 30, // 30px from edge
+  });
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -64,19 +79,22 @@ function DesktopLayout({
             <div className="flex items-center gap-3">
               <SidebarTrigger />
               <Link to="/" className="flex items-center gap-2">
-                <Brain className="w-6 h-6 text-primary" />
-                <span className="font-bold text-lg hidden sm:inline-block">Oneiros</span>
+                <div className="relative">
+                  <Brain className="w-6 h-6 text-primary" />
+                  <Sparkles className="w-3 h-3 text-primary absolute -top-1 -right-1 animate-pulse" />
+                </div>
+                <span className="font-bold text-lg hidden sm:inline-block">Oneiros.me</span>
               </Link>
             </div>
             <div className="ml-auto flex items-center gap-2">
               {user && <CreditBalance />}
               <ThemeToggle />
               {user ? (
-                <Button onClick={async () => { await signOut(); navigate("/"); }} variant="outline" size="sm">
+                <Button onClick={async () => { await signOut(); navigate("/"); }} variant="outline" size="sm" className="hidden sm:flex">
                   Sign Out
                 </Button>
               ) : (
-                <Button asChild size="sm">
+                <Button asChild size="sm" className="hidden sm:flex">
                   <Link to="/auth">Start Free</Link>
                 </Button>
               )}
@@ -84,13 +102,14 @@ function DesktopLayout({
           </div>
         </header>
       )}
-      <main className={`flex-1 ${className}`}>
+      <main className={`flex-1 ${className} ${isMobile && showBottomNav ? 'pb-16' : ''}`}>
         <div className="container mx-auto px-4 pt-4">
           <BreadcrumbNav />
         </div>
         {children}
       </main>
-      {showFooter && <Footer />}
+      {isMobile && showBottomNav && <MobileBottomNav />}
+      {showFooter && !isMobile && <Footer />}
     </div>
   );
 }
@@ -105,29 +124,17 @@ export function PageLayout({
   showBack = false,
   showBottomNav = true,
 }: PageLayoutProps) {
-  const { isMobile } = useMobile();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 
-  const content = isMobile ? (
-    <MobileLayout 
-      title={title} 
-      showBack={showBack} 
-      showBottomNav={showBottomNav}
-    >
-      <div className={className}>
-        <BreadcrumbNav />
-        {children}
-      </div>
-      {showFooter && <Footer />}
-    </MobileLayout>
-  ) : (
+  const content = (
     <SidebarProvider defaultOpen={true}>
       <div className="flex min-h-screen w-full bg-background">
         <AppSidebar />
-        <DesktopLayout 
+        <MainLayout 
           showHeader={showHeader}
           showFooter={showFooter}
+          showBottomNav={showBottomNav}
           className={className}
           user={user}
           signOut={signOut}
