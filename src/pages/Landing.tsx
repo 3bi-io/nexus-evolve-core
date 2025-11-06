@@ -21,6 +21,7 @@ import { PricingSection } from '@/components/landing/PricingSection';
 import { StickySignupCTA } from '@/components/mobile/StickySignupCTA';
 import { EnhancedUseCases } from '@/components/landing/EnhancedUseCases';
 import { AgentPlatformShowcase } from '@/components/landing/AgentPlatformShowcase';
+import { AnimatedPlatformComparison } from '@/components/landing/AnimatedPlatformComparison';
 import { steps } from '@/data/landing-steps';
 import { agentFeatures } from '@/data/landing-agent-features';
 
@@ -142,6 +143,9 @@ export default function Landing() {
         
         {/* Agent Platform Showcase */}
         <AgentPlatformShowcase />
+
+        {/* Animated Platform Comparison */}
+        <AnimatedPlatformComparison />
 
         {/* How It Works */}
         <section className="py-16 bg-muted/30 -mx-4 px-4 md:-mx-8 md:px-8 lg:-mx-12 lg:px-12">
