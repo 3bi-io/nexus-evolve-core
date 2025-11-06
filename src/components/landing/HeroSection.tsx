@@ -44,38 +44,38 @@ export function HeroSection() {
         transition={{ delay: 0.3 }}
         className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight px-4 sm:px-0"
       >
-        <span className="block sm:inline">The AI That Gets</span>{' '}
+        <span className="block sm:inline">AI Platform That</span>{' '}
         <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient block sm:inline">
-          Smarter While You Sleep
+          Automates Everything
         </span>
       </motion.h1>
       
       <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
-        <strong>9 autonomous AI systems</strong> with temporal memory and multi-agent orchestration.
+        <strong>Production-ready AI platform</strong> with vision analysis, image generation, automated workflows, and intelligent monitoring.
         <br className="hidden sm:block" />
-        Join pioneering teams in our <strong className="text-primary">exclusive beta program</strong>.
+        <strong className="text-primary">38+ autonomous edge functions</strong> running 24/7 to grow your platform while you sleep.
       </p>
 
       <div className="flex flex-wrap justify-center gap-2 sm:gap-3 text-xs sm:text-sm max-w-3xl mx-auto px-4">
         <Badge variant="outline" className="gap-1.5 px-3 py-1.5">
           <Zap className="h-3 w-3" />
-          <span className="hidden sm:inline">9 Production AI Systems</span>
-          <span className="sm:hidden">9 AI Systems</span>
+          <span className="hidden sm:inline">38+ Edge Functions</span>
+          <span className="sm:hidden">38+ Functions</span>
         </Badge>
         <Badge variant="outline" className="gap-1.5 px-3 py-1.5">
           <Shield className="h-3 w-3" />
-          <span className="hidden sm:inline">Bank-Level Security</span>
-          <span className="sm:hidden">Secure</span>
+          <span className="hidden sm:inline">AI Vision & Generation</span>
+          <span className="sm:hidden">AI Vision</span>
         </Badge>
         <Badge variant="outline" className="gap-1.5 px-3 py-1.5">
           <Brain className="h-3 w-3" />
-          <span className="hidden sm:inline">20+ Edge Functions</span>
-          <span className="sm:hidden">20+ Functions</span>
+          <span className="hidden sm:inline">Automated Workflows</span>
+          <span className="sm:hidden">Automation</span>
         </Badge>
         <Badge variant="outline" className="gap-1.5 px-3 py-1.5">
           <Sparkles className="h-3 w-3" />
-          <span className="hidden sm:inline">Bot & Fraud Protection</span>
-          <span className="sm:hidden">Protected</span>
+          <span className="hidden sm:inline">Smart Caching System</span>
+          <span className="sm:hidden">Smart Cache</span>
         </Badge>
       </div>
 

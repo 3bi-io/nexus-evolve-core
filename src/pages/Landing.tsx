@@ -37,23 +37,23 @@ export default function Landing() {
 
   return (
     <MarketingLayout>
-      <SEO
-        title="Oneiros | Production-Ready AI Platform - 9 AI Systems, Unified Navigation"
-        description="Production-ready AI platform with 9 integrated systems, unified sidebar navigation, voice AI, multi-agent orchestration, and autonomous evolution. Join 10,847+ teams shipping 3x faster."
+        <SEO
+        title="Oneiros | AI Automation Platform - Vision, Generation, Workflows & Monitoring"
+        description="Production-ready AI automation platform with vision analysis, image generation, automated workflows, smart caching, and 24/7 trend monitoring. 38+ edge functions working autonomously."
         keywords={[
-          "unified AI platform",
-          "sidebar navigation",
-          "AI agent builder",
-          "production-ready AI",
-          "multi-agent AI",
-          "conversational AI",
-          "voice AI platform",
-          "temporal memory AI",
-          "autonomous AI",
-          "self-learning AI",
-          "agent marketplace",
-          "AI orchestration",
-          "keyboard shortcuts",
+          "AI automation platform",
+          "vision analysis",
+          "image generation",
+          "automated workflows",
+          "trend monitoring",
+          "smart caching",
+          "multi-modal AI",
+          "content pipeline",
+          "AI workflows",
+          "XAI studio",
+          "grok vision",
+          "temporal memory",
+          "agent builder",
           "ChatGPT alternative"
         ]}
         ogImage="/og-agents-v2.png"
@@ -93,14 +93,14 @@ export default function Landing() {
           <div className="container mx-auto space-mobile">
             <div className="text-center space-mobile px-4">
               <Badge variant="outline" className="text-sm sm:text-base px-3 sm:px-4 py-1.5 sm:py-2">
-                🎯 Production-Ready Beta - First 1,000 Users
+                🚀 Production-Ready - 38+ Edge Functions Live
               </Badge>
               <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">
-                All Your AI Tools in One Unified Platform
+                AI That Works While You Sleep
               </h2>
               <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-                Seamless navigation across 9 AI systems. Build agents with memory, knowledge, analytics, and workflows. 
-                Everything accessible through intuitive sidebar navigation with keyboard shortcuts (Cmd+B).
+                Automated trend monitoring every 6 hours. Content generation pipelines running continuously. 
+                Smart caching reducing costs by 70%. Multi-modal workflows chaining vision, generation, and reasoning.
               </p>
             </div>
 
@@ -219,12 +219,12 @@ export default function Landing() {
               
               <div className="space-y-4">
                 <h2 className="text-4xl md:text-5xl font-bold">
-                  Join the First 1,000 Users
+                  Start Automating with AI Today
                 </h2>
                 <p className="text-xl text-muted-foreground">
-                  Be among the pioneers. Lock in founder pricing forever.
+                  Production-ready platform with 38+ autonomous edge functions.
                   <br />
-                  <strong className="text-foreground">Unified platform experience. All 9 AI systems accessible from one sidebar.</strong>
+                  <strong className="text-foreground">Vision analysis. Image generation. Automated workflows. Smart monitoring.</strong>
                 </p>
               </div>
               
