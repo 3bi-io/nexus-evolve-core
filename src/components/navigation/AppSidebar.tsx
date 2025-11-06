@@ -13,7 +13,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
@@ -81,7 +80,6 @@ export function AppSidebar() {
             <span className="font-semibold text-lg">Oneiros</span>
           </div>
         )}
-        <SidebarTrigger className={collapsed ? "mx-auto" : ""} />
       </div>
 
       <SidebarContent>
