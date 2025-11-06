@@ -13,7 +13,7 @@ interface OnboardingStep {
 
 const steps: OnboardingStep[] = [
   {
-    title: 'Welcome to Nexus AI',
+    title: 'Welcome to Oneiros.me',
     description: 'The AI that gets smarter while you sleep. Join our beta and get 500 daily AI interactions for free, forever.',
     icon: Sparkles,
     gradient: 'from-primary to-accent',
