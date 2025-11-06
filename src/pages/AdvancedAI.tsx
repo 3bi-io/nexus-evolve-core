@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -103,13 +103,15 @@ const AdvancedAI = () => {
   };
 
   return (
-    <PageLayout>
-      <Helmet>
-        <title>Advanced AI - Phase 3</title>
-        <meta name="description" content="Computer Use and Pinecone vector database" />
-      </Helmet>
+    <PageLayout title="Advanced AI" showBack={true}>
+      <SEO 
+        title="Advanced AI - Computer Use & Pinecone Vector Database"
+        description="Advanced AI capabilities including Anthropic Computer Use and Pinecone vector database integration. Automate complex tasks and manage high-dimensional vectors."
+        keywords="computer use, Anthropic, Pinecone, vector database, AI automation"
+        canonical="https://oneiros.me/advanced-ai"
+      />
 
-      <div className="container mx-auto py-8 space-y-6">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-6">
         <div>
           <h1 className="text-4xl font-bold mb-2">Phase 3 Advanced AI</h1>
           <p className="text-muted-foreground">

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -131,13 +131,15 @@ const Integrations = () => {
   };
 
   return (
-    <PageLayout>
-      <Helmet>
-        <title>Integrations - Phase 2</title>
-        <meta name="description" content="LangChain, Replicate, and Mem0 integrations" />
-      </Helmet>
+    <PageLayout title="Integrations" showBack={true}>
+      <SEO 
+        title="AI Integrations - LangChain, Replicate & Mem0"
+        description="Powerful AI integrations including LangChain orchestration, Replicate ML models, and Mem0 memory management. Advanced LLM chains for summarization, Q&A, and translation."
+        keywords="LangChain, Replicate, Mem0, AI integrations, ML models, memory management"
+        canonical="https://oneiros.me/integrations"
+      />
 
-      <div className="container mx-auto py-8 space-y-6">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-6">
         <div>
           <h1 className="text-4xl font-bold mb-2">Phase 2 Integrations</h1>
           <p className="text-muted-foreground">

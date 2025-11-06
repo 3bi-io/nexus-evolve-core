@@ -1,5 +1,5 @@
-import { Helmet } from 'react-helmet-async';
 import { PageLayout } from '@/components/layout/PageLayout';
+import { SEO } from '@/components/SEO';
 import { RouterMetricsDashboard } from '@/components/ai/RouterMetricsDashboard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -66,16 +66,15 @@ const RouterDashboard = () => {
   };
 
   return (
-    <PageLayout>
-      <Helmet>
-        <title>Router Dashboard - Oneiros.me</title>
-        <meta 
-          name="description" 
-          content="Monitor and optimize AI routing performance across multiple providers"
-        />
-      </Helmet>
+    <PageLayout title="Router Dashboard" showBack={true}>
+      <SEO 
+        title="Router Dashboard - AI Routing Performance & Optimization"
+        description="Monitor and optimize AI routing performance across multiple providers. Test routing logic, track metrics, and configure intelligent failover strategies."
+        keywords="AI routing, performance monitoring, provider optimization, router metrics"
+        canonical="https://oneiros.me/router-dashboard"
+      />
 
-      <div className="space-y-6">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-6">
         <div className="flex items-center gap-3">
           <Activity className="h-8 w-8 text-primary" />
           <div>

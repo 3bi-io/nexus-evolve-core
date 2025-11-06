@@ -138,13 +138,15 @@ export default function Webhooks() {
   };
 
   return (
-    <PageLayout>
+    <PageLayout title="Webhooks" showBack={true}>
       <SEO
-        title="Webhooks"
-        description="Configure webhooks to receive real-time notifications about events in your account"
+        title="Webhooks - Real-Time Event Notifications"
+        description="Configure webhooks to receive real-time HTTP callbacks when events occur in your account. Monitor agents, sessions, payments, and more with secure webhook integration."
+        keywords="webhooks, real-time notifications, HTTP callbacks, event monitoring, API integration"
+        canonical="https://oneiros.me/webhooks"
       />
 
-      <div className="container max-w-6xl mx-auto p-6 space-y-6">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-6xl space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Webhooks</h1>

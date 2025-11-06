@@ -6,6 +6,8 @@ import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Cart
 import { Activity, TrendingUp, Clock, Zap, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { PageLayout } from "@/components/layout/PageLayout";
+import { SEO } from "@/components/SEO";
 
 export default function AgentAnalytics() {
   const { agentId } = useParams();
@@ -74,8 +76,15 @@ export default function AgentAnalytics() {
   const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--muted))'];
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <PageLayout title="Agent Analytics" showBack={true}>
+      <SEO 
+        title="Agent Analytics - Performance Insights & Metrics"
+        description="Detailed performance analytics for your AI agents. Track executions, success rates, response times, and credit usage with visual charts and real-time metrics."
+        keywords="agent analytics, performance metrics, AI monitoring, agent insights"
+        canonical="https://oneiros.me/agent-analytics"
+      />
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-6">
+        <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Agent Analytics</h1>
           <p className="text-muted-foreground">Performance insights and metrics</p>
@@ -263,6 +272,7 @@ export default function AgentAnalytics() {
           </CardContent>
         </Card>
       </div>
-    </div>
+      </div>
+    </PageLayout>
   );
 }

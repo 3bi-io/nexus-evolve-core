@@ -1,5 +1,5 @@
 import { PageLayout } from "@/components/layout/PageLayout";
-import { Helmet } from "react-helmet-async";
+import { SEO } from "@/components/SEO";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BackgroundRemover } from "@/components/ai/BackgroundRemover";
 import { ModelCacheViewer } from "@/components/ai/ModelCacheViewer";
@@ -13,13 +13,15 @@ import { Sparkles, Shield, Zap, HardDrive } from "lucide-react";
 
 const AdvancedBrowserAI = () => {
   return (
-    <PageLayout>
-      <Helmet>
-        <title>Advanced Browser AI - Lovable AI</title>
-        <meta name="description" content="Advanced AI processing in your browser with background removal, embeddings, and more" />
-      </Helmet>
+    <PageLayout title="Advanced Browser AI" showBack={true}>
+      <SEO 
+        title="Advanced Browser AI - Privacy-First AI Image Processing"
+        description="Advanced AI image processing in your browser. Background removal, object detection, captioning, embeddings - all 100% private and free. WebGPU-accelerated with smart caching."
+        keywords="browser AI, WebGPU, background removal, object detection, image captioning, embeddings, privacy AI"
+        canonical="https://oneiros.me/advanced-browser-ai"
+      />
 
-      <div className="container mx-auto py-8 space-y-8">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-8">
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <h1 className="text-4xl font-bold">Advanced Browser AI</h1>

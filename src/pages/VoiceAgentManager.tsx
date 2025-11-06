@@ -89,13 +89,13 @@ export default function VoiceAgentManager() {
   };
 
   return (
-    <PageLayout>
-      <SEO 
+    <PageLayout title="Voice Agent Manager" showBack={true}>
+      <SEO
         title="Voice Agent Manager - Manage ElevenLabs Agents"
         description="Create and manage ElevenLabs conversational AI agents. Configure voices, prompts, and settings."
         keywords="voice agent manager, ElevenLabs, conversational AI, voice configuration"
       />
-      <div className="container mx-auto py-8 space-y-8">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-8">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold flex items-center gap-3">

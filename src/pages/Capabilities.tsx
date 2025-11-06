@@ -12,6 +12,7 @@ import { toast } from "@/hooks/use-toast";
 import { Plus, Zap, Settings, Trash2 } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { SEO } from "@/components/SEO";
+import { PageLayout } from "@/components/layout/PageLayout";
 
 type Capability = {
   id: string;
@@ -117,14 +118,14 @@ export default function Capabilities() {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-6">
-      <SEO 
+    <PageLayout title="Capabilities" showBack={true} showBottomNav={true}>
+      <SEO
         title="Capability Registry - Dynamic AI Feature Discovery & Management"
         description="Discover and manage dynamic AI capabilities. Your AI automatically discovers new features based on usage patterns and conversation context."
         keywords="AI capabilities, feature discovery, dynamic features, AI module management"
         canonical="https://oneiros.me/capabilities"
       />
-      <div className="max-w-5xl mx-auto space-y-4 md:space-y-6">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Zap className="w-6 h-6 md:w-8 md:h-8 text-primary" />
@@ -245,6 +246,6 @@ export default function Capabilities() {
           </div>
         )}
       </div>
-    </div>
+    </PageLayout>
   );
 }

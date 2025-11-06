@@ -108,14 +108,14 @@ export default function LLMAnalytics() {
   const COLORS = ['hsl(var(--primary))', 'hsl(var(--accent))', 'hsl(var(--secondary))', 'hsl(var(--success))', 'hsl(var(--warning))'];
 
   return (
-    <PageLayout>
-      <SEO 
+    <PageLayout title="LLM Analytics" showBack={true}>
+      <SEO
         title="LLM Analytics - Performance & Cost Tracking"
         description="Track AI model performance, costs, and usage patterns. Optimize your AI agent performance with detailed observability."
         keywords="LLM analytics, AI performance, model costs, observability, agent monitoring"
       />
       
-      <div className="container max-w-7xl py-8">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold">LLM Analytics</h1>

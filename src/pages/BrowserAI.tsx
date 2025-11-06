@@ -1,5 +1,5 @@
 import { PageLayout } from "@/components/layout/PageLayout";
-import { Helmet } from "react-helmet-async";
+import { SEO } from "@/components/SEO";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BrowserEmbeddings } from "@/components/ai/BrowserEmbeddings";
 import { IntentClassifier } from "@/components/ai/IntentClassifier";
@@ -10,13 +10,15 @@ import { Cpu, Zap, Shield } from "lucide-react";
 
 const BrowserAI = () => {
   return (
-    <PageLayout>
-      <Helmet>
-        <title>Browser AI - Lovable AI</title>
-        <meta name="description" content="Run AI models directly in your browser with WebGPU acceleration" />
-      </Helmet>
+    <PageLayout title="Browser AI" showBack={true}>
+      <SEO 
+        title="Browser AI - Private WebGPU-Accelerated AI Models"
+        description="Run AI models directly in your browser with WebGPU acceleration. Private, instant, and free embeddings, classification, and speech recognition. No data leaves your device."
+        keywords="browser AI, WebGPU, embeddings, classification, speech recognition, privacy AI, local AI"
+        canonical="https://oneiros.me/browser-ai"
+      />
 
-      <div className="container mx-auto py-8 space-y-8">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-8">
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <h1 className="text-4xl font-bold">Browser AI</h1>

@@ -124,13 +124,15 @@ export default function AgentRevenue() {
     .slice(-30);
 
   return (
-    <PageLayout>
+    <PageLayout title="Agent Revenue" showBack={true}>
       <SEO
-        title="Agent Revenue"
-        description="Track revenue and sales from your published AI agents"
+        title="Agent Revenue - Track Marketplace Earnings & Sales"
+        description="Monitor revenue and sales from your published AI agents in the marketplace. Track earnings, analyze performance, and export detailed revenue reports with 70% creator share."
+        keywords="agent revenue, marketplace earnings, creator payouts, agent monetization"
+        canonical="https://oneiros.me/agent-revenue"
       />
 
-      <div className="container max-w-7xl mx-auto p-6 space-y-6">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Agent Revenue</h1>

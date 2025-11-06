@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -39,8 +40,15 @@ export default function UnifiedRouterDemo() {
   const loadBalancing = getLoadBalancing;
 
   return (
-    <PageLayout title="Unified AI Router Demo">
-      <div className="grid gap-6 lg:grid-cols-2">
+    <PageLayout title="Unified AI Router Demo" showBack={true}>
+      <SEO 
+        title="Unified AI Router Demo - Test Intelligent AI Routing"
+        description="Interactive demo of our unified AI router. Test routing decisions based on priority (speed, cost, quality, privacy). Real-time metrics and performance tracking."
+        keywords="unified router, AI routing demo, router testing, routing metrics"
+        canonical="https://oneiros.me/unified-router-demo"
+      />
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl">
+        <div className="grid gap-6 lg:grid-cols-2">
         {/* Input Section */}
         <div className="space-y-4">
           <Card>
@@ -244,6 +252,7 @@ export default function UnifiedRouterDemo() {
               </ul>
             </CardContent>
           </Card>
+        </div>
         </div>
       </div>
     </PageLayout>
