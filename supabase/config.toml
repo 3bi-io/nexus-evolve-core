@@ -176,3 +176,6 @@ verify_jwt = true
 
 [functions.xai-code-analyzer]
 verify_jwt = true
+
+[functions.xai-workflow-executor]
+verify_jwt = true

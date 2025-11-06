@@ -4,8 +4,9 @@ import { ImageGenerationStudio } from '@/components/xai/ImageGenerationStudio';
 import { VisionAnalyzer } from '@/components/xai/VisionAnalyzer';
 import { GrokCodeAnalyzer } from '@/components/xai/GrokCodeAnalyzer';
 import { ReasoningAssistant } from '@/components/xai/ReasoningAssistant';
+import { MultiModalWorkflows } from '@/components/xai/MultiModalWorkflows';
 import { TrustIndicators } from '@/components/xai/TrustIndicators';
-import { Sparkles, Image, Eye, Code, Brain } from 'lucide-react';
+import { Sparkles, Image, Eye, Code, Brain, Workflow } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 
 export default function XAIStudio() {
@@ -30,8 +31,12 @@ export default function XAIStudio() {
 
         <TrustIndicators />
 
-        <Tabs defaultValue="image-gen" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+        <Tabs defaultValue="workflows" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="workflows" className="flex items-center gap-2">
+              <Workflow className="w-4 h-4" />
+              Workflows
+            </TabsTrigger>
             <TabsTrigger value="image-gen" className="flex items-center gap-2">
               <Image className="w-4 h-4" />
               Image Gen
@@ -49,6 +54,10 @@ export default function XAIStudio() {
               Reasoning
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="workflows">
+            <MultiModalWorkflows />
+          </TabsContent>
 
           <TabsContent value="image-gen">
             <ImageGenerationStudio />
