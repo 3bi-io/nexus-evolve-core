@@ -60,6 +60,7 @@ const Collaboration = lazy(() => import("./pages/Collaboration"));
 const Teams = lazy(() => import("./pages/Teams"));
 const APIAccess = lazy(() => import("./pages/APIAccess"));
 const Webhooks = lazy(() => import("./pages/Webhooks"));
+const PlatformOptimizer = lazy(() => import("./pages/PlatformOptimizer"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -386,6 +387,14 @@ const RoutesWithShortcuts = () => {
             element={
               <ProtectedRoute>
                 <UnifiedRouterDemo />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/platform-optimizer"
+            element={
+              <ProtectedRoute>
+                <PlatformOptimizer />
               </ProtectedRoute>
             }
           />

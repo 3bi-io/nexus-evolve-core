@@ -137,6 +137,7 @@ export const navSections: NavSection[] = [
     label: "Administration",
     items: [
       { to: "/super-admin", icon: Settings, label: "Super Admin", description: "Admin Dashboard", adminOnly: true },
+      { to: "/platform-optimizer", icon: Sparkles, label: "Platform Optimizer", description: "AI Auto-Improvements", adminOnly: true },
     ],
   },
 ];

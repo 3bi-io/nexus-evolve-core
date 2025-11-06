@@ -1062,6 +1062,66 @@ export type Database = {
           },
         ]
       }
+      auto_apply_config: {
+        Row: {
+          auto_apply_accessibility: boolean | null
+          auto_apply_code_quality: boolean | null
+          auto_apply_performance: boolean | null
+          auto_apply_security: boolean | null
+          enabled: boolean | null
+          github_auto_commit: boolean | null
+          github_branch_prefix: string | null
+          github_create_pr: boolean | null
+          id: string
+          max_changes_per_run: number | null
+          min_confidence_score: number | null
+          notification_email: string | null
+          notify_on_application: boolean | null
+          notify_on_critical: boolean | null
+          require_tests_pass: boolean | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          auto_apply_accessibility?: boolean | null
+          auto_apply_code_quality?: boolean | null
+          auto_apply_performance?: boolean | null
+          auto_apply_security?: boolean | null
+          enabled?: boolean | null
+          github_auto_commit?: boolean | null
+          github_branch_prefix?: string | null
+          github_create_pr?: boolean | null
+          id?: string
+          max_changes_per_run?: number | null
+          min_confidence_score?: number | null
+          notification_email?: string | null
+          notify_on_application?: boolean | null
+          notify_on_critical?: boolean | null
+          require_tests_pass?: boolean | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          auto_apply_accessibility?: boolean | null
+          auto_apply_code_quality?: boolean | null
+          auto_apply_performance?: boolean | null
+          auto_apply_security?: boolean | null
+          enabled?: boolean | null
+          github_auto_commit?: boolean | null
+          github_branch_prefix?: string | null
+          github_create_pr?: boolean | null
+          id?: string
+          max_changes_per_run?: number | null
+          min_confidence_score?: number | null
+          notification_email?: string | null
+          notify_on_application?: boolean | null
+          notify_on_critical?: boolean | null
+          require_tests_pass?: boolean | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       available_models: {
         Row: {
           capabilities: string[] | null
@@ -1652,6 +1712,66 @@ export type Database = {
         }
         Relationships: []
       }
+      improvement_analysis_runs: {
+        Row: {
+          analysis_duration_ms: number | null
+          completed_at: string | null
+          components_analyzed: number | null
+          critical_issues: number | null
+          error_message: string | null
+          files_analyzed: number | null
+          high_priority: number | null
+          id: string
+          improvements_found: number | null
+          low_priority: number | null
+          medium_priority: number | null
+          providers_used: string[] | null
+          run_type: string
+          started_at: string
+          status: string
+          total_tokens_used: number | null
+          triggered_by: string | null
+        }
+        Insert: {
+          analysis_duration_ms?: number | null
+          completed_at?: string | null
+          components_analyzed?: number | null
+          critical_issues?: number | null
+          error_message?: string | null
+          files_analyzed?: number | null
+          high_priority?: number | null
+          id?: string
+          improvements_found?: number | null
+          low_priority?: number | null
+          medium_priority?: number | null
+          providers_used?: string[] | null
+          run_type: string
+          started_at?: string
+          status?: string
+          total_tokens_used?: number | null
+          triggered_by?: string | null
+        }
+        Update: {
+          analysis_duration_ms?: number | null
+          completed_at?: string | null
+          components_analyzed?: number | null
+          critical_issues?: number | null
+          error_message?: string | null
+          files_analyzed?: number | null
+          high_priority?: number | null
+          id?: string
+          improvements_found?: number | null
+          low_priority?: number | null
+          medium_priority?: number | null
+          providers_used?: string[] | null
+          run_type?: string
+          started_at?: string
+          status?: string
+          total_tokens_used?: number | null
+          triggered_by?: string | null
+        }
+        Relationships: []
+      }
       integration_triggers: {
         Row: {
           agent_id: string | null
@@ -2119,6 +2239,81 @@ export type Database = {
           session_type?: string
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      platform_improvements: {
+        Row: {
+          ai_model_used: string
+          analyzed_by: string
+          application_result: Json | null
+          applied_at: string | null
+          applied_by: string | null
+          auto_apply_eligible: boolean | null
+          confidence_score: number | null
+          created_at: string
+          current_code: string | null
+          id: string
+          impact_score: number | null
+          improved_code: string
+          improvement_type: string
+          issue_description: string
+          rationale: string
+          rollback_available: boolean | null
+          rollback_data: Json | null
+          severity: string
+          status: string
+          target_component: string | null
+          target_file: string
+          updated_at: string
+        }
+        Insert: {
+          ai_model_used: string
+          analyzed_by: string
+          application_result?: Json | null
+          applied_at?: string | null
+          applied_by?: string | null
+          auto_apply_eligible?: boolean | null
+          confidence_score?: number | null
+          created_at?: string
+          current_code?: string | null
+          id?: string
+          impact_score?: number | null
+          improved_code: string
+          improvement_type: string
+          issue_description: string
+          rationale: string
+          rollback_available?: boolean | null
+          rollback_data?: Json | null
+          severity: string
+          status?: string
+          target_component?: string | null
+          target_file: string
+          updated_at?: string
+        }
+        Update: {
+          ai_model_used?: string
+          analyzed_by?: string
+          application_result?: Json | null
+          applied_at?: string | null
+          applied_by?: string | null
+          auto_apply_eligible?: boolean | null
+          confidence_score?: number | null
+          created_at?: string
+          current_code?: string | null
+          id?: string
+          impact_score?: number | null
+          improved_code?: string
+          improvement_type?: string
+          issue_description?: string
+          rationale?: string
+          rollback_available?: boolean | null
+          rollback_data?: Json | null
+          severity?: string
+          status?: string
+          target_component?: string | null
+          target_file?: string
+          updated_at?: string
         }
         Relationships: []
       }

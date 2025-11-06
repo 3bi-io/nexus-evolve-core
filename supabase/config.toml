@@ -137,3 +137,30 @@ verify_jwt = false
 
 [functions.geo-validator]
 verify_jwt = false
+
+[functions.ai-platform-optimizer]
+verify_jwt = false
+
+[functions.agent-analytics]
+verify_jwt = true
+
+[functions.agent-recommendations]
+verify_jwt = true
+
+[functions.agent-version-control]
+verify_jwt = true
+
+[functions.execute-scheduled-agent]
+verify_jwt = false
+
+[functions.elevenlabs-agents]
+verify_jwt = true
+
+[functions.manage-conversation]
+verify_jwt = true
+
+[functions.meta-optimizer]
+verify_jwt = true
+
+[functions.upload-agent-document]
+verify_jwt = true
