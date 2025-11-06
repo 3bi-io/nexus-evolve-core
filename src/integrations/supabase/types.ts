@@ -2827,40 +2827,55 @@ export type Database = {
       }
       social_intelligence: {
         Row: {
+          citations: Json | null
+          confidence_score: number | null
           created_at: string
           data: Json
           expires_at: string
           id: string
           intelligence_type: string
           metadata: Json | null
+          model_used: string | null
           score: number | null
           source: string | null
+          sources: string[] | null
           topic: string
           user_id: string
+          x_handles: string[] | null
         }
         Insert: {
+          citations?: Json | null
+          confidence_score?: number | null
           created_at?: string
           data?: Json
           expires_at?: string
           id?: string
           intelligence_type: string
           metadata?: Json | null
+          model_used?: string | null
           score?: number | null
           source?: string | null
+          sources?: string[] | null
           topic: string
           user_id: string
+          x_handles?: string[] | null
         }
         Update: {
+          citations?: Json | null
+          confidence_score?: number | null
           created_at?: string
           data?: Json
           expires_at?: string
           id?: string
           intelligence_type?: string
           metadata?: Json | null
+          model_used?: string | null
           score?: number | null
           source?: string | null
+          sources?: string[] | null
           topic?: string
           user_id?: string
+          x_handles?: string[] | null
         }
         Relationships: []
       }
@@ -3734,6 +3749,225 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      xai_function_calls: {
+        Row: {
+          arguments: Json
+          created_at: string | null
+          execution_time_ms: number | null
+          function_name: string
+          id: string
+          result: Json | null
+          session_id: string | null
+          success: boolean | null
+          user_id: string | null
+        }
+        Insert: {
+          arguments: Json
+          created_at?: string | null
+          execution_time_ms?: number | null
+          function_name: string
+          id?: string
+          result?: Json | null
+          session_id?: string | null
+          success?: boolean | null
+          user_id?: string | null
+        }
+        Update: {
+          arguments?: Json
+          created_at?: string | null
+          execution_time_ms?: number | null
+          function_name?: string
+          id?: string
+          result?: Json | null
+          session_id?: string | null
+          success?: boolean | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      xai_generated_images: {
+        Row: {
+          cost_credits: number | null
+          created_at: string | null
+          generation_time_ms: number | null
+          id: string
+          image_data: Json | null
+          image_urls: string[]
+          model: string | null
+          negative_prompt: string | null
+          num_images: number | null
+          prompt: string
+          settings: Json | null
+          user_id: string
+        }
+        Insert: {
+          cost_credits?: number | null
+          created_at?: string | null
+          generation_time_ms?: number | null
+          id?: string
+          image_data?: Json | null
+          image_urls: string[]
+          model?: string | null
+          negative_prompt?: string | null
+          num_images?: number | null
+          prompt: string
+          settings?: Json | null
+          user_id: string
+        }
+        Update: {
+          cost_credits?: number | null
+          created_at?: string | null
+          generation_time_ms?: number | null
+          id?: string
+          image_data?: Json | null
+          image_urls?: string[]
+          model?: string | null
+          negative_prompt?: string | null
+          num_images?: number | null
+          prompt?: string
+          settings?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      xai_models: {
+        Row: {
+          capabilities: string[]
+          cost_per_1m_input_tokens: number | null
+          cost_per_1m_output_tokens: number | null
+          created_at: string | null
+          id: string
+          is_available: boolean | null
+          max_tokens: number | null
+          metadata: Json | null
+          model_id: string
+          model_name: string
+          priority: number | null
+          supports_function_calling: boolean | null
+          supports_image_gen: boolean | null
+          supports_streaming: boolean | null
+          supports_vision: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          capabilities: string[]
+          cost_per_1m_input_tokens?: number | null
+          cost_per_1m_output_tokens?: number | null
+          created_at?: string | null
+          id?: string
+          is_available?: boolean | null
+          max_tokens?: number | null
+          metadata?: Json | null
+          model_id: string
+          model_name: string
+          priority?: number | null
+          supports_function_calling?: boolean | null
+          supports_image_gen?: boolean | null
+          supports_streaming?: boolean | null
+          supports_vision?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          capabilities?: string[]
+          cost_per_1m_input_tokens?: number | null
+          cost_per_1m_output_tokens?: number | null
+          created_at?: string | null
+          id?: string
+          is_available?: boolean | null
+          max_tokens?: number | null
+          metadata?: Json | null
+          model_id?: string
+          model_name?: string
+          priority?: number | null
+          supports_function_calling?: boolean | null
+          supports_image_gen?: boolean | null
+          supports_streaming?: boolean | null
+          supports_vision?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      xai_usage_analytics: {
+        Row: {
+          cost_credits: number | null
+          created_at: string | null
+          error_message: string | null
+          feature_type: string
+          id: string
+          latency_ms: number | null
+          metadata: Json | null
+          model_id: string
+          success: boolean | null
+          tokens_used: number | null
+          user_id: string | null
+        }
+        Insert: {
+          cost_credits?: number | null
+          created_at?: string | null
+          error_message?: string | null
+          feature_type: string
+          id?: string
+          latency_ms?: number | null
+          metadata?: Json | null
+          model_id: string
+          success?: boolean | null
+          tokens_used?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          cost_credits?: number | null
+          created_at?: string | null
+          error_message?: string | null
+          feature_type?: string
+          id?: string
+          latency_ms?: number | null
+          metadata?: Json | null
+          model_id?: string
+          success?: boolean | null
+          tokens_used?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      xai_vision_analysis: {
+        Row: {
+          analysis_result: Json
+          confidence_score: number | null
+          cost_credits: number | null
+          created_at: string | null
+          id: string
+          image_url: string
+          model: string | null
+          processing_time_ms: number | null
+          query: string
+          user_id: string
+        }
+        Insert: {
+          analysis_result: Json
+          confidence_score?: number | null
+          cost_credits?: number | null
+          created_at?: string | null
+          id?: string
+          image_url: string
+          model?: string | null
+          processing_time_ms?: number | null
+          query: string
+          user_id: string
+        }
+        Update: {
+          analysis_result?: Json
+          confidence_score?: number | null
+          cost_credits?: number | null
+          created_at?: string | null
+          id?: string
+          image_url?: string
+          model?: string | null
+          processing_time_ms?: number | null
+          query?: string
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
