@@ -8,6 +8,10 @@ export interface PageMetadata {
   author?: string;
   publishedTime?: string;
   modifiedTime?: string;
+  section?: string;
+  tags?: string[];
+  locale?: string;
+  alternateLocales?: string[];
 }
 
 export interface StructuredData {
@@ -16,102 +20,188 @@ export interface StructuredData {
   [key: string]: any;
 }
 
+export interface BreadcrumbItem {
+  name: string;
+  url: string;
+}
+
 export class SEOHelper {
-  private static readonly BASE_URL = 'https://65580e8a-f56c-4de3-8418-f23a06a1eb6e.lovableproject.com';
-  private static readonly DEFAULT_IMAGE = '/og-image.png';
+  private static readonly BASE_URL = 'https://oneiros.me';
+  private static readonly DEFAULT_IMAGE = '/og-platform-automation.png';
 
   static generatePageMetadata(page: string): PageMetadata {
     const metadata: Record<string, PageMetadata> = {
       '/': {
-        title: 'Oneiros: The AI That Gets Smarter While You Sleep | 10,847 Teams Ship 3x Faster',
-        description: '9 AI systems working 24/7. Autonomous evolution. Temporal memory. Voice conversations. Join 10K+ teams using AI that learns, predicts, and improves itself. Start free with 500 daily credits.',
-        keywords: ['AI platform that learns', 'autonomous AI system', 'AI with memory', 'multi-agent AI', 'ChatGPT alternative', 'AI that improves itself', 'enterprise AI platform'],
-        image: '/og-landing-v2.png',
+        title: 'Oneiros.me - Advanced AI Automation Platform | 38+ Edge Functions',
+        description: 'Production-ready AI automation platform with 38+ edge functions, vision AI, multi-agent workflows, and real-time monitoring. Transform your business with cutting-edge AI technology.',
+        keywords: ['AI automation', 'edge functions', 'vision AI', 'multi-agent', 'workflow automation', 'artificial intelligence', 'machine learning', 'AI platform', 'enterprise AI', 'business automation'],
+        image: '/og-platform-automation.png',
         type: 'website',
+        section: 'Technology',
+        tags: ['AI', 'Automation', 'Platform']
       },
       '/chat': {
-        title: 'AI Chat - Oneiros.me',
-        description: 'Chat with the most advanced AI systems. Multi-model routing, intelligent responses, and seamless context switching.',
-        keywords: ['AI chat', 'chatbot', 'AI conversation', 'multi-model AI'],
-        image: '/og-image.png',
-      },
-      '/voice-agent': {
-        title: 'Voice AI - Have Conversations, Not Chats | 5-Minute Setup',
-        description: 'Natural voice conversations with AI. Real-time speech recognition, intelligent responses, function calling. Talk to AI like talking to a person. Powered by ElevenLabs.',
-        keywords: ['voice AI', 'speech recognition', 'AI voice assistant', 'ElevenLabs', 'conversational AI', 'voice chatbot', 'natural language'],
-        image: '/og-voice-v2.png',
-      },
-      '/agent-marketplace': {
-        title: 'Agent Marketplace - 1,000+ Ready AI Agents | Build & Monetize',
-        description: 'Browse 1,000+ specialized AI agents or build your own. Earn credits by sharing agents with the community. Agents for productivity, coding, creativity, research, and business.',
-        keywords: ['AI marketplace', 'custom agents', 'AI tools', 'specialized AI', 'agent builder', 'monetize AI', 'AI revenue'],
-        image: '/og-marketplace.png',
+        title: 'AI Chat Interface - Intelligent Conversations | Oneiros.me',
+        description: 'Engage with advanced AI models through our intelligent chat interface. Get instant, context-aware responses powered by state-of-the-art language models.',
+        keywords: ['AI chat', 'conversational AI', 'chatbot', 'AI assistant', 'natural language processing', 'GPT'],
+        image: '/og-platform-automation.png',
+        type: 'website',
+        section: 'Product'
       },
       '/pricing': {
-        title: 'Pricing That Scales - Save $8,400/Year vs Hiring | ROI in 2 Weeks',
-        description: 'Start free with 500 daily credits forever. Professional at $49/mo. Enterprise unlimited at $999. No credit card required. Money-back guarantee. Save thousands vs hiring.',
-        keywords: ['AI pricing', 'subscription plans', 'AI ROI calculator', 'enterprise AI pricing', 'AI cost savings', 'affordable AI'],
+        title: 'Pricing Plans - Flexible AI Solutions | Oneiros.me',
+        description: 'Choose the perfect AI automation plan for your needs. Flexible pricing for individuals, teams, and enterprises with transparent, usage-based billing.',
+        keywords: ['AI pricing', 'subscription plans', 'enterprise AI', 'automation pricing', 'API pricing'],
         image: '/og-pricing-v2.png',
+        type: 'website',
+        section: 'Pricing'
+      },
+      '/agent-marketplace': {
+        title: 'AI Agent Marketplace - Pre-Built AI Solutions | Oneiros.me',
+        description: 'Discover and deploy pre-built AI agents for various business needs. Browse our marketplace of specialized AI solutions ready to automate your workflows.',
+        keywords: ['AI agents', 'marketplace', 'automation agents', 'AI solutions', 'pre-built AI'],
+        image: '/og-agents-v2.png',
+        type: 'website',
+        section: 'Marketplace'
+      },
+      '/voice-agent': {
+        title: 'Voice AI Agent - Natural Conversations | Oneiros.me',
+        description: 'Deploy intelligent voice AI agents with natural language understanding. Create conversational experiences that feel human with our voice AI technology.',
+        keywords: ['voice AI', 'speech recognition', 'conversational AI', 'voice assistant', 'speech synthesis'],
+        image: '/og-voice-v2.png',
+        type: 'website',
+        section: 'Product'
       },
       '/social-intelligence': {
-        title: 'Social Intelligence - Oneiros.me',
-        description: 'AI-powered social media analysis, sentiment tracking, and viral content creation. Understand and influence your audience.',
-        keywords: ['social intelligence', 'sentiment analysis', 'viral content', 'social media AI'],
-        image: '/og-social.png',
-      },
+        title: 'Social Intelligence - AI-Powered Social Media | Oneiros.me',
+        description: 'Leverage AI for social media monitoring, sentiment analysis, and trend detection. Make data-driven decisions with advanced social intelligence.',
+        keywords: ['social intelligence', 'sentiment analysis', 'social monitoring', 'AI analytics', 'social media AI'],
+        image: '/og-social-v2.png',
+        type: 'website',
+        section: 'Product'
+      }
     };
-
+    
     return metadata[page] || metadata['/'];
   }
 
-  static generateStructuredData(type: 'website' | 'software' | 'product', data?: Partial<StructuredData>): StructuredData {
-    const baseData: StructuredData = {
+  static generateOrganizationSchema(): StructuredData {
+    return {
       '@context': 'https://schema.org',
-      '@type': type === 'website' ? 'WebSite' : type === 'software' ? 'SoftwareApplication' : 'Product',
+      '@type': 'Organization',
       name: 'Oneiros.me',
       url: this.BASE_URL,
+      logo: `${this.BASE_URL}/favicon-oneiros.png`,
+      description: 'Advanced AI automation platform with 38+ edge functions, vision AI, and multi-agent workflows',
+      foundingDate: '2024',
+      sameAs: [
+        'https://twitter.com/oneiros',
+        'https://linkedin.com/company/oneiros',
+        'https://github.com/oneiros'
+      ],
+      contactPoint: {
+        '@type': 'ContactPoint',
+        contactType: 'Customer Service',
+        email: 'support@oneiros.me',
+        availableLanguage: ['English']
+      }
     };
+  }
 
-    if (type === 'website') {
-      return {
-        ...baseData,
-        '@type': 'WebSite',
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: {
-            '@type': 'EntryPoint',
-            urlTemplate: `${this.BASE_URL}/chat?q={search_term_string}`,
-          },
-          'query-input': 'required name=search_term_string',
+  static generateWebSiteSchema(): StructuredData {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'Oneiros.me',
+      url: this.BASE_URL,
+      description: 'Production-ready AI automation platform',
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: {
+          '@type': 'EntryPoint',
+          urlTemplate: `${this.BASE_URL}/search?q={search_term_string}`
         },
-        ...data,
-      };
-    }
+        'query-input': 'required name=search_term_string'
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: 'Oneiros.me',
+        logo: {
+          '@type': 'ImageObject',
+          url: `${this.BASE_URL}/favicon-oneiros.png`
+        }
+      }
+    };
+  }
 
-    if (type === 'software') {
-      return {
-        ...baseData,
+  static generateStructuredData(
+    type: 'website' | 'software' | 'product',
+    data?: Partial<StructuredData>
+  ): StructuredData {
+    const bases = {
+      website: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'Oneiros.me - AI Automation Platform',
+        description: 'Advanced AI automation platform',
+        url: this.BASE_URL,
+        inLanguage: 'en-US',
+        isPartOf: {
+          '@type': 'WebSite',
+          name: 'Oneiros.me',
+          url: this.BASE_URL
+        }
+      },
+      software: {
+        '@context': 'https://schema.org',
         '@type': 'SoftwareApplication',
+        name: 'Oneiros.me AI Platform',
         applicationCategory: 'BusinessApplication',
-        operatingSystem: 'Web, iOS, Android',
+        operatingSystem: 'Web',
         offers: {
           '@type': 'Offer',
           price: '0',
           priceCurrency: 'USD',
+          availability: 'https://schema.org/InStock'
         },
         aggregateRating: {
           '@type': 'AggregateRating',
-          ratingValue: '4.9',
-          ratingCount: '1250',
+          ratingValue: '4.8',
+          ratingCount: '250',
+          bestRating: '5',
+          worstRating: '1'
         },
-        ...data,
-      };
-    }
-
-    return { ...baseData, ...data };
+        featureList: [
+          '38+ Edge Functions',
+          'Vision AI Integration',
+          'Multi-Agent Workflows',
+          'Real-time Monitoring',
+          'Enterprise Security'
+        ]
+      },
+      product: {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: 'Oneiros.me AI Automation',
+        description: 'Production-ready AI automation platform',
+        brand: {
+          '@type': 'Brand',
+          name: 'Oneiros.me'
+        },
+        offers: {
+          '@type': 'AggregateOffer',
+          lowPrice: '0',
+          highPrice: '999',
+          priceCurrency: 'USD',
+          availability: 'https://schema.org/InStock'
+        }
+      }
+    };
+    
+    return { ...bases[type], ...data };
   }
 
-  static generateBreadcrumbs(items: Array<{ name: string; url: string }>): StructuredData {
+  static generateBreadcrumbs(items: BreadcrumbItem[]): StructuredData {
     return {
       '@context': 'https://schema.org',
       '@type': 'BreadcrumbList',
@@ -119,8 +209,43 @@ export class SEOHelper {
         '@type': 'ListItem',
         position: index + 1,
         name: item.name,
-        item: `${this.BASE_URL}${item.url}`,
-      })),
+        item: `${this.BASE_URL}${item.url}`
+      }))
+    };
+  }
+
+  static generateArticleSchema(article: {
+    title: string;
+    description: string;
+    image: string;
+    datePublished: string;
+    dateModified?: string;
+    author: string;
+  }): StructuredData {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      headline: article.title,
+      description: article.description,
+      image: article.image,
+      datePublished: article.datePublished,
+      dateModified: article.dateModified || article.datePublished,
+      author: {
+        '@type': 'Person',
+        name: article.author
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: 'Oneiros.me',
+        logo: {
+          '@type': 'ImageObject',
+          url: `${this.BASE_URL}/favicon-oneiros.png`
+        }
+      },
+      mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id': this.BASE_URL
+      }
     };
   }
 
@@ -128,19 +253,99 @@ export class SEOHelper {
     return {
       '@context': 'https://schema.org',
       '@type': 'FAQPage',
-      mainEntity: questions.map((q) => ({
+      mainEntity: questions.map(q => ({
         '@type': 'Question',
         name: q.question,
         acceptedAnswer: {
           '@type': 'Answer',
-          text: q.answer,
-        },
-      })),
+          text: q.answer
+        }
+      }))
+    };
+  }
+
+  static generateVideoSchema(video: {
+    name: string;
+    description: string;
+    thumbnailUrl: string;
+    uploadDate: string;
+    duration?: string;
+  }): StructuredData {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'VideoObject',
+      name: video.name,
+      description: video.description,
+      thumbnailUrl: video.thumbnailUrl,
+      uploadDate: video.uploadDate,
+      duration: video.duration,
+      publisher: {
+        '@type': 'Organization',
+        name: 'Oneiros.me',
+        logo: {
+          '@type': 'ImageObject',
+          url: `${this.BASE_URL}/favicon-oneiros.png`
+        }
+      }
+    };
+  }
+
+  static generateServiceSchema(): StructuredData {
+    return {
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      serviceType: 'AI Automation Platform',
+      provider: {
+        '@type': 'Organization',
+        name: 'Oneiros.me'
+      },
+      areaServed: 'Worldwide',
+      hasOfferCatalog: {
+        '@type': 'OfferCatalog',
+        name: 'AI Automation Services',
+        itemListElement: [
+          {
+            '@type': 'Offer',
+            itemOffered: {
+              '@type': 'Service',
+              name: 'Vision AI Processing',
+              description: 'Advanced computer vision and image analysis'
+            }
+          },
+          {
+            '@type': 'Offer',
+            itemOffered: {
+              '@type': 'Service',
+              name: 'Multi-Agent Workflows',
+              description: 'Intelligent multi-agent coordination and automation'
+            }
+          },
+          {
+            '@type': 'Offer',
+            itemOffered: {
+              '@type': 'Service',
+              name: 'Edge Functions',
+              description: '38+ serverless functions for AI automation'
+            }
+          }
+        ]
+      }
     };
   }
 
   static getCanonicalUrl(path: string): string {
-    return `${this.BASE_URL}${path}`;
+    // Remove trailing slash except for root
+    const cleanPath = path === '/' ? path : path.replace(/\/$/, '');
+    // Remove query params and hash for canonical
+    const pathWithoutParams = cleanPath.split('?')[0].split('#')[0];
+    return `${this.BASE_URL}${pathWithoutParams}`;
+  }
+
+  static generateAlternateLinks(path: string): Array<{ hreflang: string; href: string }> {
+    return [
+      { hreflang: 'en', href: `${this.BASE_URL}${path}` },
+      { hreflang: 'x-default', href: `${this.BASE_URL}${path}` }
+    ];
   }
 
   static generateSitemap(): string {
