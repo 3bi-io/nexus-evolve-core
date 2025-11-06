@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -85,13 +85,15 @@ const SystemHealth = () => {
   };
 
   return (
-    <PageLayout>
-      <Helmet>
-        <title>System Health - API Key Validation</title>
-        <meta name="description" content="Monitor and validate API key configurations" />
-      </Helmet>
+    <PageLayout title="System Health" showBack={true}>
+      <SEO
+        title="System Health - API Key Validation & Monitoring"
+        description="Monitor and validate API key configurations for the unified AI platform. Check system status, validate integrations, and ensure all services are operational."
+        keywords="system health, API validation, monitoring, system status, API keys"
+        canonical="https://oneiros.me/system-health"
+      />
 
-      <div className="container mx-auto py-8 space-y-6">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-6">
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">

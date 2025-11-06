@@ -53,8 +53,8 @@ export default function SuperAdmin() {
 
   if (loading) {
     return (
-      <PageLayout>
-        <div className="max-w-7xl mx-auto px-6 py-8">
+      <PageLayout title="Admin Panel" showBack={true}>
+        <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl">
           <p>Loading...</p>
         </div>
       </PageLayout>
@@ -63,13 +63,13 @@ export default function SuperAdmin() {
 
   if (!isAdmin) {
     return (
-      <PageLayout>
+      <PageLayout title="Admin Panel" showBack={true}>
         <SEO 
           title="Super Admin - Access Denied"
           description="Super admin dashboard - restricted access for authorized administrators only."
           canonical="https://oneiros.me/admin"
         />
-        <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl">
           <BreadcrumbNav />
           <Card>
             <CardHeader>
@@ -114,10 +114,10 @@ export default function SuperAdmin() {
   };
 
   return (
-    <PageLayout showFooter={false}>
+    <PageLayout title="Admin - System Management" showBack={true}>
       <SEO 
         title="Super Admin - System Management Dashboard"
-        description="Comprehensive super admin dashboard for managing users, agents, data, finances, security, and system configuration."
+        description="Comprehensive super admin dashboard for managing users, agents, data, finances, security, and system configuration across the unified AI platform."
         canonical="https://oneiros.me/admin"
       />
       {/* Mobile-First Layout with admin theme */}

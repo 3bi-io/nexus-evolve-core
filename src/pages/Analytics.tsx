@@ -195,14 +195,14 @@ const Analytics = () => {
   const COLORS = ["hsl(var(--primary))", "hsl(var(--secondary))", "hsl(var(--accent))", "hsl(var(--muted))"];
 
   return (
-    <PageLayout>
+    <PageLayout title="Analytics" showBack={true}>
       <SEO 
         title="Analytics Dashboard - AI Usage Insights & Performance"
-        description="Track your AI usage, conversation quality, agent performance, and system insights. View detailed analytics on interactions, sessions, and knowledge base growth."
-        keywords="AI analytics, usage dashboard, performance metrics, conversation analytics, AI insights"
+        description="Track your AI usage across the unified platform. Monitor interactions, view activity trends, analyze agent performance, and understand quality metrics across all 9 AI systems."
+        keywords="AI analytics, usage dashboard, performance metrics, activity tracking, AI insights, platform analytics"
         canonical="https://oneiros.me/analytics"
       />
-      <div className="container mx-auto py-8 px-4 space-y-6">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-6">
         <div className="mb-8">
           <h1 className="text-3xl md:text-4xl font-bold mb-2">Analytics Dashboard</h1>
           <p className="text-muted-foreground">

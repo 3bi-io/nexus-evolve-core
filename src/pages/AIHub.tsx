@@ -1,5 +1,5 @@
 import { PageLayout } from "@/components/layout/PageLayout";
-import { Helmet } from "react-helmet-async";
+import { SEO } from "@/components/SEO";
 import { AIProviderDashboard } from "@/components/ai/AIProviderDashboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
@@ -30,13 +30,15 @@ const AIHub = () => {
   };
 
   return (
-    <PageLayout>
-      <Helmet>
-        <title>AI Hub - Lovable AI</title>
-        <meta name="description" content="Unified AI hub with smart routing across multiple providers" />
-      </Helmet>
+    <PageLayout title="AI Hub" showBack={true}>
+      <SEO
+        title="AI Hub - Unified AI Access with Intelligent Routing"
+        description="Unified access to Lovable AI, HuggingFace, and Browser AI with intelligent routing. Smart AI provider selection across the unified platform's 9 systems."
+        keywords="AI hub, AI routing, unified AI, intelligent routing, AI providers, multi-AI platform"
+        canonical="https://oneiros.me/ai-hub"
+      />
 
-      <div className="container mx-auto py-8 space-y-8">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-8">
         <div>
           <h1 className="text-4xl font-bold mb-2">AI Hub</h1>
           <p className="text-xl text-muted-foreground">

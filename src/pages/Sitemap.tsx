@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
-import { Helmet } from "react-helmet-async";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   Home, Sparkles, Store, MessageSquare, Mic, BarChart3, 
@@ -136,18 +136,15 @@ const sitemapSections: SitemapSection[] = [
 
 export default function Sitemap() {
   return (
-    <PageLayout>
-      <Helmet>
-        <title>Sitemap - Oneiros.me | Explore All Features</title>
-        <meta 
-          name="description" 
-          content="Complete sitemap of Oneiros.me - Explore all AI features, tools, and resources. Find analytics, agent marketplace, voice AI, integrations, and more." 
-        />
-        <meta name="keywords" content="sitemap, AI tools, navigation, features, Oneiros platform map" />
-        <link rel="canonical" href="https://oneiros.me/sitemap" />
-      </Helmet>
+    <PageLayout showHeader={true} showFooter={true} transition={true}>
+      <SEO
+        title="Sitemap - Explore All Features | Unified Navigation"
+        description="Complete sitemap of Oneiros.me unified AI platform. Explore 9 AI systems, analytics, agent marketplace, voice AI, integrations, and more - all accessible from the sidebar."
+        keywords="sitemap, AI tools, platform navigation, features, unified sidebar, platform map"
+        canonical="https://oneiros.me/sitemap"
+      />
 
-      <div className="container-mobile py-8 space-y-8">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-8">
         {/* Header */}
         <div className="space-y-4 text-center max-w-3xl mx-auto">
           <h1 className="text-4xl font-bold tracking-tight">Platform Sitemap</h1>

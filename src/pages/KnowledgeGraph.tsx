@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, lazy, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { PageLayout } from "@/components/layout/PageLayout";
 
 const ForceGraph2D = lazy(() => import("react-force-graph-2d"));
 import { useAuth } from "@/contexts/AuthContext";
@@ -154,15 +155,15 @@ export default function KnowledgeGraph() {
   }, [loadGraphData]);
 
   return (
-    <div className="min-h-screen bg-background p-4 md:p-6">
+    <PageLayout title="Knowledge Graph" showBack={true}>
       <SEO 
         title="Knowledge Graph - Visual Concept Network & Semantic Search"
-        description="Visualize your AI's knowledge as an interactive network graph. See connections between learned concepts, memories, solutions, and patterns."
-        keywords="knowledge graph, semantic network, AI knowledge base, concept visualization, network graph"
+        description="Visualize your AI's knowledge as an interactive network graph. See connections between learned concepts, memories, solutions, and patterns across the unified platform."
+        keywords="knowledge graph, semantic network, AI knowledge base, concept visualization, network graph, knowledge management"
         canonical="https://oneiros.me/knowledge-graph"
       />
       
-      <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-4 md:space-y-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Network className="w-6 h-6 md:w-8 md:h-8 text-primary" />
@@ -297,6 +298,6 @@ export default function KnowledgeGraph() {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </PageLayout>
   );
 }

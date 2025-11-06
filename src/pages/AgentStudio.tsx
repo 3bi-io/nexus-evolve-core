@@ -20,14 +20,14 @@ export default function AgentStudio() {
   }, [agentId]);
 
   return (
-    <PageLayout>
+    <PageLayout title="Agent Studio" showBack={true}>
       <SEO 
-        title="Agent Studio - Create & Customize AI Agents"
-        description="Build custom AI agents tailored to your needs. Use templates or create from scratch. Design personality, capabilities, and functions for your specialized AI assistants."
-        keywords="custom AI agents, agent builder, AI customization, agent templates, AI assistant builder"
+        title="Agent Studio - Build & Customize AI Agents | Agent Builder"
+        description="Build custom AI agents tailored to your needs using the unified platform. Use templates or create from scratch. Design personality, capabilities, and integrate across all AI systems."
+        keywords="custom AI agents, agent builder, AI customization, agent templates, AI assistant builder, agent studio"
         canonical="https://oneiros.me/agent-studio"
       />
-      <div className="container max-w-7xl py-8">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl">
         <div className="flex items-center gap-3 mb-8">
           <Sparkles className="w-8 h-8 text-primary" />
           <div>
