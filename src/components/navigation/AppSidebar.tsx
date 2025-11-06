@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
-import { Settings } from "lucide-react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Brain, Sparkles, Settings, LogOut, User, Moon, Sun } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { navSections } from "@/config/navigation";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -17,13 +19,27 @@ import {
 } from "@/components/ui/sidebar";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useTheme } from "next-themes";
+import { Button } from "@/components/ui/button";
 
 export function AppSidebar() {
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const { state } = useSidebar();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { theme, setTheme } = useTheme();
   const [isAdmin, setIsAdmin] = useState(false);
   const collapsed = state === "collapsed";
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
+
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
+  };
 
   // Check admin status
   useEffect(() => {
@@ -71,16 +87,17 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r">
-      <div className="flex items-center justify-between p-4 border-b">
-        {!collapsed && (
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">O</span>
-            </div>
-            <span className="font-semibold text-lg">Oneiros</span>
+      <SidebarHeader className="border-b">
+        <div className="flex items-center gap-2 px-2">
+          <div className="relative">
+            <Brain className="w-6 h-6 text-primary" />
+            <Sparkles className="w-3 h-3 text-primary absolute -top-1 -right-1 animate-pulse" />
           </div>
-        )}
-      </div>
+          {!collapsed && (
+            <span className="font-semibold text-lg">Oneiros.me</span>
+          )}
+        </div>
+      </SidebarHeader>
 
       <SidebarContent>
         {filteredSections.map((section) => {
@@ -150,17 +167,114 @@ export function AppSidebar() {
         })}
       </SidebarContent>
 
-      {/* Footer with user info or sign in prompt */}
-      <div className="mt-auto border-t p-4">
-        {!user && !collapsed && (
-          <NavLink to="/auth">
-            <SidebarMenuButton className="w-full">
-              <Settings className="w-4 h-4" />
-              <span>Sign In</span>
-            </SidebarMenuButton>
-          </NavLink>
+      <SidebarFooter className="border-t">
+        {user ? (
+          <div className="space-y-2">
+            {!collapsed && (
+              <div className="flex items-center gap-3 px-2 py-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                    {user.email?.substring(0, 2).toUpperCase() || "U"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{user.email}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {isAdmin ? "Admin" : "User"}
+                  </p>
+                </div>
+              </div>
+            )}
+            <SidebarMenu>
+              {!collapsed && (
+                <>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild>
+                      <NavLink to="/account">
+                        <User className="w-4 h-4" />
+                        <span>Account</span>
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton onClick={toggleTheme}>
+                      {theme === "dark" ? (
+                        <Sun className="w-4 h-4" />
+                      ) : (
+                        <Moon className="w-4 h-4" />
+                      )}
+                      <span>Toggle Theme</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton onClick={handleSignOut}>
+                      <LogOut className="w-4 h-4" />
+                      <span>Sign Out</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </>
+              )}
+              {collapsed && (
+                <>
+                  <SidebarMenuItem>
+                    <TooltipProvider delayDuration={0}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <SidebarMenuButton asChild>
+                            <NavLink to="/account">
+                              <User className="w-4 h-4" />
+                            </NavLink>
+                          </SidebarMenuButton>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">Account</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <TooltipProvider delayDuration={0}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <SidebarMenuButton onClick={toggleTheme}>
+                            {theme === "dark" ? (
+                              <Sun className="w-4 h-4" />
+                            ) : (
+                              <Moon className="w-4 h-4" />
+                            )}
+                          </SidebarMenuButton>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">Toggle Theme</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <TooltipProvider delayDuration={0}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <SidebarMenuButton onClick={handleSignOut}>
+                            <LogOut className="w-4 h-4" />
+                          </SidebarMenuButton>
+                        </TooltipTrigger>
+                        <TooltipContent side="right">Sign Out</TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </SidebarMenuItem>
+                </>
+              )}
+            </SidebarMenu>
+          </div>
+        ) : (
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild>
+                <NavLink to="/auth">
+                  <User className="w-4 h-4" />
+                  {!collapsed && <span>Sign In</span>}
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
         )}
-      </div>
+      </SidebarFooter>
     </Sidebar>
   );
 }
