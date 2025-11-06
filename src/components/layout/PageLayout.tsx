@@ -1,18 +1,14 @@
 import { ReactNode, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { Footer } from "@/components/layout/Footer";
 import { PageTransition } from "@/components/ui/page-transition";
 import { BreadcrumbNav } from "@/components/BreadcrumbNav";
 import { AppSidebar } from "@/components/navigation/AppSidebar";
-import { SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
-import { useMobile } from "@/hooks/useMobile";
+import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
-import { CreditBalance } from "@/components/pricing/CreditBalance";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import { useSwipeGestures } from "@/hooks/useSwipeGestures";
-import { Brain, Sparkles } from "lucide-react";
 import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
+import { UnifiedHeader } from "./UnifiedHeader";
 
 interface PageLayoutProps {
   children: ReactNode;
@@ -73,35 +69,7 @@ function MainLayout({
 
   return (
     <div className="flex flex-col flex-1 min-w-0">
-      {showHeader && (
-        <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="flex h-14 items-center px-4 gap-4">
-            <div className="flex items-center gap-3">
-              <SidebarTrigger />
-              <Link to="/" className="flex items-center gap-2">
-                <div className="relative">
-                  <Brain className="w-6 h-6 text-primary" />
-                  <Sparkles className="w-3 h-3 text-primary absolute -top-1 -right-1 animate-pulse" />
-                </div>
-                <span className="font-bold text-lg hidden sm:inline-block">Oneiros.me</span>
-              </Link>
-            </div>
-            <div className="ml-auto flex items-center gap-2">
-              {user && <CreditBalance />}
-              <ThemeToggle />
-              {user ? (
-                <Button onClick={async () => { await signOut(); navigate("/"); }} variant="outline" size="sm" className="hidden sm:flex">
-                  Sign Out
-                </Button>
-              ) : (
-                <Button asChild size="sm" className="hidden sm:flex">
-                  <Link to="/auth">Start Free</Link>
-                </Button>
-              )}
-            </div>
-          </div>
-        </header>
-      )}
+      {showHeader && <UnifiedHeader variant="app" />}
       <main className={`flex-1 ${className} ${isMobile && showBottomNav ? 'pb-16' : ''}`}>
         <div className="container mx-auto px-4 pt-4">
           <BreadcrumbNav />

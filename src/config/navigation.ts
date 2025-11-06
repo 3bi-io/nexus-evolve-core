@@ -32,6 +32,13 @@ export const primaryNavItems: NavItem[] = [
   { to: "/pricing", icon: Sparkles, label: "Pricing", shortLabel: "Price", description: "Plans & Pricing", public: true },
 ];
 
+// Public header navigation items (for marketing pages)
+export const publicHeaderNavItems: NavItem[] = [
+  { to: "/getting-started", icon: Rocket, label: "Features", description: "Platform Features" },
+  { to: "/pricing", icon: Sparkles, label: "Pricing", description: "Plans & Pricing" },
+  { to: "/agent-marketplace", icon: Store, label: "Marketplace", description: "Browse AI Agents" },
+];
+
 // Mobile bottom nav items (simplified, most important routes)
 export const mobileBottomNavItems = {
   authenticated: [

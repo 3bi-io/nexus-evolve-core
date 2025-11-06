@@ -1,4 +1,4 @@
-import { Header } from "@/components/layout/Header";
+import { UnifiedHeader } from "@/components/layout/UnifiedHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
@@ -10,7 +10,7 @@ interface LoadingPageProps {
 export function LoadingPage({ showNavigation = true, cardCount = 1 }: LoadingPageProps) {
   return (
     <div className="min-h-screen bg-background">
-      {showNavigation && <Header showSidebarTrigger={false} />}
+      {showNavigation && <UnifiedHeader variant="app" />}
       <div className="container mx-auto py-8 px-4">
         <div className="space-y-6">
           <div className="space-y-2">

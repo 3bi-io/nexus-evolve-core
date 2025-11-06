@@ -1,8 +1,8 @@
-import { PageLayout } from '@/components/layout/PageLayout';
+import { MarketingLayout } from '@/components/layout/MarketingLayout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Zap, Brain, Rocket, Sparkles, MessageSquare, BookOpen, BarChart3, GitBranch, TestTube, Calendar } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
@@ -13,73 +13,16 @@ import { SocialProofNotification } from '@/components/conversion/SocialProofNoti
 import { ROICalculator } from '@/components/conversion/ROICalculator';
 import { ComparisonTable } from '@/components/conversion/ComparisonTable';
 import { ProblemSolution } from '@/components/landing/ProblemSolution';
-import { UseCases } from '@/components/landing/UseCases';
 import { FAQ } from '@/components/landing/FAQ';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { FeaturesSection } from '@/components/landing/FeaturesSection';
 import { DemoSection } from '@/components/landing/DemoSection';
 import { PricingSection } from '@/components/landing/PricingSection';
 import { StickySignupCTA } from '@/components/mobile/StickySignupCTA';
-
-const steps = [
-  {
-    number: 1,
-    title: 'Sign Up (30 seconds)',
-    description: 'Create your free account. No credit card required. Get instant access to all 9 AI systems.',
-    icon: Zap,
-  },
-  {
-    number: 2,
-    title: 'AI Learns You (automatic)',
-    description: 'Start chatting. Our agents automatically learn your patterns, build your knowledge graph, and remember everything.',
-    icon: Brain,
-  },
-  {
-    number: 3,
-    title: 'Ship 3x Faster (ongoing)',
-    description: 'Watch your productivity multiply as AI evolves, predicts your needs, and automates repetitive work.',
-    icon: Rocket,
-  },
-];
-
-const agentFeatures = [
-  {
-    icon: MessageSquare,
-    title: "Persistent Conversations",
-    description: "Save, search, and continue conversations with auto-generated titles",
-    color: "text-blue-500"
-  },
-  {
-    icon: BookOpen,
-    title: "Knowledge Bases",
-    description: "Upload documents, auto-chunk content, enable RAG-powered search",
-    color: "text-green-500"
-  },
-  {
-    icon: BarChart3,
-    title: "Analytics Dashboard",
-    description: "Track performance, tool usage, success rates with detailed insights",
-    color: "text-purple-500"
-  },
-  {
-    icon: GitBranch,
-    title: "Version Control",
-    description: "Snapshot configs, compare versions, rollback changes safely",
-    color: "text-orange-500"
-  },
-  {
-    icon: TestTube,
-    title: "Testing Suite",
-    description: "Test scenarios, run suites, ensure quality before deployment",
-    color: "text-pink-500"
-  },
-  {
-    icon: Calendar,
-    title: "Automation",
-    description: "Schedule runs with cron, webhooks, and email integration",
-    color: "text-red-500"
-  }
-];
+import { EnhancedUseCases } from '@/components/landing/EnhancedUseCases';
+import { AgentPlatformShowcase } from '@/components/landing/AgentPlatformShowcase';
+import { steps } from '@/data/landing-steps';
+import { agentFeatures } from '@/data/landing-agent-features';
 
 export default function Landing() {
   const navigate = useNavigate();
@@ -92,8 +35,8 @@ export default function Landing() {
   }, [user, navigate]);
 
   return (
-    <PageLayout showHeader showFooter>
-      <SEO 
+    <MarketingLayout>
+      <SEO
         title="Oneiros | Production-Ready AI Platform - 9 AI Systems, Unified Navigation"
         description="Production-ready AI platform with 9 integrated systems, unified sidebar navigation, voice AI, multi-agent orchestration, and autonomous evolution. Join 10,847+ teams shipping 3x faster."
         keywords={[
@@ -194,10 +137,11 @@ export default function Landing() {
         {/* Core Benefits */}
         <FeaturesSection />
 
-        {/* Use Cases */}
-        <section className="py-16">
-          <UseCases />
-        </section>
+        {/* Enhanced Use Cases - Interactive Showcase */}
+        <EnhancedUseCases />
+        
+        {/* Agent Platform Showcase */}
+        <AgentPlatformShowcase />
 
         {/* How It Works */}
         <section className="py-16 bg-muted/30 -mx-4 px-4 md:-mx-8 md:px-8 lg:-mx-12 lg:px-12">
@@ -307,6 +251,6 @@ export default function Landing() {
         <SocialProofNotification />
         <StickySignupCTA />
       </div>
-    </PageLayout>
+    </MarketingLayout>
   );
 }
