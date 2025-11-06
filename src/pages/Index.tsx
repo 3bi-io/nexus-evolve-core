@@ -7,12 +7,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useEngagementTracking } from "@/hooks/useEngagementTracking";
 import { useState, useEffect } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
-import { useMobile } from "@/hooks/useMobile";
+import { useResponsive } from "@/hooks/useResponsive";
 import { SEO } from "@/components/SEO";
 
 const Index = () => {
   const { user } = useAuth();
-  const { isMobile } = useMobile();
+  const { isMobile } = useResponsive();
   const { metrics, shouldShowUpgradePrompt } = useEngagementTracking();
   const [showPrompt, setShowPrompt] = useState(false);
   const [promptTrigger, setPromptTrigger] = useState<'credits_low' | 'session_value' | 'time_based' | null>(null);

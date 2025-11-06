@@ -9,6 +9,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSwipeGestures } from "@/hooks/useSwipeGestures";
 import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
 import { UnifiedHeader } from "./UnifiedHeader";
+import { useResponsive } from "@/hooks/useResponsive";
+import { cn } from "@/lib/utils";
 
 interface PageLayoutProps {
   children: ReactNode;
@@ -41,6 +43,7 @@ function MainLayout({
   navigate: (path: string) => void;
 }) {
   const { toggleSidebar, setOpenMobile, isMobile } = useSidebar();
+  const { isSmallMobile, isTouchDevice, orientation } = useResponsive();
 
   // Add swipe gestures for mobile - swipe from left edge to open
   useSwipeGestures({
@@ -50,13 +53,12 @@ function MainLayout({
       }
     },
     threshold: 80,
-    edgeSwipe: true, // Only trigger from screen edges
-    edgeThreshold: 30, // 30px from edge
+    edgeSwipe: true,
+    edgeThreshold: 30,
   });
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Check for Cmd+B (Mac) or Ctrl+B (Windows/Linux)
       if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
         e.preventDefault();
         toggleSidebar();
@@ -70,9 +72,32 @@ function MainLayout({
   return (
     <div className="flex flex-col flex-1 min-w-0">
       {showHeader && <UnifiedHeader variant="app" />}
-      <main className={`flex-1 ${className} ${isMobile && showBottomNav ? 'pb-16' : ''}`}>
-        <div className="container mx-auto px-4 pt-4">
-          <BreadcrumbNav />
+      <main 
+        className={cn(
+          'flex-1',
+          // Mobile-first responsive padding
+          'px-3 sm:px-4 lg:px-6',
+          // Adjust for bottom nav on mobile
+          isMobile && showBottomNav && 'pb-20',
+          // Reduce padding on small mobile devices
+          isSmallMobile && 'px-2',
+          // Adjust for orientation
+          orientation === 'landscape' && isMobile && 'py-2',
+          className
+        )}
+        style={{
+          // Prevent zoom on double-tap for touch devices
+          touchAction: isTouchDevice ? 'manipulation' : 'auto',
+        }}
+      >
+        <div className={cn(
+          'mx-auto',
+          'pt-3 sm:pt-4 lg:pt-6',
+          // Container width - mobile-first
+          'w-full',
+          !isSmallMobile && 'max-w-7xl',
+        )}>
+          {!isMobile && <BreadcrumbNav />}
         </div>
         {children}
       </main>
@@ -94,10 +119,18 @@ export function PageLayout({
 }: PageLayoutProps) {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { isMobile } = useResponsive();
 
   const content = (
-    <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen w-full bg-background">
+    <SidebarProvider defaultOpen={!isMobile}>
+      <div 
+        className={cn(
+          'flex min-h-screen w-full',
+          'bg-background',
+          // Optimize for mobile performance
+          'antialiased',
+        )}
+      >
         <AppSidebar />
         <MainLayout 
           showHeader={showHeader}
