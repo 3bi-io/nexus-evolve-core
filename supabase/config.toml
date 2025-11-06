@@ -1,5 +1,14 @@
 project_id = "coobieessxvnujkkiadc"
 
+[functions.automation-pipeline-executor]
+verify_jwt = true
+
+[functions.scheduled-trend-monitor]
+verify_jwt = false
+
+[functions.content-generation-worker]
+verify_jwt = false
+
 [functions.coordinator-agent]
 verify_jwt = true
 

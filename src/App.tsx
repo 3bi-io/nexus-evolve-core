@@ -63,6 +63,7 @@ const Webhooks = lazy(() => import("./pages/Webhooks"));
 const PlatformOptimizer = lazy(() => import("./pages/PlatformOptimizer"));
 const XAIStudio = lazy(() => import("./pages/XAIStudio"));
 const XAIAnalytics = lazy(() => import("./pages/XAIAnalytics"));
+const AutomationHub = lazy(() => import("./pages/AutomationHub"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -233,6 +234,11 @@ const RoutesWithShortcuts = () => {
           <Route path="/xai-analytics" element={
             <ProtectedRoute>
               <XAIAnalytics />
+            </ProtectedRoute>
+          } />
+          <Route path="/automation-hub" element={
+            <ProtectedRoute>
+              <AutomationHub />
             </ProtectedRoute>
           } />
           <Route path="/agent-marketplace" element={<AgentMarketplace />} />

@@ -988,6 +988,48 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_response_cache: {
+        Row: {
+          cache_key: string
+          cost_saved_usd: number | null
+          created_at: string | null
+          expires_at: string
+          hit_count: number | null
+          id: string
+          last_accessed_at: string | null
+          model_used: string | null
+          operation_type: string
+          request_hash: string
+          response_data: Json
+        }
+        Insert: {
+          cache_key: string
+          cost_saved_usd?: number | null
+          created_at?: string | null
+          expires_at: string
+          hit_count?: number | null
+          id?: string
+          last_accessed_at?: string | null
+          model_used?: string | null
+          operation_type: string
+          request_hash: string
+          response_data: Json
+        }
+        Update: {
+          cache_key?: string
+          cost_saved_usd?: number | null
+          created_at?: string | null
+          expires_at?: string
+          hit_count?: number | null
+          id?: string
+          last_accessed_at?: string | null
+          model_used?: string | null
+          operation_type?: string
+          request_hash?: string
+          response_data?: Json
+        }
+        Relationships: []
+      }
       api_keys: {
         Row: {
           created_at: string
@@ -1119,6 +1161,54 @@ export type Database = {
           require_tests_pass?: boolean | null
           updated_at?: string
           updated_by?: string | null
+        }
+        Relationships: []
+      }
+      automation_pipelines: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          failure_count: number | null
+          id: string
+          is_active: boolean | null
+          last_run_at: string | null
+          name: string
+          next_run_at: string | null
+          pipeline_config: Json
+          schedule_cron: string | null
+          success_count: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          failure_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_run_at?: string | null
+          name: string
+          next_run_at?: string | null
+          pipeline_config: Json
+          schedule_cron?: string | null
+          success_count?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          failure_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_run_at?: string | null
+          name?: string
+          next_run_at?: string | null
+          pipeline_config?: Json
+          schedule_cron?: string | null
+          success_count?: number | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -1304,6 +1394,68 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      content_generation_queue: {
+        Row: {
+          completed_at: string | null
+          content_type: string
+          created_at: string | null
+          error_message: string | null
+          id: string
+          parameters: Json | null
+          pipeline_id: string | null
+          priority: number | null
+          prompt: string
+          result: Json | null
+          retry_count: number | null
+          scheduled_for: string | null
+          started_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          content_type: string
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          parameters?: Json | null
+          pipeline_id?: string | null
+          priority?: number | null
+          prompt: string
+          result?: Json | null
+          retry_count?: number | null
+          scheduled_for?: string | null
+          started_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          content_type?: string
+          created_at?: string | null
+          error_message?: string | null
+          id?: string
+          parameters?: Json | null
+          pipeline_id?: string | null
+          priority?: number | null
+          prompt?: string
+          result?: Json | null
+          retry_count?: number | null
+          scheduled_for?: string | null
+          started_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_generation_queue_pipeline_id_fkey"
+            columns: ["pipeline_id"]
+            isOneToOne: false
+            referencedRelation: "automation_pipelines"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       conversation_titles: {
         Row: {
@@ -2212,6 +2364,47 @@ export type Database = {
         }
         Relationships: []
       }
+      monitor_results: {
+        Row: {
+          alerts: Json | null
+          error_message: string | null
+          executed_at: string | null
+          id: string
+          metrics: Json | null
+          monitor_id: string
+          results: Json
+          status: string
+        }
+        Insert: {
+          alerts?: Json | null
+          error_message?: string | null
+          executed_at?: string | null
+          id?: string
+          metrics?: Json | null
+          monitor_id: string
+          results: Json
+          status: string
+        }
+        Update: {
+          alerts?: Json | null
+          error_message?: string | null
+          executed_at?: string | null
+          id?: string
+          metrics?: Json | null
+          monitor_id?: string
+          results?: Json
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monitor_results_monitor_id_fkey"
+            columns: ["monitor_id"]
+            isOneToOne: false
+            referencedRelation: "scheduled_monitors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       multimodal_sessions: {
         Row: {
           content: Json
@@ -2241,6 +2434,56 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      pipeline_executions: {
+        Row: {
+          completed_at: string | null
+          duration_ms: number | null
+          error_message: string | null
+          id: string
+          metadata: Json | null
+          pipeline_id: string
+          results: Json | null
+          started_at: string | null
+          status: string
+          steps_completed: number | null
+          steps_total: number
+        }
+        Insert: {
+          completed_at?: string | null
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          pipeline_id: string
+          results?: Json | null
+          started_at?: string | null
+          status: string
+          steps_completed?: number | null
+          steps_total: number
+        }
+        Update: {
+          completed_at?: string | null
+          duration_ms?: number | null
+          error_message?: string | null
+          id?: string
+          metadata?: Json | null
+          pipeline_id?: string
+          results?: Json | null
+          started_at?: string | null
+          status?: string
+          steps_completed?: number | null
+          steps_total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pipeline_executions_pipeline_id_fkey"
+            columns: ["pipeline_id"]
+            isOneToOne: false
+            referencedRelation: "automation_pipelines"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       platform_improvements: {
         Row: {
@@ -2692,6 +2935,54 @@ export type Database = {
           threshold_amount?: number
           triggered_at?: string | null
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      scheduled_monitors: {
+        Row: {
+          alert_threshold: Json | null
+          config: Json
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          last_run_at: string | null
+          monitor_type: string
+          next_run_at: string | null
+          notification_channels: Json | null
+          schedule_cron: string
+          target: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          alert_threshold?: Json | null
+          config: Json
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_run_at?: string | null
+          monitor_type: string
+          next_run_at?: string | null
+          notification_channels?: Json | null
+          schedule_cron: string
+          target: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          alert_threshold?: Json | null
+          config?: Json
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          last_run_at?: string | null
+          monitor_type?: string
+          next_run_at?: string | null
+          notification_channels?: Json | null
+          schedule_cron?: string
+          target?: string
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -4077,6 +4368,7 @@ export type Database = {
         }
         Returns: Json
       }
+      cleanup_expired_cache: { Args: never; Returns: undefined }
       cleanup_rate_limit_logs: { Args: never; Returns: undefined }
       decrypt_ip: {
         Args: { encrypted_ip: string; encryption_key: string }

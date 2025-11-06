@@ -96,6 +96,7 @@ export const navSections: NavSection[] = [
       { to: "/social-intelligence", icon: Users, label: "Social Intelligence" },
       { to: "/xai-studio", icon: Sparkles, label: "XAI Studio" },
       { to: "/xai-analytics", icon: BarChart3, label: "XAI Analytics" },
+      { to: "/automation-hub", icon: Zap, label: "Automation Hub" },
       { to: "/unified-router", icon: Zap, label: "Unified Router" },
       { to: "/router-dashboard", icon: Activity, label: "Router Metrics" },
     ],
