@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
 import { CreditBalance } from "@/components/pricing/CreditBalance";
-import { Brain } from "lucide-react";
+import { Brain, Sparkles } from "lucide-react";
 
 interface HeaderProps {
   showSidebarTrigger?: boolean;
@@ -24,8 +24,11 @@ export function Header({ showSidebarTrigger = true }: HeaderProps) {
         {/* Left: Logo */}
         <div className="flex items-center gap-3">
           <Link to="/" className="flex items-center gap-2">
-            <Brain className="w-6 h-6 text-primary" />
-            <span className="font-bold text-lg hidden sm:inline-block">Oneiros</span>
+            <div className="relative">
+              <Brain className="w-6 h-6 text-primary" />
+              <Sparkles className="w-3 h-3 text-primary absolute -top-1 -right-1 animate-pulse" />
+            </div>
+            <span className="font-bold text-lg hidden sm:inline-block">Oneiros.me</span>
           </Link>
         </div>
 

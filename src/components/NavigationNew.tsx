@@ -93,13 +93,13 @@ export const NavigationNew = () => {
       <div className="max-w-7xl mx-auto px-4 lg:px-6 py-3">
         <div className="flex items-center justify-between gap-4">
           {/* Brand */}
-          <Link to="/chat" className="flex items-center gap-2 flex-shrink-0">
+          <Link to="/" className="flex items-center gap-2 flex-shrink-0">
             <div className="relative">
               <Brain className="w-7 h-7 text-primary" />
               <Sparkles className="w-3 h-3 text-primary absolute -top-1 -right-1 animate-pulse" />
             </div>
             <div className="hidden lg:flex flex-col">
-              <span className="font-bold text-lg leading-tight">Oneiros</span>
+              <span className="font-bold text-lg leading-tight">Oneiros.me</span>
               <span className="text-xs text-muted-foreground leading-tight">AI Platform</span>
             </div>
           </Link>
