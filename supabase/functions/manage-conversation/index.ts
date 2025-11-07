@@ -1,5 +1,9 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { requireAuth } from '../_shared/auth.ts';
+import { initSupabaseClient } from '../_shared/supabase-client.ts';
+import { validateRequiredFields } from '../_shared/validators.ts';
 import { anthropicFetch } from '../_shared/api-client.ts';
 
 Deno.serve(async (req) => {
@@ -7,24 +11,17 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('manage-conversation', requestId);
+
   try {
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      throw new Error('No authorization header');
-    }
-
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      throw new Error('Unauthorized');
-    }
+    const supabase = initSupabaseClient();
+    const user = await requireAuth(req, supabase);
 
     const { action, conversationId, agentId, messages, title } = await req.json();
+    validateRequiredFields({ action }, ['action']);
+
+    logger.info('Conversation action', { action, userId: user.id, conversationId });
 
     switch (action) {
       case 'save': {
@@ -81,9 +78,7 @@ Deno.serve(async (req) => {
           }
         }
 
-        return new Response(JSON.stringify({ success: true, conversation: data }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        return successResponse({ success: true, conversation: data }, requestId);
       }
 
       case 'load': {
@@ -96,9 +91,7 @@ Deno.serve(async (req) => {
 
         if (error) throw error;
 
-        return new Response(JSON.stringify({ success: true, conversation: data }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        return successResponse({ success: true, conversation: data }, requestId);
       }
 
       case 'list': {
@@ -112,9 +105,7 @@ Deno.serve(async (req) => {
 
         if (error) throw error;
 
-        return new Response(JSON.stringify({ success: true, conversations: data }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        return successResponse({ success: true, conversations: data }, requestId);
       }
 
       case 'delete': {
@@ -126,9 +117,7 @@ Deno.serve(async (req) => {
 
         if (error) throw error;
 
-        return new Response(JSON.stringify({ success: true }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        return successResponse({ success: true }, requestId);
       }
 
       case 'search': {
@@ -143,9 +132,7 @@ Deno.serve(async (req) => {
 
         if (error) throw error;
 
-        return new Response(JSON.stringify({ success: true, conversations: data }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        return successResponse({ success: true, conversations: data }, requestId);
       }
 
       default:
@@ -153,11 +140,11 @@ Deno.serve(async (req) => {
     }
 
   } catch (error) {
-    console.error('Error in manage-conversation:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return handleError({
+      functionName: 'manage-conversation',
+      error,
+      requestId,
+      userId: undefined,
+    });
   }
 });

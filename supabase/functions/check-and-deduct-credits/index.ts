@@ -1,5 +1,7 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { initSupabaseClient } from '../_shared/supabase-client.ts';
 import { performSecurityCheck } from '../_shared/advanced-security.ts';
 
 const CREDIT_COSTS = {
@@ -30,13 +32,16 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('check-and-deduct-credits', requestId);
+
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = initSupabaseClient();
     const encryptionKey = Deno.env.get('IP_ENCRYPTION_KEY') || 'default-key-change-in-production';
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const { operation, userId, ipAddress, interactionId } = await req.json();
+    
+    logger.info('Credit check request', { operation, userId: userId?.substring(0, 8), hasIP: !!ipAddress });
 
     // Perform comprehensive security checks
     const securityCheck = await performSecurityCheck(req, supabase, {
@@ -47,7 +52,7 @@ Deno.serve(async (req) => {
 
     // Block if security check fails
     if (!securityCheck.allowed) {
-      console.log('Security check failed:', securityCheck.reason);
+      logger.warn('Security check failed', { reason: securityCheck.reason });
       return new Response(
         JSON.stringify({ 
           allowed: false, 
@@ -420,12 +425,12 @@ Deno.serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Error in check-and-deduct-credits:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return handleError({
+      functionName: 'check-and-deduct-credits',
+      error,
+      requestId,
+      userId: undefined,
+    });
   }
 });
 

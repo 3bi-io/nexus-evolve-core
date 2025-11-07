@@ -1,10 +1,10 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
-import { anthropicFetch } from '../_shared/api-client.ts';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders } from '../_shared/cors.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { requireAuth } from '../_shared/auth.ts';
+import { initSupabaseClient } from '../_shared/supabase-client.ts';
+import { validateRequiredFields } from '../_shared/validators.ts';
+import { anthropicFetch, openAIFetch, xAIFetch, lovableAIFetch } from '../_shared/api-client.ts';
 
 interface RouterRequest {
   message: string;
@@ -30,29 +30,24 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('meta-router-agent', requestId);
   const startTime = Date.now();
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const authHeader = req.headers.get('Authorization');
-    const supabase = createClient(supabaseUrl, supabaseKey);
-    
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader?.replace('Bearer ', '') || ''
-    );
-
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    const supabase = initSupabaseClient();
+    const user = await requireAuth(req, supabase);
 
     const body: RouterRequest = await req.json();
+    validateRequiredFields(body, ['message']);
     const { message, context, manualModel, ensembleMode, sessionId } = body;
 
-    console.log('Meta Router request:', { message: message.substring(0, 100), manualModel, ensembleMode });
+    logger.info('Meta Router request', { 
+      userId: user.id, 
+      messagePreview: message.substring(0, 100), 
+      manualModel, 
+      ensembleMode 
+    });
 
     let modelSelection: ModelSelection;
 
@@ -115,22 +110,25 @@ Deno.serve(async (req) => {
       p_cost_credits: estimateCost(modelSelection.selectedModel, response.length),
     });
 
-    return new Response(
-      JSON.stringify({
-        response: response,
-        modelUsed: modelSelection.selectedModel,
-        reasoning: modelSelection.reasoning,
-        latency,
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    logger.info('Meta Router complete', { 
+      modelUsed: modelSelection.selectedModel, 
+      latency 
+    });
 
-  } catch (error: any) {
-    console.error('Meta Router error:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return successResponse({
+      response: response,
+      modelUsed: modelSelection.selectedModel,
+      reasoning: modelSelection.reasoning,
+      latency,
+    }, requestId);
+
+  } catch (error) {
+    return handleError({
+      functionName: 'meta-router-agent',
+      error,
+      requestId,
+      userId: undefined,
+    });
   }
 });
 
@@ -303,15 +301,8 @@ async function executeModel(
 }
 
 async function executeLovableAI(modelId: string, message: string, context: any): Promise<string> {
-  const apiKey = Deno.env.get('LOVABLE_API_KEY');
-  if (!apiKey) throw new Error('LOVABLE_API_KEY not configured');
-
-  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+  const response = await lovableAIFetch('/v1/chat/completions', {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       model: modelId,
       messages: [
@@ -319,22 +310,17 @@ async function executeLovableAI(modelId: string, message: string, context: any):
         { role: 'user', content: message }
       ],
     }),
-  });
+  }, { timeout: 60000 });
+
+  if (!response.ok) throw response;
 
   const data = await response.json();
   return data.choices[0].message.content;
 }
 
 async function executeOpenAI(modelId: string, message: string, context: any): Promise<string> {
-  const apiKey = Deno.env.get('OPENAI_API_KEY');
-  if (!apiKey) throw new Error('OPENAI_API_KEY not configured');
-
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const response = await openAIFetch('/v1/chat/completions', {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       model: modelId,
       messages: [
@@ -343,7 +329,9 @@ async function executeOpenAI(modelId: string, message: string, context: any): Pr
       ],
       max_completion_tokens: 4096,
     }),
-  });
+  }, { timeout: 60000 });
+
+  if (!response.ok) throw response;
 
   const data = await response.json();
   return data.choices[0].message.content;
@@ -358,16 +346,9 @@ async function executeAnthropic(modelId: string, message: string, context: any):
       messages: [{ role: 'user', content: message }],
       max_tokens: 4096,
     }),
-  }, {
-    timeout: 60000,
-    maxRetries: 2
-  });
+  }, { timeout: 60000 });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error(`Anthropic API error: ${response.status} - ${errorText}`);
-    throw new Error(`Anthropic API error: ${response.status}`);
-  }
+  if (!response.ok) throw response;
 
   const data = await response.json();
   
@@ -379,15 +360,8 @@ async function executeAnthropic(modelId: string, message: string, context: any):
 }
 
 async function executeGrok(modelId: string, message: string, context: any): Promise<string> {
-  const apiKey = Deno.env.get('GROK_API_KEY');
-  if (!apiKey) throw new Error('GROK_API_KEY not configured');
-
-  const response = await fetch('https://api.x.ai/v1/chat/completions', {
+  const response = await xAIFetch('/v1/chat/completions', {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       model: modelId,
       messages: [
@@ -396,7 +370,9 @@ async function executeGrok(modelId: string, message: string, context: any): Prom
       ],
       temperature: 0.7,
     }),
-  });
+  }, { timeout: 60000 });
+
+  if (!response.ok) throw response;
 
   const data = await response.json();
   return data.choices[0].message.content;

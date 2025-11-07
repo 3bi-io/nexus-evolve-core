@@ -1,10 +1,10 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
+import { corsHeaders } from '../_shared/cors.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { requireAuth } from '../_shared/auth.ts';
+import { initSupabaseClient } from '../_shared/supabase-client.ts';
+import { validateRequiredFields } from '../_shared/validators.ts';
 import { lovableAIFetch } from '../_shared/api-client.ts';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
 
 interface GenerateImageRequest {
   prompt: string;
@@ -16,33 +16,19 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('generate-image', requestId);
   const startTime = Date.now();
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const authHeader = req.headers.get('Authorization');
-    const supabase = createClient(supabaseUrl, supabaseKey);
-    
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader?.replace('Bearer ', '') || ''
-    );
-
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    const supabase = initSupabaseClient();
+    const user = await requireAuth(req, supabase);
 
     const body: GenerateImageRequest = await req.json();
+    validateRequiredFields(body, ['prompt']);
     const { prompt, style } = body;
 
-    if (!prompt) {
-      throw new Error('Prompt is required');
-    }
-
-    console.log('Generating image:', { user: user.id, prompt: prompt.substring(0, 100) });
+    logger.info('Generating image', { userId: user.id, promptPreview: prompt.substring(0, 100) });
 
     // Enhance prompt with style if provided
     const enhancedPrompt = style 
@@ -68,24 +54,8 @@ Deno.serve(async (req) => {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('AI API error:', response.status, errorText);
-      
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: 'Rate limit exceeded. Please try again later.' }),
-          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: 'Payment required. Please add credits to your workspace.' }),
-          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      
-      throw new Error(`AI API error: ${response.status}`);
+      logger.error('AI API error', { status: response.status });
+      throw response;
     }
 
     const data = await response.json();
@@ -112,24 +82,23 @@ Deno.serve(async (req) => {
       .single();
 
     if (dbError) {
-      console.error('Database error:', dbError);
+      logger.error('Database error', dbError);
     }
 
-    return new Response(
-      JSON.stringify({
-        image: imageUrl,
-        id: savedImage?.id,
-        generationTime,
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    logger.info('Image generated successfully', { generationTime, imageId: savedImage?.id });
 
-  } catch (error: any) {
-    console.error('Image generation error:', error);
-    
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return successResponse({
+      image: imageUrl,
+      id: savedImage?.id,
+      generationTime,
+    }, requestId);
+
+  } catch (error) {
+    return handleError({
+      functionName: 'generate-image',
+      error,
+      requestId,
+      userId: undefined,
+    });
   }
 });
