@@ -1,50 +1,66 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+/**
+ * Uncertainty Calculator Function
+ * Calculates confidence scores and determines when to request clarification
+ */
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders } from '../_shared/cors.ts';
+import { createAuthenticatedClient } from '../_shared/supabase-client.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { validateRequiredFields, validateString } from '../_shared/validators.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
 
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
+Deno.serve(async (req) => {
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('uncertainty-calculator', requestId);
+
   try {
-    const authHeader = req.headers.get("Authorization")!;
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
-    );
+    logger.info('Processing uncertainty calculation request');
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error("Unauthorized");
+    // Authenticate user
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error('MISSING_AUTH_HEADER');
+    }
 
-    const { query, agentType, sessionId, context } = await req.json();
+    const { supabase, user } = await createAuthenticatedClient(authHeader);
+    logger.info('User authenticated', { userId: user.id });
+
+    // Parse and validate request body
+    const body = await req.json();
+    validateRequiredFields(body, ['query', 'agentType']);
+    validateString(body.query, 'query');
+    validateString(body.agentType, 'agentType');
+
+    const { query, agentType, sessionId, context } = body;
+
+    logger.info('Calculating confidence', { agentType, queryLength: query.length });
 
     // Check knowledge base for similar queries
     const { data: knowledgeMatches } = await supabase
-      .from("knowledge_base")
-      .select("*")
-      .eq("user_id", user.id)
-      .textSearch("tsv", query, { type: "websearch" })
+      .from('knowledge_base')
+      .select('*')
+      .eq('user_id', user.id)
+      .textSearch('tsv', query, { type: 'websearch' })
       .limit(5);
 
     // Check past interactions
     const { data: pastInteractions } = await supabase
-      .from("interactions")
-      .select("*")
-      .eq("user_id", user.id)
-      .ilike("user_query", `%${query.substring(0, 50)}%`)
+      .from('interactions')
+      .select('*')
+      .eq('user_id', user.id)
+      .ilike('user_query', `%${query.substring(0, 50)}%`)
       .limit(5);
 
     // Calculate confidence factors
     const factors = {
       knowledge_coverage: (knowledgeMatches?.length || 0) / 5,
       past_experience: (pastInteractions?.length || 0) / 5,
-      query_complexity: query.split(" ").length > 20 ? 0.5 : 0.8,
+      query_complexity: query.split(' ').length > 20 ? 0.5 : 0.8,
       context_availability: context ? 0.9 : 0.6,
     };
 
@@ -53,23 +69,23 @@ serve(async (req) => {
     // Determine uncertainty reasons
     const uncertaintyReasons: string[] = [];
     if (factors.knowledge_coverage < 0.5) {
-      uncertaintyReasons.push("Limited relevant knowledge in database");
+      uncertaintyReasons.push('Limited relevant knowledge in database');
     }
     if (factors.past_experience < 0.5) {
-      uncertaintyReasons.push("No similar past interactions");
+      uncertaintyReasons.push('No similar past interactions');
     }
     if (factors.query_complexity < 0.7) {
-      uncertaintyReasons.push("Complex or multi-part query");
+      uncertaintyReasons.push('Complex or multi-part query');
     }
     if (factors.context_availability < 0.7) {
-      uncertaintyReasons.push("Insufficient context provided");
+      uncertaintyReasons.push('Insufficient context provided');
     }
 
     const shouldRequestClarification = confidenceScore < 0.6 && uncertaintyReasons.length >= 2;
 
     // Store uncertainty score
     const { data: score, error } = await supabase
-      .from("uncertainty_scores")
+      .from('uncertainty_scores')
       .insert({
         user_id: user.id,
         session_id: sessionId,
@@ -84,22 +100,24 @@ serve(async (req) => {
 
     if (error) throw error;
 
-    console.log(`Confidence: ${(confidenceScore * 100).toFixed(1)}% for "${query.substring(0, 50)}..."`);
+    logger.info('Confidence calculated', { 
+      confidence: (confidenceScore * 100).toFixed(1) + '%', 
+      shouldClarify: shouldRequestClarification 
+    });
 
-    return new Response(JSON.stringify({
+    return successResponse({
       confidence: confidenceScore,
       uncertainty_reasons: uncertaintyReasons,
       should_clarify: shouldRequestClarification,
       factors: factors,
       score_id: score.id,
-    }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    }, requestId);
+
   } catch (error) {
-    console.error("Error in uncertainty-calculator:", error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    return handleError({
+      functionName: 'uncertainty-calculator',
+      error,
+      requestId
     });
   }
 });

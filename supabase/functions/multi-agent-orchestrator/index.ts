@@ -1,56 +1,69 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+/**
+ * Multi-Agent Orchestrator Function
+ * Coordinates multiple specialized agents in parallel and synthesizes their responses
+ */
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders } from '../_shared/cors.ts';
+import { createAuthenticatedClient } from '../_shared/supabase-client.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { validateRequiredFields, validateString, validateArray } from '../_shared/validators.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
+import { lovableAIFetch } from '../_shared/api-client.ts';
 
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
+Deno.serve(async (req) => {
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('multi-agent-orchestrator', requestId);
+
   try {
-    const authHeader = req.headers.get("Authorization")!;
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
-    );
+    logger.info('Processing multi-agent orchestration request');
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error("Unauthorized");
+    // Authenticate user
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error('MISSING_AUTH_HEADER');
+    }
 
-    const { task, sessionId, requestedAgents } = await req.json();
+    const { supabase, user } = await createAuthenticatedClient(authHeader);
+    logger.info('User authenticated', { userId: user.id });
+
+    // Parse and validate request body
+    const body = await req.json();
+    validateRequiredFields(body, ['task']);
+    validateString(body.task, 'task');
+
+    const { task, sessionId, requestedAgents = ['reasoning', 'creative'] } = body;
+    validateArray(requestedAgents, 'requestedAgents');
+
     const startTime = Date.now();
+    logger.info('Starting multi-agent orchestration', { task: task.substring(0, 100), agents: requestedAgents });
 
-    console.log(`Multi-agent orchestration requested for task: ${task}`);
-
-    // Determine which agents to involve
-    const agents = requestedAgents || ["reasoning", "creative"];
     const responses: Record<string, any> = {};
 
     // Call each agent in parallel
-    const agentCalls = agents.map(async (agentType: string) => {
+    const agentCalls = requestedAgents.map(async (agentType: string) => {
       try {
         const functionName = `${agentType}-agent`;
         const { data, error } = await supabase.functions.invoke(functionName, {
           body: {
-            messages: [{ role: "user", content: task }],
+            messages: [{ role: 'user', content: task }],
             context: { collaboration: true, sessionId },
           },
         });
 
         if (error) {
-          console.error(`Error calling ${functionName}:`, error);
+          logger.error(`Error calling ${functionName}`, error);
           return { agentType, error: error.message };
         }
 
         return { agentType, response: data };
       } catch (error) {
-        console.error(`Error invoking ${agentType}:`, error);
-        return { agentType, error: error instanceof Error ? error.message : "Unknown error" };
+        logger.error(`Error invoking ${agentType}`, error);
+        return { agentType, error: error instanceof Error ? error.message : 'Unknown error' };
       }
     });
 
@@ -61,8 +74,9 @@ serve(async (req) => {
       responses[result.agentType] = result.response || { error: result.error };
     }
 
+    logger.info('Agent responses collected', { agentCount: Object.keys(responses).length });
+
     // Synthesize responses using Lovable AI
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const synthesisPrompt = `You are synthesizing insights from multiple specialized AI agents.
 
 Task: ${task}
@@ -70,7 +84,7 @@ Task: ${task}
 Agent Responses:
 ${Object.entries(responses).map(([agent, resp]) => 
   `${agent.toUpperCase()}: ${JSON.stringify(resp)}`
-).join("\n\n")}
+).join('\n\n')}
 
 Provide a unified, coherent response that:
 1. Combines the best insights from each agent
@@ -78,17 +92,17 @@ Provide a unified, coherent response that:
 3. Presents a comprehensive solution
 4. Highlights unique perspectives from each agent`;
 
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
+    const aiResponse = await lovableAIFetch('/v1/chat/completions', {
+      method: 'POST',
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [{ role: "user", content: synthesisPrompt }],
+        model: 'google/gemini-2.5-flash',
+        messages: [{ role: 'user', content: synthesisPrompt }],
       }),
     });
+
+    if (!aiResponse.ok) {
+      throw new Error('Failed to synthesize agent responses');
+    }
 
     const aiData = await aiResponse.json();
     const synthesizedResponse = aiData.choices[0].message.content;
@@ -96,12 +110,12 @@ Provide a unified, coherent response that:
     const duration = Date.now() - startTime;
 
     // Log collaboration
-    await supabase.from("agent_collaborations").insert({
+    await supabase.from('agent_collaborations').insert({
       user_id: user.id,
       session_id: sessionId,
-      agents_involved: agents,
+      agents_involved: requestedAgents,
       task_description: task,
-      collaboration_type: "parallel_synthesis",
+      collaboration_type: 'parallel_synthesis',
       synthesis_result: {
         individual_responses: responses,
         synthesized: synthesizedResponse,
@@ -110,28 +124,27 @@ Provide a unified, coherent response that:
     });
 
     // Log to evolution
-    await supabase.from("evolution_logs").insert({
+    await supabase.from('evolution_logs').insert({
       user_id: user.id,
-      log_type: "multi_agent_collaboration",
-      description: `Multi-agent collaboration: ${agents.join(", ")}`,
-      metadata: { agents, duration, task: task.substring(0, 100) },
+      log_type: 'multi_agent_collaboration',
+      description: `Multi-agent collaboration: ${requestedAgents.join(', ')}`,
+      metadata: { agents: requestedAgents, duration, task: task.substring(0, 100) },
     });
 
-    console.log(`Multi-agent collaboration completed in ${duration}ms`);
+    logger.info('Multi-agent collaboration completed', { duration });
 
-    return new Response(JSON.stringify({
+    return successResponse({
       synthesized: synthesizedResponse,
       individual_responses: responses,
-      agents_involved: agents,
+      agents_involved: requestedAgents,
       duration_ms: duration,
-    }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    }, requestId);
+
   } catch (error) {
-    console.error("Error in multi-agent-orchestrator:", error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    return handleError({
+      functionName: 'multi-agent-orchestrator',
+      error,
+      requestId
     });
   }
 });

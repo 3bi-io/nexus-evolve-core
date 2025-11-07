@@ -1,29 +1,43 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+/**
+ * Agent Analytics Function
+ * Provides analytics and metrics for custom agents
+ */
+
 import { corsHeaders } from '../_shared/cors.ts';
+import { createAuthenticatedClient } from '../_shared/supabase-client.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { validateRequiredFields, validateString } from '../_shared/validators.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
 
 Deno.serve(async (req) => {
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('agent-analytics', requestId);
+
   try {
+    logger.info('Processing agent analytics request');
+
+    // Authenticate user
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      throw new Error('No authorization header');
+      throw new Error('MISSING_AUTH_HEADER');
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const { supabase, user } = await createAuthenticatedClient(authHeader);
+    logger.info('User authenticated', { userId: user.id });
 
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      throw new Error('Unauthorized');
-    }
+    // Parse and validate request body
+    const body = await req.json();
+    validateRequiredFields(body, ['agentId', 'startDate', 'endDate']);
+    validateString(body.agentId, 'agentId');
+    validateString(body.startDate, 'startDate');
+    validateString(body.endDate, 'endDate');
 
-    const { agentId, startDate, endDate } = await req.json();
+    const { agentId, startDate, endDate } = body;
 
     // Verify user owns the agent
     const { data: agent, error: agentError } = await supabase
@@ -36,6 +50,8 @@ Deno.serve(async (req) => {
     if (agentError || !agent) {
       throw new Error('Agent not found or unauthorized');
     }
+
+    logger.info('Fetching analytics data', { agentId, startDate, endDate });
 
     // Get aggregated analytics
     const { data: dailyStats, error: statsError } = await supabase
@@ -85,30 +101,32 @@ Deno.serve(async (req) => {
 
     if (failError) throw failError;
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        analytics: {
-          dailyStats,
-          toolUsage,
-          summary: {
-            totalExecutions,
-            avgSuccessRate: Math.round(avgSuccessRate * 100),
-            avgResponseTime: Math.round(avgResponseTime),
-            totalCreditsUsed
-          },
-          recentFailures
-        }
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    logger.info('Analytics data retrieved', { 
+      totalExecutions, 
+      avgSuccessRate, 
+      failuresCount: recentFailures?.length || 0 
+    });
+
+    return successResponse({
+      success: true,
+      analytics: {
+        dailyStats,
+        toolUsage,
+        summary: {
+          totalExecutions,
+          avgSuccessRate: Math.round(avgSuccessRate * 100),
+          avgResponseTime: Math.round(avgResponseTime),
+          totalCreditsUsed
+        },
+        recentFailures
+      }
+    }, requestId);
 
   } catch (error) {
-    console.error('Error in agent-analytics:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return handleError({
+      functionName: 'agent-analytics',
+      error,
+      requestId
+    });
   }
 });

@@ -1,15 +1,28 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+/**
+ * Execute Scheduled Agent Function
+ * Cron job to execute agents based on their schedules
+ */
+
 import { corsHeaders } from '../_shared/cors.ts';
+import { initSupabaseClient } from '../_shared/supabase-client.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
 
 Deno.serve(async (req) => {
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('execute-scheduled-agent', requestId);
+
   try {
+    logger.info('Starting scheduled agent execution');
+
+    const supabase = initSupabaseClient();
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Find schedules that need to be executed
     const now = new Date().toISOString();
@@ -21,13 +34,18 @@ Deno.serve(async (req) => {
 
     if (schedError) throw schedError;
 
-    console.log(`Found ${schedules?.length || 0} schedules to execute`);
+    logger.info('Found schedules to execute', { count: schedules?.length || 0 });
 
     const results = [];
     for (const schedule of schedules || []) {
       try {
         const { schedule_config } = schedule;
         const prompt = schedule_config.prompt || 'Execute scheduled task';
+
+        logger.info('Executing scheduled agent', { 
+          scheduleId: schedule.id, 
+          agentId: schedule.agent_id 
+        });
 
         // Execute the agent
         const execResponse = await fetch(`${supabaseUrl}/functions/v1/custom-agent-executor`, {
@@ -87,8 +105,10 @@ Deno.serve(async (req) => {
           result: execResult
         });
 
+        logger.info('Schedule executed successfully', { scheduleId: schedule.id });
+
       } catch (error) {
-        console.error(`Error executing schedule ${schedule.id}:`, error);
+        logger.error('Error executing schedule', { scheduleId: schedule.id, error });
         const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
         results.push({
           schedule_id: schedule.id,
@@ -98,21 +118,19 @@ Deno.serve(async (req) => {
       }
     }
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        executed: results.length,
-        results
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    logger.info('Scheduled agent execution complete', { executedCount: results.length });
+
+    return successResponse({
+      success: true,
+      executed: results.length,
+      results
+    }, requestId);
 
   } catch (error) {
-    console.error('Error in execute-scheduled-agent:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return handleError({
+      functionName: 'execute-scheduled-agent',
+      error,
+      requestId
+    });
   }
 });

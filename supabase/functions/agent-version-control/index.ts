@@ -1,29 +1,43 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+/**
+ * Agent Version Control Function
+ * Manages agent versions, snapshots, comparisons, and rollbacks
+ */
+
 import { corsHeaders } from '../_shared/cors.ts';
+import { createAuthenticatedClient } from '../_shared/supabase-client.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { validateRequiredFields, validateString, validateEnum } from '../_shared/validators.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
 
 Deno.serve(async (req) => {
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('agent-version-control', requestId);
+
   try {
+    logger.info('Processing agent version control request');
+
+    // Authenticate user
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      throw new Error('No authorization header');
+      throw new Error('MISSING_AUTH_HEADER');
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const { supabase, user } = await createAuthenticatedClient(authHeader);
+    logger.info('User authenticated', { userId: user.id });
 
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      throw new Error('Unauthorized');
-    }
+    // Parse and validate request body
+    const body = await req.json();
+    validateRequiredFields(body, ['action', 'agentId']);
+    validateString(body.action, 'action');
+    validateString(body.agentId, 'agentId');
+    validateEnum(body.action, 'action', ['create', 'list', 'compare', 'rollback']);
 
-    const { action, agentId, versionId, changeSummary } = await req.json();
+    const { action, agentId, versionId, changeSummary } = body;
 
     // Verify ownership
     const { data: agent, error: agentError } = await supabase
@@ -36,6 +50,8 @@ Deno.serve(async (req) => {
     if (agentError || !agent) {
       throw new Error('Agent not found or unauthorized');
     }
+
+    logger.info('Processing action', { action, agentId });
 
     switch (action) {
       case 'create': {
@@ -81,9 +97,8 @@ Deno.serve(async (req) => {
           .update({ current_version: nextVersion })
           .eq('id', agentId);
 
-        return new Response(JSON.stringify({ success: true, version }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        logger.info('Version created', { versionNumber: nextVersion });
+        return successResponse({ success: true, version }, requestId);
       }
 
       case 'list': {
@@ -95,13 +110,13 @@ Deno.serve(async (req) => {
 
         if (versionsError) throw versionsError;
 
-        return new Response(JSON.stringify({ success: true, versions }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        logger.info('Versions listed', { count: versions?.length || 0 });
+        return successResponse({ success: true, versions }, requestId);
       }
 
       case 'compare': {
-        const { versionId2 } = await req.json();
+        validateRequiredFields(body, ['versionId', 'versionId2']);
+        const { versionId2 } = body;
         
         const { data: version1, error: v1Error } = await supabase
           .from('agent_versions')
@@ -128,12 +143,13 @@ Deno.serve(async (req) => {
           personality: JSON.stringify(version1.snapshot.personality) !== JSON.stringify(version2.snapshot.personality)
         };
 
-        return new Response(JSON.stringify({ success: true, version1, version2, diff }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        logger.info('Versions compared', { versionId, versionId2 });
+        return successResponse({ success: true, version1, version2, diff }, requestId);
       }
 
       case 'rollback': {
+        validateRequiredFields(body, ['versionId']);
+        
         const { data: version, error: versionError } = await supabase
           .from('agent_versions')
           .select('*')
@@ -154,9 +170,11 @@ Deno.serve(async (req) => {
 
         if (updateError) throw updateError;
 
-        return new Response(JSON.stringify({ success: true, message: 'Agent rolled back successfully' }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        logger.info('Agent rolled back', { versionNumber: version.version_number });
+        return successResponse({ 
+          success: true, 
+          message: 'Agent rolled back successfully' 
+        }, requestId);
       }
 
       default:
@@ -164,11 +182,10 @@ Deno.serve(async (req) => {
     }
 
   } catch (error) {
-    console.error('Error in agent-version-control:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return handleError({
+      functionName: 'agent-version-control',
+      error,
+      requestId
+    });
   }
 });
