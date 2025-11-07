@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
 import { CreditBalance } from "@/components/pricing/CreditBalance";
-import { Brain, Sparkles, Menu } from "lucide-react";
+import { Brain, Sparkles } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { MobileMenu } from "./MobileMenu";
 import { cn } from "@/lib/utils";
 
 interface UnifiedHeaderProps {
@@ -44,7 +45,7 @@ export function UnifiedHeader({
         <div className="container mx-auto px-4">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+            <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity touch-active">
               <div className="relative">
                 <Brain className="w-7 h-7 text-primary" />
                 <Sparkles className="w-3 h-3 text-primary absolute -top-1 -right-1 animate-pulse" />
@@ -52,7 +53,7 @@ export function UnifiedHeader({
               <span className="font-bold text-xl">Oneiros</span>
             </Link>
 
-            {/* Center Navigation */}
+            {/* Center Navigation - Desktop Only */}
             <nav className="hidden md:flex items-center gap-8">
               <Link 
                 to="/getting-started" 
@@ -81,45 +82,54 @@ export function UnifiedHeader({
             </nav>
 
             {/* Right Actions */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <ThemeToggle />
-              {user ? (
-                <>
-                  <Button 
-                    onClick={() => navigate('/chat')}
-                    variant="ghost"
-                    size="sm"
-                    className="hidden sm:flex"
-                  >
-                    Dashboard
-                  </Button>
-                  <Button 
-                    onClick={handleSignOut}
-                    variant="outline"
-                    size="sm"
-                  >
-                    Sign Out
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button 
-                    onClick={() => navigate('/auth')}
-                    variant="ghost"
-                    size="sm"
-                    className="hidden sm:flex"
-                  >
-                    Sign In
-                  </Button>
-                  <Button 
-                    onClick={() => navigate('/auth')}
-                    size="sm"
-                    className="shadow-lg"
-                  >
-                    Start Free
-                  </Button>
-                </>
-              )}
+              
+              {/* Desktop Actions */}
+              <div className="hidden md:flex items-center gap-3">
+                {user ? (
+                  <>
+                    <Button 
+                      onClick={() => navigate('/chat')}
+                      variant="ghost"
+                      size="sm"
+                    >
+                      Dashboard
+                    </Button>
+                    <Button 
+                      onClick={handleSignOut}
+                      variant="outline"
+                      size="sm"
+                    >
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button 
+                      onClick={() => navigate('/auth')}
+                      variant="ghost"
+                      size="sm"
+                    >
+                      Sign In
+                    </Button>
+                    <Button 
+                      onClick={() => navigate('/auth')}
+                      size="sm"
+                      className="shadow-lg"
+                    >
+                      Start Free
+                    </Button>
+                  </>
+                )}
+              </div>
+
+              {/* Mobile Menu */}
+              <MobileMenu 
+                authenticated={!!user}
+                onSignOut={handleSignOut}
+                onNavigate={navigate}
+              />
             </div>
           </div>
         </div>

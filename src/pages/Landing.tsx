@@ -73,15 +73,15 @@ export default function Landing() {
       />
 
       <ErrorBoundary>
-        <div className="container mx-auto px-4 py-6 sm:py-8 max-w-7xl space-y-16 sm:space-y-20 md:space-y-24">
+        <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-7xl space-y-12 sm:space-y-16 md:space-y-20 lg:space-y-24">
         {/* Hero Section */}
         <HeroSection />
 
         {/* Problem/Solution */}
         <section className="section-spacing">
-          <div className="text-center space-mobile mb-8 sm:mb-12 px-4">
+          <div className="text-center space-mobile mb-6 sm:mb-8 md:mb-12">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">Sound Familiar?</h2>
-            <p className="text-base sm:text-lg text-muted-foreground">Traditional AI is holding you back</p>
+            <p className="text-sm sm:text-base md:text-lg text-muted-foreground mt-2">Traditional AI is holding you back</p>
           </div>
           <ProblemSolution />
         </section>
@@ -113,7 +113,7 @@ export default function Landing() {
         <ComparisonSection />
 
         {/* ROI Calculator */}
-        <section className="py-16">
+        <section className="py-8 sm:py-12 md:py-16">
           <ROICalculator />
         </section>
 
@@ -124,7 +124,7 @@ export default function Landing() {
         <PricingSection />
 
         {/* FAQ */}
-        <section className="py-16">
+        <section className="py-8 sm:py-12 md:py-16">
           <FAQ />
         </section>
 
