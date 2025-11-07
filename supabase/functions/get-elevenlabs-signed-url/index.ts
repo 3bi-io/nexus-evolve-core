@@ -1,39 +1,32 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders } from '../_shared/cors.ts';
+import { createAuthenticatedClient } from '../_shared/supabase-client.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { validateRequiredFields, validateString } from '../_shared/validators.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('get-elevenlabs-signed-url', requestId);
+
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const authHeader = req.headers.get('Authorization');
-    const supabase = createClient(supabaseUrl, supabaseKey);
-    
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader?.replace('Bearer ', '') || ''
-    );
-
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (!authHeader) {
+      throw new Error('MISSING_AUTH_HEADER');
     }
 
-    const { agentId } = await req.json();
+    const { supabase, user } = await createAuthenticatedClient(authHeader);
+    const body = await req.json();
 
-    if (!agentId) {
-      throw new Error('Agent ID is required');
-    }
+    validateRequiredFields(body, ['agentId']);
+    validateString(body.agentId, 'agentId');
 
-    console.log('Getting signed URL for agent:', agentId);
+    const { agentId } = body;
+
+    logger.info('Getting signed URL for agent', { agentId, userId: user.id });
 
     const elevenLabsKey = Deno.env.get('ELEVENLABS_API_KEY');
     if (!elevenLabsKey) {
@@ -53,23 +46,17 @@ Deno.serve(async (req) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('ElevenLabs API error:', response.status, errorText);
+      logger.error('ElevenLabs API error', { status: response.status, error: errorText });
       throw new Error(`ElevenLabs API error: ${response.status}`);
     }
 
     const data = await response.json();
 
-    return new Response(
-      JSON.stringify({ signedUrl: data.signed_url }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    logger.info('Signed URL obtained successfully', { agentId });
 
-  } catch (error: any) {
-    console.error('Signed URL error:', error);
-    
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return successResponse({ signedUrl: data.signed_url }, requestId);
+  } catch (error) {
+    logger.error('Failed to get signed URL', error);
+    return handleError({ functionName: 'get-elevenlabs-signed-url', error, requestId });
   }
 });

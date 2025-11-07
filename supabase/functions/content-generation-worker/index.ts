@@ -1,64 +1,59 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { corsHeaders } from '../_shared/cors.ts';
+import { initSupabaseClient } from '../_shared/supabase-client.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
-
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('content-generation-worker', requestId);
+
   try {
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
+    const supabase = initSupabaseClient();
 
     // Fetch pending content generation tasks
     const { data: tasks, error: tasksError } = await supabase
-      .from("content_generation_queue")
-      .select("*")
-      .eq("status", "pending")
+      .from('content_generation_queue')
+      .select('*')
+      .eq('status', 'pending')
       .or(`scheduled_for.is.null,scheduled_for.lte.${new Date().toISOString()}`)
-      .order("priority", { ascending: false })
-      .order("created_at", { ascending: true })
+      .order('priority', { ascending: false })
+      .order('created_at', { ascending: true })
       .limit(5);
 
     if (tasksError) throw tasksError;
 
     if (!tasks || tasks.length === 0) {
-      return new Response(
-        JSON.stringify({ message: "No pending tasks", processed: 0 }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      logger.info('No pending tasks found');
+      return successResponse({ message: 'No pending tasks', processed: 0 }, requestId);
     }
 
-    console.log(`Processing ${tasks.length} content generation tasks`);
+    logger.info('Processing content generation tasks', { count: tasks.length });
 
     const results = await Promise.allSettled(
       tasks.map(async (task) => {
         try {
           // Mark as processing
           await supabase
-            .from("content_generation_queue")
+            .from('content_generation_queue')
             .update({
-              status: "processing",
+              status: 'processing',
               started_at: new Date().toISOString(),
             })
-            .eq("id", task.id);
+            .eq('id', task.id);
 
           let result: any = {};
 
           // Generate content based on type
           switch (task.content_type) {
-            case "social_post":
-              const { data: postData } = await supabase.functions.invoke("grok-reality-agent", {
+            case 'social_post':
+              const { data: postData } = await supabase.functions.invoke('grok-reality-agent', {
                 body: {
                   query: task.prompt,
-                  mode: "creative",
+                  mode: 'creative',
                   parameters: task.parameters,
                   userId: task.user_id,
                 },
@@ -66,8 +61,8 @@ serve(async (req) => {
               result = { content: postData?.response, metadata: postData?.metadata };
               break;
 
-            case "image":
-              const { data: imageData } = await supabase.functions.invoke("xai-image-generator", {
+            case 'image':
+              const { data: imageData } = await supabase.functions.invoke('xai-image-generator', {
                 body: {
                   prompt: task.prompt,
                   ...task.parameters,
@@ -77,11 +72,11 @@ serve(async (req) => {
               result = { imageUrl: imageData?.imageUrl, metadata: imageData };
               break;
 
-            case "blog":
-              const { data: blogData } = await supabase.functions.invoke("grok-reality-agent", {
+            case 'blog':
+              const { data: blogData } = await supabase.functions.invoke('grok-reality-agent', {
                 body: {
                   query: `Write a comprehensive blog post: ${task.prompt}`,
-                  mode: "reasoning",
+                  mode: 'reasoning',
                   parameters: task.parameters,
                   userId: task.user_id,
                 },
@@ -89,11 +84,11 @@ serve(async (req) => {
               result = { content: blogData?.response, metadata: blogData?.metadata };
               break;
 
-            case "video_script":
-              const { data: scriptData } = await supabase.functions.invoke("grok-reality-agent", {
+            case 'video_script':
+              const { data: scriptData } = await supabase.functions.invoke('grok-reality-agent', {
                 body: {
                   query: `Create a video script: ${task.prompt}`,
-                  mode: "creative",
+                  mode: 'creative',
                   parameters: task.parameters,
                   userId: task.user_id,
                 },
@@ -107,54 +102,49 @@ serve(async (req) => {
 
           // Mark as completed
           await supabase
-            .from("content_generation_queue")
+            .from('content_generation_queue')
             .update({
-              status: "completed",
+              status: 'completed',
               completed_at: new Date().toISOString(),
               result,
             })
-            .eq("id", task.id);
+            .eq('id', task.id);
 
+          logger.info('Task completed', { taskId: task.id, type: task.content_type });
           return { taskId: task.id, success: true };
         } catch (taskError) {
-          console.error(`Task ${task.id} failed:`, taskError);
+          logger.error('Task failed', { taskId: task.id, error: taskError });
 
           // Update retry count
           const newRetryCount = task.retry_count + 1;
           const shouldRetry = newRetryCount < 3;
 
           await supabase
-            .from("content_generation_queue")
+            .from('content_generation_queue')
             .update({
-              status: shouldRetry ? "pending" : "failed",
-              error_message: taskError instanceof Error ? taskError.message : "Unknown error",
+              status: shouldRetry ? 'pending' : 'failed',
+              error_message: taskError instanceof Error ? taskError.message : 'Unknown error',
               retry_count: newRetryCount,
             })
-            .eq("id", task.id);
+            .eq('id', task.id);
 
           return { taskId: task.id, success: false, error: taskError };
         }
       })
     );
 
-    const successful = results.filter((r) => r.status === "fulfilled").length;
-    const failed = results.filter((r) => r.status === "rejected").length;
+    const successful = results.filter((r) => r.status === 'fulfilled' && r.value.success).length;
+    const failed = results.filter((r) => r.status === 'rejected' || (r.status === 'fulfilled' && !r.value.success)).length;
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        processed: tasks.length,
-        successful,
-        failed,
-        results,
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    logger.info('Worker completed', { processed: tasks.length, successful, failed });
+
+    return successResponse({
+      processed: tasks.length,
+      successful,
+      failed,
+    }, requestId);
   } catch (error) {
-    console.error("Content generation worker error:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    logger.error('Worker failed', error);
+    return handleError({ functionName: 'content-generation-worker', error, requestId });
   }
 });

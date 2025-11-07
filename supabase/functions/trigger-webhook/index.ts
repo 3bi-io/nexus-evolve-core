@@ -1,10 +1,8 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders } from '../_shared/cors.ts';
+import { initSupabaseClient } from '../_shared/supabase-client.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { validateRequiredFields, validateString } from '../_shared/validators.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
 
 interface WebhookPayload {
   event: string;
@@ -12,19 +10,24 @@ interface WebhookPayload {
   user_id?: string;
 }
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('trigger-webhook', requestId);
+
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const supabase = initSupabaseClient();
+    const body: WebhookPayload = await req.json();
 
-    const { event, data, user_id }: WebhookPayload = await req.json();
+    validateRequiredFields(body, ['event', 'data']);
+    validateString(body.event, 'event');
 
-    console.log(`Processing webhook trigger for event: ${event}`);
+    const { event, data, user_id } = body;
+
+    logger.info('Processing webhook trigger', { event, hasUserId: !!user_id });
 
     // Get all active webhooks subscribed to this event
     const { data: webhooks, error: webhooksError } = await supabase
@@ -34,7 +37,7 @@ serve(async (req) => {
       .contains('events', [event]);
 
     if (webhooksError) {
-      console.error('Error fetching webhooks:', webhooksError);
+      logger.error('Failed to fetch webhooks', webhooksError);
       throw webhooksError;
     }
 
@@ -43,7 +46,7 @@ serve(async (req) => {
       ? webhooks.filter(wh => wh.user_id === user_id)
       : webhooks;
 
-    console.log(`Found ${targetWebhooks.length} webhooks to trigger`);
+    logger.info('Found webhooks', { count: targetWebhooks.length });
 
     // Trigger each webhook
     const results = await Promise.allSettled(
@@ -113,31 +116,31 @@ serve(async (req) => {
             .from('webhook_deliveries')
             .update({
               response_status: response.status,
-              response_body: responseBody.substring(0, 1000), // Limit size
+              response_body: responseBody.substring(0, 1000),
               delivered_at: new Date().toISOString(),
               attempts: 1,
             })
             .eq('id', deliveryId);
 
           if (!response.ok) {
-            console.error(`Webhook ${webhook.id} failed with status ${response.status}`);
+            logger.warn('Webhook delivery failed', { webhookId: webhook.id, status: response.status });
             
             // Schedule retry if within retry count
             if (webhook.retry_count > 0) {
               await supabase
                 .from('webhook_deliveries')
                 .update({
-                  next_retry_at: new Date(Date.now() + 60000).toISOString(), // Retry in 1 minute
+                  next_retry_at: new Date(Date.now() + 60000).toISOString(),
                 })
                 .eq('id', deliveryId);
             }
           } else {
-            console.log(`Webhook ${webhook.id} delivered successfully`);
+            logger.info('Webhook delivered successfully', { webhookId: webhook.id });
           }
 
           return { webhook_id: webhook.id, success: response.ok };
         } catch (error) {
-          console.error(`Error delivering webhook ${webhook.id}:`, error);
+          logger.error('Webhook delivery error', { webhookId: webhook.id, error });
           
           // Update delivery record with error
           await supabase
@@ -157,24 +160,18 @@ serve(async (req) => {
 
     const successCount = results.filter(r => r.status === 'fulfilled' && r.value.success).length;
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        message: `Triggered ${targetWebhooks.length} webhooks, ${successCount} delivered successfully`,
-        results: results.map(r => r.status === 'fulfilled' ? r.value : { error: 'rejected' }),
-      }),
-      {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    logger.info('Webhook triggering completed', { 
+      total: targetWebhooks.length, 
+      successful: successCount 
+    });
+
+    return successResponse(requestId, {
+      message: `Triggered ${targetWebhooks.length} webhooks, ${successCount} delivered successfully`,
+      total: targetWebhooks.length,
+      successful: successCount,
+    });
   } catch (error) {
-    console.error('Error in trigger-webhook:', error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
-      {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      }
-    );
+    logger.error('Webhook trigger failed', error);
+    return handleError(error, requestId);
   }
 });

@@ -1,54 +1,40 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
+import { createAuthenticatedClient } from '../_shared/supabase-client.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { validateRequiredFields, validateString, validateEnum } from '../_shared/validators.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('manage-subscription', requestId);
+
   try {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: 'No authorization header' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      throw new Error('MISSING_AUTH_HEADER');
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const { supabase, user } = await createAuthenticatedClient(authHeader);
+    const body = await req.json();
 
-    // Verify user
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    validateRequiredFields(body, ['action']);
+    validateEnum(body.action, 'action', ['create', 'upgrade', 'cancel', 'renew']);
 
-    const { action, tierId, billingCycle, stripeSubscriptionId } = await req.json();
+    const { action, tierId, billingCycle, stripeSubscriptionId } = body;
 
-    if (!action) {
-      return new Response(
-        JSON.stringify({ error: 'Action is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    logger.info('Managing subscription', { action, userId: user.id });
 
     // CREATE SUBSCRIPTION
     if (action === 'create') {
-      if (!tierId || !billingCycle) {
-        return new Response(
-          JSON.stringify({ error: 'tierId and billingCycle are required' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
+      validateRequiredFields(body, ['tierId', 'billingCycle']);
+      validateString(tierId, 'tierId');
+      validateEnum(billingCycle, 'billingCycle', ['monthly', 'annual']);
 
-      // Phase 6.1: Check if professional_unlimited tier (for founder rate validation)
+      // Check tier availability
       const { data: tierCheck, error: tierCheckError } = await supabase
         .from('subscription_tiers')
         .select('*')
@@ -56,14 +42,10 @@ Deno.serve(async (req) => {
         .single();
 
       if (tierCheckError || !tierCheck) {
-        return new Response(
-          JSON.stringify({ error: 'Invalid tier' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        throw new Error('Invalid tier');
       }
 
       if (tierCheck.tier_name === 'professional_unlimited') {
-        // Check if founder slots are still available (first 100 users)
         const { count: professionalCount } = await supabase
           .from('user_subscriptions')
           .select('*', { count: 'exact', head: true })
@@ -71,17 +53,11 @@ Deno.serve(async (req) => {
           .eq('is_grandfathered', true);
 
         if (professionalCount && professionalCount >= 100) {
-          return new Response(
-            JSON.stringify({ 
-              error: 'Founder rate slots are full. Please select the standard Professional tier.',
-              founder_slots_full: true
-            }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
+          throw new Error('Founder rate slots are full');
         }
       }
 
-      // Check if user already has a subscription
+      // Check existing subscription
       const { data: existing } = await supabase
         .from('user_subscriptions')
         .select('*')
@@ -89,10 +65,7 @@ Deno.serve(async (req) => {
         .single();
 
       if (existing) {
-        return new Response(
-          JSON.stringify({ error: 'User already has a subscription. Use upgrade or cancel first.' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        throw new Error('User already has a subscription');
       }
 
       // Calculate renewal date
@@ -103,7 +76,6 @@ Deno.serve(async (req) => {
         renewsAt.setFullYear(renewsAt.getFullYear() + 1);
       }
 
-      // Phase 6.2: Create subscription with grandfathering support
       const isFounderRate = tierCheck.tier_name === 'professional' && tierCheck.monthly_price === 29.00;
       
       const { data: subscription, error: subError } = await supabase
@@ -123,9 +95,7 @@ Deno.serve(async (req) => {
         .select()
         .single();
 
-      if (subError) {
-        throw subError;
-      }
+      if (subError) throw subError;
 
       // Log initial credit grant
       await supabase.from('credit_transactions').insert({
@@ -140,22 +110,15 @@ Deno.serve(async (req) => {
         }
       });
 
-      return new Response(
-        JSON.stringify({ success: true, subscription }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      logger.info('Subscription created', { tierId, billingCycle });
+      return successResponse(requestId, { subscription });
     }
 
     // UPGRADE SUBSCRIPTION
     if (action === 'upgrade') {
-      if (!tierId) {
-        return new Response(
-          JSON.stringify({ error: 'tierId is required' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
+      validateRequiredFields(body, ['tierId']);
+      validateString(tierId, 'tierId');
 
-      // Get current subscription
       const { data: currentSub, error: currentError } = await supabase
         .from('user_subscriptions')
         .select('*, subscription_tiers(*)')
@@ -164,13 +127,9 @@ Deno.serve(async (req) => {
         .single();
 
       if (currentError || !currentSub) {
-        return new Response(
-          JSON.stringify({ error: 'No active subscription found' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        throw new Error('No active subscription found');
       }
 
-      // Get new tier
       const { data: newTier, error: newTierError } = await supabase
         .from('subscription_tiers')
         .select('*')
@@ -178,17 +137,12 @@ Deno.serve(async (req) => {
         .single();
 
       if (newTierError || !newTier) {
-        return new Response(
-          JSON.stringify({ error: 'Invalid tier' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        throw new Error('Invalid tier');
       }
 
-      // Calculate prorated credits
       const creditDifference = newTier.monthly_credits - currentSub.subscription_tiers.monthly_credits;
       const newCreditsRemaining = currentSub.credits_remaining + creditDifference;
 
-      // Update subscription
       const { data: updatedSub, error: updateError } = await supabase
         .from('user_subscriptions')
         .update({
@@ -201,11 +155,8 @@ Deno.serve(async (req) => {
         .select()
         .single();
 
-      if (updateError) {
-        throw updateError;
-      }
+      if (updateError) throw updateError;
 
-      // Log credit adjustment
       await supabase.from('credit_transactions').insert({
         user_id: user.id,
         transaction_type: 'bonus',
@@ -218,10 +169,8 @@ Deno.serve(async (req) => {
         }
       });
 
-      return new Response(
-        JSON.stringify({ success: true, subscription: updatedSub }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      logger.info('Subscription upgraded', { newTier: newTier.tier_name });
+      return successResponse(requestId, { subscription: updatedSub });
     }
 
     // CANCEL SUBSCRIPTION
@@ -237,17 +186,13 @@ Deno.serve(async (req) => {
         .select()
         .single();
 
-      if (subError) {
-        throw subError;
-      }
+      if (subError) throw subError;
 
-      return new Response(
-        JSON.stringify({ success: true, subscription }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      logger.info('Subscription cancelled');
+      return successResponse(requestId, { subscription });
     }
 
-    // RENEW SUBSCRIPTION (called by cron)
+    // RENEW SUBSCRIPTION (cron job)
     if (action === 'renew') {
       const { data: subscriptions, error: subsError } = await supabase
         .from('user_subscriptions')
@@ -255,9 +200,7 @@ Deno.serve(async (req) => {
         .eq('status', 'active')
         .lte('renews_at', new Date().toISOString());
 
-      if (subsError) {
-        throw subsError;
-      }
+      if (subsError) throw subsError;
 
       const results = [];
       for (const sub of subscriptions || []) {
@@ -293,23 +236,13 @@ Deno.serve(async (req) => {
         }
       }
 
-      return new Response(
-        JSON.stringify({ success: true, renewed: results.length }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      logger.info('Subscriptions renewed', { count: results.length });
+      return successResponse(requestId, { renewed: results.length });
     }
 
-    return new Response(
-      JSON.stringify({ error: 'Invalid action' }),
-      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-
+    throw new Error('Invalid action');
   } catch (error) {
-    console.error('Error in manage-subscription:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    logger.error('Subscription management failed', error);
+    return handleError(error, requestId);
   }
 });

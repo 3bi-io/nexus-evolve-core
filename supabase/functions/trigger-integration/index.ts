@@ -1,9 +1,8 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders } from '../_shared/cors.ts';
+import { createAuthenticatedClient } from '../_shared/supabase-client.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { validateRequiredFields, validateString } from '../_shared/validators.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
 
 interface TriggerRequest {
   integrationId: string;
@@ -16,29 +15,25 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('trigger-integration', requestId);
   const startTime = Date.now();
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const authHeader = req.headers.get('Authorization');
-    const supabase = createClient(supabaseUrl, supabaseKey);
-    
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader?.replace('Bearer ', '') || ''
-    );
-
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    if (!authHeader) {
+      throw new Error('MISSING_AUTH_HEADER');
     }
 
+    const { supabase, user } = await createAuthenticatedClient(authHeader);
     const body: TriggerRequest = await req.json();
+
+    validateRequiredFields(body, ['integrationId', 'data']);
+    validateString(body.integrationId, 'integrationId');
+
     const { integrationId, data, agentId } = body;
 
-    console.log('Triggering integration:', { integrationId, user: user.id, agentId });
+    logger.info('Triggering integration', { integrationId, userId: user.id, hasAgentId: !!agentId });
 
     // Fetch integration
     const { data: integration, error: integrationError } = await supabase
@@ -74,7 +69,7 @@ Deno.serve(async (req) => {
           ...integration.config,
         };
 
-        console.log('Sending webhook to:', webhookUrl);
+        logger.info('Sending webhook', { url: webhookUrl });
 
         const webhookResponse = await fetch(webhookUrl, {
           method: 'POST',
@@ -94,7 +89,6 @@ Deno.serve(async (req) => {
           throw new Error(`Webhook failed with status ${webhookResponse.status}`);
         }
       } else if (integration.integration_type === 'api') {
-        // Custom API integration logic here
         responseData = { message: 'API integration executed' };
       }
 
@@ -110,7 +104,7 @@ Deno.serve(async (req) => {
     } catch (error: any) {
       status = 'failed';
       errorMessage = error.message;
-      console.error('Integration trigger error:', error);
+      logger.error('Integration trigger error', error);
     }
 
     const executionTime = Date.now() - startTime;
@@ -127,21 +121,15 @@ Deno.serve(async (req) => {
       execution_time_ms: executionTime,
     });
 
-    return new Response(
-      JSON.stringify({
-        success: status === 'success',
-        response: responseData,
-        executionTime,
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    logger.info('Integration trigger completed', { status, executionTime });
 
-  } catch (error: any) {
-    console.error('Trigger integration error:', error);
-    
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return successResponse(requestId, {
+      success: status === 'success',
+      response: responseData,
+      executionTime,
+    });
+  } catch (error) {
+    logger.error('Integration trigger failed', error);
+    return handleError(error, requestId);
   }
 });

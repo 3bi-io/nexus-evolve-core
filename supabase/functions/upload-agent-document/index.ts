@@ -1,29 +1,34 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
+import { createAuthenticatedClient } from '../_shared/supabase-client.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { validateRequiredFields, validateString } from '../_shared/validators.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('upload-agent-document', requestId);
+
   try {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      throw new Error('No authorization header');
+      throw new Error('MISSING_AUTH_HEADER');
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const { supabase, user } = await createAuthenticatedClient(authHeader);
+    const body = await req.json();
 
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    
-    if (authError || !user) {
-      throw new Error('Unauthorized');
-    }
+    validateRequiredFields(body, ['agentId', 'document', 'title']);
+    validateString(body.agentId, 'agentId');
+    validateString(body.document, 'document');
+    validateString(body.title, 'title');
 
-    const { agentId, document, title } = await req.json();
+    const { agentId, document, title } = body;
+
+    logger.info('Uploading agent document', { agentId, title, userId: user.id });
 
     // Verify ownership
     const { data: agent, error: agentError } = await supabase
@@ -46,7 +51,7 @@ Deno.serve(async (req) => {
       chunks.push(words.slice(i, i + chunkSize).join(' '));
     }
 
-    console.log(`Processing ${chunks.length} chunks for document: ${title}`);
+    logger.info('Processing document chunks', { chunks: chunks.length });
 
     // Store each chunk in knowledge_base
     const knowledgeIds = [];
@@ -67,7 +72,7 @@ Deno.serve(async (req) => {
         .single();
 
       if (kbError) {
-        console.error('Error inserting knowledge chunk:', kbError);
+        logger.error('Failed to insert chunk', { chunk: i + 1, error: kbError });
         continue;
       }
 
@@ -81,12 +86,13 @@ Deno.serve(async (req) => {
           knowledge_id: kb.id
         });
 
-      // Generate embeddings
+      // Generate embeddings asynchronously
       try {
+        const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
         await fetch(`${supabaseUrl}/functions/v1/generate-embeddings`, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${token}`,
+            'Authorization': authHeader,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
@@ -95,25 +101,19 @@ Deno.serve(async (req) => {
           })
         });
       } catch (embError) {
-        console.error('Error generating embeddings:', embError);
+        logger.error('Embedding generation failed', { chunk: i + 1, error: embError });
       }
     }
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        message: `Document uploaded and processed into ${chunks.length} chunks`,
-        knowledgeIds
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    logger.info('Document upload completed', { knowledgeIds: knowledgeIds.length });
 
+    return successResponse(requestId, {
+      message: `Document uploaded and processed into ${chunks.length} chunks`,
+      chunks: chunks.length,
+      knowledgeIds
+    });
   } catch (error) {
-    console.error('Error in upload-agent-document:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    logger.error('Document upload failed', error);
+    return handleError(error, requestId);
   }
 });

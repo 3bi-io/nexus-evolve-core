@@ -1,11 +1,9 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-import { anthropicFetch } from "../_shared/api-client.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders } from '../_shared/cors.ts';
+import { createAuthenticatedClient } from '../_shared/supabase-client.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { validateRequiredFields, validateString, validateNumber } from '../_shared/validators.ts';
+import { anthropicFetch } from '../_shared/api-client.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
 
 interface ComputerUseRequest {
   task: string;
@@ -13,67 +11,71 @@ interface ComputerUseRequest {
   max_steps?: number;
 }
 
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('computer-use', requestId);
+
   try {
-    const authHeader = req.headers.get("Authorization");
+    const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      throw new Error("Missing authorization header");
+      throw new Error('MISSING_AUTH_HEADER');
     }
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const { supabase, user } = await createAuthenticatedClient(authHeader);
+    const body: ComputerUseRequest = await req.json();
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !user) throw new Error("Invalid user token");
+    validateRequiredFields(body, ['task']);
+    validateString(body.task, 'task');
+    if (body.max_steps !== undefined) {
+      validateNumber(body.max_steps, 'max_steps', { min: 1, max: 10 });
+    }
 
-    const { task, context, max_steps = 5 }: ComputerUseRequest = await req.json();
+    const { task, context, max_steps = 5 } = body;
 
-    console.log(`Computer Use task: ${task}`);
+    logger.info('Computer use task requested', { userId: user.id, task });
 
     const systemPrompt = `You are a computer use agent with access to tools for web browsing, screenshot analysis, and task automation.
 Your goal is to complete the user's task efficiently and accurately.
 
-${context ? `Additional context: ${context}` : ""}`;
+${context ? `Additional context: ${context}` : ''}`;
 
     const startTime = Date.now();
-    const response = await anthropicFetch("/v1/messages", {
-      method: "POST",
+    const response = await anthropicFetch('/v1/messages', {
+      method: 'POST',
       body: JSON.stringify({
-        model: "claude-sonnet-4-5",
+        model: 'claude-sonnet-4-5',
         max_tokens: 4096,
         system: systemPrompt,
         messages: [
           {
-            role: "user",
+            role: 'user',
             content: task,
           },
         ],
         tools: [
           {
-            type: "computer_20241022",
-            name: "computer",
+            type: 'computer_20241022',
+            name: 'computer',
             display_width_px: 1920,
             display_height_px: 1080,
             display_number: 1,
           },
           {
-            type: "text_editor_20241022",
-            name: "str_replace_editor",
+            type: 'text_editor_20241022',
+            name: 'str_replace_editor',
           },
           {
-            type: "bash_20241022",
-            name: "bash",
+            type: 'bash_20241022',
+            name: 'bash',
           },
         ],
       }),
     }, {
-      timeout: 120000, // 2 minutes for computer use tasks
+      timeout: 120000,
       maxRetries: 2,
     });
 
@@ -87,17 +89,17 @@ ${context ? `Additional context: ${context}` : ""}`;
 
     // Extract results
     const textContent = result.content
-      .filter((c: any) => c.type === "text")
+      .filter((c: any) => c.type === 'text')
       .map((c: any) => c.text)
-      .join("\n");
+      .join('\n');
 
-    const toolUses = result.content.filter((c: any) => c.type === "tool_use");
+    const toolUses = result.content.filter((c: any) => c.type === 'tool_use');
 
     // Log the computer use session
-    await supabase.from("llm_observations").insert({
+    await supabase.from('llm_observations').insert({
       user_id: user.id,
-      model_name: "claude-sonnet-4-5",
-      task_type: "computer_use",
+      model_name: 'claude-sonnet-4-5',
+      task_type: 'computer_use',
       prompt_tokens: result.usage?.input_tokens || 0,
       completion_tokens: result.usage?.output_tokens || 0,
       total_tokens: (result.usage?.input_tokens || 0) + (result.usage?.output_tokens || 0),
@@ -110,21 +112,17 @@ ${context ? `Additional context: ${context}` : ""}`;
       },
     });
 
-    return new Response(
-      JSON.stringify({
-        result: textContent,
-        tool_uses: toolUses,
-        stop_reason: result.stop_reason,
-        usage: result.usage,
-        latency_ms: latencyMs,
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    logger.info('Computer use completed', { toolUses: toolUses.length, latency: latencyMs });
+
+    return successResponse({
+      result: textContent,
+      tool_uses: toolUses,
+      stop_reason: result.stop_reason,
+      usage: result.usage,
+      latency_ms: latencyMs,
+    }, requestId);
   } catch (error) {
-    console.error("Computer use error:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    logger.error('Computer use failed', error);
+    return handleError({ functionName: 'computer-use', error, requestId });
   }
 });

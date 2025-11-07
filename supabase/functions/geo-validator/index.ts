@@ -1,8 +1,7 @@
-// Geographic Risk Validator Edge Function
-// Validates IP addresses against geographic risk lists
-
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
 import { corsHeaders } from '../_shared/cors.ts';
+import { initSupabaseClient } from '../_shared/supabase-client.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { handleError } from '../_shared/error-handler.ts';
 import { performSecurityCheck } from '../_shared/advanced-security.ts';
 
 interface GeoValidationRequest {
@@ -14,18 +13,20 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('geo-validator', requestId);
 
-    const { ipAddress }: GeoValidationRequest = await req.json();
+  try {
+    const supabase = initSupabaseClient();
+    const body: GeoValidationRequest = await req.json();
     
     // Get IP from request if not provided
-    const ip = ipAddress || 
+    const ip = body.ipAddress || 
                req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 
                req.headers.get('x-real-ip') || 
                'unknown';
+
+    logger.info('Validating geographic location', { ip });
 
     // Perform security check with geographic validation
     const securityCheck = await performSecurityCheck(req, supabase, {
@@ -34,13 +35,22 @@ Deno.serve(async (req) => {
       checkBruteForce: false
     });
 
+    const requiresVerification = securityCheck.riskLevel === 'high' || securityCheck.riskLevel === 'medium';
+
+    logger.info('Geographic validation completed', { 
+      allowed: securityCheck.allowed, 
+      riskLevel: securityCheck.riskLevel,
+      countryCode: securityCheck.countryCode 
+    });
+
     return new Response(
       JSON.stringify({
         allowed: securityCheck.allowed,
         riskLevel: securityCheck.riskLevel,
         countryCode: securityCheck.countryCode,
         reason: securityCheck.reason,
-        requiresVerification: securityCheck.riskLevel === 'high' || securityCheck.riskLevel === 'medium'
+        requiresVerification,
+        requestId,
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -48,12 +58,14 @@ Deno.serve(async (req) => {
       }
     );
   } catch (error) {
-    console.error('Geo validation error:', error);
+    logger.error('Geo validation error', error);
+    // Fail open for availability
     return new Response(
       JSON.stringify({ 
         error: 'Validation failed',
-        allowed: true, // Fail open for availability
-        riskLevel: 'low'
+        allowed: true,
+        riskLevel: 'low',
+        requestId,
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

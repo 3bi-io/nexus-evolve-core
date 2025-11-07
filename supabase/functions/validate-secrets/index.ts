@@ -1,9 +1,7 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders } from '../_shared/cors.ts';
+import { createAuthenticatedClient } from '../_shared/supabase-client.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
 
 type ValidationResult = {
   valid: boolean;
@@ -17,22 +15,18 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('validate-secrets', requestId);
+
   try {
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      throw new Error('No authorization header');
+      throw new Error('MISSING_AUTH_HEADER');
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const { supabase, user } = await createAuthenticatedClient(authHeader);
 
-    // Verify JWT token
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) throw new Error('Unauthorized');
-
-    console.log('[validate-secrets] Validating API keys for user:', user.id);
+    logger.info('Validating API keys', { userId: user.id });
 
     const results: Record<string, ValidationResult> = {};
     const timestamp = new Date().toISOString();
@@ -53,11 +47,7 @@ Deno.serve(async (req) => {
           endpoint: 'https://api.openai.com/v1/models'
         };
       } catch (error) {
-        results.OPENAI_API_KEY = { 
-          valid: false, 
-          error: 'Network error', 
-          lastChecked: timestamp 
-        };
+        results.OPENAI_API_KEY = { valid: false, error: 'Network error', lastChecked: timestamp };
       }
     } else {
       results.OPENAI_API_KEY = { valid: false, error: 'Not configured', lastChecked: timestamp };
@@ -65,15 +55,9 @@ Deno.serve(async (req) => {
 
     // Validate Lovable API Key
     const lovableKey = Deno.env.get('LOVABLE_API_KEY');
-    if (lovableKey && lovableKey.length > 20) {
-      results.LOVABLE_API_KEY = { valid: true, lastChecked: timestamp };
-    } else {
-      results.LOVABLE_API_KEY = { 
-        valid: false, 
-        error: lovableKey ? 'Invalid format' : 'Not configured',
-        lastChecked: timestamp
-      };
-    }
+    results.LOVABLE_API_KEY = lovableKey && lovableKey.length > 20
+      ? { valid: true, lastChecked: timestamp }
+      : { valid: false, error: lovableKey ? 'Invalid format' : 'Not configured', lastChecked: timestamp };
 
     // Validate Tavily API Key
     const tavilyKey = Deno.env.get('TAVILY_API_KEY');
@@ -81,9 +65,7 @@ Deno.serve(async (req) => {
       try {
         const response = await fetch('https://api.tavily.com/search', {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ api_key: tavilyKey, query: 'test', max_results: 1 })
         });
         
@@ -253,20 +235,16 @@ Deno.serve(async (req) => {
       success: allValid,
     });
 
-    return new Response(
-      JSON.stringify({
-        valid: allValid,
-        results,
-        timestamp,
-        summary,
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    logger.info('API key validation completed', { summary });
+
+    return successResponse(requestId, {
+      valid: allValid,
+      results,
+      timestamp,
+      summary,
+    });
   } catch (error) {
-    console.error('[validate-secrets] Error:', error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    logger.error('Secrets validation failed', error);
+    return handleError(error, requestId);
   }
 });

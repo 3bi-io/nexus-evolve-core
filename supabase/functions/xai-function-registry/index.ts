@@ -1,110 +1,105 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders } from '../_shared/cors.ts';
+import { createAuthenticatedClient } from '../_shared/supabase-client.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { validateRequiredFields, validateString, validateEnum } from '../_shared/validators.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
 
 // Define available tools
 const AVAILABLE_TOOLS = [
   {
-    type: "function",
+    type: 'function',
     function: {
-      name: "get_stock_price",
-      description: "Get current stock price for a given symbol",
+      name: 'get_stock_price',
+      description: 'Get current stock price for a given symbol',
       parameters: {
-        type: "object",
+        type: 'object',
         properties: {
-          symbol: { type: "string", description: "Stock ticker symbol (e.g., TSLA, AAPL)" },
+          symbol: { type: 'string', description: 'Stock ticker symbol (e.g., TSLA, AAPL)' },
         },
-        required: ["symbol"],
+        required: ['symbol'],
       },
     },
   },
   {
-    type: "function",
+    type: 'function',
     function: {
-      name: "search_news",
-      description: "Search recent news articles",
+      name: 'search_news',
+      description: 'Search recent news articles',
       parameters: {
-        type: "object",
+        type: 'object',
         properties: {
-          query: { type: "string", description: "Search query" },
-          days: { type: "number", description: "Number of days to look back", default: 7 },
+          query: { type: 'string', description: 'Search query' },
+          days: { type: 'number', description: 'Number of days to look back', default: 7 },
         },
-        required: ["query"],
+        required: ['query'],
       },
     },
   },
   {
-    type: "function",
+    type: 'function',
     function: {
-      name: "weather_forecast",
-      description: "Get weather forecast for a location",
+      name: 'weather_forecast',
+      description: 'Get weather forecast for a location',
       parameters: {
-        type: "object",
+        type: 'object',
         properties: {
-          location: { type: "string", description: "City name or location" },
-          days: { type: "number", description: "Number of days forecast", default: 5 },
+          location: { type: 'string', description: 'City name or location' },
+          days: { type: 'number', description: 'Number of days forecast', default: 5 },
         },
-        required: ["location"],
+        required: ['location'],
       },
     },
   },
   {
-    type: "function",
+    type: 'function',
     function: {
-      name: "calculate",
-      description: "Perform mathematical calculations",
+      name: 'calculate',
+      description: 'Perform mathematical calculations',
       parameters: {
-        type: "object",
+        type: 'object',
         properties: {
-          expression: { type: "string", description: "Mathematical expression to evaluate" },
+          expression: { type: 'string', description: 'Mathematical expression to evaluate' },
         },
-        required: ["expression"],
+        required: ['expression'],
       },
     },
   },
   {
-    type: "function",
+    type: 'function',
     function: {
-      name: "translate",
-      description: "Translate text to another language",
+      name: 'translate',
+      description: 'Translate text to another language',
       parameters: {
-        type: "object",
+        type: 'object',
         properties: {
-          text: { type: "string", description: "Text to translate" },
-          target_lang: { type: "string", description: "Target language code (e.g., es, fr, de)" },
+          text: { type: 'string', description: 'Text to translate' },
+          target_lang: { type: 'string', description: 'Target language code (e.g., es, fr, de)' },
         },
-        required: ["text", "target_lang"],
+        required: ['text', 'target_lang'],
       },
     },
   },
 ];
 
 // Function implementations
-async function executeFunction(functionName: string, args: any): Promise<any> {
+async function executeFunction(functionName: string, args: any, logger: any): Promise<any> {
   const startTime = Date.now();
   
   try {
     switch (functionName) {
-      case "calculate":
-        // Safe eval for basic math
-        const result = eval(args.expression.replace(/[^0-9+\-*/().\s]/g, ""));
+      case 'calculate':
+        const result = eval(args.expression.replace(/[^0-9+\-*/().\s]/g, ''));
         return { result, execution_time_ms: Date.now() - startTime };
       
-      case "translate":
-        // Placeholder - would integrate with translation API
+      case 'translate':
         return {
           translated_text: `[${args.target_lang}] ${args.text}`,
-          source_lang: "en",
+          source_lang: 'en',
           target_lang: args.target_lang,
           execution_time_ms: Date.now() - startTime,
         };
       
-      case "get_stock_price":
-        // Placeholder - would integrate with finance API
+      case 'get_stock_price':
         return {
           symbol: args.symbol,
           price: (Math.random() * 500 + 100).toFixed(2),
@@ -112,28 +107,26 @@ async function executeFunction(functionName: string, args: any): Promise<any> {
           execution_time_ms: Date.now() - startTime,
         };
       
-      case "search_news":
-        // Placeholder - would integrate with news API
+      case 'search_news':
         return {
           articles: [
             {
               title: `Latest news about ${args.query}`,
               summary: `Recent developments in ${args.query}...`,
-              source: "Example News",
+              source: 'Example News',
               published_at: new Date().toISOString(),
             },
           ],
           execution_time_ms: Date.now() - startTime,
         };
       
-      case "weather_forecast":
-        // Placeholder - would integrate with weather API
+      case 'weather_forecast':
         return {
           location: args.location,
           forecast: Array.from({ length: args.days || 5 }, (_, i) => ({
             day: new Date(Date.now() + i * 86400000).toLocaleDateString(),
             temp: Math.floor(Math.random() * 30 + 10),
-            condition: ["Sunny", "Cloudy", "Rainy"][Math.floor(Math.random() * 3)],
+            condition: ['Sunny', 'Cloudy', 'Rainy'][Math.floor(Math.random() * 3)],
           })),
           execution_time_ms: Date.now() - startTime,
         };
@@ -142,49 +135,48 @@ async function executeFunction(functionName: string, args: any): Promise<any> {
         throw new Error(`Unknown function: ${functionName}`);
     }
   } catch (error) {
-    throw new Error(`Function execution failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+    logger.error('Function execution failed', { functionName, error });
+    throw new Error(`Function execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('xai-function-registry', requestId);
+
   try {
-    const authHeader = req.headers.get("Authorization");
+    const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      throw new Error("Missing authorization header");
+      throw new Error('MISSING_AUTH_HEADER');
     }
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const { supabase, user } = await createAuthenticatedClient(authHeader);
+    const body = await req.json();
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !user) throw new Error("Invalid user token");
+    validateRequiredFields(body, ['action']);
+    validateEnum(body.action, 'action', ['list', 'execute']);
 
-    const { action, functionName, arguments: funcArgs, sessionId } = await req.json();
+    const { action, functionName, arguments: funcArgs, sessionId } = body;
 
-    if (action === "list") {
-      // Return available tools
-      return new Response(
-        JSON.stringify({
-          success: true,
-          tools: AVAILABLE_TOOLS,
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    if (action === 'list') {
+      logger.info('Listing available functions', { userId: user.id });
+      return successResponse(requestId, { tools: AVAILABLE_TOOLS });
     }
 
-    if (action === "execute") {
-      console.log(`Executing function: ${functionName} with args:`, funcArgs);
+    if (action === 'execute') {
+      validateRequiredFields(body, ['functionName', 'arguments']);
+      validateString(functionName, 'functionName');
 
-      const result = await executeFunction(functionName, funcArgs);
+      logger.info('Executing function', { functionName, userId: user.id });
+
+      const result = await executeFunction(functionName, funcArgs, logger);
 
       // Log function call
-      await supabase.from("xai_function_calls").insert({
+      await supabase.from('xai_function_calls').insert({
         user_id: user.id,
         session_id: sessionId,
         function_name: functionName,
@@ -194,25 +186,20 @@ serve(async (req) => {
         execution_time_ms: result.execution_time_ms,
       });
 
-      return new Response(
-        JSON.stringify({
-          success: true,
-          function_name: functionName,
-          result,
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      logger.info('Function executed successfully', { 
+        functionName, 
+        executionTime: result.execution_time_ms 
+      });
+
+      return successResponse(requestId, {
+        function_name: functionName,
+        result,
+      });
     }
 
-    throw new Error("Invalid action");
-
+    throw new Error('Invalid action');
   } catch (error) {
-    console.error("Function registry error:", error);
-    return new Response(
-      JSON.stringify({
-        error: error instanceof Error ? error.message : "Unknown error",
-      }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    logger.error('Function registry error', error);
+    return handleError(error, requestId);
   }
 });
