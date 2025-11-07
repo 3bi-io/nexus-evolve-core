@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { anthropicFetch } from '../_shared/api-client.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -321,23 +322,48 @@ Focus on the most impactful improvements. Provide complete, working code.`;
 async function callAIProvider(provider: string, model: string, prompt: string) {
   const config = AI_PROVIDERS[provider as keyof typeof AI_PROVIDERS];
   
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json'
-  };
-
-  let body: any;
+  let response: Response;
+  let data: any;
 
   if (provider === 'anthropic') {
-    headers['x-api-key'] = config.key!;
-    headers['anthropic-version'] = '2023-06-01';
-    body = {
-      model,
-      max_tokens: 4096,
-      messages: [{ role: 'user', content: prompt }]
-    };
+    response = await anthropicFetch('/v1/messages', {
+      method: 'POST',
+      body: JSON.stringify({
+        model,
+        max_tokens: 4096,
+        system: 'You are an expert code analyzer. Return your analysis in valid JSON format.',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    }, {
+      timeout: 90000,
+      maxRetries: 2
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Anthropic API error: ${response.status} - ${errorText}`);
+      throw new Error(`${provider} API error: ${response.status}`);
+    }
+
+    data = await response.json();
+    
+    if (!data?.content?.[0]?.text) {
+      throw new Error('Invalid response structure from Anthropic API');
+    }
+    
+    try {
+      return JSON.parse(data.content[0].text);
+    } catch {
+      return { improvements: [] };
+    }
   } else {
-    headers['Authorization'] = `Bearer ${config.key}`;
-    body = {
+    // OpenAI and Lovable AI
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${config.key}`
+    };
+
+    const body: any = {
       model,
       messages: [{ role: 'user', content: prompt }],
       response_format: { type: 'json_object' }
@@ -346,31 +372,30 @@ async function callAIProvider(provider: string, model: string, prompt: string) {
     if (provider === 'openai') {
       body.max_completion_tokens = 4096;
     }
-  }
 
-  const response = await fetch(config.url, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(body)
-  });
+    response = await fetch(config.url, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify(body)
+    });
 
-  if (!response.ok) {
-    throw new Error(`${provider} API error: ${response.status}`);
-  }
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`${provider} API error: ${response.status} - ${errorText}`);
+      throw new Error(`${provider} API error: ${response.status}`);
+    }
 
-  const data = await response.json();
-  
-  let content = '';
-  if (provider === 'anthropic') {
-    content = data.content[0].text;
-  } else {
-    content = data.choices[0].message.content;
-  }
+    data = await response.json();
+    
+    if (!data?.choices?.[0]?.message?.content) {
+      throw new Error(`Invalid response structure from ${provider} API`);
+    }
 
-  try {
-    return JSON.parse(content);
-  } catch {
-    return { improvements: [] };
+    try {
+      return JSON.parse(data.choices[0].message.content);
+    } catch {
+      return { improvements: [] };
+    }
   }
 }
 

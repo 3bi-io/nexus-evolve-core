@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
+import { anthropicFetch } from '../_shared/api-client.ts';
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -44,38 +45,39 @@ Deno.serve(async (req) => {
 
         // Auto-generate title if not provided and we have messages
         if (!title && messages.length >= 2) {
-          const firstMessages = messages.slice(0, 3);
-          const prompt = `Generate a short, descriptive title (max 6 words) for this conversation:\n\n${JSON.stringify(firstMessages)}`;
-          
-          const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY');
-          if (anthropicKey) {
-            const response = await fetch('https://api.anthropic.com/v1/messages', {
+          try {
+            const firstMessages = messages.slice(0, 3);
+            const prompt = `Generate a short, descriptive title (max 6 words) for this conversation:\n\n${JSON.stringify(firstMessages)}`;
+            
+            const response = await anthropicFetch('/v1/messages', {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'x-api-key': anthropicKey,
-                'anthropic-version': '2023-06-01'
-              },
               body: JSON.stringify({
-                model: 'google/gemini-2.5-flash-lite',
+                model: 'claude-sonnet-4-5',
                 max_tokens: 50,
+                system: 'You are a helpful assistant that generates concise conversation titles.',
                 messages: [{ role: 'user', content: prompt }]
               })
             });
 
             if (response.ok) {
               const result = await response.json();
-              const generatedTitle = result.content[0].text.trim();
               
-              await supabase
-                .from('conversation_titles')
-                .upsert({
-                  conversation_id: data.id,
-                  auto_generated_title: generatedTitle
-                });
+              if (result?.content?.[0]?.text) {
+                const generatedTitle = result.content[0].text.trim();
+                
+                await supabase
+                  .from('conversation_titles')
+                  .upsert({
+                    conversation_id: data.id,
+                    auto_generated_title: generatedTitle
+                  });
 
-              data.title = generatedTitle;
+                data.title = generatedTitle;
+              }
             }
+          } catch (error) {
+            console.error('Error generating title:', error);
+            // Continue without title if generation fails
           }
         }
 

@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
+import { anthropicFetch } from '../_shared/api-client.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -349,24 +350,31 @@ async function executeOpenAI(modelId: string, message: string, context: any): Pr
 }
 
 async function executeAnthropic(modelId: string, message: string, context: any): Promise<string> {
-  const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
-  if (!apiKey) throw new Error('ANTHROPIC_API_KEY not configured');
-
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const response = await anthropicFetch('/v1/messages', {
     method: 'POST',
-    headers: {
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       model: modelId,
+      system: 'You are a helpful AI assistant that provides clear and accurate responses.',
       messages: [{ role: 'user', content: message }],
       max_tokens: 4096,
     }),
+  }, {
+    timeout: 60000,
+    maxRetries: 2
   });
 
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error(`Anthropic API error: ${response.status} - ${errorText}`);
+    throw new Error(`Anthropic API error: ${response.status}`);
+  }
+
   const data = await response.json();
+  
+  if (!data?.content?.[0]?.text) {
+    throw new Error('Invalid response structure from Anthropic API');
+  }
+  
   return data.content[0].text;
 }
 
