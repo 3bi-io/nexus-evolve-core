@@ -202,7 +202,7 @@ export const KnowledgeBaseManager = ({ agentId }: KnowledgeBaseManagerProps) => 
           ) : (
             <ScrollArea className="h-[400px]">
               <div className="space-y-4">
-                {Object.entries(groupedKnowledge).map(([title, items]) => (
+                {Object.entries(groupedKnowledge ?? {}).map(([title, items]) => (
                   <div key={title} className="border rounded-lg p-4">
                     <div className="flex items-start justify-between mb-2">
                       <div>

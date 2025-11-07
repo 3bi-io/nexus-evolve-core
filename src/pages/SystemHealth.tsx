@@ -157,7 +157,7 @@ const SystemHealth = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {validation && Object.entries(validation.results).map(([key, result]) => {
+              {validation && Object.entries(validation.results ?? {}).map(([key, result]) => {
                 const info = API_KEY_INFO[key];
                 if (!info) return null;
 

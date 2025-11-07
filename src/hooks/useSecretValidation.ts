@@ -68,9 +68,9 @@ export const useSecretValidation = () => {
     refetch,
     hasIssues: validation ? !validation.valid : false,
     criticalIssues: validation 
-      ? Object.entries(validation.results)
+      ? Object.entries(validation.results ?? {})
           .filter(([key, result]) => 
-            ['OPENAI_API_KEY', 'LOVABLE_API_KEY'].includes(key) && !result.valid
+            ['OPENAI_API_KEY', 'LOVABLE_API_KEY'].includes(key) && !result?.valid
           )
           .length
       : 0,

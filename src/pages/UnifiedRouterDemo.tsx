@@ -202,7 +202,7 @@ export default function UnifiedRouterDemo() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {Object.entries(loadBalancing).map(([provider, percentage]) => (
+                {Object.entries(loadBalancing ?? {}).map(([provider, percentage]) => (
                   <div key={provider} className="space-y-1">
                     <div className="flex items-center justify-between text-sm">
                       <span className="capitalize">{provider}</span>

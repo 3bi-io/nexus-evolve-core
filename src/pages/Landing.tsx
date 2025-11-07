@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
 import { SEO } from '@/components/SEO';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 
 // Landing page sections
 import { BetaTrustSignals } from '@/components/landing/BetaTrustSignals';
@@ -38,7 +39,7 @@ export default function Landing() {
 
   return (
     <MarketingLayout>
-        <SEO
+      <SEO
         title="Oneiros | AI Automation Platform - Vision, Generation, Workflows & Monitoring"
         description="Production-ready AI automation platform with vision analysis, image generation, automated workflows, smart caching, and 24/7 trend monitoring. 38+ edge functions working autonomously."
         keywords={[
@@ -71,7 +72,8 @@ export default function Landing() {
         }}
       />
 
-      <div className="container mx-auto px-4 py-6 sm:py-8 max-w-7xl space-y-16 sm:space-y-20 md:space-y-24">
+      <ErrorBoundary>
+        <div className="container mx-auto px-4 py-6 sm:py-8 max-w-7xl space-y-16 sm:space-y-20 md:space-y-24">
         {/* Hero Section */}
         <HeroSection />
 
@@ -133,7 +135,8 @@ export default function Landing() {
         <ExitIntentPopup />
         <SocialProofNotification />
         <StickySignupCTA />
-      </div>
+        </div>
+      </ErrorBoundary>
     </MarketingLayout>
   );
 }

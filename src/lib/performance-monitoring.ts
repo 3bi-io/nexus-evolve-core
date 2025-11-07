@@ -164,7 +164,7 @@ export class PerformanceMonitoring {
     const issues: string[] = [];
     const checks = this.checkThresholds();
 
-    Object.entries(checks).forEach(([metric, passed]) => {
+    Object.entries(checks ?? {}).forEach(([metric, passed]) => {
       if (!passed) {
         const value = this.metrics[metric.toLowerCase() as keyof PerformanceMetrics];
         const threshold = this.THRESHOLDS[metric as keyof typeof this.THRESHOLDS];

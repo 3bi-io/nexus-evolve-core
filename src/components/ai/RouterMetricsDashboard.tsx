@@ -106,7 +106,7 @@ export const RouterMetricsDashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            {Object.entries(metrics).map(([provider, metric]) => (
+            {Object.entries(metrics ?? {}).map(([provider, metric]) => (
               <div key={provider} className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -159,7 +159,7 @@ export const RouterMetricsDashboard = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {Object.entries(loadBalancing).map(([provider, count]) => {
+            {Object.entries(loadBalancing ?? {}).map(([provider, count]) => {
               const percentage = totalCalls > 0 ? (count / totalCalls) * 100 : 0;
               return (
                 <div key={provider} className="space-y-2">

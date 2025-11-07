@@ -99,7 +99,7 @@ const Analytics = () => {
         qualityByDay[day].count += 1;
       });
 
-      const qualityTrend = Object.entries(qualityByDay).map(([date, data]) => ({
+      const qualityTrend = Object.entries(qualityByDay ?? {}).map(([date, data]) => ({
         date,
         rating: data.sum / data.count
       }));
@@ -117,7 +117,7 @@ const Analytics = () => {
         activityByDay[day] = (activityByDay[day] || 0) + 1;
       });
 
-      const activityChart = Object.entries(activityByDay).map(([day, count]) => ({
+      const activityChart = Object.entries(activityByDay ?? {}).map(([day, count]) => ({
         day,
         count
       }));
@@ -148,7 +148,7 @@ const Analytics = () => {
         });
       });
 
-      const topAgents = Object.entries(agentCounts)
+      const topAgents = Object.entries(agentCounts ?? {})
         .map(([name, count]) => ({ name, count }))
         .sort((a, b) => b.count - a.count)
         .slice(0, 5);

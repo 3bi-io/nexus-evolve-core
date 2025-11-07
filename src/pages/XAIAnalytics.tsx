@@ -147,7 +147,7 @@ export default function XAIAnalytics() {
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">Usage by Model</h3>
             <div className="space-y-2">
-              {Object.entries(stats.byModel).map(([model, count]: [string, any]) => (
+              {Object.entries(stats.byModel ?? {}).map(([model, count]: [string, any]) => (
                 <div key={model} className="flex items-center justify-between">
                   <span className="text-sm">{model}</span>
                   <span className="text-sm font-semibold">{count}</span>
@@ -159,7 +159,7 @@ export default function XAIAnalytics() {
           <Card className="p-6">
             <h3 className="text-lg font-semibold mb-4">Usage by Feature</h3>
             <div className="space-y-2">
-              {Object.entries(stats.byFeature).map(([feature, count]: [string, any]) => (
+              {Object.entries(stats.byFeature ?? {}).map(([feature, count]: [string, any]) => (
                 <div key={feature} className="flex items-center justify-between">
                   <span className="text-sm capitalize">{feature.replace(/-/g, ' ')}</span>
                   <span className="text-sm font-semibold">{count}</span>

@@ -78,7 +78,7 @@ const UsageAnalytics = () => {
         creditsByDate[date].remaining = t.balance_after;
       });
 
-      const creditData = Object.entries(creditsByDate).map(([date, data]) => ({
+      const creditData = Object.entries(creditsByDate ?? {}).map(([date, data]) => ({
         date,
         credits_spent: data.spent,
         credits_remaining: data.remaining,
@@ -109,7 +109,7 @@ const UsageAnalytics = () => {
         featureMap[feature].count += 1;
       });
 
-      const featureData = Object.entries(featureMap).map(([feature, data]) => ({
+      const featureData = Object.entries(featureMap ?? {}).map(([feature, data]) => ({
         feature: feature.charAt(0).toUpperCase() + feature.slice(1),
         time_spent_minutes: Math.round(data.time / 60),
         sessions_count: data.count,
