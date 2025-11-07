@@ -1,10 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders } from "../_shared/cors.ts";
+import { handleError, successResponse } from "../_shared/error-handler.ts";
+import { createLogger } from "../_shared/logger.ts";
+import { requireAuth } from "../_shared/auth.ts";
+import { initSupabaseClient } from "../_shared/supabase-client.ts";
+import { validateRequiredFields } from "../_shared/validators.ts";
+import { replicateFetch } from "../_shared/api-client.ts";
 
 interface ReplicateRequest {
   model: string;
@@ -17,73 +18,46 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger("replicate-runner", requestId);
+
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("Missing authorization header");
-    }
-
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !user) throw new Error("Invalid user token");
-
-    const REPLICATE_API_KEY = Deno.env.get("REPLICATE_API_KEY");
-    if (!REPLICATE_API_KEY) throw new Error("REPLICATE_API_KEY not configured");
+    const supabase = initSupabaseClient();
+    const user = await requireAuth(req, supabase);
+    
+    logger.info("Processing Replicate request", { userId: user.id });
 
     const body: ReplicateRequest = await req.json();
 
     // Check status of existing prediction
     if (body.predictionId) {
-      console.log("Checking prediction status:", body.predictionId);
-      const statusResponse = await fetch(
-        `https://api.replicate.com/v1/predictions/${body.predictionId}`,
-        {
-          headers: {
-            Authorization: `Token ${REPLICATE_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      logger.debug("Checking prediction status", { predictionId: body.predictionId });
+      
+      const statusResponse = await replicateFetch(`/v1/predictions/${body.predictionId}`, {
+        method: "GET",
+      });
 
-      if (!statusResponse.ok) {
-        throw new Error(`Replicate status check failed: ${statusResponse.status}`);
-      }
+      if (!statusResponse.ok) throw statusResponse;
 
       const prediction = await statusResponse.json();
-      return new Response(
-        JSON.stringify(prediction),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return successResponse(prediction, requestId);
     }
 
     // Create new prediction
-    if (!body.model || !body.input) {
-      throw new Error("Missing required fields: model and input");
-    }
+    validateRequiredFields(body, ["model", "input"]);
 
-    console.log(`Running Replicate model: ${body.model}`);
+    logger.info("Creating new prediction", { model: body.model });
 
     const startTime = Date.now();
-    const createResponse = await fetch("https://api.replicate.com/v1/predictions", {
+    const createResponse = await replicateFetch("/v1/predictions", {
       method: "POST",
-      headers: {
-        Authorization: `Token ${REPLICATE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         version: body.model,
         input: body.input,
       }),
     });
 
-    if (!createResponse.ok) {
-      const error = await createResponse.text();
-      throw new Error(`Replicate API error: ${error}`);
-    }
+    if (!createResponse.ok) throw createResponse;
 
     const prediction = await createResponse.json();
     const latencyMs = Date.now() - startTime;
@@ -94,7 +68,7 @@ serve(async (req) => {
       model_name: body.model,
       task_type: "replicate_inference",
       latency_ms: latencyMs,
-      cost_credits: 10, // Fixed cost for Replicate calls
+      cost_credits: 10,
       success: true,
       metadata: {
         prediction_id: prediction.id,
@@ -103,21 +77,23 @@ serve(async (req) => {
       }
     });
 
-    return new Response(
-      JSON.stringify({
-        prediction_id: prediction.id,
-        status: prediction.status,
-        output: prediction.output,
-        latency_ms: latencyMs
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    logger.info("Prediction created", { 
+      predictionId: prediction.id,
+      latencyMs 
+    });
+
+    return successResponse({
+      prediction_id: prediction.id,
+      status: prediction.status,
+      output: prediction.output,
+      latency_ms: latencyMs
+    }, requestId);
 
   } catch (error) {
-    console.error("Replicate runner error:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return handleError({
+      functionName: "replicate-runner",
+      error,
+      requestId,
+    });
   }
 });

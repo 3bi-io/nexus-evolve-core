@@ -1,10 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders } from "../_shared/cors.ts";
+import { handleError, successResponse } from "../_shared/error-handler.ts";
+import { createLogger } from "../_shared/logger.ts";
+import { requireAuth } from "../_shared/auth.ts";
+import { initSupabaseClient } from "../_shared/supabase-client.ts";
+import { validateRequiredFields } from "../_shared/validators.ts";
 
 interface MemoryRequest {
   action: "add" | "search" | "get" | "delete" | "update";
@@ -21,19 +21,14 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger("mem0-memory", requestId);
+
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("Missing authorization header");
-    }
-
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !user) throw new Error("Invalid user token");
+    const supabase = initSupabaseClient();
+    const user = await requireAuth(req, supabase);
+    
+    logger.info("Processing Mem0 request", { userId: user.id });
 
     const MEM0_API_KEY = Deno.env.get("MEM0_API_KEY");
     if (!MEM0_API_KEY) throw new Error("MEM0_API_KEY not configured");
@@ -41,7 +36,8 @@ serve(async (req) => {
     const body: MemoryRequest = await req.json();
     const { action } = body;
 
-    console.log(`Mem0 action: ${action}`);
+    validateRequiredFields(body, ["action"]);
+    logger.info("Mem0 action", { action });
 
     let endpoint = "";
     let method = "GET";
@@ -69,18 +65,16 @@ serve(async (req) => {
         break;
 
       case "delete":
-        if (!body.memory_id) throw new Error("memory_id required for delete");
+        validateRequiredFields(body, ["memory_id"]);
         endpoint = `https://api.mem0.ai/v1/memories/${body.memory_id}/`;
         method = "DELETE";
         break;
 
       case "update":
-        if (!body.memory_id) throw new Error("memory_id required for update");
+        validateRequiredFields(body, ["memory_id"]);
         endpoint = `https://api.mem0.ai/v1/memories/${body.memory_id}/`;
         method = "PUT";
-        requestBody = {
-          data: body.metadata
-        };
+        requestBody = { data: body.metadata };
         break;
 
       default:
@@ -109,6 +103,8 @@ serve(async (req) => {
     if ((action === "search" || action === "get") && result?.results) {
       const memoryIds = result.results.map((m: any) => m.id);
       
+      logger.debug("Updating temporal scores", { memoryCount: memoryIds.length });
+      
       // Update temporal scores for accessed memories
       for (const memoryId of memoryIds) {
         const { data: existingScore } = await supabase
@@ -119,7 +115,6 @@ serve(async (req) => {
           .maybeSingle();
 
         if (existingScore) {
-          // Calculate new relevance
           const { data: relevance } = await supabase.rpc('calculate_temporal_relevance', {
             p_access_count: existingScore.access_count + 1,
             p_importance_score: existingScore.importance_score,
@@ -133,7 +128,6 @@ serve(async (req) => {
             calculated_relevance: relevance
           }).eq("id", existingScore.id);
         } else {
-          // Create new score
           await supabase.from("memory_temporal_scores").insert({
             user_id: user.id,
             memory_id: memoryId,
@@ -152,7 +146,6 @@ serve(async (req) => {
         .in("memory_id", memoryIds);
 
       if (scores) {
-        // Add temporal relevance to results and sort
         result.results = result.results.map((memory: any) => {
           const score = scores.find(s => s.memory_id === memory.id);
           return {
@@ -177,20 +170,19 @@ serve(async (req) => {
       }
     });
 
-    return new Response(
-      JSON.stringify({
-        result,
-        action,
-        latency_ms: latencyMs
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    logger.info("Memory operation completed", { action, latencyMs });
+
+    return successResponse({
+      result,
+      action,
+      latency_ms: latencyMs
+    }, requestId);
 
   } catch (error) {
-    console.error("Mem0 memory error:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return handleError({
+      functionName: "mem0-memory",
+      error,
+      requestId,
+    });
   }
 });

@@ -1,10 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders } from "../_shared/cors.ts";
+import { handleError, successResponse } from "../_shared/error-handler.ts";
+import { createLogger } from "../_shared/logger.ts";
+import { requireAuth } from "../_shared/auth.ts";
+import { initSupabaseClient } from "../_shared/supabase-client.ts";
+import { validateRequiredFields } from "../_shared/validators.ts";
+import { lovableAIFetch } from "../_shared/api-client.ts";
 
 interface ChainRequest {
   task: "summarize" | "qa" | "translate" | "analyze" | "extract";
@@ -18,26 +19,20 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger("langchain-orchestrator", requestId);
+
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("Missing authorization header");
-    }
+    const supabase = initSupabaseClient();
+    const user = await requireAuth(req, supabase);
+    
+    logger.info("Processing LangChain task", { userId: user.id });
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const body: ChainRequest = await req.json();
+    const { task, input, context, language } = body;
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !user) throw new Error("Invalid user token");
-
-    const { task, input, context, language }: ChainRequest = await req.json();
-
-    console.log(`LangChain task: ${task}`);
-
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+    validateRequiredFields(body, ["task", "input"]);
+    logger.info("Executing chain", { task });
 
     // Build chain based on task type
     let systemPrompt = "";
@@ -77,12 +72,8 @@ serve(async (req) => {
 
     // Execute chain with Lovable AI
     const startTime = Date.now();
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await lovableAIFetch("/v1/chat/completions", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
@@ -94,10 +85,7 @@ serve(async (req) => {
       }),
     });
 
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`AI API error: ${error}`);
-    }
+    if (!response.ok) throw response;
 
     const result = await response.json();
     const latencyMs = Date.now() - startTime;
@@ -121,21 +109,20 @@ serve(async (req) => {
       }
     });
 
-    return new Response(
-      JSON.stringify({
-        result: content,
-        task,
-        latency_ms: latencyMs,
-        tokens_used: result.usage?.total_tokens || 0
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    logger.info("Chain execution completed", { task, latencyMs });
+
+    return successResponse({
+      result: content,
+      task,
+      latency_ms: latencyMs,
+      tokens_used: result.usage?.total_tokens || 0
+    }, requestId);
 
   } catch (error) {
-    console.error("LangChain orchestrator error:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return handleError({
+      functionName: "langchain-orchestrator",
+      error,
+      requestId,
+    });
   }
 });

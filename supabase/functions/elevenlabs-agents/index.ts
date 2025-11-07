@@ -1,9 +1,9 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders } from '../_shared/cors.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { requireAuth } from '../_shared/auth.ts';
+import { initSupabaseClient } from '../_shared/supabase-client.ts';
+import { elevenLabsFetch } from '../_shared/api-client.ts';
 
 interface Agent {
   agent_id: string;
@@ -26,172 +26,115 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('elevenlabs-agents', requestId);
+
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const authHeader = req.headers.get('Authorization');
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = initSupabaseClient();
+    const user = await requireAuth(req, supabase);
     
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader?.replace('Bearer ', '') || ''
-    );
-
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const elevenLabsKey = Deno.env.get('ELEVENLABS_API_KEY');
-    if (!elevenLabsKey) {
-      throw new Error('ELEVENLABS_API_KEY not configured');
-    }
+    logger.info('Processing ElevenLabs agents request', { userId: user.id });
 
     const url = new URL(req.url);
     const action = url.searchParams.get('action') || 'list';
 
+    logger.debug('Action requested', { action });
+
     // List all agents
     if (action === 'list') {
-      const response = await fetch('https://api.elevenlabs.io/v1/convai/agents', {
+      const response = await elevenLabsFetch('/v1/convai/agents', {
         method: 'GET',
-        headers: { 'xi-api-key': elevenLabsKey },
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('ElevenLabs API error:', response.status, errorText);
-        throw new Error(`Failed to fetch agents: ${response.status}`);
-      }
+      if (!response.ok) throw response;
 
       const agents = await response.json();
-      return new Response(JSON.stringify(agents), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      logger.info('Fetched agents', { count: agents.length || 0 });
+      
+      return successResponse(agents, requestId);
     }
 
     // Get single agent
     if (action === 'get') {
       const { agentId } = await req.json();
       
-      const response = await fetch(
-        `https://api.elevenlabs.io/v1/convai/agents/${agentId}`,
-        {
-          method: 'GET',
-          headers: { 'xi-api-key': elevenLabsKey },
-        }
-      );
+      const response = await elevenLabsFetch(`/v1/convai/agents/${agentId}`, {
+        method: 'GET',
+      });
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch agent: ${response.status}`);
-      }
+      if (!response.ok) throw response;
 
       const agent = await response.json();
-      return new Response(JSON.stringify(agent), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return successResponse(agent, requestId);
     }
 
     // Create agent
     if (action === 'create') {
       const body = await req.json();
       
-      const response = await fetch('https://api.elevenlabs.io/v1/convai/agents', {
+      const response = await elevenLabsFetch('/v1/convai/agents', {
         method: 'POST',
-        headers: {
-          'xi-api-key': elevenLabsKey,
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(body),
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('ElevenLabs API error:', response.status, errorText);
-        throw new Error(`Failed to create agent: ${response.status}`);
-      }
+      if (!response.ok) throw response;
 
       const agent = await response.json();
-      return new Response(JSON.stringify(agent), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      logger.info('Created agent', { agentId: agent.agent_id });
+      
+      return successResponse(agent, requestId);
     }
 
     // Update agent
     if (action === 'update') {
       const { agentId, ...updateData } = await req.json();
       
-      const response = await fetch(
-        `https://api.elevenlabs.io/v1/convai/agents/${agentId}`,
-        {
-          method: 'PATCH',
-          headers: {
-            'xi-api-key': elevenLabsKey,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(updateData),
-        }
-      );
+      const response = await elevenLabsFetch(`/v1/convai/agents/${agentId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updateData),
+      });
 
-      if (!response.ok) {
-        throw new Error(`Failed to update agent: ${response.status}`);
-      }
+      if (!response.ok) throw response;
 
       const agent = await response.json();
-      return new Response(JSON.stringify(agent), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      logger.info('Updated agent', { agentId });
+      
+      return successResponse(agent, requestId);
     }
 
     // Delete agent
     if (action === 'delete') {
       const { agentId } = await req.json();
       
-      const response = await fetch(
-        `https://api.elevenlabs.io/v1/convai/agents/${agentId}`,
-        {
-          method: 'DELETE',
-          headers: { 'xi-api-key': elevenLabsKey },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(`Failed to delete agent: ${response.status}`);
-      }
-
-      return new Response(JSON.stringify({ success: true }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      const response = await elevenLabsFetch(`/v1/convai/agents/${agentId}`, {
+        method: 'DELETE',
       });
+
+      if (!response.ok) throw response;
+
+      logger.info('Deleted agent', { agentId });
+      return successResponse({ success: true }, requestId);
     }
 
     // Get available voices
     if (action === 'voices') {
-      const response = await fetch('https://api.elevenlabs.io/v1/voices', {
+      const response = await elevenLabsFetch('/v1/voices', {
         method: 'GET',
-        headers: { 'xi-api-key': elevenLabsKey },
       });
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch voices: ${response.status}`);
-      }
+      if (!response.ok) throw response;
 
       const voices = await response.json();
-      return new Response(JSON.stringify(voices), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+      return successResponse(voices, requestId);
     }
 
-    return new Response(
-      JSON.stringify({ error: 'Invalid action' }),
-      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    throw new Error('Invalid action');
 
-  } catch (error: any) {
-    console.error('ElevenLabs agents error:', error);
-    
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+  } catch (error) {
+    return handleError({
+      functionName: 'elevenlabs-agents',
+      error,
+      requestId,
+    });
   }
 });

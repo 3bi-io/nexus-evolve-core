@@ -1,34 +1,40 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders } from "../_shared/cors.ts";
+import { handleError, successResponse } from "../_shared/error-handler.ts";
+import { createLogger } from "../_shared/logger.ts";
+import { optionalAuth } from "../_shared/auth.ts";
+import { initSupabaseClient } from "../_shared/supabase-client.ts";
+import { validateRequiredFields } from "../_shared/validators.ts";
+import { tavilyFetch } from "../_shared/api-client.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
+
+  const requestId = crypto.randomUUID();
+  const logger = createLogger("tavily-search", requestId);
   
   try {
-    const { query, searchDepth = "basic", maxResults = 5 } = await req.json();
-    const TAVILY_API_KEY = Deno.env.get("TAVILY_API_KEY");
+    const supabase = initSupabaseClient();
+    const user = await optionalAuth(req, supabase);
     
-    if (!TAVILY_API_KEY) {
-      throw new Error("TAVILY_API_KEY not configured");
-    }
+    const body = await req.json();
+    const { query, searchDepth = "basic", maxResults = 5 } = body;
     
-    console.log(`[Tavily] Searching for: "${query}" (depth: ${searchDepth})`);
+    validateRequiredFields({ query }, ["query"]);
     
-    const response = await fetch("https://api.tavily.com/search", {
+    logger.info("Processing Tavily search", { 
+      query: query.substring(0, 100),
+      searchDepth,
+      userId: user?.id
+    });
+    
+    const response = await tavilyFetch("/search", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
-        api_key: TAVILY_API_KEY,
         query,
-        search_depth: searchDepth, // "basic" or "advanced"
+        search_depth: searchDepth,
         include_answer: true,
         include_raw_content: false,
         max_results: maxResults,
@@ -36,20 +42,20 @@ serve(async (req) => {
         include_domains: [],
         exclude_domains: []
       }),
+    }, {
+      timeout: 30000,
+      maxRetries: 2
     });
     
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error(`[Tavily] API error: ${response.status} - ${errorText}`);
-      throw new Error(`Tavily API error: ${response.status}`);
+      throw response;
     }
     
     const data = await response.json();
     
-    console.log(`[Tavily] Found ${data.results?.length || 0} results`);
+    logger.info("Search completed", { resultsCount: data.results?.length || 0 });
     
-    // Return in a format compatible with the agent system
-    return new Response(JSON.stringify({
+    return successResponse({
       answer: data.answer,
       results: data.results?.map((r: any) => ({
         title: r.title,
@@ -59,14 +65,12 @@ serve(async (req) => {
       })) || [],
       query: data.query,
       follow_up_questions: data.follow_up_questions || []
-    }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" }
-    });
+    }, requestId);
   } catch (error) {
-    console.error("[Tavily] Error:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return handleError({
+      functionName: "tavily-search",
+      error,
+      requestId,
+    });
   }
 });

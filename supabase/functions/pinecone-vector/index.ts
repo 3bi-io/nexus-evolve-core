@@ -1,10 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders } from "../_shared/cors.ts";
+import { handleError, successResponse } from "../_shared/error-handler.ts";
+import { createLogger } from "../_shared/logger.ts";
+import { requireAuth } from "../_shared/auth.ts";
+import { initSupabaseClient } from "../_shared/supabase-client.ts";
+import { validateRequiredFields } from "../_shared/validators.ts";
 
 interface PineconeRequest {
   action: "upsert" | "query" | "delete" | "fetch" | "list";
@@ -26,32 +26,28 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger("pinecone-vector", requestId);
+
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("Missing authorization header");
-    }
-
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !user) throw new Error("Invalid user token");
+    const supabase = initSupabaseClient();
+    const user = await requireAuth(req, supabase);
+    
+    logger.info("Processing Pinecone request", { userId: user.id });
 
     const PINECONE_API_KEY = Deno.env.get("PINECONE_API_KEY");
     const PINECONE_HOST = Deno.env.get("PINECONE_HOST");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!PINECONE_API_KEY) throw new Error("PINECONE_API_KEY not configured");
-    if (!PINECONE_HOST) throw new Error("PINECONE_HOST not configured - set it in Supabase secrets");
+    if (!PINECONE_HOST) throw new Error("PINECONE_HOST not configured");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
     const body: PineconeRequest = await req.json();
     const { action, namespace = "default" } = body;
 
-    console.log(`Pinecone action: ${action}`);
+    validateRequiredFields(body, ["action"]);
+    logger.info("Pinecone action", { action, namespace });
 
     let endpoint = "";
     let method = "POST";
@@ -60,6 +56,8 @@ serve(async (req) => {
     // Generate embeddings if text is provided
     let queryVector = body.query_vector;
     if (body.text && (action === "query" || action === "upsert")) {
+      logger.debug("Generating embeddings for text");
+      
       const embeddingResponse = await fetch("https://ai.gateway.lovable.dev/v1/embeddings", {
         method: "POST",
         headers: {
@@ -83,17 +81,12 @@ serve(async (req) => {
     switch (action) {
       case "upsert":
         endpoint = `${PINECONE_HOST}/vectors/upsert`;
-        method = "POST";
-        requestBody = {
-          vectors: body.vectors,
-          namespace,
-        };
+        requestBody = { vectors: body.vectors, namespace };
         break;
 
       case "query":
         if (!queryVector) throw new Error("query_vector or text required for query");
         endpoint = `${PINECONE_HOST}/query`;
-        method = "POST";
         requestBody = {
           vector: queryVector,
           topK: body.top_k || 10,
@@ -105,20 +98,12 @@ serve(async (req) => {
 
       case "delete":
         endpoint = `${PINECONE_HOST}/vectors/delete`;
-        method = "POST";
-        requestBody = {
-          ids: body.ids,
-          namespace,
-        };
+        requestBody = { ids: body.ids, namespace };
         break;
 
       case "fetch":
         endpoint = `${PINECONE_HOST}/vectors/fetch`;
-        method = "POST";
-        requestBody = {
-          ids: body.ids,
-          namespace,
-        };
+        requestBody = { ids: body.ids, namespace };
         break;
 
       case "list":
@@ -154,7 +139,7 @@ serve(async (req) => {
       model_name: "pinecone",
       task_type: `vector_${action}`,
       latency_ms: latencyMs,
-      cost_credits: 2, // Fixed cost for vector operations
+      cost_credits: 2,
       success: true,
       metadata: {
         action,
@@ -163,19 +148,18 @@ serve(async (req) => {
       },
     });
 
-    return new Response(
-      JSON.stringify({
-        result,
-        action,
-        latency_ms: latencyMs,
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    logger.info("Operation completed", { action, latencyMs });
+
+    return successResponse({
+      result,
+      action,
+      latency_ms: latencyMs,
+    }, requestId);
   } catch (error) {
-    console.error("Pinecone vector error:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return handleError({
+      functionName: "pinecone-vector",
+      error,
+      requestId,
+    });
   }
 });

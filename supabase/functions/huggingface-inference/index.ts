@@ -1,9 +1,10 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders } from '../_shared/cors.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { requireAuth } from '../_shared/auth.ts';
+import { initSupabaseClient } from '../_shared/supabase-client.ts';
+import { validateRequiredFields } from '../_shared/validators.ts';
+import { huggingFaceFetch } from '../_shared/api-client.ts';
 
 type HuggingFaceRequest = {
   modelId: string;
@@ -21,35 +22,22 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('huggingface-inference', requestId);
   const startTime = Date.now();
 
   try {
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      throw new Error('No authorization header');
-    }
-
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    // Verify JWT token
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) throw new Error('Unauthorized');
-
-    const { modelId, task, inputs, parameters, options }: HuggingFaceRequest = await req.json();
+    const supabase = initSupabaseClient();
+    const user = await requireAuth(req, supabase);
     
-    if (!modelId || !task || !inputs) {
-      throw new Error('Missing required fields: modelId, task, or inputs');
-    }
+    logger.info('Processing HuggingFace request', { userId: user.id });
 
-    const hfApiKey = Deno.env.get('HUGGINGFACE_API_KEY');
-    if (!hfApiKey) {
-      throw new Error('HUGGINGFACE_API_KEY not configured');
-    }
+    const body: HuggingFaceRequest = await req.json();
+    const { modelId, task, inputs, parameters, options } = body;
+    
+    validateRequiredFields(body, ['modelId', 'task', 'inputs']);
 
-    console.log(`[huggingface-inference] Processing ${task} request for model ${modelId}`);
+    logger.info('Calling HuggingFace model', { modelId, task });
 
     // Fetch model info from database
     const { data: modelData } = await supabase
@@ -58,9 +46,6 @@ Deno.serve(async (req) => {
       .eq('model_id', modelId)
       .eq('active', true)
       .single();
-
-    // Construct HuggingFace API endpoint
-    const endpoint = `https://api-inference.huggingface.co/models/${modelId}`;
 
     // Prepare request body based on task type
     let requestBody: any = {};
@@ -93,15 +78,7 @@ Deno.serve(async (req) => {
           wait_for_model: options?.wait_for_model ?? true,
         },
       };
-    } else if (task === 'feature-extraction') {
-      requestBody = {
-        inputs,
-        options: {
-          use_cache: options?.use_cache ?? true,
-          wait_for_model: options?.wait_for_model ?? true,
-        },
-      };
-    } else if (task === 'image-classification') {
+    } else {
       requestBody = {
         inputs,
         options: {
@@ -112,30 +89,22 @@ Deno.serve(async (req) => {
     }
 
     // Call HuggingFace API
-    const hfResponse = await fetch(endpoint, {
+    const hfResponse = await huggingFaceFetch(`/models/${modelId}`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${hfApiKey}`,
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify(requestBody),
+    }, {
+      timeout: 60000,
+      maxRetries: 2
     });
 
     if (!hfResponse.ok) {
-      const errorText = await hfResponse.text();
-      console.error('[huggingface-inference] API Error:', hfResponse.status, errorText);
-      
-      // Handle rate limiting
       if (hfResponse.status === 429) {
         throw new Error('HuggingFace rate limit exceeded. Please try again later.');
       }
-      
-      // Handle model loading
       if (hfResponse.status === 503) {
         throw new Error('Model is loading. Please try again in a few seconds.');
       }
-      
-      throw new Error(`HuggingFace API error: ${hfResponse.status} - ${errorText}`);
+      throw hfResponse;
     }
 
     const latencyMs = Date.now() - startTime;
@@ -179,33 +148,22 @@ Deno.serve(async (req) => {
       },
     });
 
-    console.log(`[huggingface-inference] Success - ${task} completed in ${latencyMs}ms`);
+    logger.info('Inference completed', { task, latencyMs });
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        result,
-        modelId,
-        task,
-        latency_ms: latencyMs,
-        cost_credits: costCredits,
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return successResponse({
+      success: true,
+      result,
+      modelId,
+      task,
+      latency_ms: latencyMs,
+      cost_credits: costCredits,
+    }, requestId);
 
   } catch (error) {
-    console.error('[huggingface-inference] Error:', error);
-    
-    return new Response(
-      JSON.stringify({ 
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date().toISOString(),
-      }),
-      { 
-        status: error instanceof Error && error.message.includes('Unauthorized') ? 401 : 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    );
+    return handleError({
+      functionName: 'huggingface-inference',
+      error,
+      requestId,
+    });
   }
 });

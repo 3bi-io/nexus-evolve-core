@@ -1,11 +1,10 @@
 import 'https://deno.land/x/xhr@0.1.0/mod.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
-import { fetchWithRetry } from '../_shared/api-client.ts';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders } from '../_shared/cors.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { requireAuth } from '../_shared/auth.ts';
+import { initSupabaseClient } from '../_shared/supabase-client.ts';
+import { validateRequiredFields } from '../_shared/validators.ts';
 
 function processBase64Chunks(base64String: string, chunkSize = 32768) {
   const chunks: Uint8Array[] = [];
@@ -41,30 +40,21 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('voice-to-text', requestId);
+
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const authHeader = req.headers.get('Authorization');
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = initSupabaseClient();
+    const user = await requireAuth(req, supabase);
     
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader?.replace('Bearer ', '') || ''
-    );
+    logger.info('Processing speech-to-text request', { userId: user.id });
 
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    const { audio } = await req.json();
+    const body = await req.json();
+    const { audio } = body;
     
-    if (!audio) {
-      throw new Error('No audio data provided');
-    }
+    validateRequiredFields(body, ['audio']);
 
-    console.log('Transcribing audio for user:', user.id);
+    logger.debug('Processing audio data', { audioLength: audio.length });
 
     // Process audio in chunks
     const binaryAudio = processBase64Chunks(audio);
@@ -81,15 +71,14 @@ Deno.serve(async (req) => {
       throw new Error('OPENAI_API_KEY not configured');
     }
 
-    const response = await fetchWithRetry('https://api.openai.com/v1/audio/transcriptions', {
+    logger.debug('Calling OpenAI Whisper API');
+
+    const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openaiKey}`,
       },
       body: formData,
-    }, {
-      timeout: 30000,
-      maxRetries: 2,
     });
 
     if (!response.ok) {
@@ -106,17 +95,15 @@ Deno.serve(async (req) => {
       model_used: 'whisper-1',
     });
 
-    return new Response(
-      JSON.stringify({ text: result.text }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    logger.info('Speech-to-text completed', { textLength: result.text.length });
 
-  } catch (error: any) {
-    console.error('Voice-to-text error:', error);
-    
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return successResponse({ text: result.text }, requestId);
+
+  } catch (error) {
+    return handleError({
+      functionName: 'voice-to-text',
+      error,
+      requestId,
+    });
   }
 });
