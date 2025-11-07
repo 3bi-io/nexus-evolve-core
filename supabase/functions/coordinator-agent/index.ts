@@ -1,10 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders } from "../_shared/cors.ts";
+import { handleError, successResponse } from "../_shared/error-handler.ts";
+import { createLogger } from "../_shared/logger.ts";
+import { requireAuth } from "../_shared/auth.ts";
+import { initSupabaseClient } from "../_shared/supabase-client.ts";
+import { validateRequiredFields } from "../_shared/validators.ts";
+import { lovableAIFetch } from "../_shared/api-client.ts";
 
 interface AgentAnalysis {
   intent: string;
@@ -20,27 +21,18 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger("coordinator-agent", requestId);
+
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("Missing authorization header");
-    }
+    const supabase = initSupabaseClient();
+    const user = await requireAuth(req, supabase);
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const body = await req.json();
+    validateRequiredFields(body, ["message"]);
+    const { message, sessionId } = body;
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !user) throw new Error("Invalid user token");
-
-    const { message, sessionId } = await req.json();
-
-    console.log(`Coordinator analyzing intent: "${message}"`);
-
-    // Analyze user intent to determine which agent(s) to use
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+    logger.info("Analyzing intent", { userId: user.id, messagePreview: message.substring(0, 50) });
 
     const analysisPrompt = `Analyze this user message and determine which specialized AI agent(s) should handle it.
 
@@ -72,12 +64,8 @@ Guidelines:
 - Use multiple agents only if task genuinely requires multiple perspectives
 - requires_coordination = true if multiple agents needed, false otherwise`;
 
-    const analysisResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const analysisResponse = await lovableAIFetch("/v1/chat/completions", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
@@ -88,9 +76,7 @@ Guidelines:
       }),
     });
 
-    if (!analysisResponse.ok) {
-      throw new Error(`Analysis failed: ${analysisResponse.status}`);
-    }
+    if (!analysisResponse.ok) throw analysisResponse;
 
     const analysisResult = await analysisResponse.json();
     const analysisText = analysisResult.choices[0].message.content;
@@ -102,7 +88,6 @@ Guidelines:
       if (jsonMatch) {
         analysis = JSON.parse(jsonMatch[0]);
       } else {
-        // Fallback to general agent if parsing fails
         analysis = {
           intent: "general_query",
           complexity: "low",
@@ -112,7 +97,7 @@ Guidelines:
         };
       }
     } catch (e) {
-      console.error("Failed to parse analysis:", e);
+      logger.error("Failed to parse analysis", e);
       analysis = {
         intent: "general_query",
         complexity: "low",
@@ -122,7 +107,7 @@ Guidelines:
       };
     }
 
-    console.log("Intent analysis:", analysis);
+    logger.info("Intent analysis complete", { analysis });
 
     // Log coordination decision
     await supabase.from("evolution_logs").insert({
@@ -140,22 +125,16 @@ Guidelines:
       success: true
     });
 
-    return new Response(
-      JSON.stringify({
-        analysis,
-        message: `Routing to ${analysis.recommended_agents.join(" + ")}`,
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return successResponse({
+      analysis,
+      message: `Routing to ${analysis.recommended_agents.join(" + ")}`,
+    }, requestId);
 
   } catch (error) {
-    console.error("Coordinator error:", error);
-    return new Response(
-      JSON.stringify({ 
-        error: error instanceof Error ? error.message : "Unknown error",
-        fallback_agent: "general"
-      }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return handleError({
+      functionName: "coordinator-agent",
+      error,
+      requestId,
+    });
   }
 });

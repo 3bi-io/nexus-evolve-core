@@ -1,49 +1,38 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders } from "../_shared/cors.ts";
+import { handleError, successResponse } from "../_shared/error-handler.ts";
+import { createLogger } from "../_shared/logger.ts";
+import { optionalAuth } from "../_shared/auth.ts";
+import { initSupabaseClient } from "../_shared/supabase-client.ts";
+import { validateRequiredFields } from "../_shared/validators.ts";
+import { lovableAIFetch } from "../_shared/api-client.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger("reasoning-agent", requestId);
+
   try {
-    const authHeader = req.headers.get("Authorization");
+    const supabase = initSupabaseClient();
+    const user = await optionalAuth(req, supabase);
     
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    let userId: string | undefined;
-    if (authHeader) {
-      const token = authHeader.replace("Bearer ", "");
-      const { data: { user } } = await supabase.auth.getUser(token);
-      userId = user?.id;
-    }
-
-    const { problem, messages } = await req.json();
+    const body = await req.json();
+    const { problem, messages } = body;
 
     const requestContent = problem || messages?.[messages.length - 1]?.content || "";
     
     if (!requestContent) {
-      return new Response(JSON.stringify({ error: "Problem description or messages required" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      throw new Error("MISSING_FIELD: Problem description or messages required");
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY not configured");
-    }
-    
-    console.log(`Reasoning agent processing: ${requestContent.substring(0, 100)}...`);
+    logger.info("Processing reasoning request", { 
+      userId: user?.id, 
+      contentLength: requestContent.length 
+    });
 
-    // Step 1: Analyze the problem with enhanced system prompt
     const systemPrompt = `You are a Reasoning Agent specializing in deep multi-step reasoning and logical analysis.
 
 ## Your Role:
@@ -67,60 +56,58 @@ Focus on:
 - Error checking and verification
 - Mathematical rigor when applicable`;
 
-    const analysisPrompt = `${systemPrompt}\n\nProblem to analyze:\n${requestContent}\n\nProvide a structured analysis with clear reasoning.`;
-    
-    const analysisResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    // Step 1: Analysis
+    logger.debug("Starting analysis step");
+    const analysisResponse = await lovableAIFetch("/v1/chat/completions", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
-        messages: [{ role: "user", content: analysisPrompt }],
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: `Analyze this problem:\n${requestContent}` }
+        ],
       }),
     });
+
+    if (!analysisResponse.ok) throw analysisResponse;
 
     const analysisData = await analysisResponse.json();
     const analysis = analysisData.choices[0].message.content;
 
-    // Step 2: Break down into sub-problems
-    const breakdownPrompt = `Based on this analysis:\n\n${analysis}\n\nBreak the problem into 3-5 specific sub-problems or steps.`;
-    
-    const breakdownResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    // Step 2: Breakdown
+    logger.debug("Starting breakdown step");
+    const breakdownResponse = await lovableAIFetch("/v1/chat/completions", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
-        messages: [{ role: "user", content: breakdownPrompt }],
+        messages: [
+          { role: "user", content: `Based on this analysis:\n\n${analysis}\n\nBreak the problem into 3-5 specific sub-problems or steps.` }
+        ],
       }),
     });
+
+    if (!breakdownResponse.ok) throw breakdownResponse;
 
     const breakdownData = await breakdownResponse.json();
     const breakdown = breakdownData.choices[0].message.content;
 
-    // Step 3: Generate solution
-    const solutionPrompt = `Given this problem breakdown:\n\n${breakdown}\n\nProvide a comprehensive solution with concrete recommendations.`;
-    
-    const solutionResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    // Step 3: Solution
+    logger.debug("Starting solution step");
+    const solutionResponse = await lovableAIFetch("/v1/chat/completions", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
-        messages: [{ role: "user", content: solutionPrompt }],
+        messages: [
+          { role: "user", content: `Given this problem breakdown:\n\n${breakdown}\n\nProvide a comprehensive solution with concrete recommendations.` }
+        ],
       }),
     });
+
+    if (!solutionResponse.ok) throw solutionResponse;
 
     const solutionData = await solutionResponse.json();
     const solution = solutionData.choices[0].message.content;
 
-    // Format steps for UI
     const steps = [
       { step: 1, type: "analysis", content: analysis },
       { step: 2, type: "breakdown", content: breakdown },
@@ -128,9 +115,9 @@ Focus on:
     ];
 
     // Log reasoning session if user authenticated
-    if (userId) {
+    if (user?.id) {
       await supabase.from("evolution_logs").insert({
-        user_id: userId,
+        user_id: user.id,
         log_type: "deep_reasoning",
         description: `Reasoning agent solved: ${requestContent.substring(0, 100)}...`,
         change_type: "auto_discovery",
@@ -143,22 +130,20 @@ Focus on:
       });
     }
 
-    console.log("Reasoning agent completed successfully");
+    logger.info("Reasoning completed successfully");
 
-    return new Response(
-      JSON.stringify({ 
-        steps, 
-        solution,
-        agent_type: "reasoning_agent",
-        reasoning_steps: steps.length
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return successResponse({ 
+      steps, 
+      solution,
+      agent_type: "reasoning_agent",
+      reasoning_steps: steps.length
+    }, requestId);
+
   } catch (error) {
-    console.error("Reasoning agent error:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return handleError({
+      functionName: "reasoning-agent",
+      error,
+      requestId,
+    });
   }
 });

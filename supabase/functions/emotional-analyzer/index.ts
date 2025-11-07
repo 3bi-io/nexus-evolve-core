@@ -1,31 +1,30 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders } from "../_shared/cors.ts";
+import { handleError, successResponse } from "../_shared/error-handler.ts";
+import { createLogger } from "../_shared/logger.ts";
+import { requireAuth } from "../_shared/auth.ts";
+import { initSupabaseClient } from "../_shared/supabase-client.ts";
+import { validateRequiredFields } from "../_shared/validators.ts";
+import { lovableAIFetch } from "../_shared/api-client.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger("emotional-analyzer", requestId);
+
   try {
-    const authHeader = req.headers.get("Authorization")!;
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
-      { global: { headers: { Authorization: authHeader } } }
-    );
+    const supabase = initSupabaseClient();
+    const user = await requireAuth(req, supabase);
 
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) throw new Error("Unauthorized");
+    const body = await req.json();
+    validateRequiredFields(body, ["message"]);
+    const { message, sessionId, messageId } = body;
 
-    const { message, sessionId, messageId } = await req.json();
+    logger.info("Analyzing emotional content", { userId: user.id });
 
-    // Analyze emotional content using AI
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const analysisPrompt = `Analyze the emotional content of this message:
 
 "${message}"
@@ -51,12 +50,8 @@ Format as JSON:
   "tone_adjustment": "enthusiastic"
 }`;
 
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const aiResponse = await lovableAIFetch("/v1/chat/completions", {
       method: "POST",
-      headers: {
-        "Authorization": `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
@@ -65,6 +60,8 @@ Format as JSON:
         ],
       }),
     });
+
+    if (!aiResponse.ok) throw aiResponse;
 
     const aiData = await aiResponse.json();
     const content = aiData.choices[0].message.content;
@@ -95,22 +92,24 @@ Format as JSON:
 
     if (error) throw error;
 
-    console.log(`Emotional analysis: ${analysis.sentiment} (intensity: ${analysis.intensity})`);
+    logger.info("Emotional analysis complete", { 
+      sentiment: analysis.sentiment, 
+      intensity: analysis.intensity 
+    });
 
-    return new Response(JSON.stringify({
+    return successResponse({
       sentiment: analysis.sentiment,
       emotions: analysis.emotions,
       intensity: analysis.intensity,
       tone_adjustment: analysis.tone_adjustment,
       context_id: context.id,
-    }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    }, requestId);
+
   } catch (error) {
-    console.error("Error in emotional-analyzer:", error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    return handleError({
+      functionName: "emotional-analyzer",
+      error,
+      requestId,
     });
   }
 });

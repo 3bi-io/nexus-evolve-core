@@ -1,10 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders } from "../_shared/cors.ts";
+import { handleError, successResponse } from "../_shared/error-handler.ts";
+import { createLogger } from "../_shared/logger.ts";
+import { requireAuth } from "../_shared/auth.ts";
+import { initSupabaseClient } from "../_shared/supabase-client.ts";
+import { validateRequiredFields } from "../_shared/validators.ts";
+import { xAIFetch } from "../_shared/api-client.ts";
 
 interface CodeAnalysisRequest {
   code: string;
@@ -18,33 +19,30 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger("xai-code-analyzer", requestId);
+
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("Missing authorization header");
-    }
+    const supabase = initSupabaseClient();
+    const user = await requireAuth(req, supabase);
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !user) throw new Error("Invalid user token");
-
+    const body: CodeAnalysisRequest = await req.json();
+    validateRequiredFields(body, ["code"]);
+    
     const {
       code,
       language = "auto",
       analysisType = "review",
       model = "grok-code-fast-1",
-    } = await req.json() as CodeAnalysisRequest;
+    } = body;
 
-    console.log(`Analyzing code with ${model} (${analysisType})`);
+    logger.info("Analyzing code", { 
+      userId: user.id, 
+      language, 
+      analysisType, 
+      codeLength: code.length 
+    });
 
-    const GROK_API_KEY = Deno.env.get("GROK_API_KEY");
-    if (!GROK_API_KEY) throw new Error("GROK_API_KEY not configured");
-
-    // Build analysis prompt based on type
     const prompts: Record<string, string> = {
       review: "Review this code for best practices, code quality, and potential improvements. Provide specific, actionable feedback.",
       bugs: "Identify bugs, errors, and potential runtime issues in this code. Explain each issue and suggest fixes.",
@@ -66,12 +64,8 @@ Format your response as structured JSON:
 
     const startTime = Date.now();
 
-    const response = await fetch("https://api.x.ai/v1/chat/completions", {
+    const response = await xAIFetch("/v1/chat/completions", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${GROK_API_KEY}`,
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         model,
         messages: [
@@ -80,25 +74,11 @@ Format your response as structured JSON:
         ],
         temperature: 0.3,
       }),
-    });
+    }, { timeout: 60000 });
 
     const analysisTime = Date.now() - startTime;
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Grok API error:", response.status, errorText);
-
-      await supabase.from("xai_usage_analytics").insert({
-        user_id: user.id,
-        model_id: model,
-        feature_type: "code-analysis",
-        success: false,
-        error_message: errorText,
-        latency_ms: analysisTime,
-      });
-
-      throw new Error(`Code analysis failed: ${response.status} ${errorText}`);
-    }
+    if (!response.ok) throw response;
 
     const result = await response.json();
     const analysisText = result.choices?.[0]?.message?.content || "";
@@ -126,26 +106,23 @@ Format your response as structured JSON:
       metadata: { language, analysis_type: analysisType, code_length: code.length },
     });
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        analysis,
-        analysis_type: analysisType,
-        language,
-        model,
-        processing_time_ms: analysisTime,
-        cost_credits: costCredits,
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    logger.info("Code analysis complete", { analysisTime, tokensUsed });
+
+    return successResponse({
+      success: true,
+      analysis,
+      analysis_type: analysisType,
+      language,
+      model,
+      processing_time_ms: analysisTime,
+      cost_credits: costCredits,
+    }, requestId);
 
   } catch (error) {
-    console.error("Code analysis error:", error);
-    return new Response(
-      JSON.stringify({
-        error: error instanceof Error ? error.message : "Unknown error",
-      }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return handleError({
+      functionName: "xai-code-analyzer",
+      error,
+      requestId,
+    });
   }
 });

@@ -1,51 +1,43 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders } from "../_shared/cors.ts";
+import { handleError, streamResponse } from "../_shared/error-handler.ts";
+import { createLogger } from "../_shared/logger.ts";
+import { requireAuth } from "../_shared/auth.ts";
+import { initSupabaseClient } from "../_shared/supabase-client.ts";
+import { validateRequiredFields } from "../_shared/validators.ts";
+import { lovableAIFetch } from "../_shared/api-client.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger("chat-stream-with-routing", requestId);
+
   try {
-    const { messages, sessionId, forceAgent } = await req.json();
-    
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
-    }
+    const supabase = initSupabaseClient();
+    const user = await requireAuth(req, supabase);
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    // Get user ID from auth header
-    const authHeader = req.headers.get("authorization");
-    const token = authHeader?.replace("Bearer ", "");
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token || "");
-    
-    if (userError || !user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const body = await req.json();
+    validateRequiredFields(body, ["messages"]);
+    const { messages, sessionId, forceAgent } = body;
 
     const userMessage = messages[messages.length - 1]?.content || "";
     
-    console.log(`Chat with routing: "${userMessage.substring(0, 100)}..."`);
+    logger.info("Chat request with routing", { 
+      userId: user.id, 
+      sessionId, 
+      messagePreview: userMessage.substring(0, 100)
+    });
 
     // PHASE 3C: Intelligent Agent Routing
     let selectedAgent = forceAgent || "general";
     let agentAnalysis = null;
 
     if (!forceAgent) {
-      // Use coordinator to analyze intent and recommend agent(s)
       try {
+        logger.debug("Calling coordinator for agent routing");
         const coordinatorResponse = await supabase.functions.invoke("coordinator-agent", {
           body: { message: userMessage, sessionId }
         });
@@ -54,333 +46,394 @@ serve(async (req) => {
           agentAnalysis = coordinatorResponse.data.analysis;
           const recommended = agentAnalysis.recommended_agents || [];
           
-          // For now, use the first recommended agent (future: multi-agent coordination)
           if (recommended.length > 0 && recommended[0] !== "general") {
             selectedAgent = recommended[0];
           }
           
-          console.log(`Coordinator recommended: ${recommended.join(", ")} - Using: ${selectedAgent}`);
+          logger.info("Coordinator recommendation", { 
+            recommended: recommended.join(", "), 
+            selected: selectedAgent 
+          });
         }
       } catch (coordError) {
-        console.error("Coordinator failed, falling back to general agent:", coordError);
+        logger.error("Coordinator failed, falling back to general", coordError);
       }
     }
 
-    // Route to appropriate agent based on analysis
-    let agentResponse: any;
-    let responseText = "";
-
+    // Route to specialized agents if selected
     if (selectedAgent === "reasoning" || selectedAgent === "reasoning-agent") {
-      // Use reasoning agent for deep analysis
-      const reasoningResult = await supabase.functions.invoke("reasoning-agent", {
-        body: { messages, problem: userMessage }
-      });
-      
-      if (reasoningResult.data) {
-        responseText = `## Reasoning Analysis\n\n${reasoningResult.data.solution}`;
-        agentResponse = reasoningResult.data;
-      }
-      
+      return await routeToReasoningAgent(supabase, messages, userMessage, user, sessionId, requestId);
     } else if (selectedAgent === "creative" || selectedAgent === "creative-agent") {
-      // Use creative agent for ideation
-      const creativeResult = await supabase.functions.invoke("creative-agent", {
-        body: { messages }
-      });
-      
-      if (creativeResult.data) {
-        responseText = creativeResult.data.response;
-        agentResponse = creativeResult.data;
-      }
-      
+      return await routeToCreativeAgent(supabase, messages, user, sessionId, requestId);
     } else if (selectedAgent === "learning" || selectedAgent === "learning-agent") {
-      // Use learning agent for meta-analysis
-      const learningResult = await supabase.functions.invoke("learning-agent", {
-        body: { messages }
-      });
-      
-      if (learningResult.data) {
-        responseText = learningResult.data.response;
-        agentResponse = learningResult.data;
-      }
-      
-    } else {
-      // Default: Use general streaming chat agent with semantic search
-      let contextMemories: any[] = [];
-      let webSearchContext = "";
-      const startTime = Date.now();
-      
-      // PHASE 1: Check if web search is needed
-      const needsWebSearch = agentAnalysis?.requires_web_search || 
-                             /(?:latest|recent|current|today|news|weather|stock|price|now)/i.test(userMessage);
-      
-      if (needsWebSearch) {
-        try {
-          console.log("[Phase 1] Web search needed, using Tavily");
-          const { data: searchResults } = await supabase.functions.invoke("tavily-search", {
-            body: { 
-              query: userMessage,
-              searchDepth: "basic",
-              maxResults: 5
-            }
-          });
-
-          if (searchResults?.answer) {
-            webSearchContext = `\n## Real-Time Web Information:\n${searchResults.answer}\n\nSources:\n${
-              searchResults.results.map((r: any, i: number) => `${i+1}. ${r.title} - ${r.url}`).join('\n')
-            }\n`;
-            console.log(`[Phase 1] Tavily found ${searchResults.results.length} results`);
-          }
-        } catch (searchError) {
-          console.error("[Phase 1] Tavily search failed:", searchError);
-        }
-      }
-      
-      // PHASE 3E: Semantic Search Integration
-      // Try semantic search first for better context retrieval
-      try {
-        const { data: semanticResults } = await supabase.functions.invoke("semantic-search", {
-          body: { 
-            query: userMessage,
-            table: "agent_memory",
-            limit: 5
-          }
-        });
-
-        if (semanticResults?.results && semanticResults.results.length > 0) {
-          contextMemories = semanticResults.results;
-          console.log(`Found ${contextMemories.length} semantically relevant memories`);
-        }
-      } catch (semanticError) {
-        console.error("Semantic search failed, falling back to importance-based:", semanticError);
-      }
-
-      // Fallback or supplement with importance-based retrieval
-      if (contextMemories.length < 5) {
-        if (sessionId) {
-          const { data: sessionMemories } = await supabase
-            .from("agent_memory")
-            .select("id, content, memory_type, context_summary, importance_score")
-            .eq("user_id", user.id)
-            .eq("session_id", sessionId)
-            .order("importance_score", { ascending: false })
-            .limit(3);
-          contextMemories = [...contextMemories, ...(sessionMemories || [])];
-        }
-        
-        const { data: globalMemories } = await supabase
-          .from("agent_memory")
-          .select("id, content, memory_type, context_summary, importance_score")
-          .eq("user_id", user.id)
-          .order("importance_score", { ascending: false })
-          .limit(5);
-        
-        contextMemories = [...contextMemories, ...(globalMemories || [])];
-      }
-      
-      // Remove duplicates
-      const uniqueMemories = Array.from(
-        new Map(contextMemories.map(m => [m.id, m])).values()
-      ).slice(0, 10);
-      
-      // Get adaptive behaviors
-      const { data: adaptiveBehaviors } = await supabase
-        .from("adaptive_behaviors")
-        .select("id, behavior_type, description, effectiveness_score")
-        .eq("user_id", user.id)
-        .eq("active", true)
-        .order("effectiveness_score", { ascending: false })
-        .limit(10);
-
-      const memoryContext = uniqueMemories.length > 0
-        ? `\n## Context:\n${uniqueMemories.map(m => `- [${m.memory_type}] ${m.context_summary}`).join('\n')}\n`
-        : '';
-
-      const behaviorContext = adaptiveBehaviors && adaptiveBehaviors.length > 0
-        ? `\n## Style:\n${adaptiveBehaviors.map(b => `- ${b.description}`).join('\n')}\n`
-        : '';
-
-      const systemPrompt = `You are a helpful AI assistant with learning capabilities.${behaviorContext}${memoryContext}${webSearchContext}`;
-
-      // PHASE 1: Determine model to use (Claude for complex reasoning, Gemini for general)
-      const complexity = agentAnalysis?.complexity || "medium";
-      const useClaude = complexity === "high" || forceAgent === "claude";
-      const modelUsed = useClaude ? "claude-sonnet-4-5" : "google/gemini-2.5-flash";
-      
-      console.log(`[Phase 1] Using model: ${modelUsed} (complexity: ${complexity})`);
-
-      // Stream response from agent
-      let response: Response;
-      
-      if (useClaude) {
-        // Use Claude for complex reasoning
-        const claudeResponse = await supabase.functions.invoke("claude-chat", {
-          body: { 
-            messages: [
-              ...messages,
-            ],
-            systemPrompt,
-            maxTokens: 4096
-          }
-        });
-        
-        if (!claudeResponse.data) {
-          throw new Error("Claude chat failed");
-        }
-        
-        response = new Response(claudeResponse.data, {
-          headers: {
-            "Content-Type": "text/event-stream",
-          }
-        });
-      } else {
-        // Use Gemini Flash for general queries
-        response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "google/gemini-2.5-flash",
-            messages: [
-              { role: "system", content: systemPrompt },
-              ...messages,
-            ],
-            stream: true,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`AI gateway error: ${response.status}`);
-        }
-      }
-
-      // Store interaction and return stream
-      const { data: interactionData } = await supabase.from("interactions").insert({
-        user_id: user.id,
-        session_id: sessionId,
-        message: userMessage,
-        context: { 
-          agent_used: "general",
-          coordinator_analysis: agentAnalysis,
-          memories: uniqueMemories.length,
-          behaviors: adaptiveBehaviors?.length || 0,
-          web_search_used: needsWebSearch,
-          model_used: modelUsed
-        },
-        model_used: modelUsed,
-      }).select().single();
-
-      // Buffer and stream response
-      const encoder = new TextEncoder();
-      let assistantResponse = "";
-      let promptTokens = 0;
-      let completionTokens = 0;
-
-      const stream = new ReadableStream({
-        async start(controller) {
-          const reader = response.body?.getReader();
-          if (!reader) return;
-
-          try {
-            while (true) {
-              const { done, value } = await reader.read();
-              if (done) break;
-
-              controller.enqueue(value);
-
-              const text = new TextDecoder().decode(value);
-              const lines = text.split('\n');
-              for (const line of lines) {
-                if (line.startsWith('data: ') && line !== 'data: [DONE]') {
-                  try {
-                    const json = JSON.parse(line.slice(6));
-                    const content = json.choices?.[0]?.delta?.content;
-                    if (content) {
-                      assistantResponse += content;
-                      completionTokens++; // Approximate
-                    }
-                    // Track token usage if available
-                    if (json.usage) {
-                      promptTokens = json.usage.prompt_tokens || 0;
-                      completionTokens = json.usage.completion_tokens || 0;
-                    }
-                  } catch {}
-                }
-              }
-            }
-
-            // Update interaction with response
-            if (interactionData?.id && assistantResponse) {
-              await supabase.from("interactions")
-                .update({ response: assistantResponse })
-                .eq("id", interactionData.id);
-            }
-
-            // PHASE 1: Track LLM observation asynchronously
-            const latencyMs = Date.now() - startTime;
-            supabase.functions.invoke('track-llm-observation', {
-              body: {
-                agentType: "general",
-                modelUsed: modelUsed,
-                promptTokens: promptTokens || Math.ceil(userMessage.length / 4),
-                completionTokens: completionTokens || Math.ceil(assistantResponse.length / 4),
-                latencyMs: latencyMs,
-                userId: user.id,
-                sessionId: sessionId,
-                metadata: {
-                  complexity: complexity,
-                  web_search_used: needsWebSearch,
-                  memories_used: uniqueMemories.length
-                }
-              }
-            }).catch(err => console.error("[Phase 1] Failed to track observation:", err));
-
-            controller.close();
-          } catch (error) {
-            console.error("Stream error:", error);
-            controller.error(error);
-          }
-        },
-      });
-
-      return new Response(stream, {
-        headers: { 
-          ...corsHeaders, 
-          "Content-Type": "text/event-stream"
-        },
-      });
+      return await routeToLearningAgent(supabase, messages, user, sessionId, requestId);
     }
 
-    // For non-streaming agents, return JSON response (hide technical details)
+    // General agent with streaming
+    return await handleGeneralAgent(
+      supabase, 
+      user, 
+      messages, 
+      userMessage, 
+      sessionId, 
+      agentAnalysis, 
+      forceAgent,
+      logger,
+      requestId
+    );
+
+  } catch (error) {
+    return handleError({
+      functionName: "chat-stream-with-routing",
+      error,
+      requestId,
+    });
+  }
+});
+
+async function routeToReasoningAgent(
+  supabase: any, 
+  messages: any[], 
+  userMessage: string, 
+  user: any, 
+  sessionId: string,
+  requestId: string
+): Promise<Response> {
+  const logger = createLogger("chat-stream-with-routing", requestId);
+  
+  logger.debug("Routing to reasoning agent");
+  const reasoningResult = await supabase.functions.invoke("reasoning-agent", {
+    body: { messages, problem: userMessage }
+  });
+  
+  if (reasoningResult.data) {
+    const responseText = `## Reasoning Analysis\n\n${reasoningResult.data.solution}`;
+    
     await supabase.from("interactions").insert({
       user_id: user.id,
       session_id: sessionId,
       message: userMessage,
       response: responseText,
-      model_used: 'oneiros-ai', // Generic name for security
-      context: { 
-        agent_used: selectedAgent,
-        session_id: sessionId
-      }
+      model_used: 'oneiros-ai',
+      context: { agent_used: "reasoning", session_id: sessionId }
     });
 
     return new Response(
-      JSON.stringify({ 
-        response: responseText,
-        success: true
-      }),
-      { headers: { 
-        ...corsHeaders, 
-        "Content-Type": "application/json"
-      } }
-    );
-
-  } catch (error) {
-    console.error("Chat with routing error:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({ response: responseText, success: true }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
-});
+
+  throw new Error("Reasoning agent failed");
+}
+
+async function routeToCreativeAgent(
+  supabase: any, 
+  messages: any[], 
+  user: any, 
+  sessionId: string,
+  requestId: string
+): Promise<Response> {
+  const logger = createLogger("chat-stream-with-routing", requestId);
+  const userMessage = messages[messages.length - 1]?.content || "";
+  
+  logger.debug("Routing to creative agent");
+  const creativeResult = await supabase.functions.invoke("creative-agent", {
+    body: { messages }
+  });
+  
+  if (creativeResult.data) {
+    const responseText = creativeResult.data.response;
+    
+    await supabase.from("interactions").insert({
+      user_id: user.id,
+      session_id: sessionId,
+      message: userMessage,
+      response: responseText,
+      model_used: 'oneiros-ai',
+      context: { agent_used: "creative", session_id: sessionId }
+    });
+
+    return new Response(
+      JSON.stringify({ response: responseText, success: true }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  throw new Error("Creative agent failed");
+}
+
+async function routeToLearningAgent(
+  supabase: any, 
+  messages: any[], 
+  user: any, 
+  sessionId: string,
+  requestId: string
+): Promise<Response> {
+  const logger = createLogger("chat-stream-with-routing", requestId);
+  const userMessage = messages[messages.length - 1]?.content || "";
+  
+  logger.debug("Routing to learning agent");
+  const learningResult = await supabase.functions.invoke("learning-agent", {
+    body: { messages }
+  });
+  
+  if (learningResult.data) {
+    const responseText = learningResult.data.response;
+    
+    await supabase.from("interactions").insert({
+      user_id: user.id,
+      session_id: sessionId,
+      message: userMessage,
+      response: responseText,
+      model_used: 'oneiros-ai',
+      context: { agent_used: "learning", session_id: sessionId }
+    });
+
+    return new Response(
+      JSON.stringify({ response: responseText, success: true }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  throw new Error("Learning agent failed");
+}
+
+async function handleGeneralAgent(
+  supabase: any,
+  user: any,
+  messages: any[],
+  userMessage: string,
+  sessionId: string,
+  agentAnalysis: any,
+  forceAgent: string | undefined,
+  logger: any,
+  requestId: string
+): Promise<Response> {
+  const startTime = Date.now();
+  let contextMemories: any[] = [];
+  let webSearchContext = "";
+  
+  // PHASE 1: Check if web search is needed
+  const needsWebSearch = agentAnalysis?.requires_web_search || 
+                         /(?:latest|recent|current|today|news|weather|stock|price|now)/i.test(userMessage);
+  
+  if (needsWebSearch) {
+    try {
+      logger.debug("Performing web search");
+      const { data: searchResults } = await supabase.functions.invoke("tavily-search", {
+        body: { 
+          query: userMessage,
+          searchDepth: "basic",
+          maxResults: 5
+        }
+      });
+
+      if (searchResults?.answer) {
+        webSearchContext = `\n## Real-Time Web Information:\n${searchResults.answer}\n\nSources:\n${
+          searchResults.results.map((r: any, i: number) => `${i+1}. ${r.title} - ${r.url}`).join('\n')
+        }\n`;
+        logger.debug("Web search completed", { resultsCount: searchResults.results.length });
+      }
+    } catch (searchError) {
+      logger.error("Web search failed", searchError);
+    }
+  }
+  
+  // PHASE 3E: Semantic Search Integration
+  try {
+    const { data: semanticResults } = await supabase.functions.invoke("semantic-search", {
+      body: { 
+        query: userMessage,
+        table: "agent_memory",
+        limit: 5
+      }
+    });
+
+    if (semanticResults?.results && semanticResults.results.length > 0) {
+      contextMemories = semanticResults.results;
+      logger.debug("Semantic search completed", { memoriesFound: contextMemories.length });
+    }
+  } catch (semanticError) {
+    logger.error("Semantic search failed", semanticError);
+  }
+
+  // Fallback or supplement with importance-based retrieval
+  if (contextMemories.length < 5) {
+    if (sessionId) {
+      const { data: sessionMemories } = await supabase
+        .from("agent_memory")
+        .select("id, content, memory_type, context_summary, importance_score")
+        .eq("user_id", user.id)
+        .eq("session_id", sessionId)
+        .order("importance_score", { ascending: false })
+        .limit(3);
+      contextMemories = [...contextMemories, ...(sessionMemories || [])];
+    }
+    
+    const { data: globalMemories } = await supabase
+      .from("agent_memory")
+      .select("id, content, memory_type, context_summary, importance_score")
+      .eq("user_id", user.id)
+      .order("importance_score", { ascending: false })
+      .limit(5);
+    
+    contextMemories = [...contextMemories, ...(globalMemories || [])];
+  }
+  
+  // Remove duplicates
+  const uniqueMemories = Array.from(
+    new Map(contextMemories.map(m => [m.id, m])).values()
+  ).slice(0, 10);
+  
+  // Get adaptive behaviors
+  const { data: adaptiveBehaviors } = await supabase
+    .from("adaptive_behaviors")
+    .select("id, behavior_type, description, effectiveness_score")
+    .eq("user_id", user.id)
+    .eq("active", true)
+    .order("effectiveness_score", { ascending: false })
+    .limit(10);
+
+  const memoryContext = uniqueMemories.length > 0
+    ? `\n## Context:\n${uniqueMemories.map(m => `- [${m.memory_type}] ${m.context_summary}`).join('\n')}\n`
+    : '';
+
+  const behaviorContext = adaptiveBehaviors && adaptiveBehaviors.length > 0
+    ? `\n## Style:\n${adaptiveBehaviors.map((b: any) => `- ${b.description}`).join('\n')}\n`
+    : '';
+
+  const systemPrompt = `You are a helpful AI assistant with learning capabilities.${behaviorContext}${memoryContext}${webSearchContext}`;
+
+  // Determine model to use
+  const complexity = agentAnalysis?.complexity || "medium";
+  const useClaude = complexity === "high" || forceAgent === "claude";
+  const modelUsed = useClaude ? "claude-sonnet-4-5" : "google/gemini-2.5-flash";
+  
+  logger.info("Using model", { model: modelUsed, complexity });
+
+  // Stream response
+  let response: Response;
+  
+  if (useClaude) {
+    const claudeResponse = await supabase.functions.invoke("claude-chat", {
+      body: { 
+        messages: [...messages],
+        systemPrompt,
+        maxTokens: 4096
+      }
+    });
+    
+    if (!claudeResponse.data) {
+      throw new Error("Claude chat failed");
+    }
+    
+    response = new Response(claudeResponse.data, {
+      headers: { "Content-Type": "text/event-stream" }
+    });
+  } else {
+    response = await lovableAIFetch("/v1/chat/completions", {
+      method: "POST",
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: systemPrompt },
+          ...messages,
+        ],
+        stream: true,
+      }),
+    });
+
+    if (!response.ok) throw response;
+  }
+
+  // Store interaction
+  const { data: interactionData } = await supabase.from("interactions").insert({
+    user_id: user.id,
+    session_id: sessionId,
+    message: userMessage,
+    context: { 
+      agent_used: "general",
+      coordinator_analysis: agentAnalysis,
+      memories: uniqueMemories.length,
+      behaviors: adaptiveBehaviors?.length || 0,
+      web_search_used: needsWebSearch,
+      model_used: modelUsed
+    },
+    model_used: modelUsed,
+  }).select().single();
+
+  // Buffer and stream response
+  const encoder = new TextEncoder();
+  let assistantResponse = "";
+  let promptTokens = 0;
+  let completionTokens = 0;
+
+  const stream = new ReadableStream({
+    async start(controller) {
+      const reader = response.body?.getReader();
+      if (!reader) return;
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          controller.enqueue(value);
+
+          const text = new TextDecoder().decode(value);
+          const lines = text.split('\n');
+          for (const line of lines) {
+            if (line.startsWith('data: ') && line !== 'data: [DONE]') {
+              try {
+                const json = JSON.parse(line.slice(6));
+                const content = json.choices?.[0]?.delta?.content;
+                if (content) {
+                  assistantResponse += content;
+                  completionTokens++;
+                }
+                if (json.usage) {
+                  promptTokens = json.usage.prompt_tokens || 0;
+                  completionTokens = json.usage.completion_tokens || 0;
+                }
+              } catch {}
+            }
+          }
+        }
+
+        // Update interaction with response
+        if (interactionData?.id && assistantResponse) {
+          await supabase.from("interactions")
+            .update({ response: assistantResponse })
+            .eq("id", interactionData.id);
+        }
+
+        // Track LLM observation
+        const latencyMs = Date.now() - startTime;
+        supabase.functions.invoke('track-llm-observation', {
+          body: {
+            agentType: "general",
+            modelUsed: modelUsed,
+            promptTokens: promptTokens || Math.ceil(userMessage.length / 4),
+            completionTokens: completionTokens || Math.ceil(assistantResponse.length / 4),
+            latencyMs: latencyMs,
+            userId: user.id,
+            sessionId: sessionId,
+            metadata: {
+              complexity: complexity,
+              web_search_used: needsWebSearch,
+              memories_used: uniqueMemories.length
+            }
+          }
+        }).catch((err: any) => logger.error("Failed to track observation", err));
+
+        controller.close();
+      } catch (error) {
+        logger.error("Stream error", error);
+        controller.error(error);
+      }
+    },
+  });
+
+  return streamResponse(stream, requestId);
+}

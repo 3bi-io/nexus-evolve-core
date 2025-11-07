@@ -1,9 +1,10 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders } from "../_shared/cors.ts";
+import { handleError, successResponse } from "../_shared/error-handler.ts";
+import { createLogger } from "../_shared/logger.ts";
+import { requireAuth } from "../_shared/auth.ts";
+import { initSupabaseClient } from "../_shared/supabase-client.ts";
+import { validateRequiredFields } from "../_shared/validators.ts";
+import { lovableAIFetch } from "../_shared/api-client.ts";
 
 interface ExecuteRequest {
   agentId: string;
@@ -17,29 +18,23 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger("custom-agent-executor", requestId);
   const startTime = Date.now();
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const authHeader = req.headers.get('Authorization');
-    const supabase = createClient(supabaseUrl, supabaseKey);
-    
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader?.replace('Bearer ', '') || ''
-    );
-
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    const supabase = initSupabaseClient();
+    const user = await requireAuth(req, supabase);
 
     const body: ExecuteRequest = await req.json();
+    validateRequiredFields(body, ["agentId", "message"]);
     const { agentId, message, sessionId, conversationHistory } = body;
 
-    console.log('Custom Agent Executor:', { agentId, user: user.id, message: message.substring(0, 100) });
+    logger.info("Executing custom agent", { 
+      userId: user.id, 
+      agentId, 
+      messagePreview: message.substring(0, 100) 
+    });
 
     // Fetch agent configuration
     const { data: agent, error: agentError } = await supabase
@@ -49,10 +44,10 @@ Deno.serve(async (req) => {
       .single();
 
     if (agentError || !agent) {
-      throw new Error('Agent not found or access denied');
+      throw new Error('NOT_FOUND: Agent not found or access denied');
     }
 
-    // Check if user has access (owns it or purchased it)
+    // Check if user has access
     const hasAccess = agent.user_id === user.id || agent.is_public;
     
     if (!hasAccess && agent.price_credits > 0) {
@@ -64,10 +59,7 @@ Deno.serve(async (req) => {
         .single();
       
       if (!purchase) {
-        return new Response(
-          JSON.stringify({ error: 'Agent not purchased. Please purchase from marketplace.' }),
-          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
+        throw new Error('FORBIDDEN: Agent not purchased. Please purchase from marketplace.');
       }
     }
 
@@ -79,12 +71,10 @@ Deno.serve(async (req) => {
       { role: 'system', content: agent.system_prompt }
     ];
 
-    // Add conversation history if provided
     if (conversationHistory && conversationHistory.length > 0) {
       messages.push(...conversationHistory);
     }
 
-    // Add current user message
     messages.push({ role: 'user', content: message });
 
     // Prepare tools if enabled
@@ -96,7 +86,8 @@ Deno.serve(async (req) => {
       messages,
       tools,
       agent.temperature,
-      agent.max_tokens
+      agent.max_tokens,
+      logger
     );
 
     const executionTime = Date.now() - startTime;
@@ -115,47 +106,47 @@ Deno.serve(async (req) => {
       success: true,
     });
 
-    return new Response(
-      JSON.stringify({
-        response: response.content,
-        agentName: agent.name,
-        toolsUsed: response.toolsUsed,
-        executionTime,
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    logger.info("Agent execution complete", { executionTime, tokensUsed: response.tokensUsed });
+
+    return successResponse({
+      response: response.content,
+      agentName: agent.name,
+      toolsUsed: response.toolsUsed,
+      executionTime,
+    }, requestId);
 
   } catch (error: any) {
-    console.error('Custom Agent Executor error:', error);
+    logger.error("Agent execution failed", error);
     
     // Log failed execution
-    const body = await req.json().catch(() => ({}));
-    if (body.agentId) {
-      const supabase = createClient(
-        Deno.env.get('SUPABASE_URL')!,
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-      );
-      
-      const authHeader = req.headers.get('Authorization');
-      const { data: { user } } = await supabase.auth.getUser(
-        authHeader?.replace('Bearer ', '') || ''
-      );
+    try {
+      const body = await req.json().catch(() => ({}));
+      if (body.agentId) {
+        const supabase = initSupabaseClient();
+        const authHeader = req.headers.get('Authorization');
+        const { data: { user } } = await supabase.auth.getUser(
+          authHeader?.replace('Bearer ', '') || ''
+        );
 
-      if (user) {
-        await supabase.from('agent_executions').insert({
-          agent_id: body.agentId,
-          user_id: user.id,
-          input_message: body.message || '',
-          success: false,
-          error_message: error.message,
-        });
+        if (user) {
+          await supabase.from('agent_executions').insert({
+            agent_id: body.agentId,
+            user_id: user.id,
+            input_message: body.message || '',
+            success: false,
+            error_message: error.message,
+          });
+        }
       }
+    } catch (logError) {
+      logger.error("Failed to log error", logError);
     }
 
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return handleError({
+      functionName: "custom-agent-executor",
+      error,
+      requestId,
+    });
   }
 });
 
@@ -238,12 +229,9 @@ async function executeWithModel(
   messages: any[],
   tools: any[],
   temperature: number,
-  maxTokens: number
+  maxTokens: number,
+  logger: any
 ): Promise<{ content: string; toolsUsed: string[]; tokensUsed: number }> {
-  // Use Lovable AI Gateway for execution
-  const apiKey = Deno.env.get('LOVABLE_API_KEY');
-  if (!apiKey) throw new Error('LOVABLE_API_KEY not configured');
-
   const modelId = modelPreference === 'auto' ? 'google/gemini-2.5-flash' : modelPreference;
 
   const requestBody: any = {
@@ -257,20 +245,14 @@ async function executeWithModel(
     requestBody.tools = tools;
   }
 
-  const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+  logger.debug("Calling Lovable AI", { model: modelId, toolsCount: tools.length });
+
+  const response = await lovableAIFetch('/v1/chat/completions', {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify(requestBody),
   });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('AI API error:', response.status, errorText);
-    throw new Error(`AI API error: ${response.status}`);
-  }
+  if (!response.ok) throw response;
 
   const data = await response.json();
   const choice = data.choices[0];
@@ -282,8 +264,6 @@ async function executeWithModel(
   if (choice.message.tool_calls && choice.message.tool_calls.length > 0) {
     for (const toolCall of choice.message.tool_calls) {
       toolsUsed.push(toolCall.function.name);
-      
-      // Execute tool and add result (simplified for now)
       const toolResult = await executeToolCall(toolCall);
       content += `\n\n[Tool: ${toolCall.function.name}]\n${toolResult}`;
     }
@@ -316,13 +296,6 @@ async function executeToolCall(toolCall: any): Promise<string> {
       return `Semantic search results for: ${args.query}\n[Knowledge base search would be integrated here]`;
     
     case 'trigger_zapier':
-      // Find user's Zapier integrations and trigger them
-      const supabaseClient = createClient(
-        Deno.env.get('SUPABASE_URL')!,
-        Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-      );
-      
-      // This would need user context - for now return message
       return 'Zapier integration ready. Configure integrations in the Integrations page.';
     
     default:

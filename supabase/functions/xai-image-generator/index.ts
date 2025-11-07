@@ -1,10 +1,11 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders } from "../_shared/cors.ts";
+import { handleError, successResponse } from "../_shared/error-handler.ts";
+import { createLogger } from "../_shared/logger.ts";
+import { requireAuth } from "../_shared/auth.ts";
+import { initSupabaseClient } from "../_shared/supabase-client.ts";
+import { validateRequiredFields } from "../_shared/validators.ts";
+import { xAIFetch } from "../_shared/api-client.ts";
 
 interface ImageGenRequest {
   prompt: string;
@@ -18,67 +19,42 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger("xai-image-generator", requestId);
+
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("Missing authorization header");
-    }
+    const supabase = initSupabaseClient();
+    const user = await requireAuth(req, supabase);
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const body: ImageGenRequest = await req.json();
+    validateRequiredFields(body, ["prompt"]);
+    const { prompt, negativePrompt, numImages = 1, model = "grok-2-image-1212" } = body;
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !user) throw new Error("Invalid user token");
-
-    const { prompt, negativePrompt, numImages = 1, model = "grok-2-image-1212" } = await req.json() as ImageGenRequest;
-
-    console.log(`Generating ${numImages} images with prompt: "${prompt}"`);
-
-    const GROK_API_KEY = Deno.env.get("GROK_API_KEY");
-    if (!GROK_API_KEY) throw new Error("GROK_API_KEY not configured");
+    logger.info("Generating images", { 
+      userId: user.id, 
+      numImages, 
+      promptPreview: prompt.substring(0, 50) 
+    });
 
     const startTime = Date.now();
 
-    // Call Grok image generation API
-    const response = await fetch("https://api.x.ai/v1/images/generations", {
+    const response = await xAIFetch("/v1/images/generations", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${GROK_API_KEY}`,
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         model,
         prompt,
         negative_prompt: negativePrompt,
         n: numImages,
       }),
-    });
+    }, { timeout: 60000 });
 
     const generationTime = Date.now() - startTime;
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Grok API error:", response.status, errorText);
-      
-      // Log failure
-      await supabase.from("xai_usage_analytics").insert({
-        user_id: user.id,
-        model_id: model,
-        feature_type: "image-generation",
-        success: false,
-        error_message: errorText,
-        latency_ms: generationTime,
-      });
-
-      throw new Error(`Image generation failed: ${response.status} ${errorText}`);
-    }
+    if (!response.ok) throw response;
 
     const result = await response.json();
     const imageUrls = result.data?.map((img: any) => img.url) || [];
 
-    // Calculate cost (estimated $0.05 per image)
     const costCredits = numImages * 0.05;
 
     // Store in database
@@ -100,7 +76,7 @@ serve(async (req) => {
       .single();
 
     if (insertError) {
-      console.error("Failed to save image record:", insertError);
+      logger.error("Failed to save image record", insertError);
     }
 
     // Log usage analytics
@@ -114,26 +90,22 @@ serve(async (req) => {
       metadata: { prompt, num_images: numImages },
     });
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        id: imageRecord?.id,
-        images: imageUrls,
-        prompt,
-        model,
-        generation_time_ms: generationTime,
-        cost_credits: costCredits,
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    logger.info("Image generation complete", { generationTime, numImages });
+
+    return successResponse({
+      id: imageRecord?.id,
+      images: imageUrls,
+      prompt,
+      model,
+      generation_time_ms: generationTime,
+      cost_credits: costCredits,
+    }, requestId);
 
   } catch (error) {
-    console.error("Image generation error:", error);
-    return new Response(
-      JSON.stringify({
-        error: error instanceof Error ? error.message : "Unknown error",
-      }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return handleError({
+      functionName: "xai-image-generator",
+      error,
+      requestId,
+    });
   }
 });

@@ -1,35 +1,31 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders } from "../_shared/cors.ts";
+import { handleError, successResponse } from "../_shared/error-handler.ts";
+import { createLogger } from "../_shared/logger.ts";
+import { requireAuth } from "../_shared/auth.ts";
+import { initSupabaseClient } from "../_shared/supabase-client.ts";
+import { validateRequiredFields } from "../_shared/validators.ts";
+import { lovableAIFetch } from "../_shared/api-client.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger("creative-agent", requestId);
+
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("Missing authorization header");
-    }
+    const supabase = initSupabaseClient();
+    const user = await requireAuth(req, supabase);
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const body = await req.json();
+    validateRequiredFields(body, ["messages"]);
+    const { messages, context } = body;
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !user) throw new Error("Invalid user token");
+    logger.info("Processing creative request", { userId: user.id });
 
-    const { messages, context } = await req.json();
-
-    console.log(`Creative agent processing request for user ${user.id}`);
-
-    // Fetch creative context: past solutions, novel approaches
+    // Fetch creative context
     const { data: solutions } = await supabase
       .from("problem_solutions")
       .select("*")
@@ -43,7 +39,6 @@ serve(async (req) => {
       .eq("user_id", user.id)
       .eq("is_enabled", true);
 
-    // Build creative-focused system prompt
     const systemPrompt = `You are a Creative Agent specializing in ideation, brainstorming, and innovative problem-solving.
 
 ## Your Role:
@@ -80,15 +75,9 @@ Focus on:
 - Visual and concrete examples
 - Playful and experimental approaches`;
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
-
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    logger.debug("Calling AI with creative prompt");
+    const aiResponse = await lovableAIFetch("/v1/chat/completions", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
@@ -99,15 +88,7 @@ Focus on:
       }),
     });
 
-    if (!aiResponse.ok) {
-      if (aiResponse.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Rate limits exceeded" }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      throw new Error(`AI API error: ${aiResponse.status}`);
-    }
+    if (!aiResponse.ok) throw aiResponse;
 
     const aiResult = await aiResponse.json();
     const response = aiResult.choices[0].message.content;
@@ -127,25 +108,22 @@ Focus on:
       success: true
     });
 
-    console.log("Creative agent response generated successfully");
+    logger.info("Creative response generated successfully");
 
-    return new Response(
-      JSON.stringify({
-        response,
-        agent_type: "creative_agent",
-        context_used: {
-          capabilities: capabilities?.length || 0,
-          past_solutions: solutions?.length || 0
-        }
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return successResponse({
+      response,
+      agent_type: "creative_agent",
+      context_used: {
+        capabilities: capabilities?.length || 0,
+        past_solutions: solutions?.length || 0
+      }
+    }, requestId);
 
   } catch (error) {
-    console.error("Creative agent error:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return handleError({
+      functionName: "creative-agent",
+      error,
+      requestId,
+    });
   }
 });

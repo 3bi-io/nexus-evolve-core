@@ -1,35 +1,31 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders } from "../_shared/cors.ts";
+import { handleError, successResponse } from "../_shared/error-handler.ts";
+import { createLogger } from "../_shared/logger.ts";
+import { requireAuth } from "../_shared/auth.ts";
+import { initSupabaseClient } from "../_shared/supabase-client.ts";
+import { validateRequiredFields } from "../_shared/validators.ts";
+import { lovableAIFetch } from "../_shared/api-client.ts";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger("learning-agent", requestId);
+
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader) {
-      throw new Error("Missing authorization header");
-    }
+    const supabase = initSupabaseClient();
+    const user = await requireAuth(req, supabase);
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const body = await req.json();
+    validateRequiredFields(body, ["messages"]);
+    const { messages, context } = body;
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !user) throw new Error("Invalid user token");
+    logger.info("Analyzing learning patterns", { userId: user.id });
 
-    const { messages, context } = await req.json();
-
-    console.log(`Learning agent analyzing request for user ${user.id}`);
-
-    // Fetch learning context: past patterns, knowledge gaps, improvements
+    // Fetch learning context
     const { data: memories } = await supabase
       .from("agent_memory")
       .select("*")
@@ -59,11 +55,8 @@ serve(async (req) => {
         recentInteractions.filter(i => i.quality_rating !== null).length
       : 0;
 
-    // Identify knowledge gaps and patterns
     const knowledgeTopics = new Set(knowledgeBase?.map(k => k.topic) || []);
-    const recentTopics = recentInteractions?.map(i => i.message.substring(0, 100)) || [];
 
-    // Build learning-focused system prompt
     const systemPrompt = `You are a Learning Agent specializing in meta-learning and knowledge analysis.
 
 ## Your Role:
@@ -96,15 +89,9 @@ Focus on:
 - Capability recommendations
 - Meta-insights about the learning process itself`;
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
-
-    const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    logger.debug("Calling AI for learning analysis");
+    const aiResponse = await lovableAIFetch("/v1/chat/completions", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
@@ -115,15 +102,7 @@ Focus on:
       }),
     });
 
-    if (!aiResponse.ok) {
-      if (aiResponse.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Rate limits exceeded" }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-      throw new Error(`AI API error: ${aiResponse.status}`);
-    }
+    if (!aiResponse.ok) throw aiResponse;
 
     const aiResult = await aiResponse.json();
     const response = aiResult.choices[0].message.content;
@@ -143,26 +122,23 @@ Focus on:
       success: true
     });
 
-    console.log("Learning agent response generated successfully");
+    logger.info("Learning analysis completed successfully");
 
-    return new Response(
-      JSON.stringify({
-        response,
-        agent_type: "learning_agent",
-        context_analyzed: {
-          memories: memories?.length || 0,
-          knowledge_entries: knowledgeBase?.length || 0,
-          recent_interactions: recentInteractions?.length || 0
-        }
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return successResponse({
+      response,
+      agent_type: "learning_agent",
+      context_analyzed: {
+        memories: memories?.length || 0,
+        knowledge_entries: knowledgeBase?.length || 0,
+        recent_interactions: recentInteractions?.length || 0
+      }
+    }, requestId);
 
   } catch (error) {
-    console.error("Learning agent error:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return handleError({
+      functionName: "learning-agent",
+      error,
+      requestId,
+    });
   }
 });
