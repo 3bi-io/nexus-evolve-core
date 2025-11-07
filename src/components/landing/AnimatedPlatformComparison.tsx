@@ -239,47 +239,50 @@ export function AnimatedPlatformComparison() {
                 {/* Main Content Area */}
                 <div className="flex-1 space-y-4">
                   <AnimatePresence mode="wait">
-                    <motion.div
-                      key={showUnifiedFeatures}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
-                      transition={{ duration: 0.3 }}
-                      className="h-full"
-                    >
-                      <Card className="h-full border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-                        <div className="p-6 space-y-4">
-                          {(() => {
-                            const feature = UNIFIED_FEATURES[showUnifiedFeatures];
-                            const Icon = feature.icon;
-                            return (
-                              <>
-                                <div className="flex items-center gap-3">
-                                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                                    <Icon className="h-6 w-6 text-primary" />
+                    {UNIFIED_FEATURES[showUnifiedFeatures] && (
+                      <motion.div
+                        key={showUnifiedFeatures}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.3 }}
+                        className="h-full"
+                      >
+                        <Card className="h-full border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+                          <div className="p-6 space-y-4">
+                            {(() => {
+                              const feature = UNIFIED_FEATURES[showUnifiedFeatures];
+                              if (!feature) return null;
+                              const Icon = feature.icon;
+                              return (
+                                <>
+                                  <div className="flex items-center gap-3">
+                                    <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                                      <Icon className="h-6 w-6 text-primary" />
+                                    </div>
+                                    <div>
+                                      <h4 className="font-bold">{feature.name}</h4>
+                                      <p className="text-xs text-muted-foreground">Instant access</p>
+                                    </div>
                                   </div>
-                                  <div>
-                                    <h4 className="font-bold">{feature.name}</h4>
-                                    <p className="text-xs text-muted-foreground">Instant access</p>
+                                  
+                                  <div className="space-y-2">
+                                    <div className="h-2 bg-primary/20 rounded" />
+                                    <div className="h-2 bg-primary/20 rounded w-4/5" />
+                                    <div className="h-2 bg-primary/20 rounded w-3/5" />
                                   </div>
-                                </div>
-                                
-                                <div className="space-y-2">
-                                  <div className="h-2 bg-primary/20 rounded" />
-                                  <div className="h-2 bg-primary/20 rounded w-4/5" />
-                                  <div className="h-2 bg-primary/20 rounded w-3/5" />
-                                </div>
 
-                                <div className="flex items-center gap-2 text-sm text-primary">
-                                  <Check className="h-4 w-4" />
-                                  Context preserved across all systems
-                                </div>
-                              </>
-                            );
-                          })()}
-                        </div>
-                      </Card>
-                    </motion.div>
+                                  <div className="flex items-center gap-2 text-sm text-primary">
+                                    <Check className="h-4 w-4" />
+                                    Context preserved across all systems
+                                  </div>
+                                </>
+                              );
+                            })()}
+                          </div>
+                        </Card>
+                      </motion.div>
+                    )}
                   </AnimatePresence>
 
                   {/* Keyboard shortcut hint */}

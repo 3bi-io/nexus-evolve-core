@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ArrowRight, TrendingUp, Clock, DollarSign, CheckCircle2, Quote } from 'lucide-react';
 import { enhancedUseCases } from '@/data/landing-use-cases';
 import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 export function EnhancedUseCases() {
   const [selectedId, setSelectedId] = useState(enhancedUseCases[0].id);
@@ -48,13 +48,13 @@ export function EnhancedUseCases() {
           })}
         </TabsList>
 
-        <AnimatePresence mode="wait">
-          {enhancedUseCases.map((useCase) => (
+        {enhancedUseCases.map((useCase) => {
+          const UseCaseContentIcon = useCase.icon;
+          return (
             <TabsContent key={useCase.id} value={useCase.id} className="mt-8">
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
               >
                 <Card className="overflow-hidden">
@@ -64,7 +64,7 @@ export function EnhancedUseCases() {
                       <div className="p-8 space-y-6 bg-gradient-to-br from-primary/5 to-transparent">
                         <div className="flex items-start gap-4">
                           <div className="h-16 w-16 rounded-xl bg-gradient-to-br from-primary to-primary/50 flex items-center justify-center flex-shrink-0">
-                            <Icon className="h-8 w-8 text-primary-foreground" />
+                            <UseCaseContentIcon className="h-8 w-8 text-primary-foreground" />
                           </div>
                           <div>
                             <h3 className="text-2xl font-bold mb-2">{useCase.title}</h3>
@@ -171,8 +171,8 @@ export function EnhancedUseCases() {
                 </Card>
               </motion.div>
             </TabsContent>
-          ))}
-        </AnimatePresence>
+          );
+        })}
       </Tabs>
     </section>
   );
