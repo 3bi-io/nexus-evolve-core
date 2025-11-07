@@ -1,17 +1,26 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+/**
+ * Reset Daily Credits Function
+ * Cron job to reset daily credits for visitors and clean up old records
+ */
+
 import { corsHeaders } from '../_shared/cors.ts';
+import { initSupabaseClient } from '../_shared/supabase-client.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
 
 Deno.serve(async (req) => {
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
-  try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('reset-daily-credits', requestId);
 
-    console.log('Starting daily credit reset process...');
+  try {
+    logger.info('Starting daily credit reset process');
+
+    const supabase = initSupabaseClient();
 
     // Get today's date in UTC
     const today = new Date().toISOString().split('T')[0];
@@ -19,23 +28,7 @@ Deno.serve(async (req) => {
     yesterday.setUTCDate(yesterday.getUTCDate() - 1);
     const yesterdayStr = yesterday.toISOString().split('T')[0];
 
-    // 1. Reset authenticated users with no subscription (free tier - 5 daily credits)
-    const { data: freeUsers, error: freeUsersError } = await supabase
-      .from('user_subscriptions')
-      .select('user_id')
-      .eq('status', 'active');
-
-    if (freeUsersError) {
-      console.error('Error fetching subscriptions:', freeUsersError);
-    }
-
-    // Get IDs of users with active subscriptions
-    const subscribedUserIds = freeUsers?.map(s => s.user_id) || [];
-
-    // Note: Free users' credits are handled dynamically in check-and-deduct-credits
-    // based on daily transaction history, so no reset needed here
-
-    // 2. Handle visitor credits - reset for consecutive day visitors
+    // Handle visitor credits
     const { data: visitors, error: visitorsError } = await supabase
       .from('visitor_credits')
       .select('*');
@@ -44,7 +37,7 @@ Deno.serve(async (req) => {
       throw visitorsError;
     }
 
-    console.log(`Found ${visitors?.length || 0} visitor records to process`);
+    logger.info('Processing visitor records', { count: visitors?.length || 0 });
 
     let visitorReset = 0;
     let visitorStreakReset = 0;
@@ -66,7 +59,7 @@ Deno.serve(async (req) => {
             .eq('id', visitor.id);
 
           visitorReset++;
-          console.log(`Reset credits for visitor ${visitor.id}, streak: ${visitor.consecutive_days} days`);
+          logger.debug('Reset credits for visitor', { visitorId: visitor.id, streak: visitor.consecutive_days });
         } 
         // Reset streak if they missed a day
         else if (lastVisit < yesterdayStr) {
@@ -80,7 +73,7 @@ Deno.serve(async (req) => {
             .eq('id', visitor.id);
 
           visitorStreakReset++;
-          console.log(`Reset streak for visitor ${visitor.id} (last visit: ${lastVisit})`);
+          logger.debug('Reset streak for visitor', { visitorId: visitor.id, lastVisit });
         }
 
         // Clean up old visitor records (>30 days per GDPR compliance)
@@ -95,20 +88,20 @@ Deno.serve(async (req) => {
             .eq('id', visitor.id);
 
           visitorCleaned++;
-          console.log(`Cleaned up old visitor record ${visitor.id} (last visit: ${lastVisit})`);
+          logger.debug('Cleaned up old visitor record', { visitorId: visitor.id, lastVisit });
         }
 
       } catch (error) {
-        console.error(`Error processing visitor ${visitor.id}:`, error);
+        logger.error('Error processing visitor', { visitorId: visitor.id, error });
       }
     }
 
-    // 3. Clean up old rate limit logs (>2 hours)
+    // Clean up old rate limit logs (>2 hours)
     try {
       await supabase.rpc('cleanup_rate_limit_logs');
-      console.log('Cleaned up old rate limit logs');
+      logger.info('Cleaned up old rate limit logs');
     } catch (error) {
-      console.error('Error cleaning rate limit logs:', error);
+      logger.error('Error cleaning rate limit logs', error);
     }
 
     // Log the cron job execution
@@ -124,37 +117,33 @@ Deno.serve(async (req) => {
       }
     });
 
-    console.log(`Daily credit reset complete. Reset: ${visitorReset}, Streaks broken: ${visitorStreakReset}, Cleaned: ${visitorCleaned}`);
+    logger.info('Daily credit reset complete', { 
+      reset: visitorReset, 
+      streaksReset: visitorStreakReset, 
+      cleaned: visitorCleaned 
+    });
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        date: today,
-        visitor_credits_reset: visitorReset,
-        visitor_streaks_reset: visitorStreakReset,
-        visitor_records_cleaned: visitorCleaned
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return successResponse({
+      success: true,
+      date: today,
+      visitor_credits_reset: visitorReset,
+      visitor_streaks_reset: visitorStreakReset,
+      visitor_records_cleaned: visitorCleaned
+    }, requestId);
 
   } catch (error) {
-    console.error('Error in reset-daily-credits:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    
     // Log the failure
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    
+    const supabase = initSupabaseClient();
     await supabase.from('cron_job_logs').insert({
       job_name: 'reset-daily-credits',
       status: 'failed',
-      error_message: errorMessage
+      error_message: error instanceof Error ? error.message : 'Unknown error'
     });
 
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return handleError({
+      functionName: 'reset-daily-credits',
+      error,
+      requestId
+    });
   }
 });

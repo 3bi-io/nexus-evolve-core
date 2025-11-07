@@ -1,17 +1,28 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+/**
+ * Send Low Credit Alert Function
+ * Cron job to notify users when their credits are running low (<10%)
+ */
+
 import { corsHeaders } from '../_shared/cors.ts';
+import { initSupabaseClient } from '../_shared/supabase-client.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 
 Deno.serve(async (req) => {
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('send-low-credit-alert', requestId);
+
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    logger.info('Starting low credit alert process');
+
+    const supabase = initSupabaseClient();
 
     // Get all active subscriptions with low credits (< 10% remaining)
     const { data: lowCreditUsers, error: queryError } = await supabase
@@ -33,7 +44,7 @@ Deno.serve(async (req) => {
       return percentage <= 10 && percentage > 0;
     }) || [];
 
-    console.log(`Found ${usersToNotify.length} users with low credits`);
+    logger.info('Found users with low credits', { count: usersToNotify.length });
 
     let emailsSent = 0;
     let emailsFailed = 0;
@@ -46,7 +57,7 @@ Deno.serve(async (req) => {
         );
 
         if (userError || !userData.user?.email) {
-          console.error(`Could not get email for user ${userSub.user_id}`);
+          logger.error('Could not get email for user', { userId: userSub.user_id });
           emailsFailed++;
           continue;
         }
@@ -61,7 +72,7 @@ Deno.serve(async (req) => {
           .limit(1);
 
         if (recentAlerts && recentAlerts.length > 0) {
-          console.log(`Already sent alert to ${userData.user.email} in last 24h`);
+          logger.debug('Already sent alert in last 24h', { email: userData.user.email });
           continue;
         }
 
@@ -164,42 +175,33 @@ Deno.serve(async (req) => {
           });
 
           emailsSent++;
-          console.log(`Sent low credit alert to ${userData.user.email}`);
+          logger.info('Sent low credit alert', { email: userData.user.email });
         } else {
-          console.warn('RESEND_API_KEY not configured, skipping email');
+          logger.warn('RESEND_API_KEY not configured, skipping email');
           emailsFailed++;
         }
 
       } catch (error) {
-        console.error(`Error sending alert to user ${userSub.user_id}:`, error);
+        logger.error('Error sending alert to user', { userId: userSub.user_id, error });
         emailsFailed++;
       }
     }
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        users_checked: lowCreditUsers?.length || 0,
-        alerts_sent: emailsSent,
-        alerts_failed: emailsFailed,
-        message: `Sent ${emailsSent} low credit alerts`
-      }),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 200 
-      }
-    );
+    logger.info('Low credit alert process complete', { sent: emailsSent, failed: emailsFailed });
+
+    return successResponse({
+      success: true,
+      users_checked: lowCreditUsers?.length || 0,
+      alerts_sent: emailsSent,
+      alerts_failed: emailsFailed,
+      message: `Sent ${emailsSent} low credit alerts`
+    }, requestId);
 
   } catch (error) {
-    console.error('Error in send-low-credit-alert:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-    
-    return new Response(
-      JSON.stringify({ error: errorMessage }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      }
-    );
+    return handleError({
+      functionName: 'send-low-credit-alert',
+      error,
+      requestId
+    });
   }
 });

@@ -1,31 +1,33 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+/**
+ * System Health Function
+ * Checks the health of critical services and configurations
+ */
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders } from '../_shared/cors.ts';
+import { createAuthenticatedClient } from '../_shared/supabase-client.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
 
 Deno.serve(async (req) => {
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('system-health', requestId);
+
   try {
+    logger.info('Starting system health check');
+
+    // Authenticate user
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      throw new Error('No authorization header');
+      throw new Error('MISSING_AUTH_HEADER');
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    // Verify JWT token
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) throw new Error('Unauthorized');
-
-    console.log('[system-health] Checking system health for user:', user.id);
+    const { supabase, user } = await createAuthenticatedClient(authHeader);
+    logger.info('User authenticated', { userId: user.id });
 
     // Check required secrets
     const secrets = {
@@ -34,6 +36,8 @@ Deno.serve(async (req) => {
       SUPABASE_URL: !!Deno.env.get('SUPABASE_URL'),
       SUPABASE_SERVICE_ROLE_KEY: !!Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'),
     };
+
+    logger.info('Checked secrets configuration', secrets);
 
     // Validate OpenAI API key if present
     let openaiValid = false;
@@ -46,8 +50,9 @@ Deno.serve(async (req) => {
           },
         });
         openaiValid = openaiResponse.ok;
+        logger.info('OpenAI API validation', { valid: openaiValid });
       } catch (error) {
-        console.error('[system-health] OpenAI validation failed:', error);
+        logger.error('OpenAI validation failed', error);
       }
     }
 
@@ -60,7 +65,7 @@ Deno.serve(async (req) => {
       .limit(10);
 
     if (jobsError) {
-      console.error('[system-health] Error fetching cron logs:', jobsError);
+      logger.error('Error fetching cron logs', jobsError);
     }
 
     const jobStatus = {
@@ -81,6 +86,8 @@ Deno.serve(async (req) => {
       }
     }
 
+    logger.info('Cron job status', jobStatus);
+
     // Check embedding generation progress
     const { count: totalMemories } = await supabase
       .from('agent_memory')
@@ -99,6 +106,8 @@ Deno.serve(async (req) => {
       percentage: totalMemories ? Math.round(((memoriesWithEmbeddings || 0) / totalMemories) * 100) : 100,
     };
 
+    logger.info('Embedding progress', embeddingProgress);
+
     // Overall health status
     const isHealthy = 
       secrets.OPENAI_API_KEY &&
@@ -106,28 +115,28 @@ Deno.serve(async (req) => {
       openaiValid &&
       jobStatus.consecutiveFailures < 3;
 
-    return new Response(
-      JSON.stringify({
-        status: isHealthy ? 'healthy' : 'degraded',
-        secrets,
-        openaiValid,
-        cronJobs: jobStatus,
-        embeddings: embeddingProgress,
-        checks: {
-          secretsConfigured: Object.values(secrets).every(v => v),
-          openaiWorking: openaiValid,
-          cronJobsRunning: jobStatus.consecutiveFailures < 3,
-          embeddingsProgressing: embeddingProgress.percentage > 0,
-        },
-        timestamp: new Date().toISOString(),
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    logger.info('Health check complete', { healthy: isHealthy });
+
+    return successResponse({
+      status: isHealthy ? 'healthy' : 'degraded',
+      secrets,
+      openaiValid,
+      cronJobs: jobStatus,
+      embeddings: embeddingProgress,
+      checks: {
+        secretsConfigured: Object.values(secrets).every(v => v),
+        openaiWorking: openaiValid,
+        cronJobsRunning: jobStatus.consecutiveFailures < 3,
+        embeddingsProgressing: embeddingProgress.percentage > 0,
+      },
+      timestamp: new Date().toISOString(),
+    }, requestId);
+
   } catch (error) {
-    console.error('[system-health] Error:', error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return handleError({
+      functionName: 'system-health',
+      error,
+      requestId
+    });
   }
 });

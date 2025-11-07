@@ -1,42 +1,45 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+/**
+ * Evolve System Function
+ * Runs daily evolution cycle: performance analysis, knowledge consolidation, 
+ * behavior optimization, A/B test evaluation, and capability auto-activation
+ */
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders } from '../_shared/cors.ts';
+import { createAuthenticatedClient } from '../_shared/supabase-client.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
 
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
+Deno.serve(async (req) => {
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('evolve-system', requestId);
+
   try {
-    const authHeader = req.headers.get("Authorization");
+    logger.info('Starting daily evolution cycle');
+
+    // Authenticate user
+    const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      throw new Error("Missing authorization header");
+      throw new Error('MISSING_AUTH_HEADER');
     }
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !user) throw new Error("Invalid user token");
-
-    console.log(`Running daily evolution for user ${user.id}`);
+    const { supabase, user } = await createAuthenticatedClient(authHeader);
+    logger.info('User authenticated', { userId: user.id });
 
     // 1. PERFORMANCE ANALYSIS
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     const { data: recentInteractions } = await supabase
-      .from("interactions")
-      .select("quality_rating, created_at, context")
-      .eq("user_id", user.id)
-      .gte("created_at", thirtyDaysAgo.toISOString())
-      .order("created_at", { ascending: false });
+      .from('interactions')
+      .select('quality_rating, created_at, context')
+      .eq('user_id', user.id)
+      .gte('created_at', thirtyDaysAgo.toISOString())
+      .order('created_at', { ascending: false });
 
     const ratedInteractions = recentInteractions?.filter(i => i.quality_rating !== null) || [];
     const avgRating = ratedInteractions.length > 0
@@ -62,19 +65,18 @@ serve(async (req) => {
       ? previousWeek.reduce((sum, i) => sum + (i.quality_rating || 0), 0) / previousWeek.length
       : 0;
 
-    const trend = recentAvg > previousAvg ? "improving" : 
-                  recentAvg < previousAvg ? "declining" : "stable";
+    const trend = recentAvg > previousAvg ? 'improving' : 
+                  recentAvg < previousAvg ? 'declining' : 'stable';
 
-    console.log(`Performance: ${(avgRating * 100 + 50).toFixed(0)}%, Trend: ${trend}`);
+    logger.info('Performance analysis complete', { avgRating, trend });
 
     // 2. KNOWLEDGE CONSOLIDATION
     const { data: memories } = await supabase
-      .from("agent_memory")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("retrieval_count", { ascending: true });
+      .from('agent_memory')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('retrieval_count', { ascending: true });
 
-    // Archive rarely-used memories (retrieval_count = 0 and older than 60 days)
     const sixtyDaysAgo = new Date();
     sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
     
@@ -85,27 +87,24 @@ serve(async (req) => {
     let archivedCount = 0;
     if (memoriesToArchive.length > 0) {
       const { error } = await supabase
-        .from("agent_memory")
+        .from('agent_memory')
         .delete()
-        .in("id", memoriesToArchive.map(m => m.id));
+        .in('id', memoriesToArchive.map(m => m.id));
       
       if (!error) {
         archivedCount = memoriesToArchive.length;
       }
     }
 
-    // Boost importance of frequently-used memories
     const frequentMemories = memories?.filter(m => m.retrieval_count > 5) || [];
     for (const memory of frequentMemories) {
       const newImportance = Math.min(1.0, memory.importance_score + 0.05);
       await supabase
-        .from("agent_memory")
+        .from('agent_memory')
         .update({ importance_score: newImportance })
-        .eq("id", memory.id);
+        .eq('id', memory.id);
     }
 
-    // Memory decay: reduce importance of unused memories (30+ days since last retrieval)
-    // Reuse thirtyDaysAgo variable already defined at line 31
     const unusedMemories = memories?.filter(m => {
       const lastRetrieved = m.last_retrieved_at ? new Date(m.last_retrieved_at) : new Date(m.created_at);
       return lastRetrieved < thirtyDaysAgo && m.importance_score > 0.2;
@@ -115,59 +114,58 @@ serve(async (req) => {
     for (const memory of unusedMemories) {
       const newImportance = Math.max(0.2, memory.importance_score - 0.02);
       await supabase
-        .from("agent_memory")
+        .from('agent_memory')
         .update({ importance_score: newImportance })
-        .eq("id", memory.id);
+        .eq('id', memory.id);
       decayedCount++;
     }
 
-    console.log(`Knowledge consolidation: archived ${archivedCount}, boosted ${frequentMemories.length}, decayed ${decayedCount}`);
+    logger.info('Knowledge consolidation complete', { archivedCount, boosted: frequentMemories.length, decayedCount });
 
     // 3. ADAPTIVE BEHAVIOR OPTIMIZATION
     const { data: behaviors } = await supabase
-      .from("adaptive_behaviors")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("active", true);
+      .from('adaptive_behaviors')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('active', true);
 
-    // Deactivate behaviors with low effectiveness and low usage
     const behaviorUpdates = [];
     for (const behavior of behaviors || []) {
       if (behavior.effectiveness_score < 0.3 && behavior.application_count > 10) {
         await supabase
-          .from("adaptive_behaviors")
+          .from('adaptive_behaviors')
           .update({ active: false })
-          .eq("id", behavior.id);
-        behaviorUpdates.push({ id: behavior.id, action: "deactivated" });
+          .eq('id', behavior.id);
+        behaviorUpdates.push({ id: behavior.id, action: 'deactivated' });
       }
     }
 
-    // 4. A/B TEST EVALUATION (if any active)
+    logger.info('Behavior optimization complete', { deactivated: behaviorUpdates.length });
+
+    // 4. A/B TEST EVALUATION
     const { data: activeExperiments } = await supabase
-      .from("ab_experiments")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("active", true);
+      .from('ab_experiments')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('active', true);
 
     let experimentResults = [];
     for (const experiment of activeExperiments || []) {
-      // Simple evaluation: if running for > 7 days, evaluate
       const startDate = new Date(experiment.started_at);
       const daysSinceStart = (Date.now() - startDate.getTime()) / (1000 * 60 * 60 * 24);
       
       if (daysSinceStart >= 7) {
-        // Determine winner based on metrics (simplified)
         const metrics = experiment.metrics || {};
-        const winner = metrics.test_score > metrics.control_score ? "test" : "control";
+        const winner = metrics.test_score > metrics.control_score ? 'test' : 'control';
         
         await supabase
-          .from("ab_experiments")
+          .from('ab_experiments')
           .update({
             active: false,
             ended_at: new Date().toISOString(),
             winner
           })
-          .eq("id", experiment.id);
+          .eq('id', experiment.id);
 
         experimentResults.push({
           experiment: experiment.experiment_name,
@@ -177,28 +175,28 @@ serve(async (req) => {
       }
     }
 
-    // 5. CAPABILITY AUTO-ACTIVATION (high confidence suggestions)
+    logger.info('A/B test evaluation complete', { completed: experimentResults.length });
+
+    // 5. CAPABILITY AUTO-ACTIVATION
     const { data: pendingSuggestions } = await supabase
-      .from("capability_suggestions")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("status", "pending")
-      .gte("confidence_score", 0.8);
+      .from('capability_suggestions')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('status', 'pending')
+      .gte('confidence_score', 0.8);
 
     let autoApproved = 0;
     for (const suggestion of pendingSuggestions || []) {
-      // Auto-approve high-confidence suggestions
       await supabase
-        .from("capability_suggestions")
+        .from('capability_suggestions')
         .update({ 
-          status: "approved",
+          status: 'approved',
           reviewed_at: new Date().toISOString()
         })
-        .eq("id", suggestion.id);
+        .eq('id', suggestion.id);
 
-      // Create the capability
       await supabase
-        .from("capability_modules")
+        .from('capability_modules')
         .insert({
           user_id: user.id,
           capability_name: suggestion.capability_name,
@@ -209,17 +207,16 @@ serve(async (req) => {
       autoApproved++;
     }
 
-    console.log(`Auto-approved ${autoApproved} high-confidence capabilities`);
+    logger.info('Capability auto-activation complete', { autoApproved });
 
-    // 6. META-LEARNING: Optimize learning parameters
-    const learningEfficiency = avgRating > 0 ? "good" : "needs_improvement";
+    const learningEfficiency = avgRating > 0 ? 'good' : 'needs_improvement';
     
     // Log comprehensive evolution report
-    await supabase.from("evolution_logs").insert({
+    await supabase.from('evolution_logs').insert({
       user_id: user.id,
-      log_type: "system_evolution",
+      log_type: 'system_evolution',
       description: `Daily evolution cycle: ${trend} performance, ${archivedCount} memories archived, ${behaviorUpdates.length} behaviors optimized`,
-      change_type: "auto_discovery",
+      change_type: 'auto_discovery',
       metrics: {
         performance: {
           avg_rating: avgRating,
@@ -253,35 +250,32 @@ serve(async (req) => {
       success: true
     });
 
-    console.log("Evolution cycle complete");
+    logger.info('Evolution cycle complete');
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        summary: {
-          performance_trend: trend,
-          avg_rating: (avgRating * 100 + 50).toFixed(0) + "%",
-          memories_archived: archivedCount,
-          memories_boosted: frequentMemories.length,
-          memories_decayed: decayedCount,
-          behaviors_optimized: behaviorUpdates.length,
-          experiments_completed: experimentResults.length,
-          capabilities_auto_approved: autoApproved
-        },
-        recommendations: trend === "declining" 
-          ? ["Consider running feedback analysis", "Review adaptive behaviors", "Check for capability gaps"]
-          : trend === "improving"
-          ? ["Continue current approach", "Consider A/B testing new features"]
-          : ["Monitor performance", "Collect more user feedback"]
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return successResponse({
+      success: true,
+      summary: {
+        performance_trend: trend,
+        avg_rating: (avgRating * 100 + 50).toFixed(0) + '%',
+        memories_archived: archivedCount,
+        memories_boosted: frequentMemories.length,
+        memories_decayed: decayedCount,
+        behaviors_optimized: behaviorUpdates.length,
+        experiments_completed: experimentResults.length,
+        capabilities_auto_approved: autoApproved
+      },
+      recommendations: trend === 'declining' 
+        ? ['Consider running feedback analysis', 'Review adaptive behaviors', 'Check for capability gaps']
+        : trend === 'improving'
+        ? ['Continue current approach', 'Consider A/B testing new features']
+        : ['Monitor performance', 'Collect more user feedback']
+    }, requestId);
 
   } catch (error) {
-    console.error("System evolution error:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return handleError({
+      functionName: 'evolve-system',
+      error,
+      requestId
+    });
   }
 });

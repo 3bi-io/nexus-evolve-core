@@ -1,48 +1,72 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+/**
+ * Track LLM Observation Function
+ * Records LLM usage metrics and costs
+ */
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { corsHeaders } from '../_shared/cors.ts';
+import { initSupabaseClient } from '../_shared/supabase-client.ts';
+import { createLogger } from '../_shared/logger.ts';
+import { validateRequiredFields, validateString, validateNumber } from '../_shared/validators.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
 
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
+Deno.serve(async (req) => {
+  // Handle CORS preflight
+  if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('track-llm-observation', requestId);
+
   try {
+    logger.info('Processing LLM observation tracking');
+
+    const supabase = initSupabaseClient();
+
+    // Parse and validate request body
+    const body = await req.json();
+    validateRequiredFields(body, ['agentType', 'modelUsed', 'userId']);
+    validateString(body.agentType, 'agentType');
+    validateString(body.modelUsed, 'modelUsed');
+    validateString(body.userId, 'userId');
+    
     const { 
       agentType, 
       modelUsed, 
-      promptTokens, 
-      completionTokens, 
-      latencyMs,
+      promptTokens = 0, 
+      completionTokens = 0, 
+      latencyMs = 0,
       userId,
       sessionId,
       metadata = {}
-    } = await req.json();
-    
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
-    
+    } = body;
+
+    validateNumber(promptTokens, 'promptTokens', { min: 0 });
+    validateNumber(completionTokens, 'completionTokens', { min: 0 });
+    validateNumber(latencyMs, 'latencyMs', { min: 0 });
+
     // Calculate cost based on model
     const costPer1kTokens: Record<string, number> = {
-      "google/gemini-2.5-flash": 0.00015,
-      "google/gemini-2.5-pro": 0.0015,
-      "google/gemini-2.5-flash-lite": 0.00005,
-      "openai/gpt-5": 0.03,
-      "openai/gpt-5-mini": 0.015,
-      "openai/gpt-5-nano": 0.001,
-      "claude-sonnet-4-5": 0.015,
-      "claude-opus-4-1": 0.075
+      'google/gemini-2.5-flash': 0.00015,
+      'google/gemini-2.5-pro': 0.0015,
+      'google/gemini-2.5-flash-lite': 0.00005,
+      'openai/gpt-5': 0.03,
+      'openai/gpt-5-mini': 0.015,
+      'openai/gpt-5-nano': 0.001,
+      'claude-sonnet-4-5': 0.015,
+      'claude-opus-4-1': 0.075
     };
     
-    const totalTokens = (promptTokens || 0) + (completionTokens || 0);
+    const totalTokens = promptTokens + completionTokens;
     const cost = (totalTokens / 1000) * (costPer1kTokens[modelUsed] || 0.001);
     
+    logger.info('Inserting LLM observation', { 
+      agentType, 
+      modelUsed, 
+      totalTokens, 
+      cost 
+    });
+
     const { error } = await supabase.from('llm_observations').insert({
       user_id: userId,
       session_id: sessionId,
@@ -56,19 +80,22 @@ serve(async (req) => {
     });
 
     if (error) {
-      console.error("Failed to track observation:", error);
+      logger.error('Failed to track observation', error);
       throw error;
     }
     
-    return new Response(
-      JSON.stringify({ success: true, cost_usd: cost }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    logger.info('LLM observation tracked successfully');
+
+    return successResponse({ 
+      success: true, 
+      cost_usd: cost 
+    }, requestId);
+
   } catch (error) {
-    console.error("Track LLM observation error:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return handleError({
+      functionName: 'track-llm-observation',
+      error,
+      requestId
+    });
   }
 });
