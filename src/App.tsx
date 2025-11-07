@@ -63,6 +63,7 @@ const APIAccess = lazy(() => import("./pages/APIAccess"));
 const Webhooks = lazy(() => import("./pages/Webhooks"));
 const PlatformOptimizer = lazy(() => import("./pages/PlatformOptimizer"));
 const XAIStudio = lazy(() => import("./pages/XAIStudio"));
+const XAIDashboard = lazy(() => import("./pages/XAIDashboard"));
 const XAIAnalytics = lazy(() => import("./pages/XAIAnalytics"));
 const AutomationHub = lazy(() => import("./pages/AutomationHub"));
 const Install = lazy(() => import("./pages/Install"));
@@ -232,6 +233,11 @@ const RoutesWithShortcuts = () => {
           <Route path="/xai-studio" element={
             <ProtectedRoute>
               <XAIStudio />
+            </ProtectedRoute>
+          } />
+          <Route path="/xai-dashboard" element={
+            <ProtectedRoute>
+              <XAIDashboard />
             </ProtectedRoute>
           } />
           <Route path="/xai-analytics" element={

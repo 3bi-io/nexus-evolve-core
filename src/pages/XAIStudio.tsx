@@ -6,10 +6,14 @@ import { GrokCodeAnalyzer } from '@/components/xai/GrokCodeAnalyzer';
 import { ReasoningAssistant } from '@/components/xai/ReasoningAssistant';
 import { MultiModalWorkflows } from '@/components/xai/MultiModalWorkflows';
 import { TrustIndicators } from '@/components/xai/TrustIndicators';
-import { Sparkles, Image, Eye, Code, Brain, Workflow } from 'lucide-react';
+import { Sparkles, Image, Eye, Code, Brain, Workflow, LayoutDashboard } from 'lucide-react';
 import { SEO } from '@/components/SEO';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 export default function XAIStudio() {
+  const navigate = useNavigate();
+
   return (
     <PageLayout>
       <SEO 
@@ -19,14 +23,25 @@ export default function XAIStudio() {
         canonical="https://oneiros.me/xai-studio"
       />
       <div className="container max-w-7xl py-8 space-y-8">
-        <div className="flex items-center gap-3">
-          <Sparkles className="w-8 h-8 text-primary" />
-          <div>
-            <h1 className="text-3xl font-bold">XAI Studio</h1>
-            <p className="text-muted-foreground">
-              Advanced AI tools powered by Grok from @applyai
-            </p>
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-3">
+            <Sparkles className="w-8 h-8 text-primary" />
+            <div>
+              <h1 className="text-3xl font-bold">XAI Studio</h1>
+              <p className="text-muted-foreground">
+                Advanced AI tools powered by Grok from @applyai
+              </p>
+            </div>
           </div>
+          
+          <Button
+            variant="outline"
+            onClick={() => navigate('/xai-dashboard')}
+            className="flex items-center gap-2"
+          >
+            <LayoutDashboard className="w-4 h-4" />
+            View All Features
+          </Button>
         </div>
 
         <TrustIndicators />
