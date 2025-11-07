@@ -3,13 +3,16 @@
  * Provides consistent error responses and logging
  */
 
-interface ErrorResponse {
+import { corsHeaders } from './cors.ts';
+
+export interface ErrorResponse {
   error: string;
   code?: string;
   details?: unknown;
   requestId: string;
   retryAfter?: number;
   upgradeUrl?: string;
+  timestamp?: string;
 }
 
 interface ErrorHandlerOptions {
@@ -36,9 +39,15 @@ export async function handleError(options: ErrorHandlerOptions): Promise<Respons
     timestamp: new Date().toISOString(),
   });
 
+  // Map error messages to codes and status
+  let status = 500;
+  let code = 'INTERNAL_ERROR';
+  let errorMessage = 'An unexpected error occurred.';
+  const timestamp = new Date().toISOString();
+
   // Determine error type and appropriate response
   if (error instanceof Response) {
-    const status = error.status;
+    status = error.status;
     
     // Rate limit error (429)
     if (status === 429) {
@@ -47,11 +56,13 @@ export async function handleError(options: ErrorHandlerOptions): Promise<Respons
         code: 'RATE_LIMIT_EXCEEDED',
         requestId,
         retryAfter: 60,
+        timestamp,
       };
       
       return new Response(JSON.stringify(response), {
         status: 429,
         headers: {
+          ...corsHeaders,
           'Content-Type': 'application/json',
           'Retry-After': '60',
           'X-Request-ID': requestId,
@@ -66,11 +77,13 @@ export async function handleError(options: ErrorHandlerOptions): Promise<Respons
         code: 'PAYMENT_REQUIRED',
         requestId,
         upgradeUrl: '/pricing',
+        timestamp,
       };
       
       return new Response(JSON.stringify(response), {
         status: 402,
         headers: {
+          ...corsHeaders,
           'Content-Type': 'application/json',
           'X-Request-ID': requestId,
         },
@@ -83,11 +96,13 @@ export async function handleError(options: ErrorHandlerOptions): Promise<Respons
         error: 'Authentication required.',
         code: 'UNAUTHORIZED',
         requestId,
+        timestamp,
       };
       
       return new Response(JSON.stringify(response), {
         status: 401,
         headers: {
+          ...corsHeaders,
           'Content-Type': 'application/json',
           'X-Request-ID': requestId,
         },
@@ -95,17 +110,51 @@ export async function handleError(options: ErrorHandlerOptions): Promise<Respons
     }
   }
 
-  // Handle Error objects
+  // Handle Error objects with specific error codes
   if (error instanceof Error) {
+    errorMessage = error.message;
+
+    // Map custom error codes from auth/validation
+    if (errorMessage.includes('UNAUTHORIZED') || errorMessage.includes('INVALID_TOKEN')) {
+      status = 401;
+      code = 'UNAUTHORIZED';
+      errorMessage = 'Authentication required.';
+    } else if (errorMessage.includes('MISSING_AUTH_HEADER')) {
+      status = 401;
+      code = 'MISSING_AUTH_HEADER';
+      errorMessage = 'Authorization header is missing.';
+    } else if (errorMessage.includes('INVALID_INPUT')) {
+      status = 400;
+      code = 'INVALID_INPUT';
+    } else if (errorMessage.includes('MISSING_FIELD')) {
+      status = 400;
+      code = 'MISSING_FIELD';
+    } else if (errorMessage.includes('PAYMENT_REQUIRED')) {
+      status = 402;
+      code = 'PAYMENT_REQUIRED';
+      errorMessage = 'Insufficient credits. Please upgrade your plan.';
+    } else if (errorMessage.includes('NOT_FOUND')) {
+      status = 404;
+      code = 'NOT_FOUND';
+    } else if (errorMessage.includes('CONFLICT')) {
+      status = 409;
+      code = 'CONFLICT';
+    } else if (errorMessage.includes('FORBIDDEN')) {
+      status = 403;
+      code = 'FORBIDDEN';
+    }
+
     const response: ErrorResponse = {
-      error: error.message,
-      code: 'INTERNAL_ERROR',
+      error: errorMessage,
+      code,
       requestId,
+      timestamp,
     };
     
     return new Response(JSON.stringify(response), {
-      status: 500,
+      status,
       headers: {
+        ...corsHeaders,
         'Content-Type': 'application/json',
         'X-Request-ID': requestId,
       },
@@ -114,15 +163,17 @@ export async function handleError(options: ErrorHandlerOptions): Promise<Respons
 
   // Unknown error type
   const response: ErrorResponse = {
-    error: 'An unexpected error occurred.',
+    error: errorMessage,
     code: 'UNKNOWN_ERROR',
     details: String(error),
     requestId,
+    timestamp,
   };
   
   return new Response(JSON.stringify(response), {
     status: 500,
     headers: {
+      ...corsHeaders,
       'Content-Type': 'application/json',
       'X-Request-ID': requestId,
     },
@@ -156,15 +207,36 @@ export function validateRequestBody(body: unknown, requiredFields: string[]): vo
  * @returns Response object
  */
 export function successResponse(data: unknown, requestId?: string): Response {
+  const id = requestId || crypto.randomUUID();
   return new Response(JSON.stringify({
     data,
-    requestId: requestId || crypto.randomUUID(),
+    requestId: id,
     timestamp: new Date().toISOString(),
   }), {
     status: 200,
     headers: {
+      ...corsHeaders,
       'Content-Type': 'application/json',
-      'X-Request-ID': requestId || crypto.randomUUID(),
+      'X-Request-ID': id,
+    },
+  });
+}
+
+/**
+ * Create a streaming response with error handling
+ * @param stream - ReadableStream to return
+ * @param requestId - Optional request ID
+ * @returns Response object
+ */
+export function streamResponse(stream: ReadableStream, requestId?: string): Response {
+  const id = requestId || crypto.randomUUID();
+  return new Response(stream, {
+    headers: {
+      ...corsHeaders,
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive',
+      'X-Request-ID': id,
     },
   });
 }

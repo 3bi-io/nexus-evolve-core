@@ -233,3 +233,108 @@ export const lovableAIFetch = async (
     },
   }, config);
 };
+
+/**
+ * Tavily Search API client with retry and timeout
+ */
+export const tavilyFetch = async (
+  endpoint: string,
+  options: RequestInit = {},
+  config: RetryConfig = {}
+): Promise<Response> => {
+  const apiKey = Deno.env.get('TAVILY_API_KEY');
+  if (!apiKey) throw new Error('TAVILY_API_KEY not configured');
+
+  const url = `https://api.tavily.com${endpoint}`;
+  
+  return fetchWithRetry(url, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  }, {
+    ...DEFAULT_CONFIG,
+    timeout: 30000, // 30s for search
+    ...config,
+  });
+};
+
+/**
+ * ElevenLabs API client with retry and timeout
+ */
+export const elevenLabsFetch = async (
+  endpoint: string,
+  options: RequestInit = {},
+  config: RetryConfig = {}
+): Promise<Response> => {
+  const apiKey = Deno.env.get('ELEVENLABS_API_KEY');
+  if (!apiKey) throw new Error('ELEVENLABS_API_KEY not configured');
+
+  const url = `https://api.elevenlabs.io${endpoint}`;
+  
+  return fetchWithRetry(url, {
+    ...options,
+    headers: {
+      'xi-api-key': apiKey,
+      ...options.headers,
+    },
+  }, {
+    ...DEFAULT_CONFIG,
+    timeout: 60000, // 60s for audio generation
+    ...config,
+  });
+};
+
+/**
+ * Replicate API client with retry and timeout
+ */
+export const replicateFetch = async (
+  endpoint: string,
+  options: RequestInit = {},
+  config: RetryConfig = {}
+): Promise<Response> => {
+  const apiKey = Deno.env.get('REPLICATE_API_KEY');
+  if (!apiKey) throw new Error('REPLICATE_API_KEY not configured');
+
+  const url = `https://api.replicate.com/v1${endpoint}`;
+  
+  return fetchWithRetry(url, {
+    ...options,
+    headers: {
+      'Authorization': `Token ${apiKey}`,
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  }, {
+    ...DEFAULT_CONFIG,
+    timeout: 60000, // 60s for model inference
+    ...config,
+  });
+};
+
+/**
+ * Hugging Face API client with retry and timeout
+ */
+export const huggingFaceFetch = async (
+  endpoint: string,
+  options: RequestInit = {},
+  config: RetryConfig = {}
+): Promise<Response> => {
+  const apiKey = Deno.env.get('HUGGINGFACE_API_KEY');
+  if (!apiKey) throw new Error('HUGGINGFACE_API_KEY not configured');
+
+  const url = `https://api-inference.huggingface.co${endpoint}`;
+  
+  return fetchWithRetry(url, {
+    ...options,
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      ...options.headers,
+    },
+  }, {
+    ...DEFAULT_CONFIG,
+    timeout: 60000, // 60s for model inference
+    ...config,
+  });
+};
