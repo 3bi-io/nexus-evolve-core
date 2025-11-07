@@ -111,7 +111,7 @@ Deno.serve(async (req) => {
       });
 
       logger.info('Subscription created', { tierId, billingCycle });
-      return successResponse(requestId, { subscription });
+      return successResponse({ subscription }, requestId);
     }
 
     // UPGRADE SUBSCRIPTION
@@ -170,7 +170,7 @@ Deno.serve(async (req) => {
       });
 
       logger.info('Subscription upgraded', { newTier: newTier.tier_name });
-      return successResponse(requestId, { subscription: updatedSub });
+      return successResponse({ subscription: updatedSub }, requestId);
     }
 
     // CANCEL SUBSCRIPTION
@@ -189,7 +189,7 @@ Deno.serve(async (req) => {
       if (subError) throw subError;
 
       logger.info('Subscription cancelled');
-      return successResponse(requestId, { subscription });
+      return successResponse({ subscription }, requestId);
     }
 
     // RENEW SUBSCRIPTION (cron job)
@@ -237,12 +237,12 @@ Deno.serve(async (req) => {
       }
 
       logger.info('Subscriptions renewed', { count: results.length });
-      return successResponse(requestId, { renewed: results.length });
+      return successResponse({ renewed: results.length }, requestId);
     }
 
     throw new Error('Invalid action');
   } catch (error) {
     logger.error('Subscription management failed', error);
-    return handleError(error, requestId);
+    return handleError({ functionName: 'manage-subscription', error, requestId });
   }
 });

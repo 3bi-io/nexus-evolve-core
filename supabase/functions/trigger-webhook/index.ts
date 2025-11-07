@@ -165,13 +165,13 @@ Deno.serve(async (req) => {
       successful: successCount 
     });
 
-    return successResponse(requestId, {
+    return successResponse({
       message: `Triggered ${targetWebhooks.length} webhooks, ${successCount} delivered successfully`,
       total: targetWebhooks.length,
       successful: successCount,
-    });
+    }, requestId);
   } catch (error) {
     logger.error('Webhook trigger failed', error);
-    return handleError(error, requestId);
+    return handleError({ functionName: 'trigger-webhook', error, requestId });
   }
 });

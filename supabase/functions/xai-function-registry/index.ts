@@ -164,7 +164,7 @@ Deno.serve(async (req) => {
 
     if (action === 'list') {
       logger.info('Listing available functions', { userId: user.id });
-      return successResponse(requestId, { tools: AVAILABLE_TOOLS });
+      return successResponse({ tools: AVAILABLE_TOOLS }, requestId);
     }
 
     if (action === 'execute') {
@@ -191,15 +191,15 @@ Deno.serve(async (req) => {
         executionTime: result.execution_time_ms 
       });
 
-      return successResponse(requestId, {
+      return successResponse({
         function_name: functionName,
         result,
-      });
+      }, requestId);
     }
 
     throw new Error('Invalid action');
   } catch (error) {
     logger.error('Function registry error', error);
-    return handleError(error, requestId);
+    return handleError({ functionName: 'xai-function-registry', error, requestId });
   }
 });

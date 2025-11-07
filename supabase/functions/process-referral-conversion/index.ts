@@ -31,10 +31,10 @@ Deno.serve(async (req) => {
 
     if (!interactionCount || interactionCount < 3) {
       logger.info('Insufficient activity for conversion', { userId, interactions: interactionCount });
-      return successResponse(requestId, { 
+      return successResponse({ 
         converted: false, 
         reason: 'Insufficient activity' 
-      });
+      }, requestId);
     }
 
     // Find referral for this user
@@ -47,10 +47,10 @@ Deno.serve(async (req) => {
 
     if (referralError || !referral) {
       logger.info('No pending referral found', { userId });
-      return successResponse(requestId, { 
+      return successResponse({ 
         converted: false, 
         reason: 'No pending referral found' 
-      });
+      }, requestId);
     }
 
     // Update referral to converted
@@ -78,12 +78,12 @@ Deno.serve(async (req) => {
 
     logger.info('Referral converted successfully', { userId, referralId: referral.id });
 
-    return successResponse(requestId, { 
+    return successResponse({ 
       converted: true,
       referralId: referral.id
-    });
+    }, requestId);
   } catch (error) {
     logger.error('Referral conversion failed', error);
-    return handleError(error, requestId);
+    return handleError({ functionName: 'process-referral-conversion', error, requestId });
   }
 });

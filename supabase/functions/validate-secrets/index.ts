@@ -237,14 +237,14 @@ Deno.serve(async (req) => {
 
     logger.info('API key validation completed', { summary });
 
-    return successResponse(requestId, {
+    return successResponse({
       valid: allValid,
       results,
       timestamp,
       summary,
-    });
+    }, requestId);
   } catch (error) {
     logger.error('Secrets validation failed', error);
-    return handleError(error, requestId);
+    return handleError({ functionName: 'validate-secrets', error, requestId });
   }
 });

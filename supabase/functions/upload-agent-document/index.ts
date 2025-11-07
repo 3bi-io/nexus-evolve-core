@@ -107,13 +107,13 @@ Deno.serve(async (req) => {
 
     logger.info('Document upload completed', { knowledgeIds: knowledgeIds.length });
 
-    return successResponse(requestId, {
+    return successResponse({
       message: `Document uploaded and processed into ${chunks.length} chunks`,
       chunks: chunks.length,
       knowledgeIds
-    });
+    }, requestId);
   } catch (error) {
     logger.error('Document upload failed', error);
-    return handleError(error, requestId);
+    return handleError({ functionName: 'upload-agent-document', error, requestId });
   }
 });

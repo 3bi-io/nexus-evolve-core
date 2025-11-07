@@ -123,13 +123,13 @@ Deno.serve(async (req) => {
 
     logger.info('Integration trigger completed', { status, executionTime });
 
-    return successResponse(requestId, {
+    return successResponse({
       success: status === 'success',
       response: responseData,
       executionTime,
-    });
+    }, requestId);
   } catch (error) {
     logger.error('Integration trigger failed', error);
-    return handleError(error, requestId);
+    return handleError({ functionName: 'trigger-integration', error, requestId });
   }
 });

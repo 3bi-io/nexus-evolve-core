@@ -169,7 +169,7 @@ Deno.serve(async (req) => {
 
       logger.info('Monitor execution completed', { status, alertCount: alerts.length });
 
-      return successResponse(requestId, { status, results, alerts });
+      return successResponse({ status, results, alerts }, requestId);
     } catch (execError) {
       logger.error('Monitor execution failed', execError);
 
@@ -184,6 +184,6 @@ Deno.serve(async (req) => {
     }
   } catch (error) {
     logger.error('Scheduled monitor failed', error);
-    return handleError(error, requestId);
+    return handleError({ functionName: 'scheduled-trend-monitor', error, requestId });
   }
 });
