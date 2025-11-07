@@ -1,12 +1,11 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
 import { performReasoning, performSearch } from './reasoning.ts';
-import { handleError } from '../_shared/error-handler.ts';
+import { corsHeaders } from '../_shared/cors.ts';
+import { handleError, successResponse } from '../_shared/error-handler.ts';
 import { xAIFetch } from '../_shared/api-client.ts';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { createLogger } from '../_shared/logger.ts';
+import { requireAuth } from '../_shared/auth.ts';
+import { initSupabaseClient } from '../_shared/supabase-client.ts';
+import { validateRequiredFields } from '../_shared/validators.ts';
 
 interface GrokRequest {
   action: 'trends' | 'sentiment' | 'generate' | 'predict' | 'reasoning' | 'search';
@@ -25,31 +24,19 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const grokApiKey = Deno.env.get('GROK_API_KEY');
+  const requestId = crypto.randomUUID();
+  const logger = createLogger('grok-reality-agent', requestId);
 
+  try {
+    const grokApiKey = Deno.env.get('GROK_API_KEY');
     if (!grokApiKey) {
       throw new Error('GROK_API_KEY not configured');
     }
 
-    const authHeader = req.headers.get('Authorization');
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = initSupabaseClient();
+    const user = await requireAuth(req, supabase);
     
-    let user: any = null;
-    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(
-      authHeader?.replace('Bearer ', '') || ''
-    );
-
-    if (authError || !authUser) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
-    user = authUser;
+    logger.info('Processing Grok request', { userId: user.id });
 
     const body: GrokRequest = await req.json();
     const {
@@ -80,7 +67,16 @@ Deno.serve(async (req) => {
       }
     }
 
-    console.log('Grok Reality Agent request:', { action, topic, user: user.id });
+    // Validate required fields based on action
+    if (action === 'sentiment' || action === 'generate' || action === 'predict') {
+      validateRequiredFields({ topic }, ['topic']);
+    } else if (action === 'reasoning') {
+      validateRequiredFields({ content }, ['content']);
+    } else if (action === 'search') {
+      validateRequiredFields({ topic }, ['topic']);
+    }
+
+    logger.info('Processing Grok action', { action, topic: topic || 'N/A', model: selectedModel });
 
     let result: any;
 
@@ -94,52 +90,46 @@ Deno.serve(async (req) => {
 
     switch (action) {
       case 'trends':
-        result = await getTrendingTopics(grokApiKey, supabase, user.id, selectedModel, searchParams);
+        result = await getTrendingTopics(supabase, user.id, selectedModel, searchParams, logger);
         break;
       
       case 'sentiment':
-        if (!topic) throw new Error('Topic required for sentiment analysis');
-        result = await analyzeSentiment(grokApiKey, supabase, user.id, topic, selectedModel, searchParams);
+        result = await analyzeSentiment(supabase, user.id, topic!, selectedModel, searchParams, logger);
         break;
       
       case 'generate':
-        if (!topic) throw new Error('Topic required for content generation');
-        result = await generateViralContent(grokApiKey, supabase, user.id, topic, context, selectedModel, searchParams);
+        result = await generateViralContent(supabase, user.id, topic!, context, selectedModel, searchParams, logger);
         break;
       
       case 'predict':
-        if (!topic) throw new Error('Topic required for prediction');
-        result = await predictTrend(grokApiKey, supabase, user.id, topic, selectedModel, searchParams);
+        result = await predictTrend(supabase, user.id, topic!, selectedModel, searchParams, logger);
         break;
       
       case 'reasoning':
-        if (!content) throw new Error('Content required for reasoning');
-        result = await performReasoning(grokApiKey, supabase, user.id, content, context, selectedModel, searchParams);
+        result = await performReasoning(grokApiKey, supabase, user.id, content!, context, selectedModel, searchParams);
         break;
       
       case 'search':
-        if (!topic) throw new Error('Query required for search');
-        result = await performSearch(grokApiKey, supabase, user.id, topic, selectedModel, searchParams);
+        result = await performSearch(grokApiKey, supabase, user.id, topic!, selectedModel, searchParams);
         break;
       
       default:
         throw new Error(`Unknown action: ${action}`);
     }
 
-    return new Response(
-      JSON.stringify(result),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    logger.info('Grok action completed successfully', { action });
+    return successResponse(result, requestId);
 
-  } catch (error: any) {
+  } catch (error) {
     return handleError({
       functionName: 'grok-reality-agent',
       error,
+      requestId,
     });
   }
 });
 
-async function getTrendingTopics(apiKey: string, supabase: any, userId: string, model: string, searchParams: any) {
+async function getTrendingTopics(supabase: any, userId: string, model: string, searchParams: any, logger: any) {
   // Check cache first
   const { data: cached } = await supabase
     .from('social_intelligence')
@@ -151,10 +141,11 @@ async function getTrendingTopics(apiKey: string, supabase: any, userId: string, 
     .limit(10);
 
   if (cached && cached.length > 0) {
-    console.log('Returning cached trends');
+    logger.info('Returning cached trends', { count: cached.length });
     return { trends: cached, cached: true };
   }
 
+  logger.debug('Fetching real-time trends from Grok API');
   // Call Grok API for real-time trends
   const response = await xAIFetch('/v1/chat/completions', {
     method: 'POST',
@@ -211,12 +202,12 @@ async function getTrendingTopics(apiKey: string, supabase: any, userId: string, 
     });
   }
 
-  console.log(`Stored ${trends.length} trends in cache`);
+  logger.info('Stored trends in cache', { count: trends.length });
 
   return { trends, cached: false, raw: trendsText, citations, model };
 }
 
-async function analyzeSentiment(apiKey: string, supabase: any, userId: string, topic: string, model: string, searchParams: any) {
+async function analyzeSentiment(supabase: any, userId: string, topic: string, model: string, searchParams: any, logger: any) {
   // Check cache
   const { data: cached } = await supabase
     .from('social_intelligence')
@@ -228,9 +219,11 @@ async function analyzeSentiment(apiKey: string, supabase: any, userId: string, t
     .single();
 
   if (cached) {
-    console.log('Returning cached sentiment');
+    logger.info('Returning cached sentiment', { topic });
     return { sentiment: cached.data, cached: true };
   }
+
+  logger.debug('Analyzing sentiment with Grok API', { topic });
 
   const response = await xAIFetch('/v1/chat/completions', {
     method: 'POST',
@@ -281,7 +274,8 @@ async function analyzeSentiment(apiKey: string, supabase: any, userId: string, t
   return { sentiment: sentimentData, cached: false, citations, model };
 }
 
-async function generateViralContent(apiKey: string, supabase: any, userId: string, topic: string, context: any, model: string, searchParams: any) {
+async function generateViralContent(supabase: any, userId: string, topic: string, context: any, model: string, searchParams: any, logger: any) {
+  logger.debug('Generating viral content', { topic, style: context?.style });
   const response = await xAIFetch('/v1/chat/completions', {
     method: 'POST',
     body: JSON.stringify({
@@ -328,7 +322,8 @@ async function generateViralContent(apiKey: string, supabase: any, userId: strin
   };
 }
 
-async function predictTrend(apiKey: string, supabase: any, userId: string, topic: string, model: string, searchParams: any) {
+async function predictTrend(supabase: any, userId: string, topic: string, model: string, searchParams: any, logger: any) {
+  logger.debug('Predicting trend', { topic });
   const response = await xAIFetch('/v1/chat/completions', {
     method: 'POST',
     body: JSON.stringify({
