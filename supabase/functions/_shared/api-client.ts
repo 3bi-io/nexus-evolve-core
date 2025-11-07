@@ -185,6 +185,33 @@ export const anthropicFetch = async (
 };
 
 /**
+ * xAI (Grok) API client with retry and timeout
+ */
+export const xAIFetch = async (
+  endpoint: string,
+  options: RequestInit = {},
+  config: RetryConfig = {}
+): Promise<Response> => {
+  const apiKey = Deno.env.get('GROK_API_KEY');
+  if (!apiKey) throw new Error('GROK_API_KEY not configured');
+
+  const url = `https://api.x.ai${endpoint}`;
+  
+  return fetchWithRetry(url, {
+    ...options,
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  }, {
+    ...DEFAULT_CONFIG,
+    timeout: 60000, // 60s for Grok responses
+    ...config,
+  });
+};
+
+/**
  * Lovable AI Gateway client with retry and timeout
  */
 export const lovableAIFetch = async (

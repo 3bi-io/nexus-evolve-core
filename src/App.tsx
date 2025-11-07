@@ -12,6 +12,7 @@ import { useGlobalShortcuts } from "@/hooks/useKeyboardShortcuts";
 import { useReferralProcessor } from "@/hooks/useReferralProcessor";
 import { useReferralConversion } from "@/hooks/useReferralConversion";
 import { MobileOnboarding } from "@/components/mobile/MobileOnboarding";
+import { InstallPrompt } from "@/components/mobile/InstallPrompt";
 
 // Lazy load pages for better performance and code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -64,6 +65,7 @@ const PlatformOptimizer = lazy(() => import("./pages/PlatformOptimizer"));
 const XAIStudio = lazy(() => import("./pages/XAIStudio"));
 const XAIAnalytics = lazy(() => import("./pages/XAIAnalytics"));
 const AutomationHub = lazy(() => import("./pages/AutomationHub"));
+const Install = lazy(() => import("./pages/Install"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -106,6 +108,7 @@ const RoutesWithShortcuts = () => {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/install" element={<Install />} />
           <Route path="/getting-started" element={<GettingStarted />} />
           <Route
             path="/account"
@@ -430,6 +433,7 @@ function App() {
             <AuthProvider>
               <BrowserRouter>
                 <MobileOnboarding />
+                <InstallPrompt />
                 <RoutesWithShortcuts />
               </BrowserRouter>
             </AuthProvider>

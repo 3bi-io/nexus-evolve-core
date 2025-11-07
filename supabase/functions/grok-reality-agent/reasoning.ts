@@ -1,4 +1,5 @@
 // Additional reasoning and search functions for grok-reality-agent
+import { xAIFetch } from '../_shared/api-client.ts';
 
 export async function performReasoning(
   apiKey: string,
@@ -9,12 +10,8 @@ export async function performReasoning(
   model: string,
   searchParams: any
 ) {
-  const response = await fetch('https://api.x.ai/v1/chat/completions', {
+  const response = await xAIFetch('/v1/chat/completions', {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       model,
       messages: [
@@ -30,10 +27,13 @@ export async function performReasoning(
       temperature: 0.4,
       search_parameters: searchParams,
     }),
+  }, {
+    timeout: 60000,
+    maxRetries: 2,
   });
 
   if (!response.ok) {
-    throw new Error(`Reasoning API error: ${response.status}`);
+    throw response; // Will be handled by error handler
   }
 
   const data = await response.json();
@@ -56,12 +56,8 @@ export async function performSearch(
   model: string,
   searchParams: any
 ) {
-  const response = await fetch('https://api.x.ai/v1/chat/completions', {
+  const response = await xAIFetch('/v1/chat/completions', {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       model,
       messages: [
@@ -77,10 +73,13 @@ export async function performSearch(
       temperature: 0.5,
       search_parameters: searchParams,
     }),
+  }, {
+    timeout: 60000,
+    maxRetries: 2,
   });
 
   if (!response.ok) {
-    throw new Error(`Search API error: ${response.status}`);
+    throw response; // Will be handled by error handler
   }
 
   const data = await response.json();

@@ -1,5 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.76.1';
 import { performReasoning, performSearch } from './reasoning.ts';
+import { handleError } from '../_shared/error-handler.ts';
+import { xAIFetch } from '../_shared/api-client.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -35,16 +37,19 @@ Deno.serve(async (req) => {
     const authHeader = req.headers.get('Authorization');
     const supabase = createClient(supabaseUrl, supabaseKey);
     
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
+    let user: any = null;
+    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser(
       authHeader?.replace('Bearer ', '') || ''
     );
 
-    if (authError || !user) {
+    if (authError || !authUser) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    user = authUser;
 
     const body: GrokRequest = await req.json();
     const {
@@ -127,11 +132,10 @@ Deno.serve(async (req) => {
     );
 
   } catch (error: any) {
-    console.error('Grok Reality Agent error:', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+    return handleError({
+      functionName: 'grok-reality-agent',
+      error,
+    });
   }
 });
 
@@ -152,12 +156,8 @@ async function getTrendingTopics(apiKey: string, supabase: any, userId: string, 
   }
 
   // Call Grok API for real-time trends
-  const response = await fetch('https://api.x.ai/v1/chat/completions', {
+  const response = await xAIFetch('/v1/chat/completions', {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       model,
       messages: [
@@ -173,12 +173,13 @@ async function getTrendingTopics(apiKey: string, supabase: any, userId: string, 
       temperature: 0.7,
       search_parameters: searchParams,
     }),
+  }, {
+    timeout: 60000,
+    maxRetries: 2,
   });
 
   if (!response.ok) {
-    const errorText = await response.text();
-    console.error('Grok API error:', response.status, errorText);
-    throw new Error(`Grok API error: ${response.status}`);
+    throw response; // Will be handled by error handler
   }
 
   const data = await response.json();
@@ -231,12 +232,8 @@ async function analyzeSentiment(apiKey: string, supabase: any, userId: string, t
     return { sentiment: cached.data, cached: true };
   }
 
-  const response = await fetch('https://api.x.ai/v1/chat/completions', {
+  const response = await xAIFetch('/v1/chat/completions', {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       model,
       messages: [
@@ -252,6 +249,9 @@ async function analyzeSentiment(apiKey: string, supabase: any, userId: string, t
       temperature: 0.5,
       search_parameters: searchParams,
     }),
+  }, {
+    timeout: 60000,
+    maxRetries: 2,
   });
 
   const data = await response.json();
@@ -282,12 +282,8 @@ async function analyzeSentiment(apiKey: string, supabase: any, userId: string, t
 }
 
 async function generateViralContent(apiKey: string, supabase: any, userId: string, topic: string, context: any, model: string, searchParams: any) {
-  const response = await fetch('https://api.x.ai/v1/chat/completions', {
+  const response = await xAIFetch('/v1/chat/completions', {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       model,
       messages: [
@@ -303,6 +299,9 @@ async function generateViralContent(apiKey: string, supabase: any, userId: strin
       temperature: 0.9,
       search_parameters: searchParams,
     }),
+  }, {
+    timeout: 60000,
+    maxRetries: 2,
   });
 
   const data = await response.json();
@@ -330,12 +329,8 @@ async function generateViralContent(apiKey: string, supabase: any, userId: strin
 }
 
 async function predictTrend(apiKey: string, supabase: any, userId: string, topic: string, model: string, searchParams: any) {
-  const response = await fetch('https://api.x.ai/v1/chat/completions', {
+  const response = await xAIFetch('/v1/chat/completions', {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
     body: JSON.stringify({
       model,
       messages: [
@@ -351,6 +346,9 @@ async function predictTrend(apiKey: string, supabase: any, userId: string, topic
       temperature: 0.6,
       search_parameters: searchParams,
     }),
+  }, {
+    timeout: 60000,
+    maxRetries: 2,
   });
 
   const data = await response.json();

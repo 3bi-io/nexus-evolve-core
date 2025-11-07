@@ -2,8 +2,11 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { PricingCards } from "@/components/pricing/PricingCards";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { ResponsiveContainer, ResponsiveGrid } from "@/components/layout/ResponsiveContainer";
+import { ResponsiveSection, MobileSafeArea, TouchTarget } from "@/components/layout/ResponsiveSection";
 import { SEO } from "@/components/SEO";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { ROICalculator } from "@/components/conversion/ROICalculator";
 import { TrendingUp, Shield, Zap, DollarSign, Clock } from "lucide-react";
 import {
@@ -69,112 +72,134 @@ const Pricing = () => {
         ogImage="/og-platform-automation.png"
       />
 
-      <div className="container mx-auto px-4 py-8 sm:py-12 max-w-7xl space-y-12 sm:space-y-16">
-        {/* Header */}
-        <div className="text-center space-mobile">
-          <Badge variant="outline" className="text-sm sm:text-base px-3 sm:px-4 py-1.5 sm:py-2 animate-pulse">
-            <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
-            🚀 Beta Launch - Lock In Founder Rates
-          </Badge>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
-            Beta Pricing for Early Users
-          </h1>
-          <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Join the first 1,000 founder rate users. Start free forever or lock in <strong className="text-primary">$29/mo for life</strong>. 
-            Price increases to $49/mo after beta. Includes unified platform experience with all features.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm pt-2">
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
-              <span className="hidden sm:inline">No credit card required</span>
-              <span className="sm:hidden">No card required</span>
-            </div>
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
-              <span className="hidden sm:inline">Beta access to all features</span>
-              <span className="sm:hidden">All features</span>
-            </div>
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
-              <span className="hidden sm:inline">Lifetime founder pricing</span>
-              <span className="sm:hidden">Locked price</span>
-            </div>
+      <ResponsiveContainer size="xl" padding="md">
+        <MobileSafeArea bottom>
+          <div className="space-y-12 md:space-y-16">
+            {/* Header */}
+            <ResponsiveSection spacing="md">
+              <div className="text-center space-y-4">
+                <Badge variant="outline" className="text-sm sm:text-base px-3 sm:px-4 py-1.5 sm:py-2 animate-pulse">
+                  <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
+                  🚀 Beta Launch - Lock In Founder Rates
+                </Badge>
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
+                  Beta Pricing for Early Users
+                </h1>
+                <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                  Join the first 1,000 founder rate users. Start free forever or lock in <strong className="text-primary">$29/mo for life</strong>. 
+                  Price increases to $49/mo after beta. Includes unified platform experience with all features.
+                </p>
+                <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm pt-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
+                    <span className="hidden sm:inline">No credit card required</span>
+                    <span className="sm:hidden">No card required</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
+                    <span className="hidden sm:inline">Beta access to all features</span>
+                    <span className="sm:hidden">All features</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
+                    <span className="hidden sm:inline">Lifetime founder pricing</span>
+                    <span className="sm:hidden">Locked price</span>
+                  </div>
+                </div>
+              </div>
+            </ResponsiveSection>
+
+            {/* Pricing Cards */}
+            <ResponsiveSection spacing="md">
+              <PricingCards />
+            </ResponsiveSection>
+
+            {/* Value Comparison */}
+            <ResponsiveSection spacing="md" background="muted">
+              <div className="p-6 md:p-8">
+                <h3 className="text-2xl font-bold text-center mb-4">Beta Value Proposition</h3>
+                <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
+                  We're in beta, building honestly. Here's what early users get vs. future pricing
+                </p>
+                <ResponsiveGrid cols={{ mobile: 1, tablet: 3, desktop: 3 }} gap="md">
+                  <div className="text-center space-y-2">
+                    <DollarSign className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+                    <p className="text-3xl font-bold">$49/mo</p>
+                    <p className="text-sm font-semibold">After Beta Launch</p>
+                    <p className="text-xs text-muted-foreground">Standard Professional pricing</p>
+                  </div>
+                  <div className="text-center space-y-2">
+                    <DollarSign className="h-10 w-10 text-primary mx-auto mb-3" />
+                    <p className="text-3xl font-bold text-primary">$29/mo</p>
+                    <p className="text-sm font-semibold">Beta Founder Rate</p>
+                    <p className="text-xs text-muted-foreground">Locked in forever - Join now</p>
+                  </div>
+                  <div className="text-center space-y-2">
+                    <DollarSign className="h-10 w-10 text-success mx-auto mb-3" />
+                    <p className="text-3xl font-bold text-success">$0/mo</p>
+                    <p className="text-sm font-semibold">Forever Free Tier</p>
+                    <p className="text-xs text-muted-foreground">500 daily AI interactions, all features</p>
+                  </div>
+                </ResponsiveGrid>
+              </div>
+            </ResponsiveSection>
+
+            {/* ROI Calculator */}
+            <ResponsiveSection spacing="md">
+              <ROICalculator />
+            </ResponsiveSection>
+
+            {/* FAQ Section */}
+            <ResponsiveSection spacing="md">
+              <div className="max-w-4xl mx-auto">
+                <h2 className="text-3xl font-bold text-center mb-8">
+                  Frequently Asked Questions
+                </h2>
+                <Accordion type="single" collapsible className="space-y-4">
+                  {faqs.map((faq, index) => (
+                    <AccordionItem key={index} value={`item-${index}`} className="border rounded-lg px-6">
+                      <TouchTarget>
+                        <AccordionTrigger className="text-left text-lg py-5 hover:no-underline font-semibold">
+                          {faq.question}
+                        </AccordionTrigger>
+                      </TouchTarget>
+                      <AccordionContent className="text-muted-foreground text-base pb-5 leading-relaxed">
+                        {faq.answer}
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              </div>
+            </ResponsiveSection>
+
+            {/* Contact CTA */}
+            <ResponsiveSection spacing="md">
+              <div className="text-center space-y-6 py-12 bg-gradient-to-br from-primary/5 to-transparent rounded-lg">
+                <Clock className="h-12 w-12 text-primary mx-auto" />
+                <h2 className="text-3xl font-bold">
+                  Join the Beta Program
+                </h2>
+                <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                  Have questions about beta access, founder pricing, or enterprise needs? 
+                  Connect with our team.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <TouchTarget>
+                    <Button size="lg" onClick={() => window.location.href = "mailto:sales@oneiros.me"}>
+                      Contact Us
+                    </Button>
+                  </TouchTarget>
+                  <TouchTarget>
+                    <Button size="lg" variant="outline" onClick={() => navigate('/getting-started')}>
+                      Try Demo First
+                    </Button>
+                  </TouchTarget>
+                </div>
+              </div>
+            </ResponsiveSection>
           </div>
-        </div>
-
-        {/* Pricing Cards */}
-        <PricingCards />
-
-        {/* Value Comparison */}
-        <div className="bg-muted/30 rounded-lg p-8">
-          <h3 className="text-2xl font-bold text-center mb-4">Beta Value Proposition</h3>
-          <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
-            We're in beta, building honestly. Here's what early users get vs. future pricing
-          </p>
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            <div className="text-center space-y-2">
-              <DollarSign className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-              <p className="text-3xl font-bold">$49/mo</p>
-              <p className="text-sm font-semibold">After Beta Launch</p>
-              <p className="text-xs text-muted-foreground">Standard Professional pricing</p>
-            </div>
-            <div className="text-center space-y-2">
-              <DollarSign className="h-10 w-10 text-primary mx-auto mb-3" />
-              <p className="text-3xl font-bold text-primary">$29/mo</p>
-              <p className="text-sm font-semibold">Beta Founder Rate</p>
-              <p className="text-xs text-muted-foreground">Locked in forever - Join now</p>
-            </div>
-            <div className="text-center space-y-2">
-              <DollarSign className="h-10 w-10 text-success mx-auto mb-3" />
-              <p className="text-3xl font-bold text-success">$0/mo</p>
-              <p className="text-sm font-semibold">Forever Free Tier</p>
-              <p className="text-xs text-muted-foreground">500 daily AI interactions, all features</p>
-            </div>
-          </div>
-        </div>
-
-        {/* ROI Calculator */}
-        <ROICalculator />
-
-        {/* FAQ Section */}
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-8">
-            Frequently Asked Questions
-          </h2>
-          <Accordion type="single" collapsible className="space-y-4">
-            {faqs.map((faq, index) => (
-              <AccordionItem key={index} value={`item-${index}`} className="border rounded-lg px-6">
-                <AccordionTrigger className="text-left text-lg py-5 hover:no-underline font-semibold">
-                  {faq.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground text-base pb-5 leading-relaxed">
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
-
-        {/* Contact CTA */}
-        <div className="text-center space-y-6 py-12 bg-gradient-to-br from-primary/5 to-transparent rounded-lg">
-          <Clock className="h-12 w-12 text-primary mx-auto" />
-          <h2 className="text-3xl font-bold">
-            Join the Beta Program
-          </h2>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Have questions about beta access, founder pricing, or enterprise needs? 
-            Connect with our team.
-          </p>
-          <div className="flex gap-4 justify-center">
-            <Button size="lg" onClick={() => window.location.href = "mailto:sales@oneiros.me"}>
-              Contact Us
-            </Button>
-            <Button size="lg" variant="outline" onClick={() => navigate('/getting-started')}>
-              Try Demo First
-            </Button>
-          </div>
-        </div>
-      </div>
+        </MobileSafeArea>
+      </ResponsiveContainer>
     </PageLayout>
   );
 };
