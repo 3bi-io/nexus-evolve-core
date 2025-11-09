@@ -19,6 +19,12 @@ export function SocialProofNotification() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    // Validate BETA_ACTIVITIES array exists and has content
+    if (!BETA_ACTIVITIES || BETA_ACTIVITIES.length === 0) {
+      console.warn('[SocialProofNotification] BETA_ACTIVITIES is empty or undefined');
+      return;
+    }
+
     const showNotification = () => {
       setIsVisible(true);
       setTimeout(() => setIsVisible(false), 5000);
@@ -29,7 +35,11 @@ export function SocialProofNotification() {
 
       // Then cycle through notifications every 15 seconds
       const interval = setInterval(() => {
-        setCurrentActivity((prev) => (prev + 1) % BETA_ACTIVITIES.length);
+        setCurrentActivity((prev) => {
+          const nextIndex = (prev + 1) % BETA_ACTIVITIES.length;
+          // Bounds check to ensure valid index
+          return nextIndex < BETA_ACTIVITIES.length ? nextIndex : 0;
+        });
         showNotification();
       }, 15000);
 
@@ -39,7 +49,9 @@ export function SocialProofNotification() {
     };
   }, []);
 
-  const activity = BETA_ACTIVITIES[currentActivity];
+  // Defensive: Ensure activity exists with bounds check
+  const activity = BETA_ACTIVITIES[currentActivity] || BETA_ACTIVITIES[0];
+  if (!activity) return null;
 
   return (
     <AnimatePresence>

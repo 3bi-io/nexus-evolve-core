@@ -22,7 +22,14 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    console.error('ErrorBoundary caught an error:', {
+      error,
+      errorInfo,
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      viewport: `${window.innerWidth}x${window.innerHeight}`,
+      url: window.location.href,
+    });
     
     // Log error to evolution_logs table
     this.logError(error, errorInfo);
@@ -39,8 +46,15 @@ export class ErrorBoundary extends Component<Props, State> {
         description: `UI Error: ${error.message}`,
         metrics: {
           error: error.toString(),
+          message: error.message,
+          name: error.name,
           stack: error.stack,
           componentStack: errorInfo.componentStack,
+          timestamp: new Date().toISOString(),
+          userAgent: navigator.userAgent,
+          viewport: `${window.innerWidth}x${window.innerHeight}`,
+          isMobile: window.innerWidth < 768,
+          url: window.location.href,
         },
         success: false,
       });

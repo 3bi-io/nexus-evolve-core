@@ -97,12 +97,14 @@ export function AnimatedPlatformComparison() {
 
               {/* Animated Tool Windows */}
               <div className="relative h-[350px]">
-                <AnimatePresence mode="wait">
-                  {(() => {
-                    const tool = TOOLS_SEQUENCE[beforeStep % TOOLS_SEQUENCE.length];
-                    if (!tool) return null;
-                    const ToolIcon = tool.icon;
-                    return (
+                {(() => {
+                  // Pre-calculate tool BEFORE AnimatePresence to avoid null children
+                  const tool = TOOLS_SEQUENCE[beforeStep % TOOLS_SEQUENCE.length] || TOOLS_SEQUENCE[0];
+                  if (!tool) return null;
+                  const ToolIcon = tool.icon;
+                  
+                  return (
+                    <AnimatePresence mode="wait">
                       <motion.div
                         key={`${tool.name}-${cycleCount}`}
                         initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
@@ -155,9 +157,9 @@ export function AnimatedPlatformComparison() {
                           </div>
                         </Card>
                       </motion.div>
-                    );
-                  })()}
-                </AnimatePresence>
+                    </AnimatePresence>
+                  );
+                })()}
 
                 {/* Chaos indicators */}
                 <div className="absolute -bottom-2 left-0 right-0 flex justify-center gap-1">
@@ -238,13 +240,15 @@ export function AnimatedPlatformComparison() {
 
                 {/* Main Content Area */}
                 <div className="flex-1 space-y-4">
-                  <AnimatePresence mode="wait">
-                    {(() => {
-                      const idx = showUnifiedFeatures % UNIFIED_FEATURES.length;
-                      const feature = UNIFIED_FEATURES[idx];
-                      if (!feature) return null;
-                      
-                      return (
+                  {(() => {
+                    // Pre-calculate feature BEFORE AnimatePresence to avoid null children
+                    const idx = showUnifiedFeatures % UNIFIED_FEATURES.length;
+                    const feature = UNIFIED_FEATURES[idx] || UNIFIED_FEATURES[0];
+                    if (!feature) return null;
+                    const Icon = feature.icon;
+                    
+                    return (
+                      <AnimatePresence mode="wait">
                         <motion.div
                           key={idx}
                           initial={{ opacity: 0, x: 20 }}
@@ -255,39 +259,32 @@ export function AnimatedPlatformComparison() {
                         >
                           <Card className="h-full border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
                             <div className="p-6 space-y-4">
-                              {(() => {
-                                const Icon = feature.icon;
-                                return (
-                                  <>
-                                    <div className="flex items-center gap-3">
-                                      <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                                        <Icon className="h-6 w-6 text-primary" />
-                                      </div>
-                                      <div>
-                                        <h4 className="font-bold">{feature.name}</h4>
-                                        <p className="text-xs text-muted-foreground">Instant access</p>
-                                      </div>
-                                    </div>
-                                    
-                                    <div className="space-y-2">
-                                      <div className="h-2 bg-primary/20 rounded" />
-                                      <div className="h-2 bg-primary/20 rounded w-4/5" />
-                                      <div className="h-2 bg-primary/20 rounded w-3/5" />
-                                    </div>
+                              <div className="flex items-center gap-3">
+                                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                                  <Icon className="h-6 w-6 text-primary" />
+                                </div>
+                                <div>
+                                  <h4 className="font-bold">{feature.name}</h4>
+                                  <p className="text-xs text-muted-foreground">Instant access</p>
+                                </div>
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <div className="h-2 bg-primary/20 rounded" />
+                                <div className="h-2 bg-primary/20 rounded w-4/5" />
+                                <div className="h-2 bg-primary/20 rounded w-3/5" />
+                              </div>
 
-                                    <div className="flex items-center gap-2 text-sm text-primary">
-                                      <Check className="h-4 w-4" />
-                                      Context preserved across all systems
-                                    </div>
-                                  </>
-                                );
-                              })()}
+                              <div className="flex items-center gap-2 text-sm text-primary">
+                                <Check className="h-4 w-4" />
+                                Context preserved across all systems
+                              </div>
                             </div>
                           </Card>
                         </motion.div>
-                      );
-                    })()}
-                  </AnimatePresence>
+                      </AnimatePresence>
+                    );
+                  })()}
 
                   {/* Keyboard shortcut hint */}
                   <motion.div

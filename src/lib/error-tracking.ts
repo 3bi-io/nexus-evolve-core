@@ -20,6 +20,11 @@ export class ErrorTracking {
 
       // Get current user if available
       const { data: { user } } = await supabase.auth.getUser();
+      
+      // Detect mobile device
+      const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const isAndroid = /Android/i.test(navigator.userAgent);
 
       // Log to Supabase
       await supabase.from('user_events').insert({
@@ -40,13 +45,25 @@ export class ErrorTracking {
             used: (performance as any).memory.usedJSHeapSize,
             total: (performance as any).memory.totalJSHeapSize,
           } : undefined,
+          // Mobile-specific metadata
+          isMobile,
+          isIOS,
+          isAndroid,
+          devicePixelRatio: window.devicePixelRatio,
+          orientation: window.screen.orientation?.type || 'unknown',
+          connection: (navigator as any).connection?.effectiveType || 'unknown',
+          touchSupport: 'ontouchstart' in window,
         },
         page_url: window.location.pathname,
       });
 
-      // Log to console in development
+      // Log to console in development with mobile indicator
       if (process.env.NODE_ENV === 'development') {
-        console.error(`[${error.severity.toUpperCase()}]`, error.message, error);
+        console.error(
+          `[${error.severity.toUpperCase()}${isMobile ? ' 📱 MOBILE' : ''}]`, 
+          error.message, 
+          error
+        );
       }
 
       // Critical errors should be alerted

@@ -1,4 +1,17 @@
-import { 
+// Runtime validation for demo prompts array
+if (import.meta.env.DEV) {
+  const validateDemoPrompts = () => {
+    // Will be validated after DEMO_PROMPTS is defined
+    setTimeout(() => {
+      if (!DEMO_PROMPTS || DEMO_PROMPTS.length === 0) {
+        console.warn('[demo-prompts] DEMO_PROMPTS array is empty or undefined');
+      }
+    }, 0);
+  };
+  validateDemoPrompts();
+}
+
+import {
   Brain, 
   Mic, 
   TrendingUp,
