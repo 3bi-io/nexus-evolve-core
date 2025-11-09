@@ -11,7 +11,8 @@ import {
 import { TypingIndicator } from "@/components/chat/TypingIndicator";
 import { useNavigate } from "react-router-dom";
 import { DEMO_PROMPTS } from "@/data/demo-prompts";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import { SafeAnimatePresence } from "@/components/ui/SafeAnimatePresence";
 
 export const EnhancedInteractiveDemo = () => {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ export const EnhancedInteractiveDemo = () => {
 
         {/* Chat Display with animations */}
         <div className="min-h-[200px] max-h-[300px] overflow-y-auto space-y-4 bg-muted/30 rounded-lg p-4">
-          <AnimatePresence mode="wait">
+          <SafeAnimatePresence mode="wait">
             {!selectedPrompt && !isTyping && (
               <motion.div 
                 key="empty"
@@ -120,7 +121,7 @@ export const EnhancedInteractiveDemo = () => {
                 </div>
               </motion.div>
             )}
-          </AnimatePresence>
+          </SafeAnimatePresence>
         </div>
 
         {/* Prompt Buttons - Responsive: 1 col on mobile, 2 cols on larger screens */}
@@ -148,7 +149,7 @@ export const EnhancedInteractiveDemo = () => {
 
         {/* Credits & CTAs */}
         <div className="pt-4 border-t space-y-3">
-          <AnimatePresence>
+          <SafeAnimatePresence>
             {totalCredits > 0 && (
               <motion.div 
                 initial={{ opacity: 0, height: 0 }}
@@ -167,7 +168,7 @@ export const EnhancedInteractiveDemo = () => {
                 </motion.div>
               </motion.div>
             )}
-          </AnimatePresence>
+          </SafeAnimatePresence>
           
           <div className="space-y-2">
             <Button 

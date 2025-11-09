@@ -20,6 +20,11 @@ export const SafeAnimatePresence = ({
 }: SafeAnimatePresenceProps) => {
   const isMobile = useIsMobile();
   
+  // Development warning for null/undefined children
+  if (process.env.NODE_ENV === 'development' && !children) {
+    console.warn('[SafeAnimatePresence] Received null/undefined children - this may cause errors');
+  }
+  
   // On mobile, skip AnimatePresence to avoid timing/null children issues
   if (disableOnMobile && isMobile) {
     return <>{children}</>;

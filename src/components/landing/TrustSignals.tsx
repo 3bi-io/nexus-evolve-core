@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Shield, Zap, Users, Clock } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { SafeAnimatePresence } from '@/components/ui/SafeAnimatePresence';
 
 const ACTIVITY_MESSAGES = [
   { location: 'San Francisco', action: 'started a voice conversation' },
@@ -51,7 +52,7 @@ export function TrustSignals() {
     <div className="space-y-8">
       {/* Live Activity Ticker */}
       <div className="flex justify-center">
-        <AnimatePresence mode="wait">
+        <SafeAnimatePresence mode="wait">
           {showActivity && (
             <motion.div
               key={currentActivity}
@@ -71,7 +72,7 @@ export function TrustSignals() {
               </Card>
             </motion.div>
           )}
-        </AnimatePresence>
+        </SafeAnimatePresence>
       </div>
 
       {/* Trust Metrics */}

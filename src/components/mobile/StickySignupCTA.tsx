@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { SafeAnimatePresence } from '@/components/ui/SafeAnimatePresence';
 import { Button } from '@/components/ui/button';
 import { X, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -43,7 +44,7 @@ export function StickySignupCTA() {
   if (!isMobile || user || isDismissed) return null;
 
   return (
-    <AnimatePresence>
+    <SafeAnimatePresence>
       {isVisible && (
         <motion.div
           initial={{ y: 100, opacity: 0 }}
@@ -85,6 +86,6 @@ export function StickySignupCTA() {
           </div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </SafeAnimatePresence>
   );
 }

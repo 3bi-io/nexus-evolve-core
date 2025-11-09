@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { SafeAnimatePresence } from '@/components/ui/SafeAnimatePresence';
 import { Sparkles } from 'lucide-react';
 
 const BETA_ACTIVITIES = [
@@ -54,7 +55,7 @@ export function SocialProofNotification() {
   if (!activity) return null;
 
   return (
-    <AnimatePresence>
+    <SafeAnimatePresence>
       {isVisible && (
         <motion.div
           initial={{ opacity: 0, y: 50, scale: 0.3 }}
@@ -76,6 +77,6 @@ export function SocialProofNotification() {
           </div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </SafeAnimatePresence>
   );
 }
