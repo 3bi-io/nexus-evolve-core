@@ -22,10 +22,20 @@ export function TrustSignals() {
   const [showActivity, setShowActivity] = useState(true);
 
   useEffect(() => {
+    // Validate ACTIVITY_MESSAGES array
+    if (!ACTIVITY_MESSAGES || ACTIVITY_MESSAGES.length === 0) {
+      console.warn('[TrustSignals] ACTIVITY_MESSAGES is empty or undefined');
+      return;
+    }
+
     const interval = setInterval(() => {
       setShowActivity(false);
       setTimeout(() => {
-        setCurrentActivity((prev) => (prev + 1) % ACTIVITY_MESSAGES.length);
+        setCurrentActivity((prev) => {
+          const nextIndex = (prev + 1) % ACTIVITY_MESSAGES.length;
+          // Bounds check to ensure valid index
+          return nextIndex < ACTIVITY_MESSAGES.length ? nextIndex : 0;
+        });
         setShowActivity(true);
       }, 300);
     }, 5000);
@@ -33,7 +43,9 @@ export function TrustSignals() {
     return () => clearInterval(interval);
   }, []);
 
-  const activity = ACTIVITY_MESSAGES[currentActivity];
+  // Defensive: Ensure activity exists with bounds check
+  const activity = ACTIVITY_MESSAGES[currentActivity] || ACTIVITY_MESSAGES[0];
+  if (!activity) return null;
 
   return (
     <div className="space-y-8">

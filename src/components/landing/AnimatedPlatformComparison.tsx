@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { SafeAnimatePresence } from '@/components/ui/SafeAnimatePresence';
 import { 
   MessageSquare, Store, Phone, Network, BarChart3, 
   Sparkles, Zap, Brain, X, Check, ArrowRight, Loader2,
   ExternalLink, RefreshCw
 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const TOOLS_SEQUENCE = [
   { name: 'ChatGPT', icon: MessageSquare, color: '#10a37f' },
@@ -31,9 +33,40 @@ export function AnimatedPlatformComparison() {
   const [beforeStep, setBeforeStep] = useState(0);
   const [showUnifiedFeatures, setShowUnifiedFeatures] = useState(0);
   const [cycleCount, setCycleCount] = useState(0);
+  const [enableAnimations, setEnableAnimations] = useState(false);
+  const isMobile = useIsMobile();
+
+  // Delay animation initialization on mobile to prevent timing issues
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setEnableAnimations(true);
+    }, isMobile ? 200 : 0);
+    return () => clearTimeout(timer);
+  }, [isMobile]);
+
+  // Pre-calculate current tool with bounds checking
+  const currentTool = useMemo(() => {
+    if (!TOOLS_SEQUENCE || TOOLS_SEQUENCE.length === 0) {
+      console.warn('[AnimatedPlatformComparison] TOOLS_SEQUENCE is empty');
+      return null;
+    }
+    return TOOLS_SEQUENCE[beforeStep % TOOLS_SEQUENCE.length];
+  }, [beforeStep]);
+
+  // Pre-calculate current feature with bounds checking
+  const currentFeature = useMemo(() => {
+    if (!UNIFIED_FEATURES || UNIFIED_FEATURES.length === 0) {
+      console.warn('[AnimatedPlatformComparison] UNIFIED_FEATURES is empty');
+      return null;
+    }
+    const idx = showUnifiedFeatures % UNIFIED_FEATURES.length;
+    return UNIFIED_FEATURES[idx];
+  }, [showUnifiedFeatures]);
 
   // Before animation - switching between tools
   useEffect(() => {
+    if (!enableAnimations) return;
+    
     const interval = setInterval(() => {
       setBeforeStep((prev) => {
         if (prev >= TOOLS_SEQUENCE.length - 1) {
@@ -45,10 +78,12 @@ export function AnimatedPlatformComparison() {
     }, 1500);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [enableAnimations]);
 
   // After animation - showing unified features sequentially
   useEffect(() => {
+    if (!enableAnimations) return;
+    
     const interval = setInterval(() => {
       setShowUnifiedFeatures((prev) => {
         if (prev >= UNIFIED_FEATURES.length - 1) {
@@ -59,7 +94,23 @@ export function AnimatedPlatformComparison() {
     }, 600);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [enableAnimations]);
+
+  // Fallback if data is invalid
+  if (!currentTool || !currentFeature) {
+    return (
+      <section className="py-16 bg-gradient-to-br from-destructive/5 to-background">
+        <div className="container mx-auto">
+          <Card className="p-8 text-center">
+            <p className="text-muted-foreground">Loading comparison...</p>
+          </Card>
+        </div>
+      </section>
+    );
+  }
+
+  const ToolIcon = currentTool.icon;
+  const FeatureIcon = currentFeature.icon;
 
   return (
     <section className="py-16 bg-gradient-to-br from-destructive/5 to-background">
@@ -95,71 +146,64 @@ export function AnimatedPlatformComparison() {
                 </p>
               </div>
 
-              {/* Animated Tool Windows */}
+              {/* Animated Tool Windows - Direct Render Pattern */}
               <div className="relative h-[350px]">
-                {(() => {
-                  // Pre-calculate tool BEFORE AnimatePresence to avoid null children
-                  const tool = TOOLS_SEQUENCE[beforeStep % TOOLS_SEQUENCE.length] || TOOLS_SEQUENCE[0];
-                  if (!tool) return null;
-                  const ToolIcon = tool.icon;
-                  
-                  return (
-                    <AnimatePresence mode="wait">
-                      <motion.div
-                        key={`${tool.name}-${cycleCount}`}
-                        initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
-                        animate={{ opacity: 1, scale: 1, rotate: 0 }}
-                        exit={{ opacity: 0, scale: 0.8, rotate: 10 }}
-                        transition={{ duration: 0.4 }}
-                        className="absolute inset-0"
-                      >
-                        <Card className="h-full border-2" style={{ borderColor: tool.color }}>
-                          <div className="p-6 space-y-4">
-                            {/* Fake browser bar */}
-                            <div className="flex items-center gap-2 pb-4 border-b">
-                              <div className="flex gap-1.5">
-                                <div className="w-3 h-3 rounded-full bg-destructive/50" />
-                                <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
-                                <div className="w-3 h-3 rounded-full bg-green-500/50" />
-                              </div>
-                              <div className="flex-1 bg-muted rounded px-3 py-1 text-xs text-muted-foreground flex items-center gap-2">
-                                <ExternalLink className="h-3 w-3" />
-                                {tool.name.toLowerCase().replace(' ', '')}.com
-                              </div>
+                <SafeAnimatePresence mode="wait">
+                  {enableAnimations && (
+                    <motion.div
+                      key={`${currentTool.name}-${cycleCount}`}
+                      initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
+                      animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                      exit={{ opacity: 0, scale: 0.8, rotate: 10 }}
+                      transition={{ duration: 0.4 }}
+                      className="absolute inset-0"
+                    >
+                      <Card className="h-full border-2" style={{ borderColor: currentTool.color }}>
+                        <div className="p-6 space-y-4">
+                          {/* Fake browser bar */}
+                          <div className="flex items-center gap-2 pb-4 border-b">
+                            <div className="flex gap-1.5">
+                              <div className="w-3 h-3 rounded-full bg-destructive/50" />
+                              <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
+                              <div className="w-3 h-3 rounded-full bg-green-500/50" />
                             </div>
-
-                            {/* Tool content */}
-                            <div className="flex items-center gap-4">
-                              <div 
-                                className="h-16 w-16 rounded-xl flex items-center justify-center"
-                                style={{ backgroundColor: `${tool.color}20` }}
-                              >
-                                <ToolIcon className="h-8 w-8" style={{ color: tool.color }} />
-                              </div>
-                              <div className="flex-1">
-                                <h4 className="font-bold text-lg">{tool.name}</h4>
-                                <p className="text-sm text-muted-foreground">Loading...</p>
-                              </div>
-                            </div>
-
-                            {/* Simulated content */}
-                            <div className="space-y-2">
-                              <div className="h-3 bg-muted rounded animate-pulse" />
-                              <div className="h-3 bg-muted rounded animate-pulse w-4/5" />
-                              <div className="h-3 bg-muted rounded animate-pulse w-3/5" />
-                            </div>
-
-                            {/* Loading indicator */}
-                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                              Switching tools... losing context...
+                            <div className="flex-1 bg-muted rounded px-3 py-1 text-xs text-muted-foreground flex items-center gap-2">
+                              <ExternalLink className="h-3 w-3" />
+                              {currentTool.name.toLowerCase().replace(' ', '')}.com
                             </div>
                           </div>
-                        </Card>
-                      </motion.div>
-                    </AnimatePresence>
-                  );
-                })()}
+
+                          {/* Tool content */}
+                          <div className="flex items-center gap-4">
+                            <div 
+                              className="h-16 w-16 rounded-xl flex items-center justify-center"
+                              style={{ backgroundColor: `${currentTool.color}20` }}
+                            >
+                              <ToolIcon className="h-8 w-8" style={{ color: currentTool.color }} />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-bold text-lg">{currentTool.name}</h4>
+                              <p className="text-sm text-muted-foreground">Loading...</p>
+                            </div>
+                          </div>
+
+                          {/* Simulated content */}
+                          <div className="space-y-2">
+                            <div className="h-3 bg-muted rounded animate-pulse" />
+                            <div className="h-3 bg-muted rounded animate-pulse w-4/5" />
+                            <div className="h-3 bg-muted rounded animate-pulse w-3/5" />
+                          </div>
+
+                          {/* Loading indicator */}
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Switching tools... losing context...
+                          </div>
+                        </div>
+                      </Card>
+                    </motion.div>
+                  )}
+                </SafeAnimatePresence>
 
                 {/* Chaos indicators */}
                 <div className="absolute -bottom-2 left-0 right-0 flex justify-center gap-1">
@@ -218,7 +262,7 @@ export function AnimatedPlatformComparison() {
                   animate={{ x: 0, opacity: 1 }}
                 >
                   {UNIFIED_FEATURES.map((feature, idx) => {
-                    const FeatureIcon = feature.icon;
+                    const Icon = feature.icon;
                     return (
                       <motion.div
                         key={feature.name}
@@ -232,59 +276,51 @@ export function AnimatedPlatformComparison() {
                           y: idx === showUnifiedFeatures ? -2 : 0,
                         }}
                       >
-                        <FeatureIcon className="h-5 w-5" />
+                        <Icon className="h-5 w-5" />
                       </motion.div>
                     );
                   })}
                 </motion.div>
 
-                {/* Main Content Area */}
+                {/* Main Content Area - Direct Render Pattern */}
                 <div className="flex-1 space-y-4">
-                  {(() => {
-                    // Pre-calculate feature BEFORE AnimatePresence to avoid null children
-                    const idx = showUnifiedFeatures % UNIFIED_FEATURES.length;
-                    const feature = UNIFIED_FEATURES[idx] || UNIFIED_FEATURES[0];
-                    if (!feature) return null;
-                    const Icon = feature.icon;
-                    
-                    return (
-                      <AnimatePresence mode="wait">
-                        <motion.div
-                          key={idx}
-                          initial={{ opacity: 0, x: 20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: -20 }}
-                          transition={{ duration: 0.3 }}
-                          className="h-full"
-                        >
-                          <Card className="h-full border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-                            <div className="p-6 space-y-4">
-                              <div className="flex items-center gap-3">
-                                <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                                  <Icon className="h-6 w-6 text-primary" />
-                                </div>
-                                <div>
-                                  <h4 className="font-bold">{feature.name}</h4>
-                                  <p className="text-xs text-muted-foreground">Instant access</p>
-                                </div>
+                  <SafeAnimatePresence mode="wait">
+                    {enableAnimations && (
+                      <motion.div
+                        key={showUnifiedFeatures}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.3 }}
+                        className="h-full"
+                      >
+                        <Card className="h-full border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+                          <div className="p-6 space-y-4">
+                            <div className="flex items-center gap-3">
+                              <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                                <FeatureIcon className="h-6 w-6 text-primary" />
                               </div>
-                              
-                              <div className="space-y-2">
-                                <div className="h-2 bg-primary/20 rounded" />
-                                <div className="h-2 bg-primary/20 rounded w-4/5" />
-                                <div className="h-2 bg-primary/20 rounded w-3/5" />
-                              </div>
-
-                              <div className="flex items-center gap-2 text-sm text-primary">
-                                <Check className="h-4 w-4" />
-                                Context preserved across all systems
+                              <div>
+                                <h4 className="font-bold">{currentFeature.name}</h4>
+                                <p className="text-xs text-muted-foreground">Instant access</p>
                               </div>
                             </div>
-                          </Card>
-                        </motion.div>
-                      </AnimatePresence>
-                    );
-                  })()}
+                            
+                            <div className="space-y-2">
+                              <div className="h-2 bg-primary/20 rounded" />
+                              <div className="h-2 bg-primary/20 rounded w-4/5" />
+                              <div className="h-2 bg-primary/20 rounded w-3/5" />
+                            </div>
+
+                            <div className="flex items-center gap-2 text-sm text-primary">
+                              <Check className="h-4 w-4" />
+                              Context preserved across all systems
+                            </div>
+                          </div>
+                        </Card>
+                      </motion.div>
+                    )}
+                  </SafeAnimatePresence>
 
                   {/* Keyboard shortcut hint */}
                   <motion.div
