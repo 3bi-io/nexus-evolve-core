@@ -204,6 +204,21 @@ Deno.serve(async (req) => {
           is_enabled: true
         });
 
+      // Create notification for auto-approved capability
+      await supabase
+        .from('notifications')
+        .insert({
+          user_id: user.id,
+          type: 'capability_approved',
+          title: '✨ New Capability Auto-Approved',
+          message: `"${suggestion.capability_name}" has been automatically approved and activated (${Math.round(suggestion.confidence_score * 100)}% confidence).`,
+          metadata: {
+            capability_name: suggestion.capability_name,
+            confidence_score: suggestion.confidence_score,
+            description: suggestion.description
+          }
+        });
+
       autoApproved++;
     }
 

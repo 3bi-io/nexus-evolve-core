@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
 import { CreditBalance } from "@/components/pricing/CreditBalance";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { Brain, Sparkles } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { MobileMenu } from "./MobileMenu";
@@ -89,6 +90,7 @@ export function UnifiedHeader({
               <div className="hidden md:flex items-center gap-3">
                 {user ? (
                   <>
+                    <NotificationBell />
                     <Button 
                       onClick={() => navigate('/chat')}
                       variant="ghost"
@@ -152,7 +154,12 @@ export function UnifiedHeader({
           </Link>
         </div>
         <div className="ml-auto flex items-center gap-2">
-          {user && <CreditBalance />}
+          {user && (
+            <>
+              <NotificationBell />
+              <CreditBalance />
+            </>
+          )}
           <ThemeToggle />
           {user ? (
             <Button 
