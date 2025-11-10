@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Mic, Phone, Sparkles, Settings, Clock, Users, Zap } from "lucide-react";
 import { VoiceAgentChat } from "@/components/voice/VoiceAgentChat";
+import { GrokVoiceAgent } from "@/components/voice/GrokVoiceAgent";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SEO } from "@/components/SEO";
 
@@ -130,17 +131,25 @@ export default function VoiceAgent() {
         </div>
 
         {/* Main Interface */}
-        <Tabs defaultValue={isConfigured ? "chat" : "setup"} className="space-y-6">
-          <TabsList className="grid w-full max-w-md mx-auto grid-cols-2">
+        <Tabs defaultValue="grok" className="space-y-6">
+          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3">
+            <TabsTrigger value="grok" className="gap-2">
+              <Sparkles className="w-4 h-4" />
+              Grok (Eros)
+            </TabsTrigger>
             <TabsTrigger value="setup" className="gap-2">
               <Settings className="w-4 h-4" />
-              Setup
+              ElevenLabs Setup
             </TabsTrigger>
             <TabsTrigger value="chat" className="gap-2" disabled={!isConfigured}>
               <Mic className="w-4 h-4" />
-              Voice Chat
+              ElevenLabs Chat
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="grok">
+            <GrokVoiceAgent />
+          </TabsContent>
 
           <TabsContent value="setup">
             <div className="max-w-2xl mx-auto space-y-6">
