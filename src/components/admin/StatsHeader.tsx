@@ -2,14 +2,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useMobile } from "@/hooks/useMobile";
 import { useRealtimeStats } from "@/hooks/useRealtimeStats";
-import { Users, Bot, MessageSquare, Megaphone, AlertCircle, CreditCard } from "lucide-react";
+import { Users, Bot, MessageSquare, Megaphone, AlertCircle, CreditCard, RefreshCw, XCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export function StatsHeader() {
   const { isMobile } = useMobile();
-  const { stats, loading } = useRealtimeStats();
+  const { stats, loading, error, lastFetch, refresh } = useRealtimeStats();
 
-  if (loading) {
+  if (loading && !stats) {
     return (
       <div className={cn(
         isMobile ? "flex gap-3 overflow-x-auto scrollbar-hide pb-3 -mx-4 px-4 mb-6" : "grid grid-cols-2 lg:grid-cols-6 gap-4 mb-8"
@@ -18,6 +20,26 @@ export function StatsHeader() {
           <Skeleton key={i} className={cn(isMobile ? "flex-shrink-0 min-w-[140px] h-20" : "h-20")} />
         ))}
       </div>
+    );
+  }
+
+  if (error && !stats) {
+    return (
+      <Alert variant="destructive" className="mb-6">
+        <XCircle className="h-4 w-4" />
+        <AlertDescription className="flex items-center justify-between">
+          <span>Failed to load admin stats: {error}</span>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={refresh}
+            className="ml-4"
+          >
+            <RefreshCw className="h-3 w-3 mr-2" />
+            Retry
+          </Button>
+        </AlertDescription>
+      </Alert>
     );
   }
 
@@ -36,15 +58,25 @@ export function StatsHeader() {
     // Compact horizontal scroll on mobile
     return (
       <div className="mb-6">
+        {error && (
+          <Alert variant="destructive" className="mb-3">
+            <XCircle className="h-4 w-4" />
+            <AlertDescription className="text-xs">
+              Stats may be outdated. Last updated: {lastFetch?.toLocaleTimeString() || 'Never'}
+            </AlertDescription>
+          </Alert>
+        )}
         <div className={cn(
           "flex gap-3 overflow-x-auto scrollbar-hide",
-          "pb-3 -mx-4 px-4"
+          "pb-3 -mx-4 px-4",
+          error && "opacity-75"
         )}>
           {statItems.map((stat) => {
             const Icon = stat.icon;
             return (
-              <Card key={stat.label} className="flex-shrink-0 min-w-[140px]">
+              <Card key={stat.label} className="flex-shrink-0 min-w-[140px] relative">
                 <CardContent className="p-4">
+                  {loading && <RefreshCw className="absolute top-2 right-2 h-3 w-3 animate-spin text-muted-foreground" />}
                   <div className="flex items-center gap-2 mb-1">
                     <Icon className={cn("w-4 h-4", stat.color)} />
                     <p className="text-xs font-medium text-muted-foreground">{stat.label}</p>
@@ -61,21 +93,41 @@ export function StatsHeader() {
 
   // Desktop: Full width grid
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 mb-8">
-      {statItems.map((stat) => {
-        const Icon = stat.icon;
-        return (
-          <Card key={stat.label}>
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-xs text-muted-foreground">{stat.label}</p>
-                <Icon className={cn("w-5 h-5", stat.color)} />
-              </div>
-              <p className="text-2xl font-bold">{stat.value}</p>
-            </CardContent>
-          </Card>
-        );
-      })}
+    <div>
+      {error && (
+        <Alert variant="destructive" className="mb-4">
+          <XCircle className="h-4 w-4" />
+          <AlertDescription className="flex items-center justify-between">
+            <span className="text-sm">Stats may be outdated. Last updated: {lastFetch?.toLocaleTimeString() || 'Never'}</span>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={refresh}
+              disabled={loading}
+            >
+              <RefreshCw className={cn("h-3 w-3 mr-2", loading && "animate-spin")} />
+              Retry
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
+      <div className={cn("grid grid-cols-2 lg:grid-cols-6 gap-4 mb-8", error && "opacity-75")}>
+        {statItems.map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <Card key={stat.label}>
+              <CardContent className="p-4 relative">
+                {loading && <RefreshCw className="absolute top-2 right-2 h-3 w-3 animate-spin text-muted-foreground" />}
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-xs text-muted-foreground">{stat.label}</p>
+                  <Icon className={cn("w-5 h-5", stat.color)} />
+                </div>
+                <p className="text-2xl font-bold">{stat.value}</p>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
     </div>
   );
 }

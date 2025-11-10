@@ -30,12 +30,18 @@ export async function logAdminAction(params: AdminActionParams): Promise<string 
 
 export async function getAdminStats() {
   try {
-    const { data, error } = await supabase.rpc("get_admin_stats");
+    const { data, error } = await supabase.functions.invoke('get-admin-stats', {
+      method: 'GET'
+    });
 
-    if (error) throw error;
+    if (error) {
+      console.error("Failed to fetch admin stats:", error);
+      throw error;
+    }
+
     return data;
   } catch (error) {
     console.error("Failed to fetch admin stats:", error);
-    return null;
+    throw error;
   }
 }
