@@ -7,15 +7,18 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { 
   Sparkles, Play, AlertTriangle, CheckCircle2, Clock, 
   TrendingUp, Shield, Zap, Eye, Settings, RefreshCw,
-  Code, FileCode, Activity, BarChart3
+  Code, FileCode, Activity, BarChart3, Search, Filter
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { PlatformAnalysisRunner } from '@/components/admin/sections/PlatformAnalysisRunner';
 
 interface Improvement {
   id: string;
@@ -68,6 +71,10 @@ export default function PlatformOptimizer() {
   const [config, setConfig] = useState<AutoApplyConfig | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [selectedImprovement, setSelectedImprovement] = useState<Improvement | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [filterSeverity, setFilterSeverity] = useState<string>('all');
+  const [filterType, setFilterType] = useState<string>('all');
 
   useEffect(() => {
     loadData();
@@ -217,6 +224,18 @@ export default function PlatformOptimizer() {
     }
   };
 
+  // Filter improvements
+  const filteredImprovements = improvements.filter(imp => {
+    if (searchQuery && !imp.issue_description.toLowerCase().includes(searchQuery.toLowerCase()) &&
+        !imp.target_file.toLowerCase().includes(searchQuery.toLowerCase())) {
+      return false;
+    }
+    if (filterStatus !== 'all' && imp.status !== filterStatus) return false;
+    if (filterSeverity !== 'all' && imp.severity !== filterSeverity) return false;
+    if (filterType !== 'all' && imp.improvement_type !== filterType) return false;
+    return true;
+  });
+
   const stats = {
     total: improvements.length,
     pending: improvements.filter(i => i.status === 'pending').length,
@@ -302,14 +321,103 @@ export default function PlatformOptimizer() {
           </Card>
         </div>
 
-        <Tabs defaultValue="improvements" className="space-y-4">
+        <Tabs defaultValue="scan" className="space-y-4">
           <TabsList>
-            <TabsTrigger value="improvements">Improvements</TabsTrigger>
+            <TabsTrigger value="scan">Run Scan</TabsTrigger>
+            <TabsTrigger value="improvements">
+              Improvements
+              {stats.pending > 0 && (
+                <Badge variant="secondary" className="ml-2">
+                  {stats.pending}
+                </Badge>
+              )}
+            </TabsTrigger>
             <TabsTrigger value="runs">Analysis Runs</TabsTrigger>
             <TabsTrigger value="settings">Settings</TabsTrigger>
           </TabsList>
 
+          <TabsContent value="scan" className="space-y-4">
+            <PlatformAnalysisRunner />
+          </TabsContent>
+
           <TabsContent value="improvements" className="space-y-4">
+            {/* Filters */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="grid gap-4 md:grid-cols-5">
+                  <div className="md:col-span-2">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search improvements..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+                  </div>
+                  <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="approved">Approved</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={filterSeverity} onValueChange={setFilterSeverity}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Severity" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Severity</SelectItem>
+                      <SelectItem value="critical">Critical</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="low">Low</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={filterType} onValueChange={setFilterType}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Types</SelectItem>
+                      <SelectItem value="performance">Performance</SelectItem>
+                      <SelectItem value="security">Security</SelectItem>
+                      <SelectItem value="accessibility">Accessibility</SelectItem>
+                      <SelectItem value="code_quality">Code Quality</SelectItem>
+                      <SelectItem value="ux">UX</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
+            {/* Results count */}
+            {filteredImprovements.length > 0 && (
+              <div className="flex items-center justify-between text-sm text-muted-foreground">
+                <span>
+                  Showing {filteredImprovements.length} of {improvements.length} improvements
+                </span>
+                {(searchQuery || filterStatus !== 'all' || filterSeverity !== 'all' || filterType !== 'all') && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setSearchQuery('');
+                      setFilterStatus('all');
+                      setFilterSeverity('all');
+                      setFilterType('all');
+                    }}
+                  >
+                    Clear filters
+                  </Button>
+                )}
+              </div>
+            )}
+
             {improvements.length === 0 ? (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-12">
@@ -318,9 +426,28 @@ export default function PlatformOptimizer() {
                   <Button onClick={runAnalysis} className="mt-4">Run First Analysis</Button>
                 </CardContent>
               </Card>
+            ) : filteredImprovements.length === 0 ? (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-12">
+                  <Filter className="h-12 w-12 text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground">No improvements match your filters</p>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setSearchQuery('');
+                      setFilterStatus('all');
+                      setFilterSeverity('all');
+                      setFilterType('all');
+                    }}
+                    className="mt-4"
+                  >
+                    Clear filters
+                  </Button>
+                </CardContent>
+              </Card>
             ) : (
               <div className="grid gap-4">
-                {improvements.map((improvement) => (
+                {filteredImprovements.map((improvement) => (
                   <motion.div
                     key={improvement.id}
                     initial={{ opacity: 0, y: 20 }}

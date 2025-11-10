@@ -148,6 +148,11 @@ Return user-friendly improvements with code examples.`,
       }
     ];
 
+    // Read actual files to analyze
+    console.log('📁 Reading project files...');
+    const filesToAnalyze = await getProjectFiles();
+    console.log(`Found ${filesToAnalyze.length} files to analyze`);
+
     // Orchestrate AI analysis across providers
     for (const category of analysisCategories) {
       console.log(`📊 Analyzing: ${category.name}`);
@@ -170,26 +175,44 @@ Return user-friendly improvements with code examples.`,
         continue;
       }
 
+      // Sample files for analysis (analyze 5 files per category to manage token costs)
+      const sampleFiles = filesToAnalyze
+        .filter(f => {
+          if (category.type === 'performance') return f.path.includes('/components/') || f.path.includes('/pages/');
+          if (category.type === 'security') return f.path.includes('/functions/') || f.path.includes('/lib/');
+          return true;
+        })
+        .slice(0, 5);
+
+      if (sampleFiles.length === 0) {
+        console.log(`No files to analyze for ${category.name}`);
+        continue;
+      }
+
       try {
+        const fileContents = sampleFiles.map(f => 
+          `\n\n=== FILE: ${f.path} ===\n${f.content.slice(0, 2000)}\n=== END FILE ===`
+        ).join('');
+
         const analysisPrompt = `${category.prompt}
 
-Analyze the following Oneiros.me platform patterns and suggest improvements:
+Analyze the following real code files from the Oneiros.me platform:
+${fileContents}
 
-Common patterns:
-- React + TypeScript components
-- Supabase for backend
+Technology stack:
+- React + TypeScript
+- Supabase backend
 - Shadcn UI components
-- Framer Motion animations
-- Tailwind CSS styling
+- Tailwind CSS
 
 Return improvements in this JSON format:
 {
   "improvements": [
     {
-      "targetFile": "path/to/file.tsx",
+      "targetFile": "exact/path/from/above.tsx",
       "targetComponent": "ComponentName",
-      "issueDescription": "Brief description of the issue",
-      "improvedCode": "// Full improved code here",
+      "issueDescription": "Specific issue found in the code",
+      "improvedCode": "// Complete improved code snippet",
       "rationale": "Why this improvement matters",
       "impactScore": 7.5,
       "confidenceScore": 0.9,
@@ -198,11 +221,15 @@ Return improvements in this JSON format:
   ]
 }
 
-Focus on the most impactful improvements. Provide complete, working code.`;
+Return ONLY valid JSON. Focus on real, actionable improvements from the actual code shown above.`;
 
+        console.log(`Sending ${sampleFiles.length} files to ${provider}...`);
         const aiResponse = await callAIProvider(provider, model, analysisPrompt);
+        console.log(`${provider} response:`, JSON.stringify(aiResponse).slice(0, 200));
         
-        if (aiResponse.improvements) {
+        if (aiResponse.improvements && Array.isArray(aiResponse.improvements)) {
+          console.log(`Found ${aiResponse.improvements.length} improvements from ${provider}`);
+          
           for (const imp of aiResponse.improvements) {
             improvements.push({
               type: category.type,
@@ -222,9 +249,12 @@ Focus on the most impactful improvements. Provide complete, working code.`;
           if (!providersUsed.includes(provider)) {
             providersUsed.push(provider);
           }
+        } else {
+          console.log(`⚠️ No improvements array in response from ${provider}`);
         }
       } catch (error) {
-        console.error(`Error analyzing ${category.name}:`, error);
+        console.error(`❌ Error analyzing ${category.name}:`, error);
+        console.error('Error details:', error instanceof Error ? error.stack : error);
       }
     }
 
@@ -318,6 +348,42 @@ Focus on the most impactful improvements. Provide complete, working code.`;
     );
   }
 });
+
+async function getProjectFiles() {
+  const files: { path: string; content: string }[] = [];
+  
+  try {
+    // In Deno, we need to walk the file system
+    // This is a simplified version - in production you'd use Deno.readDir recursively
+    const projectRoot = Deno.cwd();
+    
+    // For now, return a sample set of known important files
+    // In a real implementation, you'd walk the directory tree
+    const importantPaths = [
+      'src/pages/Index.tsx',
+      'src/components/ChatInterface.tsx',
+      'src/hooks/useSmartAIRouter.ts',
+      'supabase/functions/chat-stream-with-routing/index.ts',
+      'src/components/voice/GrokVoiceAgent.tsx'
+    ];
+    
+    for (const path of importantPaths) {
+      try {
+        const fullPath = `${projectRoot}/${path}`;
+        const content = await Deno.readTextFile(fullPath);
+        files.push({ path, content });
+      } catch (err) {
+        // File doesn't exist, skip it
+        console.log(`⚠️ Could not read ${path}`);
+      }
+    }
+    
+    return files;
+  } catch (error) {
+    console.error('Error reading project files:', error);
+    return [];
+  }
+}
 
 async function callAIProvider(provider: string, model: string, prompt: string) {
   const config = AI_PROVIDERS[provider as keyof typeof AI_PROVIDERS];
