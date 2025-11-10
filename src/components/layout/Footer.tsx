@@ -28,8 +28,13 @@ export function Footer() {
             <h3 className="font-semibold text-base">Product</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/getting-started" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Getting Started
+                <Link to="/features" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Features
+                </Link>
+              </li>
+              <li>
+                <Link to="/solutions" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Solutions
                 </Link>
               </li>
               <li>
@@ -43,13 +48,35 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/model-comparison" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Model Comparison
+                <Link to="/pricing" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Pricing
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Company */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-base">Company</h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link to="/about" className="text-muted-foreground hover:text-foreground transition-colors">
+                  About Us
                 </Link>
               </li>
               <li>
-                <Link to="/pricing" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Pricing
+                <Link to="/contact" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Contact
+                </Link>
+              </li>
+              <li>
+                <Link to="/security" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Security
+                </Link>
+              </li>
+              <li>
+                <Link to="/getting-started" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Getting Started
                 </Link>
               </li>
             </ul>

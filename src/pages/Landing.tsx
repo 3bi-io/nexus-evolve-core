@@ -4,27 +4,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useEffect } from 'react';
 import { SEO } from '@/components/SEO';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-
-// Landing page sections
-import { BetaTrustSignals } from '@/components/landing/BetaTrustSignals';
-import { ProblemSolution } from '@/components/landing/ProblemSolution';
-import { FAQ } from '@/components/landing/FAQ';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { FeaturesSection } from '@/components/landing/FeaturesSection';
-import { DemoSection } from '@/components/landing/DemoSection';
+import { BetaTrustSignals } from '@/components/landing/BetaTrustSignals';
 import { PricingSection } from '@/components/landing/PricingSection';
-import { EnhancedUseCases } from '@/components/landing/EnhancedUseCases';
-import { AgentPlatformShowcase } from '@/components/landing/AgentPlatformShowcase';
-import { AnimatedPlatformComparison } from '@/components/landing/AnimatedPlatformComparison';
-import { HowItWorksSection } from '@/components/landing/HowItWorksSection';
-import { AgentSystemShowcase } from '@/components/landing/AgentSystemShowcase';
-import { ComparisonSection } from '@/components/landing/ComparisonSection';
 import { FinalCTASection } from '@/components/landing/FinalCTASection';
-
-// Conversion components
 import { ExitIntentPopup } from '@/components/conversion/ExitIntentPopup';
 import { SocialProofNotification } from '@/components/conversion/SocialProofNotification';
-import { ROICalculator } from '@/components/conversion/ROICalculator';
 import { StickySignupCTA } from '@/components/mobile/StickySignupCTA';
 
 export default function Landing() {
@@ -73,68 +59,22 @@ export default function Landing() {
       />
 
       <ErrorBoundary>
-        <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-7xl space-y-12 sm:space-y-16 md:space-y-20 lg:space-y-24">
-        {/* Hero Section */}
-        <HeroSection />
+        <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8 max-w-7xl space-y-16 sm:space-y-20 md:space-y-24">
+          <HeroSection />
+          
+          <section className="section-spacing">
+            <BetaTrustSignals />
+          </section>
 
-        {/* Problem/Solution */}
-        <section className="section-spacing">
-          <div className="text-center space-mobile mb-6 sm:mb-8 md:mb-12">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">Sound Familiar?</h2>
-            <p className="text-sm sm:text-base md:text-lg text-muted-foreground mt-2">Traditional AI is holding you back</p>
-          </div>
-          <ProblemSolution />
-        </section>
-
-        {/* Social Proof */}
-        <section className="section-spacing">
-          <BetaTrustSignals />
-        </section>
-
-        {/* Agent System Showcase */}
-        <AgentSystemShowcase />
-
-        {/* Core Benefits */}
-        <FeaturesSection />
-
-        {/* Enhanced Use Cases - Interactive Showcase */}
-        <EnhancedUseCases />
-        
-        {/* Agent Platform Showcase */}
-        <AgentPlatformShowcase />
-
-        {/* Animated Platform Comparison */}
-        <AnimatedPlatformComparison />
-
-        {/* How It Works */}
-        <HowItWorksSection />
-
-        {/* Comparison */}
-        <ComparisonSection />
-
-        {/* ROI Calculator */}
-        <section className="py-8 sm:py-12 md:py-16">
-          <ROICalculator />
-        </section>
-
-        {/* Demo Section */}
-        <DemoSection />
-
-        {/* Pricing Section */}
-        <PricingSection />
-
-        {/* FAQ */}
-        <section className="py-8 sm:py-12 md:py-16">
-          <FAQ />
-        </section>
-
-        {/* Final CTA */}
-        <FinalCTASection />
-
-        {/* Conversion Components */}
-        <ExitIntentPopup />
-        <SocialProofNotification />
-        <StickySignupCTA />
+          <FeaturesSection />
+          
+          <PricingSection />
+          
+          <FinalCTASection />
+          
+          <ExitIntentPopup />
+          <SocialProofNotification />
+          <StickySignupCTA />
         </div>
       </ErrorBoundary>
     </MarketingLayout>

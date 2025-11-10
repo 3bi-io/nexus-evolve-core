@@ -22,6 +22,11 @@ const Account = lazy(() => import("./pages/Account"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
+const About = lazy(() => import("./pages/About"));
+const Features = lazy(() => import("./pages/Features"));
+const Solutions = lazy(() => import("./pages/Solutions"));
+const Contact = lazy(() => import("./pages/Contact"));
+const Security = lazy(() => import("./pages/Security"));
 const Achievements = lazy(() => import("./pages/Achievements"));
 const Analytics = lazy(() => import("./pages/Analytics"));
 const LLMAnalytics = lazy(() => import("./pages/LLMAnalytics"));
@@ -109,6 +114,11 @@ const RoutesWithShortcuts = () => {
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/features" element={<Features />} />
+          <Route path="/solutions" element={<Solutions />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/security" element={<Security />} />
           <Route path="/install" element={<Install />} />
           <Route path="/getting-started" element={<GettingStarted />} />
           <Route
