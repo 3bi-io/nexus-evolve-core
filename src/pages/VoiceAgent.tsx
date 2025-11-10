@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import { Mic, Phone, Sparkles, Settings, Clock, Users, Zap } from "lucide-react";
+import { Mic, Phone, Sparkles, Settings, Clock, Users, Zap, AlertCircle, Chrome } from "lucide-react";
 import { VoiceAgentChat } from "@/components/voice/VoiceAgentChat";
 import { GrokVoiceAgent } from "@/components/voice/GrokVoiceAgent";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -43,6 +44,21 @@ export default function VoiceAgent() {
   const { toast } = useToast();
   const [agentId, setAgentId] = useState("");
   const [isConfigured, setIsConfigured] = useState(false);
+  const [browserWarning, setBrowserWarning] = useState<string | null>(null);
+
+  useEffect(() => {
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isChrome = /Chrome/i.test(navigator.userAgent) && !/Edge/i.test(navigator.userAgent);
+    const hasSpeechRecognition = !!(window as any).SpeechRecognition || !!(window as any).webkitSpeechRecognition;
+
+    if (isIOS) {
+      setBrowserWarning('iOS Safari has limited voice support. For best results, use the ElevenLabs tab or try Chrome on desktop.');
+    } else if (!hasSpeechRecognition) {
+      setBrowserWarning('Your browser doesn\'t support speech recognition. Please use Chrome or the ElevenLabs tab.');
+    } else if (!isChrome) {
+      setBrowserWarning('For the best experience, we recommend using Google Chrome.');
+    }
+  }, []);
 
   const handleConfigure = () => {
     if (!agentId.trim()) {
@@ -71,6 +87,25 @@ export default function VoiceAgent() {
         ogImage="/og-platform-automation.png"
       />
       <div className="container mx-auto py-8 space-y-8">
+        {/* Browser Compatibility Alert */}
+        {browserWarning && (
+          <Alert className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Browser Compatibility Notice</AlertTitle>
+            <AlertDescription className="flex items-center justify-between flex-wrap gap-2">
+              <span>{browserWarning}</span>
+              {!(/Chrome/i.test(navigator.userAgent)) && (
+                <Button size="sm" variant="outline" asChild>
+                  <a href="https://www.google.com/chrome/" target="_blank" rel="noopener noreferrer">
+                    <Chrome className="mr-2 h-4 w-4" />
+                    Get Chrome
+                  </a>
+                </Button>
+              )}
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Hero */}
         <div className="text-center space-y-6">
           <Badge variant="secondary" className="text-base px-4 py-2">
