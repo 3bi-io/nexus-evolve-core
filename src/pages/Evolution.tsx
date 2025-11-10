@@ -33,7 +33,7 @@ export default function Evolution() {
   const [isEvolving, setIsEvolving] = useState(false);
   const [isBackfilling, setIsBackfilling] = useState(false);
   const [capabilitySuggestions, setCapabilitySuggestions] = useState<any[]>([]);
-  const [cronStatus, setCronStatus] = useState<CronStatus>({ lastEvolution: null, lastDiscovery: null, embeddingsProgress: { total: 0, generated: 0 }, archivedMemories: 0 });
+  const [cronStatus, setCronStatus] = useState<CronStatus>({ lastEvolution: null, lastDiscovery: null, lastPruning: null, scheduledAgentRuns: 0, embeddingsProgress: { total: 0, generated: 0 }, archivedMemories: 0 });
   const [experiments, setExperiments] = useState<ABExperiment[]>([]);
   const [archivedMemories, setArchivedMemories] = useState<ArchivedMemory[]>([]);
   const [autoApprovalThreshold, setAutoApprovalThreshold] = useState(0.8);
@@ -168,6 +168,17 @@ export default function Evolution() {
 
       const lastEvolution = evolutionLogs?.find(l => l.log_type === "system_evolution")?.created_at || null;
       const lastDiscovery = evolutionLogs?.find(l => l.log_type === "capability_discovery")?.created_at || null;
+      const lastPruning = evolutionLogs?.find(l => l.log_type === "memory_pruning")?.created_at || null;
+
+      // Count scheduled agent runs today
+      const todayStart = new Date();
+      todayStart.setHours(0, 0, 0, 0);
+      const { count: scheduledRuns } = await supabase
+        .from("evolution_logs")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .eq("log_type", "scheduled_agent")
+        .gte("created_at", todayStart.toISOString());
 
       // Check embedding progress
       const [{ count: totalMemories }, { count: memoriesWithEmbeddings }] = await Promise.all([
@@ -193,6 +204,8 @@ export default function Evolution() {
       setCronStatus({
         lastEvolution,
         lastDiscovery,
+        lastPruning,
+        scheduledAgentRuns: scheduledRuns || 0,
         embeddingsProgress: { total, generated },
         archivedMemories: archivedCount || 0,
       });

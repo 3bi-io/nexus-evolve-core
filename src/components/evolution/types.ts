@@ -24,6 +24,8 @@ export type AdaptiveBehavior = {
 export type CronStatus = {
   lastEvolution: string | null;
   lastDiscovery: string | null;
+  lastPruning: string | null;
+  scheduledAgentRuns: number;
   embeddingsProgress: { total: number; generated: number };
   archivedMemories: number;
 };

@@ -98,6 +98,75 @@ SELECT cron.schedule(
 );
 
 -- ============================================
+-- 6. DAILY EVOLUTION CYCLE (Daily at 2:00 AM UTC)
+-- ============================================
+-- Performs system evolution: performance analysis, knowledge consolidation,
+-- behavior optimization, A/B test evaluation, capability auto-activation
+SELECT cron.schedule(
+  'daily-evolution-cycle',
+  '0 2 * * *',
+  $$
+  SELECT
+    net.http_post(
+      url := 'https://coobieessxvnujkkiadc.supabase.co/functions/v1/evolve-system',
+      headers := '{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNvb2JpZWVzc3h2bnVqa2tpYWRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE2Nzg4NjYsImV4cCI6MjA3NzI1NDg2Nn0.YLEDjz3IRW5dBvBQTnK0ORv-XjU1cbNwGY6Laj2IV6k"}'::jsonb,
+      body := jsonb_build_object('scheduled', true, 'timestamp', now())
+    ) as request_id;
+  $$
+);
+
+-- ============================================
+-- 7. AUTO-PRUNE MEMORIES (Daily at 3:00 AM UTC)
+-- ============================================
+-- Automatically removes low-value memories based on user preferences
+SELECT cron.schedule(
+  'auto-prune-memories-daily',
+  '0 3 * * *',
+  $$
+  SELECT
+    net.http_post(
+      url := 'https://coobieessxvnujkkiadc.supabase.co/functions/v1/auto-prune-memories',
+      headers := '{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNvb2JpZWVzc3h2bnVqa2tpYWRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE2Nzg4NjYsImV4cCI6MjA3NzI1NDg2Nn0.YLEDjz3IRW5dBvBQTnK0ORv-XjU1cbNwGY6Laj2IV6k"}'::jsonb,
+      body := jsonb_build_object('scheduled', true, 'timestamp', now())
+    ) as request_id;
+  $$
+);
+
+-- ============================================
+-- 8. DISCOVER CAPABILITIES (Daily at 4:00 AM UTC)
+-- ============================================
+-- Analyzes user patterns to suggest new capabilities
+SELECT cron.schedule(
+  'discover-capabilities-daily',
+  '0 4 * * *',
+  $$
+  SELECT
+    net.http_post(
+      url := 'https://coobieessxvnujkkiadc.supabase.co/functions/v1/discover-capabilities',
+      headers := '{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNvb2JpZWVzc3h2bnVqa2tpYWRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE2Nzg4NjYsImV4cCI6MjA3NzI1NDg2Nn0.YLEDjz3IRW5dBvBQTnK0ORv-XjU1cbNwGY6Laj2IV6k"}'::jsonb,
+      body := jsonb_build_object('scheduled', true, 'timestamp', now())
+    ) as request_id;
+  $$
+);
+
+-- ============================================
+-- 9. EXECUTE SCHEDULED AGENTS (Every 15 minutes)
+-- ============================================
+-- Executes agents with active schedules
+SELECT cron.schedule(
+  'execute-scheduled-agents-15m',
+  '*/15 * * * *',
+  $$
+  SELECT
+    net.http_post(
+      url := 'https://coobieessxvnujkkiadc.supabase.co/functions/v1/execute-scheduled-agent',
+      headers := '{"Content-Type": "application/json", "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNvb2JpZWVzc3h2bnVqa2tpYWRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE2Nzg4NjYsImV4cCI6MjA3NzI1NDg2Nn0.YLEDjz3IRW5dBvBQTnK0ORv-XjU1cbNwGY6Laj2IV6k"}'::jsonb,
+      body := jsonb_build_object('scheduled', true, 'timestamp', now())
+    ) as request_id;
+  $$
+);
+
+-- ============================================
 -- VERIFICATION QUERIES
 -- ============================================
 -- Run these to verify cron jobs are scheduled:
