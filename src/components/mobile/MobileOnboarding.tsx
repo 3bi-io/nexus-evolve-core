@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { X, ChevronRight, Sparkles, Zap, Globe, TrendingUp, LayoutGrid } from 'lucide-react';
 import { useMobile, useHaptics } from '@/hooks/useMobile';
+import { SafeAnimatePresence } from '@/components/ui/SafeAnimatePresence';
 
 interface OnboardingStep {
   title: string;
@@ -83,7 +84,7 @@ export function MobileOnboarding() {
   const Icon = step.icon;
 
   return (
-    <AnimatePresence>
+    <SafeAnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -155,6 +156,6 @@ export function MobileOnboarding() {
           </div>
         </div>
       </motion.div>
-    </AnimatePresence>
+    </SafeAnimatePresence>
   );
 }

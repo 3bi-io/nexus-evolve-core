@@ -3,7 +3,8 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { X, ArrowRight, ArrowLeft, Sparkles } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { SafeAnimatePresence } from '@/components/ui/SafeAnimatePresence';
 
 interface TourStep {
   id: string;
@@ -102,8 +103,8 @@ export function ProductTour() {
   const progress = ((currentStep + 1) / tourSteps.length) * 100;
 
   return (
-    <AnimatePresence>
-      {isActive && (
+    <SafeAnimatePresence>
+      {isActive ? (
         <>
           {/* Backdrop */}
           <motion.div
@@ -198,8 +199,8 @@ export function ProductTour() {
             </Card>
           </motion.div>
         </>
-      )}
-    </AnimatePresence>
+      ) : null}
+    </SafeAnimatePresence>
   );
 }
 

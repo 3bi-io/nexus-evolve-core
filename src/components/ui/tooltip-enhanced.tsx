@@ -1,7 +1,8 @@
 import * as React from "react";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { SafeAnimatePresence } from "@/components/ui/SafeAnimatePresence";
 
 const TooltipProvider = TooltipPrimitive.Provider;
 const TooltipTrigger = TooltipPrimitive.Trigger;
@@ -10,7 +11,7 @@ const TooltipContent = React.forwardRef<
   React.ElementRef<typeof TooltipPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
 >(({ className, sideOffset = 4, children, ...props }, ref) => (
-  <AnimatePresence>
+  <SafeAnimatePresence disableOnMobile={false}>
     <TooltipPrimitive.Content
       ref={ref}
       sideOffset={sideOffset}
@@ -30,7 +31,7 @@ const TooltipContent = React.forwardRef<
         {children}
       </motion.div>
     </TooltipPrimitive.Content>
-  </AnimatePresence>
+  </SafeAnimatePresence>
 ));
 TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 

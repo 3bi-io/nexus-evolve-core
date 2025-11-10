@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Coins, TrendingDown } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { SafeAnimatePresence } from '@/components/ui/SafeAnimatePresence';
 
 interface AnimatedCreditDisplayProps {
   credits: number;
@@ -39,8 +40,8 @@ export function AnimatedCreditDisplay({ credits, onCreditDeduct }: AnimatedCredi
       <Card className="p-3 flex items-center gap-3 bg-card/50 backdrop-blur-sm">
         <div className="relative">
           <Coins className={`h-5 w-5 ${getColorClass()}`} />
-          <AnimatePresence>
-            {showParticles && (
+          <SafeAnimatePresence>
+            {showParticles ? (
               <>
                 {[...Array(5)].map((_, i) => (
                   <motion.div
@@ -57,8 +58,8 @@ export function AnimatedCreditDisplay({ credits, onCreditDeduct }: AnimatedCredi
                   />
                 ))}
               </>
-            )}
-          </AnimatePresence>
+            ) : null}
+          </SafeAnimatePresence>
         </div>
 
         <div className="flex-1">

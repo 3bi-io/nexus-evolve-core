@@ -15,7 +15,8 @@ import {
   X,
   ChevronRight,
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { SafeAnimatePresence } from '@/components/ui/SafeAnimatePresence';
 
 interface HelpArticle {
   id: string;
@@ -106,8 +107,8 @@ export function HelpWidget() {
       </motion.div>
 
       {/* Help Panel */}
-      <AnimatePresence>
-        {isOpen && (
+      <SafeAnimatePresence>
+        {isOpen ? (
           <>
             {/* Backdrop */}
             <motion.div
@@ -264,8 +265,8 @@ export function HelpWidget() {
               </Card>
             </motion.div>
           </>
-        )}
-      </AnimatePresence>
+        ) : null}
+      </SafeAnimatePresence>
     </>
   );
 }

@@ -6,8 +6,9 @@ import { Gift, Sparkles, Crown, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { SuccessAnimation } from "@/components/ui/success-animation";
+import { SafeAnimatePresence } from "@/components/ui/SafeAnimatePresence";
 
 interface Reward {
   id: string;
@@ -171,9 +172,9 @@ export const ReferralRewards = () => {
 
   return (
     <>
-      <AnimatePresence>
-        {showSuccess && <SuccessAnimation message="Reward claimed!" />}
-      </AnimatePresence>
+      <SafeAnimatePresence>
+        {showSuccess ? <SuccessAnimation message="Reward claimed!" /> : null}
+      </SafeAnimatePresence>
 
       <Card>
         <CardHeader>

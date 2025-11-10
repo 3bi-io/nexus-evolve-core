@@ -3,7 +3,8 @@ import { X, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useMobile } from "@/hooks/useMobile";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import { SafeAnimatePresence } from "@/components/ui/SafeAnimatePresence";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -62,7 +63,7 @@ export function InstallPrompt() {
   if (!showPrompt || !deferredPrompt || !isMobile) return null;
 
   return (
-    <AnimatePresence>
+    <SafeAnimatePresence>
       <motion.div
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -108,6 +109,6 @@ export function InstallPrompt() {
           </div>
         </Card>
       </motion.div>
-    </AnimatePresence>
+    </SafeAnimatePresence>
   );
 }

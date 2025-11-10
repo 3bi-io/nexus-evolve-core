@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { WifiOff, Wifi } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { SafeAnimatePresence } from "@/components/ui/SafeAnimatePresence";
 
 export function ConnectionStatus() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -46,8 +47,8 @@ export function ConnectionStatus() {
   }, []);
 
   return (
-    <AnimatePresence>
-      {showStatus && (
+    <SafeAnimatePresence>
+      {showStatus ? (
         <motion.div
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -73,7 +74,7 @@ export function ConnectionStatus() {
             </div>
           </Alert>
         </motion.div>
-      )}
-    </AnimatePresence>
+      ) : null}
+    </SafeAnimatePresence>
   );
 }
