@@ -126,28 +126,9 @@ export function PageLayout({
   const navigate = useNavigate();
   const { isMobile } = useResponsive();
 
-  const content = isMobile ? (
-    // Mobile: No sidebar, just main content
-    <div 
-      className={cn(
-        'flex min-h-screen w-full',
-        'bg-background',
-        'antialiased',
-      )}
-    >
-      <MainLayout 
-        showHeader={showHeader}
-        showFooter={showFooter}
-        showBottomNav={showBottomNav}
-        className={className}
-        user={user}
-        signOut={signOut}
-        navigate={navigate}
-        children={children}
-      />
-    </div>
-  ) : (
-    // Desktop/Tablet: Include sidebar
+  // Always wrap in SidebarProvider so useSidebar hook works everywhere
+  // But only render AppSidebar on desktop/tablet
+  const content = (
     <SidebarProvider defaultOpen={true}>
       <div 
         className={cn(
@@ -156,7 +137,9 @@ export function PageLayout({
           'antialiased',
         )}
       >
-        <AppSidebar />
+        {/* Only show sidebar on desktop/tablet */}
+        {!isMobile && <AppSidebar />}
+        
         <MainLayout 
           showHeader={showHeader}
           showFooter={showFooter}
