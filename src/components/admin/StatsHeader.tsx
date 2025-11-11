@@ -6,10 +6,16 @@ import { Users, Bot, MessageSquare, Megaphone, AlertCircle, CreditCard, RefreshC
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { clearAdminStatsCache } from "@/lib/admin-utils";
 
 export function StatsHeader() {
   const { isMobile } = useMobile();
   const { stats, loading, error, lastFetch, refresh } = useRealtimeStats();
+  
+  const handleForceRefresh = () => {
+    clearAdminStatsCache();
+    refresh();
+  };
 
   if (loading && !stats) {
     return (
@@ -32,7 +38,7 @@ export function StatsHeader() {
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={refresh}
+            onClick={handleForceRefresh}
             className="ml-4"
           >
             <RefreshCw className="h-3 w-3 mr-2" />
@@ -94,15 +100,30 @@ export function StatsHeader() {
   // Desktop: Full width grid
   return (
     <div>
+      <div className="flex items-center justify-between mb-4">
+        <div className="text-sm text-muted-foreground">
+          {lastFetch && `Last updated: ${lastFetch.toLocaleTimeString()}`}
+        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleForceRefresh}
+          disabled={loading}
+          className="gap-2"
+        >
+          <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
+          Force Refresh
+        </Button>
+      </div>
       {error && (
         <Alert variant="destructive" className="mb-4">
           <XCircle className="h-4 w-4" />
           <AlertDescription className="flex items-center justify-between">
-            <span className="text-sm">Stats may be outdated. Last updated: {lastFetch?.toLocaleTimeString() || 'Never'}</span>
+            <span className="text-sm">Stats may be outdated</span>
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={refresh}
+              onClick={handleForceRefresh}
               disabled={loading}
             >
               <RefreshCw className={cn("h-3 w-3 mr-2", loading && "animate-spin")} />

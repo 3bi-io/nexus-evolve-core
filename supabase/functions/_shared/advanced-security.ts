@@ -103,8 +103,22 @@ async function checkGeographicRisk(
   try {
     const response = await fetch(`https://ipapi.co/${ip}/json/`);
     if (!response.ok) {
-      console.warn('Geolocation API failed, allowing request');
-      return { riskLevel: 'low', countryCode: 'UNKNOWN' };
+      console.warn('Geolocation API failed - enhanced monitoring enabled', { ip, status: response.status });
+      
+      // Log security event for monitoring
+      await supabase.from('security_events').insert({
+        event_type: 'geolocation_unavailable',
+        severity: 'low',
+        ip_hash: ipHash,
+        details: { reason: 'API request failed', status: response.status },
+        blocked: false
+      } as any);
+      
+      // Return with elevated suspicion instead of just allowing
+      return { 
+        riskLevel: 'medium', // Elevated from 'low'
+        countryCode: 'UNKNOWN' 
+      };
     }
 
     const geoData = await response.json();
@@ -138,7 +152,21 @@ async function checkGeographicRisk(
     return { riskLevel, countryCode, countryName };
   } catch (error) {
     console.error('Geolocation check failed:', error);
-    return { riskLevel: 'low', countryCode: 'UNKNOWN' };
+    
+    // Log security event
+    await supabase.from('security_events').insert({
+      event_type: 'geolocation_error',
+      severity: 'low',
+      ip_hash: ipHash,
+      details: { error: error instanceof Error ? error.message : String(error) },
+      blocked: false
+    } as any);
+    
+    // Return with elevated suspicion for failed geolocation
+    return { 
+      riskLevel: 'medium', // Elevated from 'low' for enhanced monitoring
+      countryCode: 'UNKNOWN' 
+    };
   }
 }
 

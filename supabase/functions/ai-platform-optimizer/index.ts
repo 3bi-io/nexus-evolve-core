@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { anthropicFetch } from '../_shared/api-client.ts';
+import { getProjectFiles as getProjectFilePaths, readFiles, sampleFiles } from '../_shared/file-walker.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -353,32 +354,31 @@ async function getProjectFiles() {
   const files: { path: string; content: string }[] = [];
   
   try {
-    // In Deno, we need to walk the file system
-    // This is a simplified version - in production you'd use Deno.readDir recursively
-    const projectRoot = Deno.cwd();
+    // Get all project files
+    const projectFiles = await getProjectFilePaths();
     
-    // For now, return a sample set of known important files
-    // In a real implementation, you'd walk the directory tree
-    const importantPaths = [
-      'src/pages/Index.tsx',
-      'src/components/ChatInterface.tsx',
-      'src/hooks/useSmartAIRouter.ts',
-      'supabase/functions/chat-stream-with-routing/index.ts',
-      'src/components/voice/GrokVoiceAgent.tsx'
+    // Sample files from each category to avoid overwhelming the AI
+    const sampledFrontend = sampleFiles(projectFiles.frontend, 10);
+    const sampledBackend = sampleFiles(projectFiles.backend, 5);
+    const sampledComponents = sampleFiles(projectFiles.components, 15);
+    const sampledHooks = sampleFiles(projectFiles.hooks, 5);
+    const sampledPages = sampleFiles(projectFiles.pages, 8);
+    
+    const allSampledPaths = [
+      ...sampledFrontend,
+      ...sampledBackend,
+      ...sampledComponents,
+      ...sampledHooks,
+      ...sampledPages,
     ];
     
-    for (const path of importantPaths) {
-      try {
-        const fullPath = `${projectRoot}/${path}`;
-        const content = await Deno.readTextFile(fullPath);
-        files.push({ path, content });
-      } catch (err) {
-        // File doesn't exist, skip it
-        console.log(`⚠️ Could not read ${path}`);
-      }
-    }
+    // Read file contents
+    const fileEntries = await readFiles(allSampledPaths);
     
-    return files;
+    return fileEntries.map(entry => ({
+      path: entry.path,
+      content: entry.content,
+    }));
   } catch (error) {
     console.error('Error reading project files:', error);
     return [];

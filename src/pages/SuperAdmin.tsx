@@ -22,6 +22,7 @@ import { BreadcrumbNav } from "@/components/BreadcrumbNav";
 import { cn } from "@/lib/utils";
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { ErrorBoundaryWrapper } from "@/components/ErrorBoundaryWrapper";
 
 export default function SuperAdmin() {
   const { user } = useAuth();
@@ -114,7 +115,11 @@ export default function SuperAdmin() {
   };
 
   return (
-    <PageLayout title="Admin - System Management" showBack={true}>
+    <ErrorBoundaryWrapper
+      fallbackTitle="Admin Dashboard Error"
+      fallbackMessage="The admin dashboard encountered an error. Please try refreshing the page."
+    >
+      <PageLayout title="Admin - System Management" showBack={true}>
       <SEO 
         title="Super Admin - System Management Dashboard"
         description="Comprehensive super admin dashboard for managing users, agents, data, finances, security, and system configuration across the unified AI platform."
@@ -156,6 +161,7 @@ export default function SuperAdmin() {
           </div>
         </main>
       </div>
-    </PageLayout>
+      </PageLayout>
+    </ErrorBoundaryWrapper>
   );
 }

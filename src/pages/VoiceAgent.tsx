@@ -12,6 +12,7 @@ import { VoiceAgentChat } from "@/components/voice/VoiceAgentChat";
 import { GrokVoiceAgent } from "@/components/voice/GrokVoiceAgent";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SEO } from "@/components/SEO";
+import { ErrorBoundaryWrapper } from "@/components/ErrorBoundaryWrapper";
 
 const USE_CASES = [
   {
@@ -279,6 +280,7 @@ export default function VoiceAgent() {
           </TabsContent>
         </Tabs>
       </div>
-    </PageLayout>
+      </PageLayout>
+    </ErrorBoundaryWrapper>
   );
 }

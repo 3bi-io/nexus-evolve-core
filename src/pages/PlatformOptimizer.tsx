@@ -9,6 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
+import { ErrorBoundaryWrapper } from "@/components/ErrorBoundaryWrapper";
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
@@ -746,6 +748,7 @@ export default function PlatformOptimizer() {
           </TabsContent>
         </Tabs>
       </div>
-    </PageLayout>
+      </PageLayout>
+    </ErrorBoundaryWrapper>
   );
 }
