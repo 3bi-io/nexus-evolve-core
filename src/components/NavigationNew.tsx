@@ -41,6 +41,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CreditBalance } from "@/components/pricing/CreditBalance";
 import { UserAccountMenu } from "@/components/UserAccountMenu";
+import { OneirosBrandLogo } from "@/components/OneirosBrandLogo";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
@@ -94,10 +95,7 @@ export const NavigationNew = () => {
         <div className="flex items-center justify-between gap-4">
           {/* Brand */}
           <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-            <div className="relative">
-              <Brain className="w-7 h-7 text-primary" />
-              <Sparkles className="w-3 h-3 text-primary absolute -top-1 -right-1 animate-pulse" />
-            </div>
+            <OneirosBrandLogo size="md" />
             <div className="hidden lg:flex flex-col">
               <span className="font-bold text-lg leading-tight">Oneiros.me</span>
               <span className="text-xs text-muted-foreground leading-tight">AI Platform</span>

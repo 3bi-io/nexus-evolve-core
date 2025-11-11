@@ -1,4 +1,4 @@
-import { Brain } from "lucide-react";
+import { OneirosBrandLogo } from "@/components/OneirosBrandLogo";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 
@@ -14,7 +14,7 @@ export const SelfLearningBadge = () => {
         variant="secondary" 
         className="px-3 py-2 gap-2 bg-primary/10 border-primary/20 backdrop-blur-sm shadow-lg hover:bg-primary/20 transition-colors"
       >
-        <Brain className="h-4 w-4 text-primary animate-pulse" />
+        <OneirosBrandLogo size="sm" />
         <span className="text-sm font-medium">Oneiros.me</span>
       </Badge>
     </motion.div>

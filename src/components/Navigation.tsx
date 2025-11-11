@@ -4,6 +4,7 @@ import { MessageSquare, Network, Brain, Zap, TrendingUp, LogOut, Shield, Trophy,
 import { useAuth } from "@/contexts/AuthContext";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { CreditBalance } from "@/components/pricing/CreditBalance";
+import { OneirosBrandLogo } from "@/components/OneirosBrandLogo";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
@@ -46,8 +47,7 @@ export const Navigation = () => {
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2 lg:gap-4 overflow-x-auto scrollbar-hide flex-1 min-w-0">
             <Link to="/chat" className="flex items-center gap-2 mr-2 lg:mr-4 flex-shrink-0">
-              <Brain className="w-6 h-6 text-primary" />
-              <span className="font-semibold text-lg hidden lg:inline">Oneiros.me</span>
+              <OneirosBrandLogo size="md" showText />
             </Link>
             <Link to="/chat" className="flex-shrink-0">
               <Button

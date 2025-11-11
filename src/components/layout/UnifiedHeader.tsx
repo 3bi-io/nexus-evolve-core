@@ -4,11 +4,12 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
 import { CreditBalance } from "@/components/pricing/CreditBalance";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
-import { Brain, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { MobileMenu } from "./MobileMenu";
 import { cn } from "@/lib/utils";
 import { useResponsive } from "@/hooks/useResponsive";
+import { OneirosBrandLogo } from "@/components/OneirosBrandLogo";
 
 interface UnifiedHeaderProps {
   variant?: 'public' | 'app';
@@ -48,10 +49,7 @@ export function UnifiedHeader({
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity touch-active">
-              <div className="relative">
-                <Brain className="w-7 h-7 text-primary" />
-                <Sparkles className="w-3 h-3 text-primary absolute -top-1 -right-1 animate-pulse" />
-              </div>
+              <OneirosBrandLogo size="md" />
               <span className="font-bold text-xl">Oneiros</span>
             </Link>
 
@@ -149,10 +147,7 @@ export function UnifiedHeader({
         <div className="flex items-center gap-3">
           {!isMobile && <SidebarTrigger />}
           <Link to="/" className="flex items-center gap-2">
-            <div className="relative">
-              <Brain className="w-6 h-6 text-primary" />
-              <Sparkles className="w-3 h-3 text-primary absolute -top-1 -right-1 animate-pulse" />
-            </div>
+            <OneirosBrandLogo size="sm" />
             <span className="font-bold text-lg hidden sm:inline-block">Oneiros.me</span>
           </Link>
         </div>

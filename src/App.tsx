@@ -78,6 +78,7 @@ const XAIDashboard = lazy(() => import("./pages/XAIDashboard"));
 const XAIAnalytics = lazy(() => import("./pages/XAIAnalytics"));
 const AutomationHub = lazy(() => import("./pages/AutomationHub"));
 const Install = lazy(() => import("./pages/Install"));
+const ProcessLogo = lazy(() => import("./pages/ProcessLogo"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -420,6 +421,7 @@ const RoutesWithShortcuts = () => {
           />
           <Route path="/model-comparison" element={<ModelComparison />} />
           <Route path="/sitemap" element={<Sitemap />} />
+          <Route path="/process-logo" element={<ProcessLogo />} />
           <Route
             path="/browser-ai"
             element={

@@ -13,19 +13,19 @@
   "dir": "ltr",
   "icons": [
     {
-      "src": "/favicon.png",
+      "src": "/logo-oneiros.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/favicon.png",
+      "src": "/logo-oneiros.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/favicon.png",
+      "src": "/logo-oneiros.png",
       "sizes": "384x384",
       "type": "image/png",
       "purpose": "any"
@@ -38,21 +38,21 @@
       "short_name": "Chat",
       "description": "Start a conversation with AI",
       "url": "/chat",
-      "icons": [{ "src": "/favicon.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/logo-oneiros.png", "sizes": "192x192" }]
     },
     {
       "name": "Voice AI",
       "short_name": "Voice",
       "description": "Start a voice conversation",
       "url": "/voice-agent",
-      "icons": [{ "src": "/favicon.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/logo-oneiros.png", "sizes": "192x192" }]
     },
     {
       "name": "Agent Marketplace",
       "short_name": "Marketplace",
       "description": "Browse custom AI agents",
       "url": "/agent-marketplace",
-      "icons": [{ "src": "/favicon.png", "sizes": "192x192" }]
+      "icons": [{ "src": "/logo-oneiros.png", "sizes": "192x192" }]
     }
   ]
 }
