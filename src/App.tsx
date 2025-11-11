@@ -1,6 +1,6 @@
 import "./App.css";
-import { lazy, Suspense } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { lazy, Suspense, useEffect } from "react";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
@@ -15,6 +15,10 @@ import { MobileOnboarding } from "@/components/mobile/MobileOnboarding";
 import { InstallPrompt } from "@/components/mobile/InstallPrompt";
 import { InstallBadge } from "@/components/mobile/InstallBadge";
 import { InstallSuccessDialog } from "@/components/mobile/InstallSuccessDialog";
+import { NativeAppOnboarding } from "@/components/mobile/NativeAppOnboarding";
+import { AppLoadingScreen } from "@/components/mobile/AppLoadingScreen";
+import { App as CapacitorApp } from "@capacitor/app";
+import { Capacitor } from "@capacitor/core";
 
 // Lazy load pages for better performance and code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -99,9 +103,47 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 const RoutesWithShortcuts = () => {
+  const navigate = useNavigate();
   useGlobalShortcuts();
   useReferralProcessor(); // Process referral codes after signup
   useReferralConversion(); // Track conversion after 3+ interactions
+
+  // Deep linking handler for native apps
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    let listenerHandle: any;
+
+    const setupListener = async () => {
+      listenerHandle = await CapacitorApp.addListener('appUrlOpen', (data: any) => {
+        const slug = data.url.split('oneiros://').pop();
+        if (slug) {
+          // Handle authentication deep links
+          if (slug.startsWith('auth')) {
+            const params = new URLSearchParams(slug.split('?')[1]);
+            const token = params.get('token');
+            if (token) {
+              // Store token and navigate
+              localStorage.setItem('auth-token', token);
+              navigate('/chat');
+              return;
+            }
+          }
+          // Navigate to the route
+          navigate(`/${slug}`);
+        }
+      });
+    };
+
+    setupListener();
+
+    return () => {
+      if (listenerHandle) {
+        listenerHandle.remove();
+      }
+    };
+  }, [navigate]);
+
   return (
     <>
       <Suspense fallback={<LoadingPage />}>
@@ -450,6 +492,8 @@ function App() {
           <QueryClientProvider client={queryClient}>
             <AuthProvider>
               <BrowserRouter>
+                <AppLoadingScreen />
+                <NativeAppOnboarding />
                 <MobileOnboarding />
                 <InstallPrompt />
                 <InstallBadge />
