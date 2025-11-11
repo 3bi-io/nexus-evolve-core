@@ -47,15 +47,24 @@ export const useSecretValidation = () => {
   // Show toast notification for critical missing keys on initial load
   useEffect(() => {
     if (validation && !validation.valid) {
-      const criticalKeys = ['OPENAI_API_KEY', 'LOVABLE_API_KEY'];
-      const missingCritical = criticalKeys.filter(
-        key => validation.results[key]?.error === 'Not configured'
-      );
+      const criticalKeys = ['OPENAI_API_KEY', 'LOVABLE_API_KEY', 'ANTHROPIC_API_KEY'];
+      const failedKeys = Object.entries(validation.results)
+        .filter(([key, result]) => criticalKeys.includes(key) && !result?.valid)
+        .map(([key]) => key);
 
-      if (missingCritical.length > 0) {
-        toast.warning('API Configuration Required', {
-          description: `${missingCritical.length} critical API key(s) need configuration`,
-          duration: 5000,
+      if (failedKeys.length > 0) {
+        const failedServices = failedKeys.map(key => {
+          const names: Record<string, string> = {
+            OPENAI_API_KEY: 'OpenAI',
+            LOVABLE_API_KEY: 'Lovable AI',
+            ANTHROPIC_API_KEY: 'Claude',
+          };
+          return names[key] || key;
+        });
+        
+        toast.error('AI Services Issue', {
+          description: `${failedServices.join(', ')} ${failedKeys.length === 1 ? 'is' : 'are'} not working properly`,
+          duration: 8000,
         });
       }
     }

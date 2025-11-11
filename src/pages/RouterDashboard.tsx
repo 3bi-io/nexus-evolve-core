@@ -1,6 +1,7 @@
 import { PageLayout } from '@/components/layout/PageLayout';
 import { SEO } from '@/components/SEO';
 import { RouterMetricsDashboard } from '@/components/ai/RouterMetricsDashboard';
+import { AIServiceHealthDashboard } from '@/components/ai/AIServiceHealthDashboard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -85,12 +86,17 @@ const RouterDashboard = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="metrics" className="w-full">
+        <Tabs defaultValue="health" className="w-full">
           <TabsList>
+            <TabsTrigger value="health">Health</TabsTrigger>
             <TabsTrigger value="metrics">Metrics</TabsTrigger>
             <TabsTrigger value="test">Test Router</TabsTrigger>
             <TabsTrigger value="config">Configuration</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="health" className="space-y-4">
+            <AIServiceHealthDashboard />
+          </TabsContent>
 
           <TabsContent value="metrics" className="space-y-4">
             <RouterMetricsDashboard />
