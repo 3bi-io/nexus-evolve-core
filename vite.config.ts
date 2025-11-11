@@ -84,15 +84,66 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui-vendor': ['framer-motion', 'lucide-react'],
-          'supabase-vendor': ['@supabase/supabase-js'],
-          'chart-vendor': ['recharts'],
+        manualChunks: (id) => {
+          // Core React dependencies
+          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
+            return 'react-core';
+          }
+          // Router
+          if (id.includes('node_modules/react-router-dom')) {
+            return 'react-router';
+          }
+          // UI Libraries
+          if (id.includes('node_modules/framer-motion')) {
+            return 'framer-motion';
+          }
+          if (id.includes('node_modules/lucide-react')) {
+            return 'lucide-icons';
+          }
+          // Radix UI components
+          if (id.includes('node_modules/@radix-ui')) {
+            return 'radix-ui';
+          }
+          // Supabase
+          if (id.includes('node_modules/@supabase')) {
+            return 'supabase';
+          }
+          // Charts
+          if (id.includes('node_modules/recharts')) {
+            return 'recharts';
+          }
+          // Capacitor (mobile)
+          if (id.includes('node_modules/@capacitor')) {
+            return 'capacitor';
+          }
+          // AI/ML Libraries
+          if (id.includes('node_modules/@huggingface')) {
+            return 'huggingface';
+          }
+          // Admin pages (rarely accessed)
+          if (id.includes('src/pages/SuperAdmin') || id.includes('src/components/admin')) {
+            return 'admin';
+          }
+          // AI Studio pages
+          if (id.includes('src/pages/XAI') || id.includes('src/pages/MultimodalStudio')) {
+            return 'ai-studio';
+          }
+          // Analytics pages
+          if (id.includes('src/pages/Analytics') || id.includes('src/pages/LLMAnalytics')) {
+            return 'analytics';
+          }
         }
       }
     },
     chunkSizeWarningLimit: 1000,
+    sourcemap: false, // Disable sourcemaps in production for smaller bundles
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true, // Remove console.logs in production
+        drop_debugger: true,
+      },
+    },
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom'],
