@@ -8,6 +8,7 @@ import { SidebarProvider, useSidebar } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSwipeGestures } from "@/hooks/useSwipeGestures";
 import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
+import { MobileBreadcrumb } from "@/components/mobile/MobileBreadcrumb";
 import { UnifiedHeader } from "./UnifiedHeader";
 import { useResponsive } from "@/hooks/useResponsive";
 import { cn } from "@/lib/utils";
@@ -77,6 +78,10 @@ function MainLayout({
   return (
     <div className="flex flex-col flex-1 min-w-0">
       {showHeader && <UnifiedHeader variant="app" />}
+      
+      {/* Mobile Breadcrumb - Sticky at top of content */}
+      {isMobile && <MobileBreadcrumb />}
+      
       <main 
         className={cn(
           'flex-1',
@@ -102,6 +107,7 @@ function MainLayout({
           'w-full',
           !isSmallMobile && 'max-w-7xl',
         )}>
+          {/* Desktop Breadcrumb */}
           {!isMobile && <BreadcrumbNav />}
         </div>
         {children}
