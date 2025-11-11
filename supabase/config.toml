@@ -192,5 +192,8 @@ verify_jwt = true
 [functions.xai-workflow-executor]
 verify_jwt = true
 
+[functions.github-pr-creator]
+verify_jwt = true
+
 [functions.get-admin-stats]
 verify_jwt = true

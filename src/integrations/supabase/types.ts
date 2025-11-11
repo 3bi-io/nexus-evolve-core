@@ -2529,6 +2529,9 @@ export type Database = {
           confidence_score: number | null
           created_at: string
           current_code: string | null
+          github_branch_name: string | null
+          github_pr_status: string | null
+          github_pr_url: string | null
           id: string
           impact_score: number | null
           improved_code: string
@@ -2553,6 +2556,9 @@ export type Database = {
           confidence_score?: number | null
           created_at?: string
           current_code?: string | null
+          github_branch_name?: string | null
+          github_pr_status?: string | null
+          github_pr_url?: string | null
           id?: string
           impact_score?: number | null
           improved_code: string
@@ -2577,6 +2583,9 @@ export type Database = {
           confidence_score?: number | null
           created_at?: string
           current_code?: string | null
+          github_branch_name?: string | null
+          github_pr_status?: string | null
+          github_pr_url?: string | null
           id?: string
           impact_score?: number | null
           improved_code?: string
@@ -2590,6 +2599,48 @@ export type Database = {
           target_component?: string | null
           target_file?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      platform_optimizer_config: {
+        Row: {
+          allowed_types: string[] | null
+          auto_apply_enabled: boolean | null
+          created_at: string | null
+          github_auto_pr: boolean | null
+          github_base_branch: string | null
+          github_repo_url: string | null
+          id: string
+          max_changes_per_run: number | null
+          min_confidence_threshold: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          allowed_types?: string[] | null
+          auto_apply_enabled?: boolean | null
+          created_at?: string | null
+          github_auto_pr?: boolean | null
+          github_base_branch?: string | null
+          github_repo_url?: string | null
+          id?: string
+          max_changes_per_run?: number | null
+          min_confidence_threshold?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          allowed_types?: string[] | null
+          auto_apply_enabled?: boolean | null
+          created_at?: string | null
+          github_auto_pr?: boolean | null
+          github_base_branch?: string | null
+          github_repo_url?: string | null
+          id?: string
+          max_changes_per_run?: number | null
+          min_confidence_threshold?: number | null
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }

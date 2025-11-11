@@ -17,10 +17,11 @@ import { toast } from 'sonner';
 import { 
   Sparkles, Play, AlertTriangle, CheckCircle2, Clock, 
   TrendingUp, Shield, Zap, Eye, Settings, RefreshCw,
-  Code, FileCode, Activity, BarChart3, Search, Filter
+  Code, FileCode, Activity, BarChart3, Search, Filter, Github
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { PlatformAnalysisRunner } from '@/components/admin/sections/PlatformAnalysisRunner';
+import { GitHubSettings } from '@/components/admin/sections/GitHubSettings';
 
 interface Improvement {
   id: string;
@@ -133,12 +134,20 @@ export default function PlatformOptimizer() {
   };
 
   const loadConfig = async () => {
-    const { data } = await supabase
-      .from('auto_apply_config')
-      .select('*')
-      .single();
-    
-    if (data) setConfig(data);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from('platform_optimizer_config')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+      
+      if (data) setConfig(data as any);
+    } catch (error) {
+      console.error('Error loading config:', error);
+    }
   };
 
   const runAnalysis = async () => {
@@ -164,20 +173,31 @@ export default function PlatformOptimizer() {
   const updateConfig = async (updates: Partial<AutoApplyConfig>) => {
     if (!config) return;
 
-    const { error } = await supabase
-      .from('auto_apply_config')
-      .update(updates)
-      .eq('id', (config as any).id);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-    if (error) {
+      const { error } = await supabase
+        .from('platform_optimizer_config')
+        .upsert({
+          ...(config as any),
+          ...updates,
+          user_id: user.id,
+        });
+
+      if (error) {
+        toast.error('Failed to update configuration');
+      } else {
+        setConfig({ ...config, ...updates });
+        toast.success('Configuration updated');
+      }
+    } catch (error) {
+      console.error('Error updating config:', error);
       toast.error('Failed to update configuration');
-    } else {
-      setConfig({ ...config, ...updates });
-      toast.success('Configuration updated');
     }
   };
 
-  const applyImprovement = async (improvement: Improvement) => {
+  const applyImprovement = async (improvement: Improvement, createPR: boolean = false) => {
     const { error } = await supabase
       .from('platform_improvements')
       .update({ status: 'approved', applied_at: new Date().toISOString() })
@@ -186,8 +206,59 @@ export default function PlatformOptimizer() {
     if (error) {
       toast.error('Failed to apply improvement');
     } else {
-      toast.success('Improvement approved! GitHub integration required for automatic commits.');
+      toast.success('Improvement approved!');
+      
+      // Create GitHub PR if requested
+      if (createPR && config) {
+        await createGitHubPR(improvement);
+      }
+      
       loadImprovements();
+    }
+  };
+
+  const createGitHubPR = async (improvement: Improvement) => {
+    try {
+      toast.info('Creating GitHub pull request...');
+
+      const { data, error } = await supabase.functions.invoke('github-pr-creator', {
+        body: {
+          improvementId: improvement.id,
+          repoUrl: (config as any)?.github_repo_url,
+          baseBranch: (config as any)?.github_base_branch || 'main',
+          title: `${improvement.improvement_type}: ${improvement.target_component || improvement.target_file}`,
+          description: `${improvement.issue_description}\n\n**Rationale:** ${improvement.rationale}\n\n**Impact Score:** ${improvement.impact_score}/10\n**Confidence:** ${(improvement.confidence_score * 100).toFixed(0)}%`,
+          fileChanges: [{
+            path: improvement.target_file,
+            content: improvement.improved_code,
+          }],
+        },
+      });
+
+      if (error) throw error;
+
+      if (data.success) {
+        toast.success(
+          <div>
+            Pull request created!{' '}
+            <a 
+              href={data.pr_url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="underline font-medium"
+            >
+              View PR #{data.pr_number}
+            </a>
+          </div>,
+          { duration: 5000 }
+        );
+        loadImprovements();
+      } else {
+        throw new Error(data.error || 'Failed to create PR');
+      }
+    } catch (error: any) {
+      console.error('Error creating GitHub PR:', error);
+      toast.error(`Failed to create PR: ${error.message}`);
     }
   };
 
@@ -496,11 +567,20 @@ export default function PlatformOptimizer() {
                                 <Button
                                   size="sm"
                                   variant="default"
-                                  onClick={() => applyImprovement(improvement)}
+                                  onClick={() => applyImprovement(improvement, false)}
                                 >
                                   <CheckCircle2 className="h-4 w-4 mr-1" />
                                   Approve
                                 </Button>
+                                {(config as any)?.github_repo_url && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => applyImprovement(improvement, true)}
+                                  >
+                                    Create PR
+                                  </Button>
+                                )}
                                 <Button
                                   size="sm"
                                   variant="outline"
@@ -509,6 +589,15 @@ export default function PlatformOptimizer() {
                                   Reject
                                 </Button>
                               </>
+                            )}
+                            {improvement.status === 'approved' && (config as any)?.github_repo_url && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => createGitHubPR(improvement)}
+                              >
+                                Create PR
+                              </Button>
                             )}
                             <Button
                               size="sm"
@@ -601,6 +690,8 @@ export default function PlatformOptimizer() {
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-4">
+            <GitHubSettings />
+            
             {config && (
               <>
                 <Alert>
