@@ -8,6 +8,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Mic, Loader2, Phone, PhoneOff, AlertCircle } from "lucide-react";
+import { useAudioPermissions } from "@/hooks/useAudioPermissions";
+import { AudioTestButton } from "./AudioTestButton";
 
 interface Message {
   role: "user" | "assistant";
@@ -26,6 +28,18 @@ export function VoiceAgentChat({ agentId }: VoiceAgentChatProps) {
   const [dbConversationId, setDbConversationId] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
+  
+  // Use persistent audio permissions
+  const {
+    micPermission,
+    requestMicPermission,
+    checkSpeakerPermission,
+  } = useAudioPermissions();
+
+  // Check permissions on mount
+  useEffect(() => {
+    checkSpeakerPermission();
+  }, [checkSpeakerPermission]);
 
   // Client tools that the agent can invoke
   const clientTools = {
@@ -168,11 +182,12 @@ export function VoiceAgentChat({ agentId }: VoiceAgentChatProps) {
     try {
       console.log('Requesting microphone access...');
       
-      // Request microphone access
-      try {
-        await navigator.mediaDevices.getUserMedia({ audio: true });
-      } catch (micError) {
-        throw new Error('Microphone access denied. Please enable microphone permissions in your browser settings.');
+      // Request microphone permission if not granted
+      if (micPermission !== 'granted') {
+        const granted = await requestMicPermission();
+        if (!granted) {
+          throw new Error('Microphone access denied. Please enable microphone permissions in your browser settings.');
+        }
       }
 
       console.log('Getting signed URL...');
@@ -336,6 +351,13 @@ export function VoiceAgentChat({ agentId }: VoiceAgentChatProps) {
                   </Button>
                 )}
               </div>
+              
+              {/* Audio Test Button */}
+              {!conversationId && (
+                <div className="pt-2">
+                  <AudioTestButton />
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

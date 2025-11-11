@@ -8,6 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useWakeWord } from '@/hooks/useWakeWord';
+import { useAudioPermissions } from '@/hooks/useAudioPermissions';
+import { AudioTestButton } from './AudioTestButton';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -40,14 +42,24 @@ export const GrokVoiceAgent = () => {
   const [isActive, setIsActive] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [currentTranscript, setCurrentTranscript] = useState('');
-  const [micPermission, setMicPermission] = useState<'pending' | 'granted' | 'denied'>('pending');
   const [browserSupport, setBrowserSupport] = useState<BrowserSupport | null>(null);
   const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
+  
+  // Use persistent audio permissions
+  const {
+    micPermission,
+    requestMicPermission,
+    checkSpeakerPermission,
+    updateMicPermission,
+  } = useAudioPermissions();
 
   useEffect(() => {
     const support = checkBrowserSupport();
     setBrowserSupport(support);
+    
+    // Check speaker permission on mount
+    checkSpeakerPermission();
 
     if (!support.hasSpeechRecognition && !support.isIOS) {
       toast({
@@ -93,24 +105,19 @@ export const GrokVoiceAgent = () => {
     speechSynthesis.speak(utterance);
   };
 
-  const requestMicrophoneAccess = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach(track => track.stop());
-      setMicPermission('granted');
+  const handleRequestMicAccess = async () => {
+    const granted = await requestMicPermission();
+    if (granted) {
       toast({
         title: "Microphone Access Granted",
-        description: "You can now use voice features",
+        description: "You can now use voice commands with Eros.",
       });
-      return true;
-    } catch (error) {
-      setMicPermission('denied');
+    } else {
       toast({
         title: "Microphone Access Denied",
-        description: "Please enable microphone access in your browser settings",
-        variant: "destructive"
+        description: "Please enable microphone access in your browser settings.",
+        variant: "destructive",
       });
-      return false;
     }
   };
 
@@ -125,7 +132,7 @@ export const GrokVoiceAgent = () => {
     }
 
     if (micPermission === 'pending') {
-      const granted = await requestMicrophoneAccess();
+      const granted = await requestMicPermission();
       if (!granted) return;
     }
 
@@ -160,7 +167,7 @@ export const GrokVoiceAgent = () => {
     recognition.onerror = (event: any) => {
       console.error('Speech error:', event.error);
       if (event.error === 'not-allowed') {
-        setMicPermission('denied');
+        updateMicPermission('denied');
       }
       setIsActive(false);
     };
@@ -278,7 +285,7 @@ export const GrokVoiceAgent = () => {
           <AlertCircle className="h-4 w-4" />
           <AlertDescription className="flex items-center justify-between">
             <span>Microphone access needed for voice features</span>
-            <Button size="sm" onClick={requestMicrophoneAccess}>
+            <Button size="sm" onClick={handleRequestMicAccess}>
               Grant Access
             </Button>
           </AlertDescription>
@@ -334,7 +341,12 @@ export const GrokVoiceAgent = () => {
               </div>
             )}
 
-            <Button 
+            {/* Audio Test Button */}
+            <div className="pt-2">
+              <AudioTestButton />
+            </div>
+
+            <Button
               onClick={toggleActive}
               className="w-full"
               variant={isActive ? "destructive" : "default"}
