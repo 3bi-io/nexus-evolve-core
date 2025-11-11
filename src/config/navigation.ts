@@ -2,7 +2,7 @@ import {
   MessageSquare, Network, Brain, BarChart3, Store, Phone, 
   Sparkles, Shield, Rocket, GitBranch, Layers, Cpu, Activity, 
   Settings, Plug, TrendingUp, Users, Zap, Trophy, Keyboard,
-  Webhook, Globe, BookOpen, Target, LineChart, Bot, Mic
+  Webhook, Globe, BookOpen, Target, LineChart, Bot, Mic, Download
 } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
@@ -68,6 +68,7 @@ export const navSections: NavSection[] = [
       { to: "/getting-started", icon: Rocket, label: "Getting Started", description: "Quick Start Guide", public: true },
       { to: "/agent-marketplace", icon: Store, label: "Marketplace", description: "Browse AI Agents", public: true },
       { to: "/pricing", icon: Sparkles, label: "Pricing", description: "Plans & Pricing", public: true },
+      { to: "/install", icon: Download, label: "Install App", description: "Install as PWA", public: true },
     ],
   },
   {

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -14,6 +14,7 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { navSections } from "@/config/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { useInstallStatus } from "@/hooks/useInstallStatus";
 
 interface MobileMenuProps {
   authenticated?: boolean;
@@ -24,11 +25,22 @@ interface MobileMenuProps {
 export function MobileMenu({ authenticated, onSignOut, onNavigate }: MobileMenuProps) {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
   const { user } = useAuth();
+  const { isInstalled, canPrompt, triggerInstall } = useInstallStatus();
 
   const handleLinkClick = (path: string) => {
     setOpen(false);
     onNavigate?.(path);
+  };
+
+  const handleInstallClick = async () => {
+    if (canPrompt) {
+      setOpen(false);
+      await triggerInstall();
+    } else {
+      handleLinkClick('/install');
+    }
   };
 
   // Check if user is admin
@@ -67,6 +79,21 @@ export function MobileMenu({ authenticated, onSignOut, onNavigate }: MobileMenuP
         
         <ScrollArea className="h-[calc(100vh-120px)] pr-4">
           <nav className="flex flex-col gap-1">
+            {/* Install App Button - Show if not installed */}
+            {!isInstalled && (
+              <>
+                <div className="px-2 mb-2">
+                  <Button
+                    onClick={handleInstallClick}
+                    className="w-full gap-2 bg-primary hover:bg-primary/90 min-h-[44px]"
+                  >
+                    <Download className="w-4 h-4" />
+                    Install App
+                  </Button>
+                </div>
+                <Separator className="my-2" />
+              </>
+            )}
             {filteredSections.map((section, sectionIdx) => (
               <div key={section.id}>
                 {sectionIdx > 0 && <Separator className="my-3" />}

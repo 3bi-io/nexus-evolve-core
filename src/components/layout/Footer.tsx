@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Brain, Github, Twitter, Linkedin, Sparkles } from "lucide-react";
+import { Brain, Github, Twitter, Linkedin, Sparkles, Download } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function Footer() {
@@ -45,6 +45,12 @@ export function Footer() {
               <li>
                 <Link to="/voice-agent" className="text-muted-foreground hover:text-foreground transition-colors">
                   Voice Agent
+                </Link>
+              </li>
+              <li>
+                <Link to="/install" className="text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1.5">
+                  <Download className="w-3.5 h-3.5" />
+                  Install App
                 </Link>
               </li>
               <li>

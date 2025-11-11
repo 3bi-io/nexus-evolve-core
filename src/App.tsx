@@ -13,6 +13,8 @@ import { useReferralProcessor } from "@/hooks/useReferralProcessor";
 import { useReferralConversion } from "@/hooks/useReferralConversion";
 import { MobileOnboarding } from "@/components/mobile/MobileOnboarding";
 import { InstallPrompt } from "@/components/mobile/InstallPrompt";
+import { InstallBadge } from "@/components/mobile/InstallBadge";
+import { InstallSuccessDialog } from "@/components/mobile/InstallSuccessDialog";
 
 // Lazy load pages for better performance and code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -450,6 +452,8 @@ function App() {
               <BrowserRouter>
                 <MobileOnboarding />
                 <InstallPrompt />
+                <InstallBadge />
+                <InstallSuccessDialog />
                 <RoutesWithShortcuts />
               </BrowserRouter>
             </AuthProvider>

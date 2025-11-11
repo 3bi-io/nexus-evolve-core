@@ -1,11 +1,23 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Sparkles, Zap, Shield, Brain, Users, Clock } from 'lucide-react';
+import { ArrowRight, Sparkles, Zap, Shield, Brain, Users, Clock, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useInstallStatus } from '@/hooks/useInstallStatus';
+import { useMobile } from '@/hooks/useMobile';
 
 export function HeroSection() {
   const navigate = useNavigate();
+  const { canPrompt, triggerInstall } = useInstallStatus();
+  const { isMobile } = useMobile();
+
+  const handleInstallClick = async () => {
+    if (canPrompt) {
+      await triggerInstall();
+    } else {
+      navigate('/install');
+    }
+  };
 
   return (
     <div className="relative text-center space-y-8 py-20 overflow-hidden">
@@ -97,6 +109,17 @@ export function HeroSection() {
           Explore Live Demo
           <Sparkles className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
         </Button>
+        {isMobile && (
+          <Button 
+            size="lg" 
+            variant="outline"
+            onClick={handleInstallClick}
+            className="w-full sm:w-auto text-base sm:text-lg px-8 sm:px-10 py-6 sm:py-7 hover:bg-primary/10 touch-feedback min-h-[56px] gap-2"
+          >
+            <Download className="h-4 w-4 sm:h-5 sm:w-5" />
+            Install App
+          </Button>
+        )}
       </div>
       
       <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm px-4">

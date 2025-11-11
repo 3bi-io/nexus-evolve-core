@@ -20,9 +20,13 @@ export function InstallPrompt() {
     // Don't show if already installed or running as native app
     if (isNative) return;
 
-    // Check if already dismissed
-    const dismissed = localStorage.getItem('pwa-install-dismissed');
-    if (dismissed) return;
+    // Check if reminded later (24 hours)
+    const remindLater = localStorage.getItem('pwa-install-remind-later');
+    if (remindLater) {
+      const remindTime = parseInt(remindLater);
+      if (Date.now() < remindTime) return;
+      localStorage.removeItem('pwa-install-remind-later');
+    }
 
     const handler = (e: Event) => {
       e.preventDefault();
@@ -55,9 +59,18 @@ export function InstallPrompt() {
     setShowPrompt(false);
   };
 
+  const handleRemindLater = () => {
+    setShowPrompt(false);
+    // Remind after 24 hours
+    const remindTime = Date.now() + (24 * 60 * 60 * 1000);
+    localStorage.setItem('pwa-install-remind-later', remindTime.toString());
+  };
+
   const handleDismiss = () => {
     setShowPrompt(false);
-    localStorage.setItem('pwa-install-dismissed', 'true');
+    // Remind after 7 days
+    const remindTime = Date.now() + (7 * 24 * 60 * 60 * 1000);
+    localStorage.setItem('pwa-install-remind-later', remindTime.toString());
   };
 
   if (!showPrompt || !deferredPrompt || !isMobile) return null;
@@ -79,7 +92,7 @@ export function InstallPrompt() {
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-sm mb-1">Install Oneiros.me</h3>
               <p className="text-xs text-muted-foreground mb-3">
-                Add to your home screen for a faster, native-like experience
+                Get instant access, offline support, and native-like speed. Join thousands of users!
               </p>
               
               <div className="flex gap-2">
@@ -88,14 +101,14 @@ export function InstallPrompt() {
                   size="sm"
                   className="flex-1"
                 >
-                  Install
+                  Install Now
                 </Button>
                 <Button
-                  onClick={handleDismiss}
+                  onClick={handleRemindLater}
                   size="sm"
                   variant="ghost"
                 >
-                  Not now
+                  Later
                 </Button>
               </div>
             </div>
