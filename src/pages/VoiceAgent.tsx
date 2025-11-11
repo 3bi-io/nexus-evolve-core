@@ -79,7 +79,11 @@ export default function VoiceAgent() {
   };
 
   return (
-    <PageLayout>
+    <ErrorBoundaryWrapper
+      fallbackTitle="Voice Agent Error"
+      fallbackMessage="The voice agent encountered an error. This may be due to browser compatibility or microphone permissions."
+    >
+      <PageLayout>
       <SEO 
         title="Voice AI - Have Meetings, Not Messages | Natural Conversations"
         description="Stop typing. Start talking. Natural voice conversations with AI that understands interruptions, context switches, and complex discussions. 3x faster than typing. Powered by ElevenLabs."

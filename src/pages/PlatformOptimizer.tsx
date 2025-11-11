@@ -247,7 +247,11 @@ export default function PlatformOptimizer() {
   };
 
   return (
-    <PageLayout>
+    <ErrorBoundaryWrapper
+      fallbackTitle="Platform Optimizer Error"
+      fallbackMessage="The platform optimizer encountered an error. Please try refreshing the page."
+    >
+      <PageLayout>
       <div className="container mx-auto px-4 py-8 space-y-6">
         <div className="flex items-center justify-between">
           <div>
