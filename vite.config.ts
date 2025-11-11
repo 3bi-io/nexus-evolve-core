@@ -15,6 +15,11 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: 'auto',
+      devOptions: {
+        enabled: true,
+        type: 'module',
+      },
       includeAssets: ['favicon.png', 'robots.txt', 'og-*.png'],
       manifest: {
         name: 'Oneiros.me - The Most Advanced AI Platform',
