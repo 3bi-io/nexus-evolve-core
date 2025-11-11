@@ -42,13 +42,18 @@ function MainLayout({
   signOut: () => Promise<void>;
   navigate: (path: string) => void;
 }) {
-  const { toggleSidebar, setOpenMobile, isMobile } = useSidebar();
-  const { isSmallMobile, isTouchDevice, orientation } = useResponsive();
+  const sidebar = useSidebar();
+  const { toggleSidebar, setOpenMobile, isMobile: sidebarIsMobile } = sidebar || { 
+    toggleSidebar: () => {}, 
+    setOpenMobile: () => {}, 
+    isMobile: false 
+  };
+  const { isMobile, isSmallMobile, isTouchDevice, orientation } = useResponsive();
 
-  // Add swipe gestures for mobile - swipe from left edge to open
+  // Add swipe gestures for mobile - swipe from left edge to open (only if sidebar exists)
   useSwipeGestures({
     onSwipeRight: () => {
-      if (isMobile) {
+      if (sidebarIsMobile && sidebar) {
         setOpenMobile(true);
       }
     },
@@ -121,13 +126,33 @@ export function PageLayout({
   const navigate = useNavigate();
   const { isMobile } = useResponsive();
 
-  const content = (
-    <SidebarProvider defaultOpen={!isMobile}>
+  const content = isMobile ? (
+    // Mobile: No sidebar, just main content
+    <div 
+      className={cn(
+        'flex min-h-screen w-full',
+        'bg-background',
+        'antialiased',
+      )}
+    >
+      <MainLayout 
+        showHeader={showHeader}
+        showFooter={showFooter}
+        showBottomNav={showBottomNav}
+        className={className}
+        user={user}
+        signOut={signOut}
+        navigate={navigate}
+        children={children}
+      />
+    </div>
+  ) : (
+    // Desktop/Tablet: Include sidebar
+    <SidebarProvider defaultOpen={true}>
       <div 
         className={cn(
           'flex min-h-screen w-full',
           'bg-background',
-          // Optimize for mobile performance
           'antialiased',
         )}
       >

@@ -8,6 +8,7 @@ import { Brain, Sparkles } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { MobileMenu } from "./MobileMenu";
 import { cn } from "@/lib/utils";
+import { useResponsive } from "@/hooks/useResponsive";
 
 interface UnifiedHeaderProps {
   variant?: 'public' | 'app';
@@ -140,11 +141,13 @@ export function UnifiedHeader({
   }
 
   // App variant - for authenticated pages with sidebar
+  const { isMobile } = useResponsive();
+  
   return (
     <header className={baseClasses}>
       <div className="flex h-14 items-center px-4 gap-4">
         <div className="flex items-center gap-3">
-          <SidebarTrigger />
+          {!isMobile && <SidebarTrigger />}
           <Link to="/" className="flex items-center gap-2">
             <div className="relative">
               <Brain className="w-6 h-6 text-primary" />
@@ -154,26 +157,35 @@ export function UnifiedHeader({
           </Link>
         </div>
         <div className="ml-auto flex items-center gap-2">
-          {user && (
-            <>
-              <NotificationBell />
-              <CreditBalance />
-            </>
-          )}
-          <ThemeToggle />
-          {user ? (
-            <Button 
-              onClick={handleSignOut} 
-              variant="outline" 
-              size="sm"
-              className="hidden sm:flex"
-            >
-              Sign Out
-            </Button>
+          {isMobile ? (
+            <MobileMenu 
+              authenticated={!!user}
+              onSignOut={handleSignOut}
+              onNavigate={navigate}
+            />
           ) : (
-            <Button asChild size="sm" className="hidden sm:flex">
-              <Link to="/auth">Start Free</Link>
-            </Button>
+            <>
+              {user && (
+                <>
+                  <NotificationBell />
+                  <CreditBalance />
+                </>
+              )}
+              <ThemeToggle />
+              {user ? (
+                <Button 
+                  onClick={handleSignOut} 
+                  variant="outline" 
+                  size="sm"
+                >
+                  Sign Out
+                </Button>
+              ) : (
+                <Button asChild size="sm">
+                  <Link to="/auth">Start Free</Link>
+                </Button>
+              )}
+            </>
           )}
         </div>
       </div>
