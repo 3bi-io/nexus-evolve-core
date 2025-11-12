@@ -24,6 +24,10 @@ export const OneirosBrandLogo = ({
         src="/logo-oneiros.png" 
         alt="Oneiros.me Logo" 
         className={cn(sizeMap[size], "object-contain")}
+        onError={(e) => {
+          console.error('Failed to load logo');
+          e.currentTarget.style.display = 'none';
+        }}
       />
       {showText && (
         <span className="font-bold text-lg">
