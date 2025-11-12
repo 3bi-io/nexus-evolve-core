@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
-import { Github, Twitter, Linkedin, Sparkles, Download } from "lucide-react";
+import { Brain, Github, Twitter, Linkedin, Sparkles, Download } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { OneirosBrandLogo } from "@/components/OneirosBrandLogo";
 
 export function Footer() {
   const { user } = useAuth();
@@ -13,7 +12,11 @@ export function Footer() {
           {/* Brand */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-2">
-              <OneirosBrandLogo size="sm" showText />
+              <div className="relative">
+                <Brain className="w-6 h-6 text-primary" />
+                <Sparkles className="w-3 h-3 text-primary absolute -top-1 -right-1 animate-pulse" />
+              </div>
+              <span className="font-semibold text-lg">Oneiros.me</span>
             </Link>
             <p className="text-sm text-muted-foreground">
               Your intelligent AI companion for reasoning, creativity, and real-time insights.
