@@ -1,8 +1,9 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import { initPWA } from "./lib/pwa-lifecycle";
 
-// Service worker auto-registration is handled by vite-plugin-pwa with injectRegister: 'auto'
-// Check console for SW registration status
+// Initialize PWA with explicit lifecycle management
+initPWA();
 
 createRoot(document.getElementById("root")!).render(<App />);

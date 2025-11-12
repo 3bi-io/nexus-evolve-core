@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => ({
         enabled: true,
         type: 'module',
       },
-      includeAssets: ['favicon.png', 'robots.txt', 'og-*.png'],
+      includeAssets: ['favicon.png', 'favicon-oneiros.png', 'robots.txt', 'og-*.png'],
       manifest: {
         name: 'Oneiros.me - The Most Advanced AI Platform',
         short_name: 'Oneiros.me',
@@ -47,6 +47,7 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
+        cleanupOutdatedCaches: true,
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         runtimeCaching: [
           {
