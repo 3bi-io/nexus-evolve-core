@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
+import { InputWithClear } from "@/components/ui/input-with-clear";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -348,9 +349,10 @@ const Integrations = () => {
                 {mem0Action === "search" && (
                   <div className="space-y-2">
                     <Label>Search Query</Label>
-                    <Input
+                    <InputWithClear
                       value={mem0Query}
                       onChange={(e) => setMem0Query(e.target.value)}
+                      onClear={() => setMem0Query("")}
                       placeholder="Search memories..."
                     />
                   </div>

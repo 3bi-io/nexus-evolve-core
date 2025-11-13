@@ -6,6 +6,7 @@ import { ResponsiveContainer, ResponsiveGrid } from '@/components/layout/Respons
 import { ResponsiveSection, MobileSafeArea, TouchTarget } from '@/components/layout/ResponsiveSection';
 import { AgentMarketplaceCard } from '@/components/agents/AgentMarketplaceCard';
 import { Input } from '@/components/ui/input';
+import { InputWithClear } from '@/components/ui/input-with-clear';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -144,11 +145,12 @@ export default function AgentMarketplace() {
           <ResponsiveSection spacing="sm">
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-                <Input
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10 pointer-events-none" />
+                <InputWithClear
                   placeholder="Search agents..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onClear={() => setSearchQuery("")}
                   className="pl-10"
                 />
               </div>

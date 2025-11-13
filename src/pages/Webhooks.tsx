@@ -5,6 +5,7 @@ import { SEO } from "@/components/SEO";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { InputWithClear } from "@/components/ui/input-with-clear";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
@@ -180,9 +181,10 @@ export default function Webhooks() {
 
                 <div className="space-y-2">
                   <Label>Endpoint URL</Label>
-                  <Input
+                  <InputWithClear
                     value={newWebhook.url}
                     onChange={(e) => setNewWebhook({ ...newWebhook, url: e.target.value })}
+                    onClear={() => setNewWebhook({ ...newWebhook, url: "" })}
                     placeholder="https://api.yourapp.com/webhooks"
                     type="url"
                     inputMode="url"
