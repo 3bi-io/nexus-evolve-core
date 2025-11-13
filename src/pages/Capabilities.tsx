@@ -9,7 +9,7 @@ import {
   ChevronRight, ExternalLink, BookOpen, Terminal, FileCode, Lightbulb
 } from "lucide-react";
 import { SEO } from "@/components/SEO";
-import { AppLayout } from "@/components/layout/PageLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { useNavigate } from "react-router-dom";
 
 const platformFeatures = [

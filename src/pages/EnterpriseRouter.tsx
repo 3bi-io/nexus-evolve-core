@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import { AppLayout } from '@/components/layout/PageLayout';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RouterPreferences } from '@/components/router/RouterPreferences';
 import { ABTestingPanel } from '@/components/router/ABTestingPanel';

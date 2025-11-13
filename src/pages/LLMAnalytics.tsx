@@ -170,7 +170,13 @@ export default function LLMAnalytics() {
             <CardContent>
               {agentPerformance && agentPerformance.length > 0 ? (
                 <ResponsiveContainer width="100%" height={300}>
-...
+                  <BarChart data={agentPerformance}>
+                    <XAxis dataKey="agent" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="avgLatency" fill="hsl(var(--primary))" name="Avg Latency (ms)" />
+                  </BarChart>
                 </ResponsiveContainer>
               ) : (
                 <EmptyState
