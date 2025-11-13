@@ -24,7 +24,7 @@ export default function Landing() {
   }, [user, navigate]);
 
   return (
-    <MarketingLayout>
+    <MarketingLayout title="Home - AI Platform">
       <SEO
         title="Oneiros | AI Automation Platform - Vision, Generation, Workflows & Monitoring"
         description="Production-ready AI automation platform with vision analysis, image generation, automated workflows, smart caching, and 24/7 trend monitoring. 38+ edge functions working autonomously."
