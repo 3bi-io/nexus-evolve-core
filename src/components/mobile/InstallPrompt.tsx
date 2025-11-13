@@ -20,7 +20,7 @@ export function InstallPrompt() {
     // Don't show if already installed or running as native app
     if (isNative) return;
 
-    // Check if reminded later (24 hours)
+    // Check if reminded later
     const remindLater = localStorage.getItem('pwa-install-remind-later');
     if (remindLater) {
       const remindTime = parseInt(remindLater);
@@ -28,14 +28,26 @@ export function InstallPrompt() {
       localStorage.removeItem('pwa-install-remind-later');
     }
 
+    // Track visit count
+    const visitCountKey = 'pwa-visit-count';
+    const visitCount = parseInt(localStorage.getItem(visitCountKey) || '0');
+    const newVisitCount = visitCount + 1;
+    localStorage.setItem(visitCountKey, newVisitCount.toString());
+    
+    console.log(`📱 PWA: Visit ${newVisitCount}`);
+
     const handler = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       
-      // Show prompt after 10 seconds
-      setTimeout(() => {
-        setShowPrompt(true);
-      }, 10000);
+      // Show prompt after 3 visits
+      if (newVisitCount >= 3) {
+        console.log('📱 PWA: Showing install prompt after 3 visits');
+        // Show after 5 seconds on the 3rd+ visit
+        setTimeout(() => {
+          setShowPrompt(true);
+        }, 5000);
+      }
     };
 
     window.addEventListener('beforeinstallprompt', handler);
@@ -52,7 +64,11 @@ export function InstallPrompt() {
     const { outcome } = await deferredPrompt.userChoice;
 
     if (outcome === 'accepted') {
-      console.log('User accepted the install prompt');
+      console.log('✅ PWA: User accepted install prompt');
+      // Reset visit count on successful install
+      localStorage.removeItem('pwa-visit-count');
+    } else {
+      console.log('❌ PWA: User dismissed install prompt');
     }
 
     setDeferredPrompt(null);
@@ -92,7 +108,7 @@ export function InstallPrompt() {
             <div className="flex-1 min-w-0">
               <h3 className="font-semibold text-sm mb-1">Install Oneiros.me</h3>
               <p className="text-xs text-muted-foreground mb-3">
-                Get instant access, offline support, and native-like speed. Join thousands of users!
+                Add to your home screen for instant access, offline support, and native-like performance!
               </p>
               
               <div className="flex gap-2">

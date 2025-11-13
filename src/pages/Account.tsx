@@ -16,7 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Wifi, WifiOff } from "lucide-react";
+import { Wifi, WifiOff, Download } from "lucide-react";
 
 interface Subscription {
   tier_name: string;
@@ -61,6 +61,9 @@ const Account = () => {
   const [pwaEnabled, setPwaEnabled] = useState(() => {
     const stored = localStorage.getItem("pwa-enabled");
     return stored !== "false"; // Default to true if not set
+  });
+  const [visitCount, setVisitCount] = useState(() => {
+    return parseInt(localStorage.getItem('pwa-visit-count') || '0');
   });
 
   useEffect(() => {
@@ -222,6 +225,14 @@ const Account = () => {
         description: "Service worker will be unregistered on next page load",
       });
     }
+  };
+
+  const resetVisitCount = () => {
+    localStorage.setItem('pwa-visit-count', '0');
+    setVisitCount(0);
+    toast.success("Visit count reset", {
+      description: "Install prompt will show after 3 more visits"
+    });
   };
 
   const usagePercentage = subscription
@@ -418,6 +429,40 @@ const Account = () => {
                       : "Disabling PWA removes offline support but ensures you always see the latest version."}
                   </AlertDescription>
                 </Alert>
+
+                {pwaEnabled && (
+                  <div className="space-y-3 pt-3 border-t">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label className="text-sm">Install Prompt Progress</Label>
+                        <p className="text-xs text-muted-foreground">
+                          {visitCount < 3 
+                            ? `${3 - visitCount} more visit${3 - visitCount === 1 ? '' : 's'} until install prompt`
+                            : "Install prompt will appear automatically"}
+                        </p>
+                      </div>
+                      <div className="text-2xl font-bold">{visitCount}/3</div>
+                    </div>
+                    
+                    {visitCount >= 3 && (
+                      <Alert className="bg-primary/10 border-primary/20">
+                        <Download className="h-4 w-4 text-primary" />
+                        <AlertDescription className="text-xs">
+                          Install prompt will appear on your next mobile visit!
+                        </AlertDescription>
+                      </Alert>
+                    )}
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={resetVisitCount}
+                      className="w-full"
+                    >
+                      Reset Visit Count
+                    </Button>
+                  </div>
+                )}
 
                 {!pwaEnabled && (
                   <Button
