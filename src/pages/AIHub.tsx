@@ -1,4 +1,4 @@
-import { PageLayout } from "@/components/layout/PageLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { SEO } from "@/components/SEO";
 import { AIProviderDashboard } from "@/components/ai/AIProviderDashboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,7 +27,7 @@ const AIHub = () => {
   };
 
   return (
-    <PageLayout title="AI Hub" showBack={true}>
+    <AppLayout title="AI Hub" showBottomNav>
       <SEO
         title="AI Hub - Unified AI Access with Intelligent Routing"
         description="Unified access to Lovable AI, HuggingFace, and Browser AI with intelligent routing. Smart AI provider selection across the unified platform's 9 systems."
@@ -121,7 +121,7 @@ const AIHub = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 };
 

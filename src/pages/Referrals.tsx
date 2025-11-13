@@ -1,5 +1,5 @@
-import { PageLayout } from "@/components/layout/PageLayout";
-import { LoadingPage } from "@/components/layout/LoadingPage";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { PageLoading } from "@/components/ui/loading-state";
 import { ReferralCard } from "@/components/referral/ReferralCard";
 import { ShareDialog } from "@/components/referral/ShareDialog";
 import { InviteDialog } from "@/components/referral/InviteDialog";
@@ -14,12 +14,12 @@ const Referrals = () => {
   const { stats, userReferralCode, referrals, loading } = useReferrals();
 
   if (loading) {
-    return <LoadingPage cardCount={3} />;
+    return <PageLoading />;
   }
 
   return (
-    <PageLayout title="Referrals" showBottomNav={true}>
-      <SEO 
+    <AppLayout title="Referrals" showBottomNav>
+      <SEO
         title="Referral Program - Earn 100 Credits Per Referral & Bonus Rewards"
         description="Invite friends to Oneiros.me and earn 100 credits for each successful referral. Unlock milestone rewards: 500 bonus credits at 5 referrals, Premium Trial at 10, VIP Status at 25."
         keywords="referral program, earn credits, invite friends, AI referrals, bonus rewards"
@@ -162,7 +162,7 @@ const Referrals = () => {
             </Card>
           )}
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 };
 

@@ -1,12 +1,12 @@
-import { PageLayout } from "@/components/layout/PageLayout";
+import { MarketingLayout } from "@/components/layout/MarketingLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { SEO } from "@/components/SEO";
 
 const Privacy = () => {
   return (
-    <PageLayout showHeader={true} showFooter={true} transition={true}>
-      <SEO 
+    <MarketingLayout title="Privacy Policy">
+      <SEO
         title="Privacy Policy - Data Protection & Security"
         description="Learn how Oneiros.me collects, uses, and protects your data. GDPR & CCPA compliant. Transparent data practices with user rights and security measures."
         keywords="privacy policy, data protection, GDPR, CCPA, data security, user privacy"
@@ -250,7 +250,7 @@ const Privacy = () => {
           <p>© {new Date().getFullYear()} Oneiros.me. All rights reserved.</p>
         </div>
       </div>
-    </PageLayout>
+    </MarketingLayout>
   );
 };
 

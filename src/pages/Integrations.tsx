@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { PageLayout } from "@/components/layout/PageLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -131,8 +131,8 @@ const Integrations = () => {
   };
 
   return (
-    <PageLayout title="Integrations" showBack={true}>
-      <SEO 
+    <AppLayout title="Integrations" showBottomNav>
+      <SEO
         title="AI Integrations - LangChain, Replicate & Mem0"
         description="Powerful AI integrations including LangChain orchestration, Replicate ML models, and Mem0 memory management. Advanced LLM chains for summarization, Q&A, and translation."
         keywords="LangChain, Replicate, Mem0, AI integrations, ML models, memory management"
@@ -376,7 +376,7 @@ const Integrations = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 };
 

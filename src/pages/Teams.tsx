@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { PageLayout } from '@/components/layout/PageLayout';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { SEO } from '@/components/SEO';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { EmptyState } from '@/components/ui/empty-state';
+import { PageLoading } from '@/components/ui/loading-state';
 import {
   Users,
   Plus,
@@ -111,7 +113,7 @@ export default function Teams() {
   };
 
   return (
-    <PageLayout title="Teams">
+    <AppLayout title="Teams" showBottomNav>
       <SEO
         title="Team Management - Oneiros AI"
         description="Manage your teams and collaborate with members"
@@ -156,19 +158,15 @@ export default function Teams() {
         {/* Teams List */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {loading ? (
-            <Card className="p-6 col-span-full text-center">
-              <p className="text-muted-foreground">Loading teams...</p>
-            </Card>
+            <PageLoading />
           ) : teams.length === 0 ? (
-            <Card className="p-12 col-span-full text-center space-y-4">
-              <Users className="h-16 w-16 text-muted-foreground mx-auto" />
-              <div className="space-y-2">
-                <h3 className="text-xl font-semibold">No Teams Yet</h3>
-                <p className="text-muted-foreground">
-                  Create your first team to start collaborating
-                </p>
-              </div>
-            </Card>
+            <div className="col-span-full">
+              <EmptyState
+                icon={Users}
+                title="No Teams Yet"
+                description="Create your first team to start collaborating"
+              />
+            </div>
           ) : (
             teams.map((team) => (
               <Card key={team.id} className="p-6 space-y-4 hover:shadow-lg transition-shadow">
@@ -264,6 +262,6 @@ export default function Teams() {
           </Card>
         </div>
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 }

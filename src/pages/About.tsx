@@ -37,7 +37,7 @@ export default function About() {
   ];
 
   return (
-    <MarketingLayout>
+    <MarketingLayout title="About Us">
       <SEO
         title="About Oneiros - Building the Future of AI Automation"
         description="Learn about Oneiros, the AI automation platform trusted by enterprises to deploy vision analysis, voice agents, and autonomous workflows at scale."

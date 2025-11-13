@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { PageLayout } from "@/components/layout/PageLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { PageLoading } from "@/components/ui/loading-state";
+import { EmptyState } from "@/components/ui/empty-state";
 import { 
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
@@ -195,8 +196,8 @@ const Analytics = () => {
   const COLORS = ["hsl(var(--primary))", "hsl(var(--secondary))", "hsl(var(--accent))", "hsl(var(--muted))"];
 
   return (
-    <PageLayout title="Analytics" showBack={true}>
-      <SEO 
+    <AppLayout title="Analytics" showBottomNav>
+      <SEO
         title="Analytics Dashboard - AI Usage Insights & Performance"
         description="Track your AI usage across the unified platform. Monitor interactions, view activity trends, analyze agent performance, and understand quality metrics across all 9 AI systems."
         keywords="AI analytics, usage dashboard, performance metrics, activity tracking, AI insights, platform analytics"
@@ -211,15 +212,13 @@ const Analytics = () => {
         </div>
 
         {loading ? (
-          <div className="grid md:grid-cols-4 gap-6">
-            {[...Array(4)].map((_, i) => (
-              <Skeleton key={i} className="h-32" />
-            ))}
-          </div>
+          <PageLoading />
         ) : !data ? (
-          <div className="text-center py-12">
-            <p>No analytics data available</p>
-          </div>
+          <EmptyState
+            icon={TrendingUp}
+            title="No Analytics Data"
+            description="Start using the platform to see your analytics and insights"
+          />
         ) : (
           <>
             <div className="grid md:grid-cols-4 gap-6">
@@ -326,7 +325,7 @@ const Analytics = () => {
           </>
         )}
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 };
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { PageLayout } from "@/components/layout/PageLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { SEO } from "@/components/SEO";
 import { XAIDashboardHero } from "@/components/xai/dashboard/XAIDashboardHero";
 import { LiveStatsBar } from "@/components/xai/dashboard/LiveStatsBar";
@@ -173,7 +173,7 @@ export default function XAIDashboard() {
   ];
 
   return (
-    <PageLayout>
+    <AppLayout title="XAI Dashboard" showBottomNav>
       <SEO
         title="XAI Dashboard - All Grok Features in One Place"
         description="Unified dashboard for all Grok-powered AI features. Image generation, vision analysis, code review, reasoning, social intelligence, and more."
@@ -220,6 +220,6 @@ export default function XAIDashboard() {
 
         <FeatureMatrix />
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { PageLayout } from '@/components/layout/PageLayout';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { ResponsiveContainer, ResponsiveGrid } from '@/components/layout/ResponsiveContainer';
 import { ResponsiveSection, MobileSafeArea, TouchTarget } from '@/components/layout/ResponsiveSection';
 import { AgentMarketplaceCard } from '@/components/agents/AgentMarketplaceCard';
@@ -13,6 +13,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { SEO } from '@/components/SEO';
 import { useResponsive } from '@/hooks/useResponsive';
+import { CardLoading } from '@/components/ui/loading-state';
+import { EmptyState } from '@/components/ui/empty-state';
 
 interface MarketplaceListing {
   id: string;
@@ -100,8 +102,8 @@ export default function AgentMarketplace() {
   const categories = ['all', 'productivity', 'creative', 'research', 'business', 'coding'];
 
   return (
-    <PageLayout>
-      <SEO 
+    <AppLayout title="Agent Marketplace" showBottomNav>
+      <SEO
         title="Agent Marketplace - 1,000+ Specialized Agents | Deploy Instantly"
         description="Browse 1,000+ specialized AI agents ready to deploy. Build your own in Agent Studio and monetize across the unified platform. 70% creator revenue share. Accessible from sidebar."
         keywords="AI agent marketplace, custom AI agents, agent builder, monetize AI agents, deploy agents, agent marketplace platform"
@@ -172,17 +174,15 @@ export default function AgentMarketplace() {
             {loading ? (
               <ResponsiveGrid cols={{ mobile: 1, tablet: 2, desktop: 3 }} gap="md">
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-64 bg-muted/50 animate-pulse rounded-lg" />
+                  <CardLoading key={i} />
                 ))}
               </ResponsiveGrid>
             ) : filteredListings.length === 0 ? (
-              <div className="text-center py-12">
-                <Store className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
-                <h3 className="text-lg font-semibold mb-2">No agents found</h3>
-                <p className="text-muted-foreground">
-                  Try adjusting your search or filters
-                </p>
-              </div>
+              <EmptyState
+                icon={Store}
+                title="No agents found"
+                description="Try adjusting your search or filters to find the perfect agent for your needs"
+              />
             ) : (
               <ResponsiveGrid cols={{ mobile: 1, tablet: 2, desktop: 3 }} gap="md">
                 {filteredListings.map((listing) => (
@@ -285,6 +285,6 @@ export default function AgentMarketplace() {
           </div>
         </MobileSafeArea>
       </ResponsiveContainer>
-    </PageLayout>
+    </AppLayout>
   );
 }

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { PricingCards } from "@/components/pricing/PricingCards";
-import { PageLayout } from "@/components/layout/PageLayout";
+import { MarketingLayout } from "@/components/layout/MarketingLayout";
 import { ResponsiveContainer, ResponsiveGrid } from "@/components/layout/ResponsiveContainer";
 import { ResponsiveSection, MobileSafeArea, TouchTarget } from "@/components/layout/ResponsiveSection";
 import { SEO } from "@/components/SEO";
@@ -63,8 +63,8 @@ const Pricing = () => {
   ];
 
   return (
-    <PageLayout showHeader={true} showFooter={true} transition={true}>
-      <SEO 
+    <MarketingLayout title="Pricing">
+      <SEO
         title="Beta Pricing - Lock In Founder Rates Forever | Early Access"
         description="Join our beta. Start free with 500 daily credits forever. Founder rate $29/mo (normally $49). Lock in your rate for life. Limited to first 1,000 users."
         keywords="beta pricing, founder rates, early access pricing, AI beta launch, startup pricing"
@@ -200,7 +200,7 @@ const Pricing = () => {
           </div>
         </MobileSafeArea>
       </ResponsiveContainer>
-    </PageLayout>
+    </MarketingLayout>
   );
 };
 
