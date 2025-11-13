@@ -1,14 +1,18 @@
 import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PullToRefresh } from '@/components/mobile/PullToRefresh';
+import { useMobile } from '@/hooks/useMobile';
 import { PageLoading } from '@/components/ui/loading-state';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { BarChart3, TrendingUp, Zap, DollarSign } from 'lucide-react';
+import { BarChart3, TrendingUp, Zap, DollarSign, RefreshCw } from 'lucide-react';
 import { SEO } from '@/components/SEO';
 import { ApplyAIBadge } from '@/components/xai/ApplyAIBadge';
 
 export default function XAIAnalytics() {
+  const { isMobile } = useMobile();
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -74,6 +78,111 @@ export default function XAIAnalytics() {
     );
   }
 
+  const handleRefresh = async () => {
+    await loadAnalytics();
+  };
+
+  const content = (
+    <div className="container max-w-7xl py-8 space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">XAI Analytics</h1>
+          <p className="text-muted-foreground">
+            Track your usage and performance metrics
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="icon"
+            onClick={handleRefresh}
+            disabled={loading}
+            className="hidden md:flex"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          </Button>
+          <ApplyAIBadge variant="full" />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="p-6">
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-lg bg-primary/10">
+              <BarChart3 className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Total Requests</p>
+              <p className="text-2xl font-bold">{stats.totalRequests}</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-lg bg-green-500/10">
+              <TrendingUp className="w-6 h-6 text-green-500" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Success Rate</p>
+              <p className="text-2xl font-bold">{(stats.successRate * 100).toFixed(1)}%</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-lg bg-blue-500/10">
+              <Zap className="w-6 h-6 text-blue-500" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Avg Latency</p>
+              <p className="text-2xl font-bold">{stats.avgLatency.toFixed(0)}ms</p>
+            </div>
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-lg bg-purple-500/10">
+              <DollarSign className="w-6 h-6 text-purple-500" />
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Total Cost</p>
+              <p className="text-2xl font-bold">${stats.totalCost.toFixed(2)}</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Usage by Model</h3>
+          <div className="space-y-2">
+            {Object.entries(stats.byModel ?? {}).map(([model, count]: [string, any]) => (
+              <div key={model} className="flex items-center justify-between">
+                <span className="text-sm">{model}</span>
+                <span className="text-sm font-semibold">{count}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold mb-4">Usage by Feature</h3>
+          <div className="space-y-2">
+            {Object.entries(stats.byFeature ?? {}).map(([feature, count]: [string, any]) => (
+              <div key={feature} className="flex items-center justify-between">
+                <span className="text-sm capitalize">{feature.replace(/-/g, ' ')}</span>
+                <span className="text-sm font-semibold">{count}</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      </div>
+    </div>
+  );
+
   return (
     <AppLayout title="XAI Analytics" showBottomNav>
       <SEO
@@ -82,93 +191,13 @@ export default function XAIAnalytics() {
         keywords="XAI analytics, AI usage, performance metrics, cost tracking"
         canonical="https://oneiros.me/xai-analytics"
       />
-      <div className="container max-w-7xl py-8 space-y-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold">XAI Analytics</h1>
-            <p className="text-muted-foreground">
-              Track your usage and performance metrics
-            </p>
-          </div>
-          <ApplyAIBadge variant="full" />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-primary/10">
-                <BarChart3 className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Total Requests</p>
-                <p className="text-2xl font-bold">{stats.totalRequests}</p>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-green-500/10">
-                <TrendingUp className="w-6 h-6 text-green-500" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Success Rate</p>
-                <p className="text-2xl font-bold">{(stats.successRate * 100).toFixed(1)}%</p>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-blue-500/10">
-                <Zap className="w-6 h-6 text-blue-500" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Avg Latency</p>
-                <p className="text-2xl font-bold">{stats.avgLatency.toFixed(0)}ms</p>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="p-3 rounded-lg bg-purple-500/10">
-                <DollarSign className="w-6 h-6 text-purple-500" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Total Cost</p>
-                <p className="text-2xl font-bold">${stats.totalCost.toFixed(2)}</p>
-              </div>
-            </div>
-          </Card>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Usage by Model</h3>
-            <div className="space-y-2">
-              {Object.entries(stats.byModel ?? {}).map(([model, count]: [string, any]) => (
-                <div key={model} className="flex items-center justify-between">
-                  <span className="text-sm">{model}</span>
-                  <span className="text-sm font-semibold">{count}</span>
-                </div>
-              ))}
-            </div>
-          </Card>
-
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Usage by Feature</h3>
-            <div className="space-y-2">
-              {Object.entries(stats.byFeature ?? {}).map(([feature, count]: [string, any]) => (
-                <div key={feature} className="flex items-center justify-between">
-                  <span className="text-sm capitalize">{feature.replace(/-/g, ' ')}</span>
-                  <span className="text-sm font-semibold">{count}</span>
-                </div>
-              ))}
-            </div>
-          </Card>
-        </div>
-      </div>
+      {isMobile ? (
+        <PullToRefresh onRefresh={handleRefresh}>
+          {content}
+        </PullToRefresh>
+      ) : (
+        content
+      )}
     </AppLayout>
   );
 }

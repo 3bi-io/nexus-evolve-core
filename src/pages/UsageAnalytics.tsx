@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { PullToRefresh } from '@/components/mobile/PullToRefresh';
+import { useMobile } from '@/hooks/useMobile';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageLoading } from '@/components/ui/loading-state';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Clock, TrendingUp, Zap, Award, CalendarDays } from 'lucide-react';
+import { Clock, TrendingUp, Zap, Award, CalendarDays, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SEO } from '@/components/SEO';
 
@@ -32,6 +35,7 @@ interface UsageStats {
 
 const UsageAnalytics = () => {
   const { user } = useAuth();
+  const { isMobile } = useMobile();
   const [creditUsage, setCreditUsage] = useState<CreditUsage[]>([]);
   const [featureUsage, setFeatureUsage] = useState<FeatureUsage[]>([]);
   const [stats, setStats] = useState<UsageStats>({
@@ -143,6 +147,213 @@ const UsageAnalytics = () => {
 
   const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--muted))'];
 
+  const handleRefresh = async () => {
+    await fetchAnalytics();
+  };
+
+  const content = (
+    <div className="container mx-auto px-4 py-6 md:py-8">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 md:mb-8">
+        <div>
+          <h1 className="text-2xl md:text-4xl font-bold mb-2">Usage Analytics</h1>
+          <p className="text-sm md:text-base text-muted-foreground">Track your credit usage and feature activity</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="icon"
+            onClick={handleRefresh}
+            disabled={loading}
+            className="hidden md:flex"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          </Button>
+          <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as any)}>
+            <TabsList>
+              <TabsTrigger value="7d">7 Days</TabsTrigger>
+              <TabsTrigger value="30d">30 Days</TabsTrigger>
+              <TabsTrigger value="90d">90 Days</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+      </div>
+
+      {/* Stats Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <Card className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">Total Credits Used</p>
+              <p className="text-3xl font-bold">{stats.totalCreditsUsed}</p>
+            </div>
+            <Zap className="h-10 w-10 text-primary" />
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">Total Time</p>
+              <p className="text-3xl font-bold">{stats.totalTimeSpent}m</p>
+            </div>
+            <Clock className="h-10 w-10 text-secondary" />
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">Avg Session</p>
+              <p className="text-3xl font-bold">{stats.averageSessionLength}m</p>
+            </div>
+            <TrendingUp className="h-10 w-10 text-accent" />
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground mb-1">Most Used</p>
+              <p className="text-lg font-bold truncate">{stats.mostUsedFeature}</p>
+            </div>
+            <Award className="h-10 w-10 text-muted" />
+          </div>
+        </Card>
+      </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        {/* Credit Usage Over Time */}
+        <Card className="p-6">
+          <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            <CalendarDays className="h-5 w-5" />
+            Credit Consumption
+          </h3>
+          {loading ? (
+            <PageLoading />
+          ) : creditUsage.length > 0 ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={creditUsage}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis 
+                  dataKey="date" 
+                  stroke="hsl(var(--muted-foreground))"
+                  tick={{ fontSize: 12 }}
+                />
+                <YAxis stroke="hsl(var(--muted-foreground))" />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px'
+                  }}
+                />
+                <Legend />
+                <Line 
+                  type="monotone" 
+                  dataKey="credits_spent" 
+                  stroke="hsl(var(--primary))" 
+                  strokeWidth={2}
+                  name="Credits Spent"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <EmptyState
+              icon={Clock}
+              title="No data available"
+              description="No data available for this period"
+            />
+          )}
+        </Card>
+
+        {/* Feature Usage Distribution */}
+        <Card className="p-6">
+          <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            <Zap className="h-5 w-5" />
+            Feature Usage
+          </h3>
+          {loading ? (
+            <div className="h-64 flex items-center justify-center text-muted-foreground">
+              Loading chart...
+            </div>
+          ) : featureUsage.length > 0 ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={featureUsage}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  label={({ feature, time_spent_minutes }) => 
+                    `${feature}: ${time_spent_minutes}m`
+                  }
+                  outerRadius={80}
+                  fill="hsl(var(--primary))"
+                  dataKey="time_spent_minutes"
+                >
+                  {featureUsage.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px'
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="h-64 flex items-center justify-center text-muted-foreground">
+              No feature usage data available
+            </div>
+          )}
+        </Card>
+      </div>
+
+      {/* Feature Details Table */}
+      <Card className="p-6">
+        <h3 className="text-xl font-semibold mb-4">Feature Breakdown</h3>
+        {loading ? (
+          <div className="text-center py-8 text-muted-foreground">Loading...</div>
+        ) : featureUsage.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b">
+                  <th className="text-left py-3 px-4">Feature</th>
+                  <th className="text-left py-3 px-4">Time Spent</th>
+                  <th className="text-left py-3 px-4">Sessions</th>
+                  <th className="text-left py-3 px-4">Avg per Session</th>
+                </tr>
+              </thead>
+              <tbody>
+                {featureUsage.map((feature, idx) => (
+                  <tr key={idx} className="border-b hover:bg-muted/50">
+                    <td className="py-3 px-4 font-medium">{feature.feature}</td>
+                    <td className="py-3 px-4">
+                      <Badge variant="secondary">{feature.time_spent_minutes}m</Badge>
+                    </td>
+                    <td className="py-3 px-4">{feature.sessions_count}</td>
+                    <td className="py-3 px-4">
+                      {Math.round(feature.time_spent_minutes / feature.sessions_count)}m
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-8 text-muted-foreground">
+            No feature usage data available
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+
   return (
     <AppLayout title="Usage Analytics" showBottomNav>
       <SEO
@@ -151,197 +362,14 @@ const UsageAnalytics = () => {
         keywords="usage analytics, credit tracking, usage dashboard, AI analytics, time tracking"
         canonical="https://oneiros.me/usage-analytics"
       />
-      <div className="container mx-auto px-4 py-6 md:py-8">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 md:mb-8">
-          <div>
-            <h1 className="text-2xl md:text-4xl font-bold mb-2">Usage Analytics</h1>
-            <p className="text-sm md:text-base text-muted-foreground">Track your credit usage and feature activity</p>
-          </div>
-            
-            <Tabs value={timeRange} onValueChange={(v) => setTimeRange(v as any)}>
-              <TabsList>
-                <TabsTrigger value="7d">7 Days</TabsTrigger>
-                <TabsTrigger value="30d">30 Days</TabsTrigger>
-                <TabsTrigger value="90d">90 Days</TabsTrigger>
-              </TabsList>
-            </Tabs>
-          </div>
-
-          {/* Stats Overview */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <Card className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Total Credits Used</p>
-                  <p className="text-3xl font-bold">{stats.totalCreditsUsed}</p>
-                </div>
-                <Zap className="h-10 w-10 text-primary" />
-              </div>
-            </Card>
-
-            <Card className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Total Time</p>
-                  <p className="text-3xl font-bold">{stats.totalTimeSpent}m</p>
-                </div>
-                <Clock className="h-10 w-10 text-secondary" />
-              </div>
-            </Card>
-
-            <Card className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Avg Session</p>
-                  <p className="text-3xl font-bold">{stats.averageSessionLength}m</p>
-                </div>
-                <TrendingUp className="h-10 w-10 text-accent" />
-              </div>
-            </Card>
-
-            <Card className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground mb-1">Most Used</p>
-                  <p className="text-lg font-bold truncate">{stats.mostUsedFeature}</p>
-                </div>
-                <Award className="h-10 w-10 text-muted" />
-              </div>
-            </Card>
-          </div>
-
-          {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-            {/* Credit Usage Over Time */}
-            <Card className="p-6">
-              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <CalendarDays className="h-5 w-5" />
-                Credit Consumption
-              </h3>
-          {loading ? (
-            <PageLoading />
-          ) : creditUsage.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={creditUsage}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis 
-                      dataKey="date" 
-                      stroke="hsl(var(--muted-foreground))"
-                      tick={{ fontSize: 12 }}
-                    />
-                    <YAxis stroke="hsl(var(--muted-foreground))" />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--card))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px'
-                      }}
-                    />
-                    <Legend />
-                    <Line 
-                      type="monotone" 
-                      dataKey="credits_spent" 
-                      stroke="hsl(var(--primary))" 
-                      strokeWidth={2}
-                      name="Credits Spent"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-          ) : (
-            <EmptyState
-              icon={Clock}
-              title="No data available"
-              description="No data available for this period"
-            />
-          )}
-            </Card>
-
-            {/* Feature Usage Distribution */}
-            <Card className="p-6">
-              <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <Zap className="h-5 w-5" />
-                Feature Usage
-              </h3>
-              {loading ? (
-                <div className="h-64 flex items-center justify-center text-muted-foreground">
-                  Loading chart...
-                </div>
-              ) : featureUsage.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={featureUsage}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ feature, time_spent_minutes }) => 
-                        `${feature}: ${time_spent_minutes}m`
-                      }
-                      outerRadius={80}
-                      fill="hsl(var(--primary))"
-                      dataKey="time_spent_minutes"
-                    >
-                      {featureUsage.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'hsl(var(--card))',
-                        border: '1px solid hsl(var(--border))',
-                        borderRadius: '8px'
-                      }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="h-64 flex items-center justify-center text-muted-foreground">
-                  No feature usage data available
-                </div>
-              )}
-            </Card>
-          </div>
-
-          {/* Feature Details Table */}
-          <Card className="p-6">
-            <h3 className="text-xl font-semibold mb-4">Feature Breakdown</h3>
-            {loading ? (
-              <div className="text-center py-8 text-muted-foreground">Loading...</div>
-            ) : featureUsage.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-3 px-4">Feature</th>
-                      <th className="text-left py-3 px-4">Time Spent</th>
-                      <th className="text-left py-3 px-4">Sessions</th>
-                      <th className="text-left py-3 px-4">Avg per Session</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {featureUsage.map((feature, idx) => (
-                      <tr key={idx} className="border-b hover:bg-muted/50">
-                        <td className="py-3 px-4 font-medium">{feature.feature}</td>
-                        <td className="py-3 px-4">
-                          <Badge variant="secondary">{feature.time_spent_minutes}m</Badge>
-                        </td>
-                        <td className="py-3 px-4">{feature.sessions_count}</td>
-                        <td className="py-3 px-4">
-                          {Math.round(feature.time_spent_minutes / feature.sessions_count)}m
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                No feature usage data available
-              </div>
-            )}
-          </Card>
-        </div>
-      </AppLayout>
+      {isMobile ? (
+        <PullToRefresh onRefresh={handleRefresh}>
+          {content}
+        </PullToRefresh>
+      ) : (
+        content
+      )}
+    </AppLayout>
   );
 };
 
