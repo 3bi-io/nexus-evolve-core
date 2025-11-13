@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { PageLayout } from "@/components/layout/PageLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { PageLoading } from "@/components/ui/loading-state";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -83,8 +84,8 @@ export default function VoiceAgent() {
       fallbackTitle="Voice Agent Error"
       fallbackMessage="The voice agent encountered an error. This may be due to browser compatibility or microphone permissions."
     >
-      <PageLayout>
-      <SEO 
+      <AppLayout title="Voice AI" showBottomNav>
+      <SEO
         title="Voice AI - Have Meetings, Not Messages | Natural Conversations"
         description="Stop typing. Start talking. Natural voice conversations with AI that understands interruptions, context switches, and complex discussions. 3x faster than typing. Powered by ElevenLabs."
         keywords="voice AI, ElevenLabs, conversational AI, natural voice, speech recognition, voice meetings, talk to AI, conversational interface, voice assistant"
@@ -284,7 +285,7 @@ export default function VoiceAgent() {
           </TabsContent>
         </Tabs>
       </div>
-      </PageLayout>
+      </AppLayout>
     </ErrorBoundaryWrapper>
   );
 }

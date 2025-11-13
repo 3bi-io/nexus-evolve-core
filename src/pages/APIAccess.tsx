@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { PageLayout } from '@/components/layout/PageLayout';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { PageLoading } from '@/components/ui/loading-state';
+import { EmptyState } from '@/components/ui/empty-state';
 import { SEO } from '@/components/SEO';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -115,7 +117,7 @@ export default function APIAccess() {
   };
 
   return (
-    <PageLayout title="API Access">
+    <AppLayout title="API Access" showBottomNav>
       <SEO
         title="API Access - Oneiros AI"
         description="Integrate Oneiros AI into your applications with our developer API"
@@ -172,15 +174,13 @@ export default function APIAccess() {
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Your API Keys</h3>
               {loading ? (
-                <p className="text-muted-foreground text-center py-8">Loading...</p>
+                <PageLoading />
               ) : apiKeys.length === 0 ? (
-                <div className="text-center py-12 space-y-2">
-                  <Key className="h-12 w-12 text-muted-foreground mx-auto" />
-                  <p className="text-muted-foreground">No API keys yet</p>
-                  <p className="text-sm text-muted-foreground">
-                    Create your first API key to get started
-                  </p>
-                </div>
+                <EmptyState
+                  icon={Key}
+                  title="No API keys yet"
+                  description="Create your first API key to get started"
+                />
               ) : (
                 <div className="space-y-3">
                   {apiKeys.map((key) => (
@@ -324,6 +324,6 @@ export default function APIAccess() {
           </TabsContent>
         </Tabs>
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 }

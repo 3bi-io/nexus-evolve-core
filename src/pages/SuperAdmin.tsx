@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { PageLayout } from "@/components/layout/PageLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { PageLoading } from "@/components/ui/loading-state";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
@@ -54,18 +55,18 @@ export default function SuperAdmin() {
 
   if (loading) {
     return (
-      <PageLayout title="Admin Panel" showBack={true}>
+      <AppLayout title="Admin Panel" showBottomNav>
         <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl">
-          <p>Loading...</p>
+          <PageLoading />
         </div>
-      </PageLayout>
+      </AppLayout>
     );
   }
 
   if (!isAdmin) {
     return (
-      <PageLayout title="Admin Panel" showBack={true}>
-        <SEO 
+      <AppLayout title="Admin Panel" showBottomNav>
+        <SEO
           title="Super Admin - Access Denied"
           description="Super admin dashboard - restricted access for authorized administrators only."
           canonical="https://oneiros.me/admin"
@@ -79,7 +80,7 @@ export default function SuperAdmin() {
             </CardHeader>
           </Card>
         </div>
-      </PageLayout>
+      </AppLayout>
     );
   }
 
@@ -119,8 +120,8 @@ export default function SuperAdmin() {
       fallbackTitle="Admin Dashboard Error"
       fallbackMessage="The admin dashboard encountered an error. Please try refreshing the page."
     >
-      <PageLayout title="Admin - System Management" showBack={true}>
-      <SEO 
+      <AppLayout title="Admin - System Management" showBottomNav>
+      <SEO
         title="Super Admin - System Management Dashboard"
         description="Comprehensive super admin dashboard for managing users, agents, data, finances, security, and system configuration across the unified AI platform."
         canonical="https://oneiros.me/admin"
@@ -161,7 +162,7 @@ export default function SuperAdmin() {
           </div>
         </main>
       </div>
-      </PageLayout>
+      </AppLayout>
     </ErrorBoundaryWrapper>
   );
 }

@@ -9,7 +9,7 @@ import {
   ChevronRight, ExternalLink, BookOpen, Terminal, FileCode, Lightbulb
 } from "lucide-react";
 import { SEO } from "@/components/SEO";
-import { PageLayout } from "@/components/layout/PageLayout";
+import { AppLayout } from "@/components/layout/PageLayout";
 import { useNavigate } from "react-router-dom";
 
 const platformFeatures = [
@@ -247,7 +247,7 @@ export default function Capabilities() {
   );
 
   return (
-    <PageLayout title="Platform Documentation" showBack={true} showBottomNav={true}>
+    <AppLayout title="Platform Documentation" showBottomNav>
       <SEO
         title="Platform Documentation - API Reference & Usage Guides"
         description="Comprehensive documentation for Oneiros AI Platform. Learn about multi-modal workflows, automation pipelines, vision analysis, and 38+ edge functions."
@@ -484,6 +484,6 @@ export default function Capabilities() {
           </CardContent>
         </Card>
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 }

@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Smartphone, Monitor, Download, CheckCircle2, Apple, Chrome, Zap } from "lucide-react";
-import { PageLayout } from "@/components/layout/PageLayout";
+import { MarketingLayout } from '@/components/layout/MarketingLayout';
 import { useState, useEffect } from "react";
 
 export default function Install() {
@@ -41,8 +41,8 @@ export default function Install() {
   };
 
   return (
-    <PageLayout showHeader={true} showFooter={true}>
-      <SEO 
+    <MarketingLayout title="Install App">
+      <SEO
         title="Install Oneiros.me - Progressive Web App"
         description="Install Oneiros.me on your device for a native app experience. Works offline with push notifications and instant access."
         keywords="install oneiros, PWA, progressive web app, install app"
@@ -196,6 +196,6 @@ export default function Install() {
           </div>
         </ResponsiveSection>
       </ResponsiveContainer>
-    </PageLayout>
+    </MarketingLayout>
   );
 }

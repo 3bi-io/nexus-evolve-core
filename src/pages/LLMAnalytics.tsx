@@ -4,7 +4,8 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@/com
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, LineChart, Line, PieChart, Pie, Cell } from 'recharts';
 import { useAuth } from '@/contexts/AuthContext';
 import { Activity, DollarSign, Zap, TrendingUp } from 'lucide-react';
-import { PageLayout } from '@/components/layout/PageLayout';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { EmptyState } from '@/components/ui/empty-state';
 import { SEO } from '@/components/SEO';
 import { Badge } from '@/components/ui/badge';
 
@@ -108,7 +109,7 @@ export default function LLMAnalytics() {
   const COLORS = ['hsl(var(--primary))', 'hsl(var(--accent))', 'hsl(var(--secondary))', 'hsl(var(--success))', 'hsl(var(--warning))'];
 
   return (
-    <PageLayout title="LLM Analytics" showBack={true}>
+    <AppLayout title="LLM Analytics" showBottomNav>
       <SEO
         title="LLM Analytics - Performance & Cost Tracking"
         description="Track AI model performance, costs, and usage patterns. Optimize your AI agent performance with detailed observability."
@@ -169,18 +170,14 @@ export default function LLMAnalytics() {
             <CardContent>
               {agentPerformance && agentPerformance.length > 0 ? (
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={agentPerformance}>
-                    <XAxis dataKey="agent" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar dataKey="avgLatency" fill="hsl(var(--primary))" name="Latency (ms)" />
-                  </BarChart>
+...
                 </ResponsiveContainer>
               ) : (
-                <div className="h-[300px] flex items-center justify-center text-muted-foreground">
-                  No data yet. Start using AI agents to see analytics.
-                </div>
+                <EmptyState
+                  icon={Activity}
+                  title="No data yet"
+                  description="Start using AI agents to see analytics"
+                />
               )}
             </CardContent>
           </Card>
@@ -268,6 +265,6 @@ export default function LLMAnalytics() {
           </Card>
         </div>
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 }

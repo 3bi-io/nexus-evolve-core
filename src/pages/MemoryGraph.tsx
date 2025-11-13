@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
-import { PageLayout } from "@/components/layout/PageLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { PageLoading } from "@/components/ui/loading-state";
 import { SEO } from "@/components/SEO";
 import { useTemporalMemory } from "@/hooks/useTemporalMemory";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -126,7 +127,7 @@ const MemoryGraph = () => {
   }, [loadMemories]);
 
   return (
-    <PageLayout title="Memory Graph" showBottomNav={true}>
+    <AppLayout title="Memory Graph" showBottomNav>
       <SEO
         title="Memory Graph - Visualize Your AI Knowledge Network"
         description="Interactive visualization of your Oneiros.me memory network. Explore temporal connections and memory relevance scores."
@@ -250,7 +251,7 @@ const MemoryGraph = () => {
           </div>
         </div>
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 };
 

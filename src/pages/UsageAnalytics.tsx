@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { PageLayout } from '@/components/layout/PageLayout';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { PageLoading } from '@/components/ui/loading-state';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -142,8 +144,8 @@ const UsageAnalytics = () => {
   const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--muted))'];
 
   return (
-    <PageLayout title="Usage" showBottomNav={true}>
-      <SEO 
+    <AppLayout title="Usage Analytics" showBottomNav>
+      <SEO
         title="Usage Analytics - Track Credits, Time & Feature Activity"
         description="Monitor your AI platform usage with detailed analytics. Track credit consumption, time spent, average session length, and feature usage breakdown over 7, 30, or 90 days."
         keywords="usage analytics, credit tracking, usage dashboard, AI analytics, time tracking"
@@ -216,11 +218,9 @@ const UsageAnalytics = () => {
                 <CalendarDays className="h-5 w-5" />
                 Credit Consumption
               </h3>
-              {loading ? (
-                <div className="h-64 flex items-center justify-center text-muted-foreground">
-                  Loading chart...
-                </div>
-              ) : creditUsage.length > 0 ? (
+          {loading ? (
+            <PageLoading />
+          ) : creditUsage.length > 0 ? (
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={creditUsage}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -247,11 +247,13 @@ const UsageAnalytics = () => {
                     />
                   </LineChart>
                 </ResponsiveContainer>
-              ) : (
-                <div className="h-64 flex items-center justify-center text-muted-foreground">
-                  No data available for this period
-                </div>
-              )}
+          ) : (
+            <EmptyState
+              icon={Clock}
+              title="No data available"
+              description="No data available for this period"
+            />
+          )}
             </Card>
 
             {/* Feature Usage Distribution */}
@@ -339,7 +341,7 @@ const UsageAnalytics = () => {
             )}
           </Card>
         </div>
-      </PageLayout>
+      </AppLayout>
   );
 };
 

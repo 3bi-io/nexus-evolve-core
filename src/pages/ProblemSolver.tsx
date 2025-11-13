@@ -14,7 +14,7 @@ type ReasoningStep = {
   content: string;
 };
 
-import { PageLayout } from "@/components/layout/PageLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
 
 import { SEO } from "@/components/SEO";
 
@@ -80,8 +80,8 @@ export default function ProblemSolver() {
   };
 
   return (
-    <PageLayout title="Solver" showBottomNav={true}>
-      <SEO 
+    <AppLayout title="Problem Solver" showBottomNav>
+      <SEO
         title="Problem Solver - Step-by-Step AI Reasoning & Solution Analysis"
         description="Break down complex problems with advanced AI reasoning. Get detailed step-by-step analysis, breakdown, solutions, and verification for any challenge."
         keywords="problem solver, AI reasoning, step-by-step analysis, complex problem solving, reasoning agent"
@@ -171,6 +171,6 @@ export default function ProblemSolver() {
           </Card>
         )}
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 }

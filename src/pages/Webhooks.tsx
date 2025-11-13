@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { PageLayout } from "@/components/layout/PageLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { EmptyState } from "@/components/ui/empty-state";
 import { SEO } from "@/components/SEO";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -138,7 +139,7 @@ export default function Webhooks() {
   };
 
   return (
-    <PageLayout title="Webhooks" showBack={true}>
+    <AppLayout title="Webhooks" showBottomNav>
       <SEO
         title="Webhooks - Real-Time Event Notifications"
         description="Configure webhooks to receive real-time HTTP callbacks when events occur in your account. Monitor agents, sessions, payments, and more with secure webhook integration."
@@ -308,20 +309,18 @@ export default function Webhooks() {
           ))}
 
           {webhooks.length === 0 && (
-            <Card className="p-12 text-center">
-              <Webhook className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="font-semibold text-lg mb-2">No webhooks yet</h3>
-              <p className="text-muted-foreground mb-4">
-                Create your first webhook to start receiving real-time event notifications
-              </p>
-              <Button onClick={() => setIsDialogOpen(true)}>
-                <Plus className="w-4 h-4 mr-2" />
-                Create Webhook
-              </Button>
-            </Card>
+            <EmptyState
+              icon={Webhook}
+              title="No webhooks yet"
+              description="Create your first webhook to start receiving real-time event notifications"
+              action={{
+                label: "Create Webhook",
+                onClick: () => setIsDialogOpen(true)
+              }}
+            />
           )}
         </div>
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 }

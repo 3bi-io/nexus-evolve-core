@@ -1,4 +1,4 @@
-import { PageLayout } from '@/components/layout/PageLayout';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { TrendingTopicsPanel } from '@/components/social/TrendingTopicsPanel';
 import { ViralContentStudio } from '@/components/social/ViralContentStudio';
 import { SocialSentimentDashboard } from '@/components/social/SocialSentimentDashboard';
@@ -13,8 +13,8 @@ export default function SocialIntelligence() {
   const navigate = useNavigate();
   
   return (
-    <PageLayout>
-      <SEO 
+    <AppLayout title="Social Intelligence" showBottomNav>
+      <SEO
         title="Social Intelligence - Real-time X (Twitter) Trend Analysis & Viral Content"
         description="Real-time social intelligence powered by Grok AI. Track trending topics on X (Twitter), analyze sentiment, and create viral content with AI-powered insights."
         keywords="social intelligence, Grok AI, X trends, Twitter analytics, viral content, sentiment analysis, social media AI"
@@ -52,6 +52,6 @@ export default function SocialIntelligence() {
           </div>
         </div>
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 }

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { PageLayout } from '@/components/layout/PageLayout';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { PageLoading } from '@/components/ui/loading-state';
 import { SEO } from '@/components/SEO';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -98,7 +99,7 @@ export default function AdvancedAnalytics() {
   ];
 
   return (
-    <PageLayout title="Advanced Analytics">
+    <AppLayout title="Advanced Analytics" showBottomNav>
       <SEO
         title="Advanced Analytics - Oneiros AI"
         description="Deep insights into user behavior and platform performance"
@@ -269,6 +270,6 @@ export default function AdvancedAnalytics() {
           </TabsContent>
         </Tabs>
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 }

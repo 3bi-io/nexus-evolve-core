@@ -1,4 +1,4 @@
-import { PageLayout } from '@/components/layout/PageLayout';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { SEO } from '@/components/SEO';
 import { RouterMetricsDashboard } from '@/components/ai/RouterMetricsDashboard';
 import { AIServiceHealthDashboard } from '@/components/ai/AIServiceHealthDashboard';
@@ -67,8 +67,8 @@ const RouterDashboard = () => {
   };
 
   return (
-    <PageLayout title="Router Dashboard" showBack={true}>
-      <SEO 
+    <AppLayout title="Router Dashboard" showBottomNav>
+      <SEO
         title="Router Dashboard - AI Routing Performance & Optimization"
         description="Monitor and optimize AI routing performance across multiple providers. Test routing logic, track metrics, and configure intelligent failover strategies."
         keywords="AI routing, performance monitoring, provider optimization, router metrics"
@@ -230,7 +230,7 @@ const RouterDashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 };
 

@@ -1,4 +1,4 @@
-import { PageLayout } from "@/components/layout/PageLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { SEO } from "@/components/SEO";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BackgroundRemover } from "@/components/ai/BackgroundRemover";
@@ -13,8 +13,8 @@ import { Sparkles, Shield, Zap, HardDrive } from "lucide-react";
 
 const AdvancedBrowserAI = () => {
   return (
-    <PageLayout title="Advanced Browser AI" showBack={true}>
-      <SEO 
+    <AppLayout title="Advanced Browser AI" showBottomNav>
+      <SEO
         title="Advanced Browser AI - Privacy-First AI Image Processing"
         description="Advanced AI image processing in your browser. Background removal, object detection, captioning, embeddings - all 100% private and free. WebGPU-accelerated with smart caching."
         keywords="browser AI, WebGPU, background removal, object detection, image captioning, embeddings, privacy AI"
@@ -144,7 +144,7 @@ const AdvancedBrowserAI = () => {
           </ul>
         </Card>
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 };
 

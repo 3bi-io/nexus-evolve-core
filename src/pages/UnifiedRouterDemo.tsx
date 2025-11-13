@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { PageLayout } from "@/components/layout/PageLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { PageLoading } from "@/components/ui/loading-state";
+import { EmptyState } from "@/components/ui/empty-state";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,8 +42,8 @@ export default function UnifiedRouterDemo() {
   const loadBalancing = getLoadBalancing;
 
   return (
-    <PageLayout title="Unified AI Router Demo" showBack={true}>
-      <SEO 
+    <AppLayout title="Unified AI Router Demo" showBottomNav>
+      <SEO
         title="Unified AI Router Demo - Test Intelligent AI Routing"
         description="Interactive demo of our unified AI router. Test routing decisions based on priority (speed, cost, quality, privacy). Real-time metrics and performance tracking."
         keywords="unified router, AI routing demo, router testing, routing metrics"
@@ -255,6 +257,6 @@ export default function UnifiedRouterDemo() {
         </div>
         </div>
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 }

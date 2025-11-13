@@ -6,7 +6,8 @@ import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, Cart
 import { Activity, TrendingUp, Clock, Zap, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { PageLayout } from "@/components/layout/PageLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { PageLoading } from "@/components/ui/loading-state";
 import { SEO } from "@/components/SEO";
 
 export default function AgentAnalytics() {
@@ -53,12 +54,9 @@ export default function AgentAnalytics() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading analytics...</p>
-        </div>
-      </div>
+      <AppLayout title="Agent Analytics" showBottomNav>
+        <PageLoading />
+      </AppLayout>
     );
   }
 
@@ -76,8 +74,8 @@ export default function AgentAnalytics() {
   const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--muted))'];
 
   return (
-    <PageLayout title="Agent Analytics" showBack={true}>
-      <SEO 
+    <AppLayout title="Agent Analytics" showBottomNav>
+      <SEO
         title="Agent Analytics - Performance Insights & Metrics"
         description="Detailed performance analytics for your AI agents. Track executions, success rates, response times, and credit usage with visual charts and real-time metrics."
         keywords="agent analytics, performance metrics, AI monitoring, agent insights"
@@ -273,6 +271,6 @@ export default function AgentAnalytics() {
         </Card>
       </div>
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 }

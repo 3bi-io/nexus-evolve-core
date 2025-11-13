@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { PageLayout } from '@/components/layout/PageLayout';
+import { AppLayout } from '@/components/layout/PageLayout';
+import { PageLoading } from '@/components/ui/loading-state';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -322,7 +323,7 @@ export default function PlatformOptimizer() {
       fallbackTitle="Platform Optimizer Error"
       fallbackMessage="The platform optimizer encountered an error. Please try refreshing the page."
     >
-      <PageLayout>
+      <AppLayout title="Platform Optimizer" showBottomNav>
       <div className="container mx-auto px-4 py-8 space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -843,7 +844,7 @@ export default function PlatformOptimizer() {
           </TabsContent>
         </Tabs>
       </div>
-      </PageLayout>
+      </AppLayout>
     </ErrorBoundaryWrapper>
   );
 }

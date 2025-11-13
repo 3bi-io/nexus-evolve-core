@@ -1,5 +1,6 @@
 import { useParams } from 'react-router-dom';
-import { PageLayout } from '@/components/layout/PageLayout';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { EmptyState } from '@/components/ui/empty-state';
 import { AgentChat } from '@/components/agents/AgentChat';
 import { SEO } from '@/components/SEO';
 
@@ -8,17 +9,19 @@ export default function AgentExecutor() {
 
   if (!agentId) {
     return (
-      <PageLayout>
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">Agent not found</p>
-        </div>
-      </PageLayout>
+      <AppLayout title="Agent Chat" showBottomNav>
+        <EmptyState
+          icon={AgentChat as any}
+          title="Agent not found"
+          description="The requested agent could not be found"
+        />
+      </AppLayout>
     );
   }
 
   return (
-    <PageLayout>
-      <SEO 
+    <AppLayout title="Agent Chat" showBottomNav>
+      <SEO
         title="Agent Chat - Execute Custom AI Agent"
         description="Chat with your custom AI agent and leverage its specialized capabilities"
         canonical="https://oneiros.me/agent-executor"
@@ -26,6 +29,6 @@ export default function AgentExecutor() {
       <div className="container max-w-5xl py-8">
         <AgentChat agentId={agentId} />
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 }

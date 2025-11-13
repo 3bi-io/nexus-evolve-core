@@ -6,7 +6,7 @@ import { HelpWidget } from "@/components/onboarding/HelpWidget";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEngagementTracking } from "@/hooks/useEngagementTracking";
 import { useState, useEffect } from "react";
-import { PageLayout } from "@/components/layout/PageLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
 import { useResponsive } from "@/hooks/useResponsive";
 import { SEO } from "@/components/SEO";
 
@@ -26,13 +26,11 @@ const Index = () => {
   }, [metrics]);
   
   return (
-    <PageLayout 
-      transition={false}
+    <AppLayout 
       title="Chat"
       showBottomNav={isMobile}
-      showBack={false}
     >
-      <SEO 
+      <SEO
         title="AI Chat - Intelligent Conversations with Multi-Agent System"
         description="Chat with our advanced AI powered by 5 specialized agents. Get intelligent responses for reasoning, creativity, learning, and real-time data with Grok integration."
         keywords="AI chat, chatbot, multi-agent AI, intelligent conversation, GPT alternative"
@@ -50,7 +48,7 @@ const Index = () => {
       )}
       <ProductTour />
       <HelpWidget />
-    </PageLayout>
+    </AppLayout>
   );
 };
 

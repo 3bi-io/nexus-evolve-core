@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { PageLayout } from '@/components/layout/PageLayout';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { PageLoading } from '@/components/ui/loading-state';
+import { EmptyState } from '@/components/ui/empty-state';
 import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { BarChart3, TrendingUp, Zap, DollarSign } from 'lucide-react';
@@ -52,31 +54,29 @@ export default function XAIAnalytics() {
 
   if (loading) {
     return (
-      <PageLayout>
+      <AppLayout title="XAI Analytics" showBottomNav>
         <div className="container max-w-7xl py-8">
-          <div className="flex items-center justify-center h-64">
-            <p className="text-muted-foreground">Loading analytics...</p>
-          </div>
+          <PageLoading />
         </div>
-      </PageLayout>
+      </AppLayout>
     );
   }
 
   if (!stats) {
     return (
-      <PageLayout>
-        <div className="container max-w-7xl py-8">
-          <div className="flex items-center justify-center h-64">
-            <p className="text-muted-foreground">No analytics data available</p>
-          </div>
-        </div>
-      </PageLayout>
+      <AppLayout title="XAI Analytics" showBottomNav>
+        <EmptyState
+          icon={BarChart3}
+          title="No analytics data available"
+          description="Start using XAI features to see analytics"
+        />
+      </AppLayout>
     );
   }
 
   return (
-    <PageLayout>
-      <SEO 
+    <AppLayout title="XAI Analytics" showBottomNav>
+      <SEO
         title="XAI Analytics - Usage & Performance Metrics"
         description="Track your XAI usage, performance metrics, and costs across all Grok-powered features"
         keywords="XAI analytics, AI usage, performance metrics, cost tracking"
@@ -169,6 +169,6 @@ export default function XAIAnalytics() {
           </Card>
         </div>
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 }

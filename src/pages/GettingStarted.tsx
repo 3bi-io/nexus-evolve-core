@@ -1,4 +1,4 @@
-import { PageLayout } from '@/components/layout/PageLayout';
+import { MarketingLayout } from '@/components/layout/MarketingLayout';
 import { SEO } from '@/components/SEO';
 import { QuickStartTemplates } from '@/components/onboarding/QuickStartTemplates';
 import { Card } from '@/components/ui/card';
@@ -53,7 +53,7 @@ const quickWins = [
 
 export default function GettingStarted() {
   return (
-    <PageLayout title="Getting Started">
+    <MarketingLayout title="Getting Started">
       <SEO
         title="Quick Start Guide - 5 Minutes to AI-Powered | Oneiros"
         description="Get started with Oneiros AI in 5 minutes. Step-by-step guide, video tutorials, and quick-start templates. Start free - no credit card required."
@@ -204,6 +204,6 @@ export default function GettingStarted() {
           </div>
         </div>
       </div>
-    </PageLayout>
+    </MarketingLayout>
   );
 }

@@ -1,11 +1,11 @@
-import { PageLayout } from '@/components/layout/PageLayout';
+import { AppLayout } from '@/components/layout/AppLayout';
 import { SEO } from '@/components/SEO';
 import { AutomationDashboard } from '@/components/automation/AutomationDashboard';
 import { Zap } from 'lucide-react';
 
 export default function AutomationHub() {
   return (
-    <PageLayout title="Automation Hub" showBack={true}>
+    <AppLayout title="Automation Hub" showBottomNav>
       <SEO
         title="Automation Hub - Agentic AI Automation | Scheduled Pipelines"
         description="Enterprise automation with scheduled trend monitoring, multi-step AI pipelines, content generation queues, and intelligent caching for optimal performance."
@@ -25,6 +25,6 @@ export default function AutomationHub() {
 
         <AutomationDashboard />
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 }

@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { PageLayout } from "@/components/layout/PageLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { PageLoading } from "@/components/ui/loading-state";
+import { EmptyState } from "@/components/ui/empty-state";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -134,8 +136,8 @@ const ModelComparison = () => {
   const bestModel = getBestModel();
 
   return (
-    <PageLayout>
-      <SEO 
+    <AppLayout title="Model Comparison" showBottomNav>
+      <SEO
         title="Model Comparison - Compare AI Models Side-by-Side | Oneiros"
         description="Compare AI models across the platform's 9 AI systems. Test performance, cost, and quality side-by-side. See how our router selects the best model for your query automatically."
         keywords="AI model comparison, compare AI models, model performance, AI benchmarking, model testing, transparent AI"
@@ -266,29 +268,19 @@ const ModelComparison = () => {
 
         {/* Loading State */}
         {loading && results.length < modelsToCompare.length && (
-          <Card>
-            <CardContent className="py-8">
-              <div className="text-center space-y-4">
-                <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto" />
-                <p className="text-muted-foreground">
-                  Testing model {results.length + 1} of {modelsToCompare.length}...
-                </p>
-              </div>
-            </CardContent>
-          </Card>
+          <PageLoading />
         )}
 
         {/* Empty State */}
         {results.length === 0 && !loading && (
-          <Card>
-            <CardContent className="py-12 text-center text-muted-foreground">
-              <Sparkles className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>Enter a prompt above to start comparing AI models</p>
-            </CardContent>
-          </Card>
+          <EmptyState
+            icon={Sparkles}
+            title="Ready to compare"
+            description="Enter a prompt above to start comparing AI models"
+          />
         )}
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 };
 

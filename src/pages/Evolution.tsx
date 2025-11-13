@@ -13,7 +13,8 @@ import { SettingsCard } from "@/components/evolution/SettingsCard";
 import { ExperimentsCard } from "@/components/evolution/ExperimentsCard";
 import { MemoryArchiveCard } from "@/components/evolution/MemoryArchiveCard";
 import { EmptyState } from "@/components/EmptyState";
-import { PageLayout } from "@/components/layout/PageLayout";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { PageLoading } from "@/components/ui/loading-state";
 import { SEO } from "@/components/SEO";
 import type { EvolutionLog, Stats, AdaptiveBehavior, CronStatus, ABExperiment, ArchivedMemory } from "@/components/evolution/types";
 
@@ -391,8 +392,8 @@ export default function Evolution() {
   };
 
   return (
-    <PageLayout transition={false}>
-      <SEO 
+    <AppLayout title="Evolution Dashboard" showBottomNav>
+      <SEO
         title="Evolution Dashboard - AI Self-Learning & Autonomous Improvement"
         description="Watch your AI evolve in real-time. Track learning progress, adaptive behaviors, A/B experiments, and system improvements with our autonomous evolution engine."
         keywords="AI evolution, self-learning AI, autonomous AI, adaptive behavior, AI improvement tracking"
@@ -764,6 +765,6 @@ export default function Evolution() {
         )}
       </div>
       </div>
-    </PageLayout>
+    </AppLayout>
   );
 }
