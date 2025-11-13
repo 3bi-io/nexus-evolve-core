@@ -451,6 +451,30 @@ body {
     touch-action: none;
   }
 
+  /* Enhanced touch feedback */
+  .touch-ripple {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .touch-ripple::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: hsl(var(--primary) / 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.3s ease-out, height 0.3s ease-out;
+  }
+  
+  .touch-ripple:active::after {
+    width: 200%;
+    height: 200%;
+  }
+
   /* Safe area insets for mobile notches */
   .pt-safe-top {
     padding-top: env(safe-area-inset-top);

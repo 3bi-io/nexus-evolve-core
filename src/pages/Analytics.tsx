@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { PullToRefresh } from "@/components/mobile/PullToRefresh";
+import { useMobile } from "@/hooks/useMobile";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageLoading } from "@/components/ui/loading-state";
@@ -14,6 +16,8 @@ import {
   Calendar, Zap, Trophy, Target 
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
 import { SEO } from "@/components/SEO";
 
 interface AnalyticsData {
@@ -30,6 +34,7 @@ interface AnalyticsData {
 
 const Analytics = () => {
   const { user } = useAuth();
+  const { isMobile } = useMobile();
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -195,20 +200,29 @@ const Analytics = () => {
 
   const COLORS = ["hsl(var(--primary))", "hsl(var(--secondary))", "hsl(var(--accent))", "hsl(var(--muted))"];
 
-  return (
-    <AppLayout title="Analytics" showBottomNav>
-      <SEO
-        title="Analytics Dashboard - AI Usage Insights & Performance"
-        description="Track your AI usage across the unified platform. Monitor interactions, view activity trends, analyze agent performance, and understand quality metrics across all 9 AI systems."
-        keywords="AI analytics, usage dashboard, performance metrics, activity tracking, AI insights, platform analytics"
-        canonical="https://oneiros.me/analytics"
-      />
+  const handleRefresh = async () => {
+    await loadAnalytics();
+  };
+
+  const content = (
+    <>
       <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-6">
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">Analytics Dashboard</h1>
-          <p className="text-muted-foreground">
-            Track your AI journey and system performance
-          </p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold mb-2">Analytics Dashboard</h1>
+            <p className="text-muted-foreground">
+              Track your AI journey and system performance
+            </p>
+          </div>
+          <Button 
+            variant="outline" 
+            size="icon"
+            onClick={handleRefresh}
+            disabled={loading}
+            className="hidden md:flex"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+          </Button>
         </div>
 
         {loading ? (
@@ -325,6 +339,24 @@ const Analytics = () => {
           </>
         )}
       </div>
+    </>
+  );
+
+  return (
+    <AppLayout title="Analytics" showBottomNav>
+      <SEO
+        title="Analytics Dashboard - AI Usage Insights & Performance"
+        description="Track your AI usage across the unified platform. Monitor interactions, view activity trends, analyze agent performance, and understand quality metrics across all 9 AI systems."
+        keywords="AI analytics, usage dashboard, performance metrics, activity tracking, AI insights, platform analytics"
+        canonical="https://oneiros.me/analytics"
+      />
+      {isMobile ? (
+        <PullToRefresh onRefresh={handleRefresh}>
+          {content}
+        </PullToRefresh>
+      ) : (
+        content
+      )}
     </AppLayout>
   );
 };
