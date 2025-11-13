@@ -16,6 +16,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { Wifi, WifiOff } from "lucide-react";
 
 interface Subscription {
   tier_name: string;
@@ -57,6 +58,10 @@ const Account = () => {
     storage_saved_kb: 0,
   });
   const [savingPrefs, setSavingPrefs] = useState(false);
+  const [pwaEnabled, setPwaEnabled] = useState(() => {
+    const stored = localStorage.getItem("pwa-enabled");
+    return stored !== "false"; // Default to true if not set
+  });
 
   useEffect(() => {
     fetchSubscription();
@@ -201,6 +206,21 @@ const Account = () => {
     } catch (error) {
       console.error("Error pruning memories:", error);
       toast.error("Failed to prune memories");
+    }
+  };
+
+  const togglePWA = (enabled: boolean) => {
+    setPwaEnabled(enabled);
+    localStorage.setItem("pwa-enabled", String(enabled));
+    
+    if (enabled) {
+      toast.success("PWA enabled", {
+        description: "Refresh the page to activate offline caching",
+      });
+    } else {
+      toast.info("PWA disabled", {
+        description: "Service worker will be unregistered on next page load",
+      });
     }
   };
 
@@ -361,6 +381,55 @@ const Account = () => {
                 </AlertDescription>
               </Alert>
             )}
+
+            {/* PWA Settings */}
+            <Card className="card-mobile">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
+                  {pwaEnabled ? <Wifi className="w-5 h-5 sm:w-6 sm:h-6" /> : <WifiOff className="w-5 h-5 sm:w-6 sm:h-6" />}
+                  PWA & Offline Mode
+                </CardTitle>
+                <CardDescription className="text-sm sm:text-base">
+                  Control service worker caching and offline functionality
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="space-y-1 flex-1">
+                    <Label className="text-sm sm:text-base">Enable PWA</Label>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      {pwaEnabled 
+                        ? "App works offline with service worker caching"
+                        : "Service worker disabled - online only mode"}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={pwaEnabled}
+                    onCheckedChange={togglePWA}
+                    className="scale-110"
+                  />
+                </div>
+
+                <Alert>
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription className="text-xs sm:text-sm">
+                    {pwaEnabled 
+                      ? "PWA mode enables offline access and faster loading, but may cache outdated content."
+                      : "Disabling PWA removes offline support but ensures you always see the latest version."}
+                  </AlertDescription>
+                </Alert>
+
+                {!pwaEnabled && (
+                  <Button
+                    variant="outline"
+                    className="w-full h-12"
+                    onClick={() => navigate("/safe")}
+                  >
+                    Clear Cached Data
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
 
             <Card className="card-mobile">
               <CardHeader className="pb-4">

@@ -2,22 +2,31 @@ import { registerSW } from 'virtual:pwa-register';
 import { toast } from 'sonner';
 
 export function initPWA() {
+  // Check user preference first
+  const pwaEnabled = localStorage.getItem('pwa-enabled');
+  const userDisabledPWA = pwaEnabled === 'false';
+  
   // Emergency bypass: ?no-sw=1 skips SW registration entirely
   const urlParams = new URLSearchParams(window.location.search);
   const noSW = urlParams.has('no-sw');
-
-  if (noSW) {
-    console.info('🚨 PWA: Running in no-sw mode (service worker disabled)');
-    toast.info('Running without PWA caching', {
-      description: 'Service worker disabled via ?no-sw=1',
-    });
+  
+  // Skip if user has disabled PWA in settings or no-sw param is present
+  if (userDisabledPWA || noSW) {
+    const reason = userDisabledPWA ? 'disabled in settings' : 'no-sw parameter';
+    console.info(`🚨 PWA: Service worker disabled (${reason})`);
+    
+    if (userDisabledPWA) {
+      toast.info('PWA disabled', {
+        description: 'Service worker is turned off in account settings',
+      });
+    }
 
     // Best-effort cleanup of any existing SW
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         registrations.forEach((registration) => {
           registration.unregister();
-          console.info('🧹 PWA: Unregistered existing SW in no-sw mode');
+          console.info(`🧹 PWA: Unregistered existing SW (${reason})`);
         });
       });
     }
