@@ -185,6 +185,7 @@ export default function Webhooks() {
                     onChange={(e) => setNewWebhook({ ...newWebhook, url: e.target.value })}
                     placeholder="https://api.yourapp.com/webhooks"
                     type="url"
+                    inputMode="url"
                   />
                 </div>
 

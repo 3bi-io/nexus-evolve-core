@@ -273,6 +273,7 @@ const AdvancedAI = () => {
                     <Label>Top K Results</Label>
                     <Input
                       type="number"
+                      inputMode="numeric"
                       value={pineconeTopK}
                       onChange={(e) => setPineconeTopK(parseInt(e.target.value))}
                       min={1}
