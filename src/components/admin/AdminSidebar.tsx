@@ -18,6 +18,16 @@ import {
   RefreshCw,
   Menu,
   X,
+  CreditCard,
+  Coins,
+  Key,
+  Plug,
+  Flag,
+  Cpu,
+  GitBranch,
+  Workflow,
+  Building,
+  FileText,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -43,6 +53,18 @@ const sidebarSections = [
   { id: "announcements", label: "Announcements", icon: Megaphone, description: "System messages" },
   { id: "audit-log", label: "Audit Log", icon: FileWarning, description: "Admin actions" },
   { id: "devtools", label: "Dev Tools", icon: Code, description: "Developer utils" },
+  { id: "subscription-tiers", label: "Subscription Tiers", icon: CreditCard, description: "Manage pricing" },
+  { id: "credit-system", label: "Credit System", icon: Coins, description: "Credit economy" },
+  { id: "api-keys", label: "API Keys", icon: Key, description: "API access" },
+  { id: "integrations", label: "Integrations", icon: Plug, description: "External connections" },
+  { id: "moderation", label: "Content Moderation", icon: Flag, description: "Review content" },
+  { id: "referrals", label: "Referrals", icon: Users, description: "Referral program" },
+  { id: "logs", label: "System Logs", icon: FileText, description: "Log viewer" },
+  { id: "models", label: "AI Models", icon: Cpu, description: "Model config" },
+  { id: "router", label: "AI Router", icon: GitBranch, description: "Routing control" },
+  { id: "workflows", label: "Workflows", icon: Workflow, description: "Automation" },
+  { id: "social", label: "Social/Viral", icon: TrendingUp, description: "Viral content" },
+  { id: "teams", label: "Teams", icon: Building, description: "Enterprise" },
 ];
 
 export function AdminSidebar({ section, onSectionChange }: AdminSidebarProps) {
