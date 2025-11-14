@@ -126,10 +126,8 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('node_modules/lucide-react')) {
             return 'lucide-icons';
           }
-          // Radix UI components
-          if (id.includes('node_modules/@radix-ui')) {
-            return 'radix-ui';
-          }
+          // Radix UI components will be bundled automatically with vendor code
+          // Removed manual chunking to prevent race conditions with React loading
           // Supabase
           if (id.includes('node_modules/@supabase')) {
             return 'supabase';
