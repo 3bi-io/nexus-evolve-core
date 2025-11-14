@@ -18,6 +18,18 @@ import { UserAnalytics } from "@/components/admin/sections/UserAnalytics";
 import { AgentAnalyticsOverview } from "@/components/admin/sections/AgentAnalyticsOverview";
 import { AuditLog } from "@/components/admin/sections/AuditLog";
 import { UpdateManagement } from "@/components/admin/sections/UpdateManagement";
+import { SubscriptionTierManagement } from "@/components/admin/sections/SubscriptionTierManagement";
+import { CreditSystemManagement } from "@/components/admin/sections/CreditSystemManagement";
+import { APIKeysManagement } from "@/components/admin/sections/APIKeysManagement";
+import { IntegrationManagement } from "@/components/admin/sections/IntegrationManagement";
+import { ContentModeration } from "@/components/admin/sections/ContentModeration";
+import { ReferralManagement } from "@/components/admin/sections/ReferralManagement";
+import { SystemLogsViewer } from "@/components/admin/sections/SystemLogsViewer";
+import { ModelManagement } from "@/components/admin/sections/ModelManagement";
+import { RouterManagement } from "@/components/admin/sections/RouterManagement";
+import { WorkflowManagement } from "@/components/admin/sections/WorkflowManagement";
+import { SocialManagement } from "@/components/admin/sections/SocialManagement";
+import { TeamManagement } from "@/components/admin/sections/TeamManagement";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbNav } from "@/components/BreadcrumbNav";
@@ -113,6 +125,30 @@ export default function SuperAdmin() {
         return <AgentAnalyticsOverview />;
       case "audit-log":
         return <AuditLog />;
+      case "subscription-tiers":
+        return <SubscriptionTierManagement />;
+      case "credit-system":
+        return <CreditSystemManagement />;
+      case "api-keys":
+        return <APIKeysManagement />;
+      case "integrations":
+        return <IntegrationManagement />;
+      case "moderation":
+        return <ContentModeration />;
+      case "referrals":
+        return <ReferralManagement />;
+      case "logs":
+        return <SystemLogsViewer />;
+      case "models":
+        return <ModelManagement />;
+      case "router":
+        return <RouterManagement />;
+      case "workflows":
+        return <WorkflowManagement />;
+      case "social":
+        return <SocialManagement />;
+      case "teams":
+        return <TeamManagement />;
       default:
         return <SystemOverview />;
     }
