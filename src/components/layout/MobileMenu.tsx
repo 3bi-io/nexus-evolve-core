@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, Download } from "lucide-react";
+import { Menu, Download, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -150,6 +150,17 @@ export function MobileMenu({ authenticated, onSignOut, onNavigate }: MobileMenuP
                 >
                   Account Settings
                 </Link>
+                
+                {/* Clear Cache Option */}
+                <Button
+                  onClick={() => handleLinkClick('/clear-cache')}
+                  variant="ghost"
+                  className="w-full min-h-[44px] justify-start px-3 gap-3 text-sm font-medium text-foreground hover:bg-accent"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Clear Cache
+                </Button>
+                
                 <Button
                   onClick={() => {
                     setOpen(false);

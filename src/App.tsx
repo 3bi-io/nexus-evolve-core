@@ -79,6 +79,7 @@ const XAIAnalytics = lazy(() => import("./pages/XAIAnalytics"));
 const AutomationHub = lazy(() => import("./pages/AutomationHub"));
 const Install = lazy(() => import("./pages/Install"));
 const ResetPWA = lazy(() => import("./pages/ResetPWA"));
+const ClearCache = lazy(() => import("./pages/ClearCache"));
 const SafeMode = lazy(() => import("./pages/SafeMode"));
 
 const queryClient = new QueryClient({
@@ -167,6 +168,7 @@ const RoutesWithShortcuts = () => {
           <Route path="/security" element={<Security />} />
           <Route path="/install" element={<Install />} />
           <Route path="/reset-pwa" element={<ResetPWA />} />
+          <Route path="/clear-cache" element={<ClearCache />} />
           <Route path="/safe" element={<SafeMode />} />
           <Route path="/getting-started" element={<GettingStarted />} />
           <Route

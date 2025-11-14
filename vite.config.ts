@@ -21,6 +21,8 @@ export default defineConfig(({ mode }) => ({
         type: 'module',
       },
       includeAssets: ['favicon.png', 'favicon-oneiros.png', 'robots.txt', 'og-*.png'],
+      // Add build timestamp for cache versioning
+      manifestFilename: `manifest.${Date.now()}.json`,
       manifest: {
         name: 'Oneiros.me - The Most Advanced AI Platform',
         short_name: 'Oneiros.me',
@@ -48,8 +50,13 @@ export default defineConfig(({ mode }) => ({
       },
       workbox: {
         cleanupOutdatedCaches: true,
+        skipWaiting: true,
+        clientsClaim: true,
         navigateFallback: '/offline.html',
+        navigateFallbackDenylist: [/^\/api\//, /^\/auth\//, /^\/clear-cache/, /^\/reset-pwa/, /^\/safe-mode/],
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // Add version to cache names
+        cacheId: `oneiros-v${Date.now()}`,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -70,12 +77,24 @@ export default defineConfig(({ mode }) => ({
             handler: 'NetworkFirst',
             options: {
               cacheName: 'supabase-api-cache',
+              networkTimeoutSeconds: 10,
               expiration: {
                 maxEntries: 50,
                 maxAgeSeconds: 60 * 5 // 5 minutes
               },
               cacheableResponse: {
                 statuses: [0, 200]
+              }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/.*\.lovable\.app\/.*/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'app-pages-cache',
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 // 1 day
               }
             }
           }

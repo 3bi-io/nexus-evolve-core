@@ -36,16 +36,25 @@ export function initPWA() {
 
   // Normal PWA registration with lifecycle hooks
   const updateSW = registerSW({
+    immediate: true,
     onNeedRefresh() {
       console.info('🔄 PWA: Update available');
-      toast('Update available', {
-        description: 'A new version is available. Click to update.',
+      
+      // Store that an update is available
+      localStorage.setItem('pwa-update-available', 'true');
+      
+      toast('New version available', {
+        description: 'Click to update and get the latest features.',
         action: {
           label: 'Update now',
           onClick: () => {
             console.info('⏫ PWA: User triggered update');
+            localStorage.removeItem('pwa-update-available');
             updateSW(true);
-            window.location.reload();
+            // Force a hard reload after update
+            setTimeout(() => {
+              window.location.reload();
+            }, 100);
           },
         },
         cancel: {
@@ -61,9 +70,34 @@ export function initPWA() {
     },
     onRegisteredSW(swUrl, registration) {
       console.info('✅ PWA: Service Worker registered', { swUrl, registration });
+      
+      // Check for updates every 60 seconds
+      if (registration) {
+        setInterval(() => {
+          registration.update().catch((err) => {
+            console.error('Failed to check for updates:', err);
+          });
+        }, 60000);
+      }
     },
     onRegisterError(error) {
       console.error('❌ PWA: Service Worker registration failed', error);
+      
+      // Log error for tracking
+      localStorage.setItem('pwa-registration-error', JSON.stringify({
+        message: error.message,
+        timestamp: new Date().toISOString(),
+      }));
+      
+      toast.error('App initialization issue', {
+        description: 'Try refreshing the page or clearing your cache.',
+        action: {
+          label: 'Clear Cache',
+          onClick: () => {
+            window.location.href = '/clear-cache';
+          },
+        },
+      });
     },
   });
 
