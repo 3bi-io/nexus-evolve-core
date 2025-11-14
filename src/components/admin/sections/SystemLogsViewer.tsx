@@ -145,7 +145,11 @@ export function SystemLogsViewer() {
                           {log.status}
                         </Badge>
                       </TableCell>
-                  <TableCell>{log.duration_ms ? `${log.duration_ms}ms` : 'N/A'}</TableCell>
+                  <TableCell>
+                    {log.started_at && log.ended_at 
+                      ? `${Math.round((new Date(log.ended_at).getTime() - new Date(log.started_at).getTime()))}ms`
+                      : 'N/A'}
+                  </TableCell>
                   <TableCell>{format(new Date(log.ended_at || log.created_at), 'MMM d, HH:mm:ss')}</TableCell>
                     </TableRow>
                   ))}

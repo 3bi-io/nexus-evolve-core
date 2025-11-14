@@ -23,13 +23,14 @@ export function RouterManagement() {
   const { data: costAlerts, isLoading: alertsLoading } = useQuery({
     queryKey: ['admin', 'router-cost-alerts'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('router_cost_alerts')
         .select('*')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
+      
       if (error) throw error;
-      return data;
+      return data || [];
     }
   });
 
