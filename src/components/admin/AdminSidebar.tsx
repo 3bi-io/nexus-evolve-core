@@ -15,6 +15,7 @@ import {
   Activity,
   FileWarning,
   TrendingUp,
+  RefreshCw,
   Menu,
   X,
 } from "lucide-react";
@@ -38,6 +39,7 @@ const sidebarSections = [
   { id: "financial", label: "Financial", icon: DollarSign, description: "Revenue & credits" },
   { id: "config", label: "System Config", icon: Settings, description: "Feature flags" },
   { id: "security", label: "Security Center", icon: Shield, description: "Security & RLS" },
+  { id: "updates", label: "Update Management", icon: RefreshCw, description: "PWA & cache control" },
   { id: "announcements", label: "Announcements", icon: Megaphone, description: "System messages" },
   { id: "audit-log", label: "Audit Log", icon: FileWarning, description: "Admin actions" },
   { id: "devtools", label: "Dev Tools", icon: Code, description: "Developer utils" },
