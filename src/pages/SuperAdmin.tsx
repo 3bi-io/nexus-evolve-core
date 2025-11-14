@@ -17,6 +17,7 @@ import { AgentManagement } from "@/components/admin/sections/AgentManagement";
 import { UserAnalytics } from "@/components/admin/sections/UserAnalytics";
 import { AgentAnalyticsOverview } from "@/components/admin/sections/AgentAnalyticsOverview";
 import { AuditLog } from "@/components/admin/sections/AuditLog";
+import { UpdateManagement } from "@/components/admin/sections/UpdateManagement";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbNav } from "@/components/BreadcrumbNav";
@@ -104,6 +105,8 @@ export default function SuperAdmin() {
         return <AnnouncementCenter />;
       case "devtools":
         return <DevTools />;
+      case "updates":
+        return <UpdateManagement />;
       case "user-analytics":
         return <UserAnalytics />;
       case "agent-analytics":

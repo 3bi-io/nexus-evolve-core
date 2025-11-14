@@ -1,5 +1,13 @@
 import { registerSW } from 'virtual:pwa-register';
 import { toast } from 'sonner';
+import { initIdleDetection } from './idle-detection';
+
+interface UpdateState {
+  updateAvailable: boolean;
+  updateFunction: ((reloadPage?: boolean) => Promise<void>) | null;
+  downloadStarted: boolean;
+  idlePromptShown: boolean;
+}
 
 export function initPWA() {
   // Check user preference first
@@ -34,35 +42,56 @@ export function initPWA() {
     return () => {}; // Return no-op function
   }
 
+  // Track update state
+  const updateState: UpdateState = {
+    updateAvailable: false,
+    updateFunction: null,
+    downloadStarted: false,
+    idlePromptShown: false,
+  };
+
+  // Initialize idle detection
+  const idleDetector = initIdleDetection({
+    idleThreshold: 30000, // 30 seconds of inactivity
+    onIdleStart: () => {
+      console.info('🛋️ PWA: User is idle');
+      
+      // If update is available and we haven't shown the idle prompt yet
+      if (updateState.updateAvailable && !updateState.idlePromptShown) {
+        showIdleUpdatePrompt(updateState);
+      }
+    },
+  });
+
   // Normal PWA registration with lifecycle hooks
   const updateSW = registerSW({
     immediate: true,
     onNeedRefresh() {
-      console.info('🔄 PWA: Update available');
+      console.info('🔄 PWA: Update available - starting silent download');
       
       // Store that an update is available
       localStorage.setItem('pwa-update-available', 'true');
       
-      toast('New version available', {
-        description: 'Click to update and get the latest features.',
-        action: {
-          label: 'Update now',
-          onClick: () => {
-            console.info('⏫ PWA: User triggered update');
-            localStorage.removeItem('pwa-update-available');
-            updateSW(true);
-            // Force a hard reload after update
-            setTimeout(() => {
-              window.location.reload();
-            }, 100);
-          },
-        },
-        cancel: {
-          label: 'Later',
-          onClick: () => {},
-        },
-        duration: Infinity,
+      // Mark update as available
+      updateState.updateAvailable = true;
+      updateState.updateFunction = updateSW;
+      updateState.downloadStarted = true;
+      
+      // Show subtle notification that update is downloading
+      toast.info('Downloading update in background', {
+        description: 'You\'ll be notified when ready to install.',
+        duration: 3000,
       });
+      
+      // Check if user is already idle
+      if (idleDetector.isCurrentlyIdle() && !updateState.idlePromptShown) {
+        // Wait a bit before showing prompt (let them see the download toast first)
+        setTimeout(() => {
+          if (idleDetector.isCurrentlyIdle()) {
+            showIdleUpdatePrompt(updateState);
+          }
+        }, 5000);
+      }
     },
     onOfflineReady() {
       console.info('✅ PWA: App ready for offline use');
@@ -102,4 +131,43 @@ export function initPWA() {
   });
 
   return updateSW;
+}
+
+/**
+ * Show idle update prompt - less intrusive notification when user is idle
+ */
+function showIdleUpdatePrompt(updateState: UpdateState) {
+  if (updateState.idlePromptShown || !updateState.updateFunction) return;
+  
+  updateState.idlePromptShown = true;
+  console.info('💤 PWA: Showing idle update prompt');
+  
+  toast.success('Update ready to install', {
+    description: 'A new version is downloaded. Refresh to apply the update.',
+    action: {
+      label: 'Refresh now',
+      onClick: () => {
+        console.info('⏫ PWA: User accepted idle update');
+        localStorage.removeItem('pwa-update-available');
+        updateState.updateFunction?.(true);
+        
+        // Show loading state
+        toast.loading('Applying update...', { duration: 1000 });
+        
+        // Force reload after brief delay
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      },
+    },
+    cancel: {
+      label: 'Later',
+      onClick: () => {
+        console.info('⏸️ PWA: User postponed idle update');
+        // Reset flag so we can show again next time they're idle
+        updateState.idlePromptShown = false;
+      },
+    },
+    duration: 10000, // Auto-dismiss after 10 seconds
+  });
 }

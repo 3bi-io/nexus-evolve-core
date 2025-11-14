@@ -17,6 +17,8 @@ import { InstallBadge } from "@/components/mobile/InstallBadge";
 import { InstallSuccessDialog } from "@/components/mobile/InstallSuccessDialog";
 import { NativeAppOnboarding } from "@/components/mobile/NativeAppOnboarding";
 import { AppLoadingScreen } from "@/components/mobile/AppLoadingScreen";
+import { UpdateNotification } from "@/components/mobile/UpdateNotification";
+import { useAutoUpdate } from "@/hooks/useAutoUpdate";
 import { App as CapacitorApp } from "@capacitor/app";
 import { Capacitor } from "@capacitor/core";
 
@@ -491,6 +493,8 @@ const RoutesWithShortcuts = () => {
 };
 
 function App() {
+  const { shouldShowNotification, triggerUpdate, dismissUpdate } = useAutoUpdate();
+
   return (
     <HelmetProvider>
       <ErrorBoundary>
@@ -504,6 +508,12 @@ function App() {
                 <InstallPrompt />
                 <InstallBadge />
                 <InstallSuccessDialog />
+                {shouldShowNotification && (
+                  <UpdateNotification 
+                    onUpdate={triggerUpdate} 
+                    onDismiss={dismissUpdate} 
+                  />
+                )}
                 <RoutesWithShortcuts />
               </BrowserRouter>
             </AuthProvider>
