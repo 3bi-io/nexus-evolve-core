@@ -123,9 +123,7 @@ export default defineConfig(({ mode }) => ({
           if (id.includes('node_modules/framer-motion')) {
             return 'framer-motion';
           }
-          if (id.includes('node_modules/lucide-react')) {
-            return 'lucide-icons';
-          }
+          // Lucide icons will be bundled automatically with vendor code
           // Radix UI components will be bundled automatically with vendor code
           // Removed manual chunking to prevent race conditions with React loading
           // Supabase
