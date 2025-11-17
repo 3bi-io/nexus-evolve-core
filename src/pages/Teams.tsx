@@ -24,6 +24,15 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { z } from 'zod';
+
+const teamNameSchema = z.object({
+  name: z.string()
+    .trim()
+    .min(1, 'Team name is required')
+    .max(100, 'Team name must be less than 100 characters')
+    .regex(/^[a-zA-Z0-9\s\-_]+$/, 'Only letters, numbers, spaces, hyphens, and underscores allowed')
+});
 
 interface Team {
   id: string;
@@ -76,11 +85,18 @@ export default function Teams() {
       return;
     }
 
+    // Validate input
+    const validation = teamNameSchema.safeParse({ name: newTeamName });
+    if (!validation.success) {
+      toast.error(validation.error.issues[0].message);
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('teams')
         .insert({
-          name: newTeamName,
+          name: validation.data.name,
           owner_id: user?.id,
         })
         .select()

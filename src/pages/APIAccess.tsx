@@ -22,6 +22,15 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { z } from 'zod';
+
+const apiKeySchema = z.object({
+  name: z.string()
+    .trim()
+    .min(1, 'Key name is required')
+    .max(50, 'Key name must be less than 50 characters')
+    .regex(/^[a-zA-Z0-9\s\-_]+$/, 'Only letters, numbers, spaces, hyphens, and underscores allowed')
+});
 
 interface APIKey {
   id: string;
@@ -67,19 +76,32 @@ export default function APIAccess() {
       return;
     }
 
+    // Validate input
+    const validation = apiKeySchema.safeParse({ name: newKeyName });
+    if (!validation.success) {
+      toast.error(validation.error.issues[0].message);
+      return;
+    }
+
     try {
-      // Generate a random API key
-      const key = `ok_${Array.from({ length: 32 }, () => 
-        Math.random().toString(36)[2]).join('')}`;
+      // Generate a cryptographically secure random API key
+      const key = `ok_${Array.from(crypto.getRandomValues(new Uint8Array(32)))
+        .map(b => b.toString(36).padStart(2, '0'))
+        .join('')
+        .substring(0, 32)}`;
       
       const keyPrefix = key.substring(0, 12) + '...';
       
-      // Hash the key (in production, use proper hashing)
-      const keyHash = btoa(key);
+      // Use Web Crypto API for secure hashing (SHA-256)
+      const encoder = new TextEncoder();
+      const data = encoder.encode(key);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const keyHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
       const { error } = await supabase.from('api_keys').insert({
         user_id: user?.id,
-        name: newKeyName,
+        name: validation.data.name,
         key_hash: keyHash,
         key_prefix: keyPrefix,
       });
@@ -98,6 +120,7 @@ export default function APIAccess() {
       fetchAPIKeys();
     } catch (error: any) {
       toast.error('Failed to create API key');
+      console.error(error);
     }
   };
 
