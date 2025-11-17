@@ -23,6 +23,15 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { z } from 'zod';
+
+const sessionNameSchema = z.object({
+  name: z.string()
+    .trim()
+    .min(1, 'Session name is required')
+    .max(200, 'Session name must be less than 200 characters')
+    .regex(/^[a-zA-Z0-9\s\-_.,!?()]+$/, 'Invalid characters in session name')
+});
 
 interface SharedSession {
   id: string;
@@ -89,11 +98,18 @@ export default function Collaboration() {
       return;
     }
 
+    // Validate input
+    const validation = sessionNameSchema.safeParse({ name: newSessionName });
+    if (!validation.success) {
+      toast.error(validation.error.issues[0].message);
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('shared_sessions')
         .insert({
-          name: newSessionName,
+          name: validation.data.name,
           owner_id: user?.id,
           is_public: false,
         })

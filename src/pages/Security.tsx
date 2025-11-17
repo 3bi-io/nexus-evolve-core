@@ -8,8 +8,8 @@ export default function Security() {
   const securityFeatures = [
     {
       icon: Shield,
-      title: 'SOC 2 Type II Compliant',
-      description: 'Independently audited security controls and procedures'
+      title: 'Security-Focused Architecture',
+      description: 'Built with industry best practices and modern security standards'
     },
     {
       icon: Lock,
@@ -23,28 +23,26 @@ export default function Security() {
     },
     {
       icon: Server,
-      title: 'Infrastructure Security',
-      description: 'Hosted on enterprise-grade infrastructure with 99.9% uptime SLA'
+      title: 'Enterprise Infrastructure',
+      description: 'Hosted on Supabase with automatic backups and monitoring'
     },
     {
       icon: CheckCircle,
-      title: 'Regular Audits',
-      description: 'Quarterly security audits and penetration testing'
+      title: 'Continuous Security',
+      description: 'Regular security updates and vulnerability monitoring'
     },
     {
       icon: FileCheck,
-      title: 'Compliance Ready',
-      description: 'GDPR, CCPA, and HIPAA compliant infrastructure'
+      title: 'Privacy Compliant',
+      description: 'GDPR and CCPA data privacy compliance'
     }
   ];
 
   const certifications = [
-    'SOC 2 Type II',
     'GDPR Compliant',
     'CCPA Compliant',
-    'ISO 27001',
-    'HIPAA Ready',
-    'PCI DSS'
+    'End-to-End Encryption',
+    'Secure Infrastructure'
   ];
 
   return (
