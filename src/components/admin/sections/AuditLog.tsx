@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { InputWithClear } from "@/components/ui/input-with-clear";
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { FileWarning, Search } from "lucide-react";
@@ -76,12 +76,11 @@ export function AuditLog() {
         <CardContent>
           <div className="mb-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground z-10 pointer-events-none" />
-              <InputWithClear
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
                 placeholder="Search actions..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onClear={() => setSearchQuery("")}
                 className="pl-10 min-h-[48px] sm:min-h-[40px]"
               />
             </div>

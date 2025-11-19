@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Home, ArrowLeft } from "lucide-react";
-import { MarketingLayout } from "@/components/layout/MarketingLayout";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { SEO } from "@/components/SEO";
 
 const NotFound = () => {
@@ -15,8 +15,8 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <MarketingLayout title="404 Not Found">
-      <SEO
+    <PageLayout showHeader={true} showFooter={true} transition={true}>
+      <SEO 
         title="404 - Page Not Found"
         description="The page you're looking for doesn't exist. Return to Oneiros.me homepage or explore our AI platform features."
         canonical="https://oneiros.me/404"
@@ -44,7 +44,7 @@ const NotFound = () => {
           </CardContent>
         </Card>
       </div>
-    </MarketingLayout>
+    </PageLayout>
   );
 };
 

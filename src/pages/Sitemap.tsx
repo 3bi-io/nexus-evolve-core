@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { MarketingLayout } from "@/components/layout/MarketingLayout";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -136,7 +136,7 @@ const sitemapSections: SitemapSection[] = [
 
 export default function Sitemap() {
   return (
-    <MarketingLayout title="Sitemap">
+    <PageLayout showHeader={true} showFooter={true} transition={true}>
       <SEO
         title="Sitemap - Explore All Features | Unified Navigation"
         description="Complete sitemap of Oneiros.me unified AI platform. Explore 9 AI systems, analytics, agent marketplace, voice AI, integrations, and more - all accessible from the sidebar."
@@ -212,6 +212,6 @@ export default function Sitemap() {
           </CardContent>
         </Card>
       </div>
-    </MarketingLayout>
+    </PageLayout>
   );
 }

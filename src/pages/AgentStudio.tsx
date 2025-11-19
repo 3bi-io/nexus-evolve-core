@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AppLayout } from '@/components/layout/AppLayout';
+import { PageLayout } from '@/components/layout/PageLayout';
 import { AgentBuilder } from '@/components/agents/AgentBuilder';
 import { AgentTemplates } from '@/components/agents/AgentTemplates';
 import { MyAgents } from '@/components/agents/MyAgents';
@@ -20,8 +20,8 @@ export default function AgentStudio() {
   }, [agentId]);
 
   return (
-    <AppLayout title="Agent Studio" showBottomNav>
-      <SEO
+    <PageLayout title="Agent Studio" showBack={true}>
+      <SEO 
         title="Agent Studio - Build & Customize AI Agents | Agent Builder"
         description="Build custom AI agents tailored to your needs using the unified platform. Use templates or create from scratch. Design personality, capabilities, and integrate across all AI systems."
         keywords="custom AI agents, agent builder, AI customization, agent templates, AI assistant builder, agent studio"
@@ -67,6 +67,6 @@ export default function AgentStudio() {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
+    </PageLayout>
   );
 }

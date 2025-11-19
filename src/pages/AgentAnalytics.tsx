@@ -1,20 +1,16 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { PullToRefresh } from "@/components/mobile/PullToRefresh";
-import { useMobile } from "@/hooks/useMobile";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Activity, TrendingUp, Clock, Zap, Download, RefreshCw } from "lucide-react";
+import { Activity, TrendingUp, Clock, Zap, Download } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { AppLayout } from "@/components/layout/AppLayout";
-import { PageLoading } from "@/components/ui/loading-state";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { SEO } from "@/components/SEO";
 
 export default function AgentAnalytics() {
   const { agentId } = useParams();
-  const { isMobile } = useMobile();
   const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState(30); // days
@@ -57,9 +53,12 @@ export default function AgentAnalytics() {
 
   if (loading) {
     return (
-      <AppLayout title="Agent Analytics" showBottomNav>
-        <PageLoading />
-      </AppLayout>
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading analytics...</p>
+        </div>
+      </div>
     );
   }
 
@@ -76,45 +75,36 @@ export default function AgentAnalytics() {
 
   const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--muted))'];
 
-  const handleRefresh = async () => {
-    await fetchAnalytics();
-  };
-
-  const content = (
-    <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-6">
-      <div className="flex items-center justify-between">
+  return (
+    <PageLayout title="Agent Analytics" showBack={true}>
+      <SEO 
+        title="Agent Analytics - Performance Insights & Metrics"
+        description="Detailed performance analytics for your AI agents. Track executions, success rates, response times, and credit usage with visual charts and real-time metrics."
+        keywords="agent analytics, performance metrics, AI monitoring, agent insights"
+        canonical="https://oneiros.me/agent-analytics"
+      />
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-6">
+        <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Agent Analytics</h1>
           <p className="text-muted-foreground">Performance insights and metrics</p>
         </div>
         <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="icon"
-            onClick={handleRefresh}
-            disabled={loading}
-            className="hidden md:flex"
-          >
-            <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-          </Button>
           <Button
             variant={dateRange === 7 ? "default" : "outline"}
             onClick={() => setDateRange(7)}
-            size="sm"
           >
             7 Days
           </Button>
           <Button
             variant={dateRange === 30 ? "default" : "outline"}
             onClick={() => setDateRange(30)}
-            size="sm"
           >
             30 Days
           </Button>
           <Button
             variant={dateRange === 90 ? "default" : "outline"}
             onClick={() => setDateRange(90)}
-            size="sm"
           >
             90 Days
           </Button>
@@ -282,24 +272,7 @@ export default function AgentAnalytics() {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
-
-  return (
-    <AppLayout title="Agent Analytics" showBottomNav>
-      <SEO
-        title="Agent Analytics - Performance Insights & Metrics"
-        description="Detailed performance analytics for your AI agents. Track executions, success rates, response times, and credit usage with visual charts and real-time metrics."
-        keywords="agent analytics, performance metrics, AI monitoring, agent insights"
-        canonical="https://oneiros.me/agent-analytics"
-      />
-      {isMobile ? (
-        <PullToRefresh onRefresh={handleRefresh}>
-          {content}
-        </PullToRefresh>
-      ) : (
-        content
-      )}
-    </AppLayout>
+      </div>
+    </PageLayout>
   );
 }

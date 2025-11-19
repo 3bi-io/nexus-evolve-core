@@ -31,36 +31,14 @@ export class ErrorBoundary extends Component<Props, State> {
       url: window.location.href,
     });
     
-    // Check if this might be a service worker issue
-    const isSwIssue = this.isServiceWorkerError(error);
-    if (isSwIssue) {
-      console.warn('🔧 Possible service worker cache issue detected');
-    }
-    
     // Log error to evolution_logs table
     this.logError(error, errorInfo);
-  }
-
-  private isServiceWorkerError(error: Error): boolean {
-    const msg = error.message?.toLowerCase() || '';
-    const stack = error.stack?.toLowerCase() || '';
-    
-    return (
-      msg.includes('chunk') && msg.includes('load') ||
-      msg.includes('dynamically imported') ||
-      msg.includes('fetch') && msg.includes('failed') ||
-      msg.includes('service worker') ||
-      stack.includes('sw.js') ||
-      stack.includes('service-worker')
-    );
   }
 
   private async logError(error: Error, errorInfo: ErrorInfo) {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-
-      const isSwIssue = this.isServiceWorkerError(error);
 
       await supabase.from('evolution_logs').insert({
         user_id: user.id,
@@ -77,8 +55,6 @@ export class ErrorBoundary extends Component<Props, State> {
           viewport: `${window.innerWidth}x${window.innerHeight}`,
           isMobile: window.innerWidth < 768,
           url: window.location.href,
-          serviceWorkerIssue: isSwIssue,
-          serviceWorkerActive: 'serviceWorker' in navigator && navigator.serviceWorker.controller !== null,
         },
         success: false,
       });

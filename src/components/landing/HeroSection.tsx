@@ -22,53 +22,51 @@ export function HeroSection() {
   return (
     <div className="relative text-center space-y-8 py-20 overflow-hidden">
       {/* Animated gradient background */}
-      <div className="absolute inset-0 -z-10 pointer-events-none">
+      <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-blue-500/20 animate-gradient" />
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/30 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/30 rounded-full blur-3xl animate-pulse delay-700" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(139,92,246,0.1),transparent_50%)]" />
       </div>
-      
-      {/* Content wrapper with explicit z-index */}
-      <div className="relative z-10">
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm"
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-primary/10 border border-primary/20 backdrop-blur-sm"
+      >
+        <motion.span 
+          className="text-sm sm:text-base md:text-lg font-semibold text-primary"
+          animate={{ scale: [1, 1.1, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
         >
-          <motion.span 
-            className="text-sm sm:text-base md:text-lg font-semibold text-primary"
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
-          >
-            🚀 Beta Access
-          </motion.span>
-          <span className="text-xs sm:text-sm text-foreground/70 hidden sm:inline">
-            Live now - 500 free daily interactions
-          </span>
-          <span className="text-xs sm:text-sm text-foreground/70 sm:hidden">
-            500 free daily
-          </span>
-        </motion.div>
+          🚀 Beta Access
+        </motion.span>
+        <span className="text-xs sm:text-sm text-muted-foreground hidden sm:inline">
+          Live now - 500 free daily interactions
+        </span>
+        <span className="text-xs sm:text-sm text-muted-foreground sm:hidden">
+          500 free daily
+        </span>
+      </motion.div>
       
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight px-4 sm:px-0 text-foreground"
-        >
-          <span className="block sm:inline">AI Platform That</span>{' '}
-          <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient block sm:inline">
-            Automates Everything
-          </span>
-        </motion.h1>
-        
-        <p className="text-base sm:text-lg md:text-xl text-foreground/80 max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
-          <strong className="text-foreground">Production-ready AI platform</strong> with vision analysis, image generation, automated workflows, and intelligent monitoring.
-          <br className="hidden sm:block" />
-          <strong className="text-primary">38+ autonomous edge functions</strong> running 24/7 to grow your platform while you sleep.
-        </p>
+      <motion.h1
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight px-4 sm:px-0"
+      >
+        <span className="block sm:inline">AI Platform That</span>{' '}
+        <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-gradient block sm:inline">
+          Automates Everything
+        </span>
+      </motion.h1>
+      
+      <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed px-4 sm:px-0">
+        <strong>Production-ready AI platform</strong> with vision analysis, image generation, automated workflows, and intelligent monitoring.
+        <br className="hidden sm:block" />
+        <strong className="text-primary">38+ autonomous edge functions</strong> running 24/7 to grow your platform while you sleep.
+      </p>
 
       <div className="flex flex-wrap justify-center gap-2 sm:gap-3 text-xs sm:text-sm max-w-3xl mx-auto px-4">
         <Badge variant="outline" className="gap-1.5 px-3 py-1.5">
@@ -144,7 +142,6 @@ export function HeroSection() {
           <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
           <span>No card required</span>
         </div>
-      </div>
       </div>
     </div>
   );

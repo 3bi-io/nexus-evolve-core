@@ -18,9 +18,6 @@ export class ErrorTracking {
       // Increment error count
       this.errorCount++;
 
-      // Detect service worker issues
-      const swError = this.detectServiceWorkerIssue(error);
-
       // Get current user if available
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -56,10 +53,6 @@ export class ErrorTracking {
           orientation: window.screen.orientation?.type || 'unknown',
           connection: (navigator as any).connection?.effectiveType || 'unknown',
           touchSupport: 'ontouchstart' in window,
-          // Service worker metadata
-          serviceWorkerIssue: swError,
-          serviceWorkerActive: 'serviceWorker' in navigator && navigator.serviceWorker.controller !== null,
-          cacheStorageAvailable: 'caches' in window,
         },
         page_url: window.location.pathname,
       });
@@ -82,26 +75,6 @@ export class ErrorTracking {
       console.error('Failed to track error:', err);
       console.error('Original error:', error);
     }
-  }
-
-  private static detectServiceWorkerIssue(error: ErrorEvent): string | null {
-    const msg = error.message?.toLowerCase() || '';
-    const stack = error.stack?.toLowerCase() || '';
-    
-    // Detect common SW-related errors
-    if (
-      msg.includes('service worker') ||
-      msg.includes('fetch') && msg.includes('failed') ||
-      msg.includes('chunk') && msg.includes('load') ||
-      msg.includes('dynamically imported module') ||
-      msg.includes('loading css chunk') ||
-      stack.includes('service-worker') ||
-      stack.includes('sw.js')
-    ) {
-      return 'service_worker_related';
-    }
-    
-    return null;
   }
 
   private static async notifyCriticalError(error: ErrorEvent) {

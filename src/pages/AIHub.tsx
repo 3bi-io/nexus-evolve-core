@@ -1,9 +1,9 @@
-import { AppLayout } from "@/components/layout/AppLayout";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { SEO } from "@/components/SEO";
 import { AIProviderDashboard } from "@/components/ai/AIProviderDashboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import { useUnifiedAIRouter, TaskType } from "@/hooks/useUnifiedAIRouter";
+import { useSmartAIRouter } from "@/hooks/useSmartAIRouter";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,15 +11,18 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 
 const AIHub = () => {
-  const { executeAI, loading } = useUnifiedAIRouter();
+  const { executeAI, loading } = useSmartAIRouter();
   const [input, setInput] = useState("");
   const [result, setResult] = useState<any>(null);
 
-  const testRouter = async (task: TaskType) => {
+  const testRouter = async (task: "text-generation" | "embeddings" | "classification") => {
     if (!input.trim()) return;
 
     try {
-      const response = await executeAI(task, input.trim());
+      const response = await executeAI({
+        task,
+        input: input.trim()
+      });
       setResult(response);
     } catch (error) {
       console.error("Test failed:", error);
@@ -27,7 +30,7 @@ const AIHub = () => {
   };
 
   return (
-    <AppLayout title="AI Hub" showBottomNav>
+    <PageLayout title="AI Hub" showBack={true}>
       <SEO
         title="AI Hub - Unified AI Access with Intelligent Routing"
         description="Unified access to Lovable AI, HuggingFace, and Browser AI with intelligent routing. Smart AI provider selection across the unified platform's 9 systems."
@@ -72,14 +75,14 @@ const AIHub = () => {
 
                 <div className="flex gap-2 flex-wrap">
                   <Button
-                    onClick={() => testRouter("chat")}
+                    onClick={() => testRouter("text-generation")}
                     disabled={loading || !input.trim()}
                   >
                     {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     Generate Text
                   </Button>
                   <Button
-                    onClick={() => testRouter("embedding")}
+                    onClick={() => testRouter("embeddings")}
                     disabled={loading || !input.trim()}
                     variant="secondary"
                   >
@@ -121,7 +124,7 @@ const AIHub = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
+    </PageLayout>
   );
 };
 

@@ -101,7 +101,7 @@ export default function Solutions() {
   ];
 
   return (
-    <MarketingLayout title="Solutions">
+    <MarketingLayout>
       <SEO
         title="Solutions by Industry - AI Automation for Every Sector | Oneiros"
         description="Discover industry-specific AI automation solutions for e-commerce, real estate, healthcare, legal, education, and more. Enterprise-ready AI for your business."

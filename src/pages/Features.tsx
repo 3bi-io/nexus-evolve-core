@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 
 export default function Features() {
   return (
-    <MarketingLayout title="Features">
+    <MarketingLayout>
       <SEO
         title="Features - Complete AI Automation Platform | Oneiros"
         description="Explore Oneiros features: vision analysis, voice agents, automated workflows, smart caching, trend monitoring, and 38+ edge functions working autonomously."

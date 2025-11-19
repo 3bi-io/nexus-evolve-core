@@ -1,5 +1,5 @@
 import { Helmet } from 'react-helmet-async';
-import { AppLayout } from '@/components/layout/AppLayout';
+import { PageLayout } from '@/components/layout/PageLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RouterPreferences } from '@/components/router/RouterPreferences';
 import { ABTestingPanel } from '@/components/router/ABTestingPanel';
@@ -8,7 +8,7 @@ import { Settings, FlaskConical, DollarSign, BarChart3 } from 'lucide-react';
 
 const EnterpriseRouter = () => {
   return (
-    <AppLayout title="Enterprise Router" showBottomNav>
+    <PageLayout>
       <Helmet>
         <title>Enterprise Router - Oneiros.me</title>
         <meta 
@@ -67,7 +67,7 @@ const EnterpriseRouter = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
+    </PageLayout>
   );
 };
 

@@ -1,7 +1,6 @@
-import { AppLayout } from '@/components/layout/AppLayout';
+import { PageLayout } from '@/components/layout/PageLayout';
 import { SEO } from '@/components/SEO';
 import { RouterMetricsDashboard } from '@/components/ai/RouterMetricsDashboard';
-import { AIServiceHealthDashboard } from '@/components/ai/AIServiceHealthDashboard';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -67,8 +66,8 @@ const RouterDashboard = () => {
   };
 
   return (
-    <AppLayout title="Router Dashboard" showBottomNav>
-      <SEO
+    <PageLayout title="Router Dashboard" showBack={true}>
+      <SEO 
         title="Router Dashboard - AI Routing Performance & Optimization"
         description="Monitor and optimize AI routing performance across multiple providers. Test routing logic, track metrics, and configure intelligent failover strategies."
         keywords="AI routing, performance monitoring, provider optimization, router metrics"
@@ -86,17 +85,12 @@ const RouterDashboard = () => {
           </div>
         </div>
 
-        <Tabs defaultValue="health" className="w-full">
+        <Tabs defaultValue="metrics" className="w-full">
           <TabsList>
-            <TabsTrigger value="health">Health</TabsTrigger>
             <TabsTrigger value="metrics">Metrics</TabsTrigger>
             <TabsTrigger value="test">Test Router</TabsTrigger>
             <TabsTrigger value="config">Configuration</TabsTrigger>
           </TabsList>
-
-          <TabsContent value="health" className="space-y-4">
-            <AIServiceHealthDashboard />
-          </TabsContent>
 
           <TabsContent value="metrics" className="space-y-4">
             <RouterMetricsDashboard />
@@ -230,7 +224,7 @@ const RouterDashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
+    </PageLayout>
   );
 };
 

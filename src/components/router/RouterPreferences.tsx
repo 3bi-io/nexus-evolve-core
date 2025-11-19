@@ -109,7 +109,6 @@ export const RouterPreferences = () => {
           <Label>Max Cost Per Request ($)</Label>
           <Input
             type="number"
-            inputMode="decimal"
             step="0.0001"
             placeholder="No limit"
             value={localPrefs.max_cost_per_request || ''}
@@ -124,7 +123,6 @@ export const RouterPreferences = () => {
           <Label>Max Latency (ms)</Label>
           <Input
             type="number"
-            inputMode="numeric"
             placeholder="No limit"
             value={localPrefs.max_latency_ms || ''}
             onChange={(e) => setLocalPrefs({
@@ -138,7 +136,6 @@ export const RouterPreferences = () => {
           <Label>Cost Alert Threshold ($)</Label>
           <Input
             type="number"
-            inputMode="decimal"
             step="0.01"
             placeholder="No alerts"
             value={localPrefs.cost_alert_threshold || ''}

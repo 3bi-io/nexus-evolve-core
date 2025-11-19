@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { InputWithClear } from '@/components/ui/input-with-clear';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
@@ -154,12 +154,11 @@ export function HelpWidget() {
 
                     {/* Search */}
                     <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
-                      <InputWithClear
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
                         placeholder="Search help articles..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        onClear={() => setSearchQuery("")}
                         className="pl-10"
                       />
                     </div>

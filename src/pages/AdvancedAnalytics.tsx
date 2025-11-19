@@ -1,12 +1,8 @@
 import { useState, useEffect } from 'react';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { PageLoading } from '@/components/ui/loading-state';
-import { PullToRefresh } from '@/components/mobile/PullToRefresh';
-import { useMobile } from '@/hooks/useMobile';
+import { PageLayout } from '@/components/layout/PageLayout';
 import { SEO } from '@/components/SEO';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   BarChart,
@@ -30,7 +26,6 @@ import {
   Clock,
   Zap,
   Target,
-  RefreshCw,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -39,7 +34,6 @@ const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accen
 
 export default function AdvancedAnalytics() {
   const { user } = useAuth();
-  const { isMobile } = useMobile();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalEvents: 0,
@@ -103,202 +97,178 @@ export default function AdvancedAnalytics() {
     { day: 'Day 30', retention: 45 },
   ];
 
-  const handleRefresh = async () => {
-    await fetchAnalytics();
-  };
+  return (
+    <PageLayout title="Advanced Analytics">
+      <SEO
+        title="Advanced Analytics - Oneiros AI"
+        description="Deep insights into user behavior and platform performance"
+        keywords="analytics, insights, metrics, dashboard"
+      />
 
-  const content = (
-    <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="container mx-auto px-4 py-8 max-w-7xl space-y-8">
+        {/* Header */}
         <div>
           <h1 className="text-4xl font-bold">Advanced Analytics</h1>
           <p className="text-muted-foreground mt-2">
             Deep insights into user behavior and platform performance
           </p>
         </div>
-        <Button 
-          variant="outline" 
-          size="icon"
-          onClick={handleRefresh}
-          disabled={loading}
-          className="hidden md:flex"
-        >
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-        </Button>
-      </div>
 
-      {/* Key Metrics */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="p-6 space-y-2">
-          <div className="flex items-center justify-between">
-            <TrendingUp className="h-8 w-8 text-primary" />
-            <Badge variant="secondary">+12%</Badge>
-          </div>
-          <p className="text-3xl font-bold">{stats.totalEvents}</p>
-          <p className="text-sm text-muted-foreground">Total Events</p>
-        </Card>
-
-        <Card className="p-6 space-y-2">
-          <div className="flex items-center justify-between">
-            <Users className="h-8 w-8 text-primary" />
-            <Badge variant="secondary">+8%</Badge>
-          </div>
-          <p className="text-3xl font-bold">{stats.activeUsers}</p>
-          <p className="text-sm text-muted-foreground">Active Users</p>
-        </Card>
-
-        <Card className="p-6 space-y-2">
-          <div className="flex items-center justify-between">
-            <MessageSquare className="h-8 w-8 text-primary" />
-            <Badge variant="secondary">+15%</Badge>
-          </div>
-          <p className="text-3xl font-bold">{stats.totalSessions}</p>
-          <p className="text-sm text-muted-foreground">Total Sessions</p>
-        </Card>
-
-        <Card className="p-6 space-y-2">
-          <div className="flex items-center justify-between">
-            <Clock className="h-8 w-8 text-primary" />
-            <Badge variant="secondary">+5%</Badge>
-          </div>
-          <p className="text-3xl font-bold">{stats.avgSessionDuration}m</p>
-          <p className="text-sm text-muted-foreground">Avg Session</p>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="features">Feature Usage</TabsTrigger>
-          <TabsTrigger value="retention">Retention</TabsTrigger>
-          <TabsTrigger value="performance">Performance</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-6">
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Weekly Activity</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={eventData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="events" 
-                  stroke="hsl(var(--primary))" 
-                  strokeWidth={2}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+        {/* Key Metrics */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <Card className="p-6 space-y-2">
+            <div className="flex items-center justify-between">
+              <TrendingUp className="h-8 w-8 text-primary" />
+              <Badge variant="secondary">+12%</Badge>
+            </div>
+            <p className="text-3xl font-bold">{stats.totalEvents}</p>
+            <p className="text-sm text-muted-foreground">Total Events</p>
           </Card>
-        </TabsContent>
 
-        <TabsContent value="features" className="space-y-6">
-          <div className="grid gap-6 lg:grid-cols-2">
-            <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Feature Distribution</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={featureUsageData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {featureUsageData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </Card>
+          <Card className="p-6 space-y-2">
+            <div className="flex items-center justify-between">
+              <Users className="h-8 w-8 text-primary" />
+              <Badge variant="secondary">+8%</Badge>
+            </div>
+            <p className="text-3xl font-bold">{stats.activeUsers}</p>
+            <p className="text-sm text-muted-foreground">Active Users</p>
+          </Card>
 
+          <Card className="p-6 space-y-2">
+            <div className="flex items-center justify-between">
+              <MessageSquare className="h-8 w-8 text-primary" />
+              <Badge variant="secondary">+15%</Badge>
+            </div>
+            <p className="text-3xl font-bold">{stats.totalSessions}</p>
+            <p className="text-sm text-muted-foreground">Total Sessions</p>
+          </Card>
+
+          <Card className="p-6 space-y-2">
+            <div className="flex items-center justify-between">
+              <Clock className="h-8 w-8 text-primary" />
+              <Badge variant="secondary">+5%</Badge>
+            </div>
+            <p className="text-3xl font-bold">{stats.avgSessionDuration}m</p>
+            <p className="text-sm text-muted-foreground">Avg Session</p>
+          </Card>
+        </div>
+
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="features">Feature Usage</TabsTrigger>
+            <TabsTrigger value="retention">Retention</TabsTrigger>
+            <TabsTrigger value="performance">Performance</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="overview" className="space-y-6">
             <Card className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Feature Usage Trends</h3>
+              <h3 className="text-lg font-semibold mb-4">Weekly Activity</h3>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={featureUsageData}>
+                <LineChart data={eventData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="value" fill="hsl(var(--primary))" />
-                </BarChart>
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="events" 
+                    stroke="hsl(var(--primary))" 
+                    strokeWidth={2}
+                  />
+                </LineChart>
               </ResponsiveContainer>
             </Card>
-          </div>
-        </TabsContent>
+          </TabsContent>
 
-        <TabsContent value="retention" className="space-y-6">
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">User Retention Curve</h3>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={retentionData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="day" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="retention" 
-                  stroke="hsl(var(--primary))"
-                  strokeWidth={2}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </Card>
-        </TabsContent>
+          <TabsContent value="features" className="space-y-6">
+            <div className="grid gap-6 lg:grid-cols-2">
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Feature Distribution</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={featureUsageData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {featureUsageData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </Card>
 
-        <TabsContent value="performance" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-3">
-            <Card className="p-6 space-y-3">
-              <Zap className="h-8 w-8 text-primary" />
-              <h3 className="font-semibold">Response Time</h3>
-              <p className="text-3xl font-bold">250ms</p>
-              <p className="text-sm text-muted-foreground">Average API response</p>
+              <Card className="p-6">
+                <h3 className="text-lg font-semibold mb-4">Feature Usage Trends</h3>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={featureUsageData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="hsl(var(--primary))" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="retention" className="space-y-6">
+            <Card className="p-6">
+              <h3 className="text-lg font-semibold mb-4">User Retention Curve</h3>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={retentionData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="day" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="retention" 
+                    stroke="hsl(var(--primary))"
+                    strokeWidth={2}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
             </Card>
+          </TabsContent>
 
-            <Card className="p-6 space-y-3">
-              <Target className="h-8 w-8 text-primary" />
-              <h3 className="font-semibold">Success Rate</h3>
-              <p className="text-3xl font-bold">99.8%</p>
-              <p className="text-sm text-muted-foreground">Request success rate</p>
-            </Card>
+          <TabsContent value="performance" className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-3">
+              <Card className="p-6 space-y-3">
+                <Zap className="h-8 w-8 text-primary" />
+                <h3 className="font-semibold">Response Time</h3>
+                <p className="text-3xl font-bold">250ms</p>
+                <p className="text-sm text-muted-foreground">Average API response</p>
+              </Card>
 
-            <Card className="p-6 space-y-3">
-              <TrendingUp className="h-8 w-8 text-primary" />
-              <h3 className="font-semibold">Uptime</h3>
-              <p className="text-3xl font-bold">99.99%</p>
-              <p className="text-sm text-muted-foreground">Last 30 days</p>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
-    </div>
-  );
+              <Card className="p-6 space-y-3">
+                <Target className="h-8 w-8 text-primary" />
+                <h3 className="font-semibold">Success Rate</h3>
+                <p className="text-3xl font-bold">99.8%</p>
+                <p className="text-sm text-muted-foreground">Request success rate</p>
+              </Card>
 
-  return (
-    <AppLayout title="Advanced Analytics" showBottomNav>
-      <SEO
-        title="Advanced Analytics - Oneiros AI"
-        description="Deep insights into user behavior and platform performance"
-        keywords="analytics, insights, metrics, dashboard"
-      />
-      {isMobile ? (
-        <PullToRefresh onRefresh={handleRefresh}>
-          {content}
-        </PullToRefresh>
-      ) : (
-        content
-      )}
-    </AppLayout>
+              <Card className="p-6 space-y-3">
+                <TrendingUp className="h-8 w-8 text-primary" />
+                <h3 className="font-semibold">Uptime</h3>
+                <p className="text-3xl font-bold">99.99%</p>
+                <p className="text-sm text-muted-foreground">Last 30 days</p>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </PageLayout>
   );
 }

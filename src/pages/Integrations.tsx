@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { AppLayout } from "@/components/layout/AppLayout";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { InputWithClear } from "@/components/ui/input-with-clear";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -132,8 +131,8 @@ const Integrations = () => {
   };
 
   return (
-    <AppLayout title="Integrations" showBottomNav>
-      <SEO
+    <PageLayout title="Integrations" showBack={true}>
+      <SEO 
         title="AI Integrations - LangChain, Replicate & Mem0"
         description="Powerful AI integrations including LangChain orchestration, Replicate ML models, and Mem0 memory management. Advanced LLM chains for summarization, Q&A, and translation."
         keywords="LangChain, Replicate, Mem0, AI integrations, ML models, memory management"
@@ -349,10 +348,9 @@ const Integrations = () => {
                 {mem0Action === "search" && (
                   <div className="space-y-2">
                     <Label>Search Query</Label>
-                    <InputWithClear
+                    <Input
                       value={mem0Query}
                       onChange={(e) => setMem0Query(e.target.value)}
-                      onClear={() => setMem0Query("")}
                       placeholder="Search memories..."
                     />
                   </div>
@@ -378,7 +376,7 @@ const Integrations = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
+    </PageLayout>
   );
 };
 

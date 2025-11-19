@@ -15,14 +15,7 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: 'autoUpdate',
-      injectRegister: 'auto',
-      devOptions: {
-        enabled: true,
-        type: 'module',
-      },
-      includeAssets: ['favicon.png', 'favicon-oneiros.png', 'robots.txt', 'og-*.png'],
-      // Add build timestamp for cache versioning
-      manifestFilename: `manifest.${Date.now()}.json`,
+      includeAssets: ['favicon.png', 'robots.txt', 'og-*.png'],
       manifest: {
         name: 'Oneiros.me - The Most Advanced AI Platform',
         short_name: 'Oneiros.me',
@@ -49,14 +42,7 @@ export default defineConfig(({ mode }) => ({
         ]
       },
       workbox: {
-        cleanupOutdatedCaches: true,
-        skipWaiting: true,
-        clientsClaim: true,
-        navigateFallback: '/offline.html',
-        navigateFallbackDenylist: [/^\/api\//, /^\/auth\//, /^\/clear-cache/, /^\/reset-pwa/, /^\/safe-mode/],
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        // Add version to cache names
-        cacheId: `oneiros-v${Date.now()}`,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
@@ -77,24 +63,12 @@ export default defineConfig(({ mode }) => ({
             handler: 'NetworkFirst',
             options: {
               cacheName: 'supabase-api-cache',
-              networkTimeoutSeconds: 10,
               expiration: {
                 maxEntries: 50,
                 maxAgeSeconds: 60 * 5 // 5 minutes
               },
               cacheableResponse: {
                 statuses: [0, 200]
-              }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/.*\.lovable\.app\/.*/i,
-            handler: 'StaleWhileRevalidate',
-            options: {
-              cacheName: 'app-pages-cache',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 // 1 day
               }
             }
           }
@@ -110,62 +84,15 @@ export default defineConfig(({ mode }) => ({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          // Core React dependencies
-          if (id.includes('node_modules/react') || id.includes('node_modules/react-dom')) {
-            return 'react-core';
-          }
-          // Router
-          if (id.includes('node_modules/react-router-dom')) {
-            return 'react-router';
-          }
-          // UI Libraries
-          if (id.includes('node_modules/framer-motion')) {
-            return 'framer-motion';
-          }
-          // Lucide icons will be bundled automatically with vendor code
-          // Radix UI components will be bundled automatically with vendor code
-          // Removed manual chunking to prevent race conditions with React loading
-          // Supabase
-          if (id.includes('node_modules/@supabase')) {
-            return 'supabase';
-          }
-          // Charts
-          if (id.includes('node_modules/recharts')) {
-            return 'recharts';
-          }
-          // Capacitor (mobile)
-          if (id.includes('node_modules/@capacitor')) {
-            return 'capacitor';
-          }
-          // AI/ML Libraries
-          if (id.includes('node_modules/@huggingface')) {
-            return 'huggingface';
-          }
-          // Admin pages (rarely accessed)
-          if (id.includes('src/pages/SuperAdmin') || id.includes('src/components/admin')) {
-            return 'admin';
-          }
-          // AI Studio pages
-          if (id.includes('src/pages/XAI') || id.includes('src/pages/MultimodalStudio')) {
-            return 'ai-studio';
-          }
-          // Analytics pages
-          if (id.includes('src/pages/Analytics') || id.includes('src/pages/LLMAnalytics')) {
-            return 'analytics';
-          }
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui-vendor': ['framer-motion', 'lucide-react'],
+          'supabase-vendor': ['@supabase/supabase-js'],
+          'chart-vendor': ['recharts'],
         }
       }
     },
     chunkSizeWarningLimit: 1000,
-    sourcemap: false, // Disable sourcemaps in production for smaller bundles
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true, // Remove console.logs in production
-        drop_debugger: true,
-      },
-    },
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom'],

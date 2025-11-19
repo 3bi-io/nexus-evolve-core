@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { AppLayout } from "@/components/layout/AppLayout";
-import { PageLoading } from "@/components/ui/loading-state";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -86,7 +85,7 @@ const SystemHealth = () => {
   };
 
   return (
-    <AppLayout title="System Health" showBottomNav>
+    <PageLayout title="System Health" showBack={true}>
       <SEO
         title="System Health - API Key Validation & Monitoring"
         description="Monitor and validate API key configurations for the unified AI platform. Check system status, validate integrations, and ensure all services are operational."
@@ -225,7 +224,7 @@ const SystemHealth = () => {
           </CardContent>
         </Card>
       </div>
-    </AppLayout>
+    </PageLayout>
   );
 };
 

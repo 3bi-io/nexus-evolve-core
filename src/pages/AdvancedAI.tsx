@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { AppLayout } from "@/components/layout/AppLayout";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -103,8 +103,8 @@ const AdvancedAI = () => {
   };
 
   return (
-    <AppLayout title="Advanced AI" showBottomNav>
-      <SEO
+    <PageLayout title="Advanced AI" showBack={true}>
+      <SEO 
         title="Advanced AI - Computer Use & Pinecone Vector Database"
         description="Advanced AI capabilities including Anthropic Computer Use and Pinecone vector database integration. Automate complex tasks and manage high-dimensional vectors."
         keywords="computer use, Anthropic, Pinecone, vector database, AI automation"
@@ -273,7 +273,6 @@ const AdvancedAI = () => {
                     <Label>Top K Results</Label>
                     <Input
                       type="number"
-                      inputMode="numeric"
                       value={pineconeTopK}
                       onChange={(e) => setPineconeTopK(parseInt(e.target.value))}
                       min={1}
@@ -300,7 +299,7 @@ const AdvancedAI = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
+    </PageLayout>
   );
 };
 

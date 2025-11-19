@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { AppLayout } from "@/components/layout/AppLayout";
-import { EmptyState } from "@/components/ui/empty-state";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { SEO } from "@/components/SEO";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -125,7 +124,7 @@ export default function AgentRevenue() {
     .slice(-30);
 
   return (
-    <AppLayout title="Agent Revenue" showBottomNav>
+    <PageLayout title="Agent Revenue" showBack={true}>
       <SEO
         title="Agent Revenue - Track Marketplace Earnings & Sales"
         description="Monitor revenue and sales from your published AI agents in the marketplace. Track earnings, analyze performance, and export detailed revenue reports with 70% creator share."
@@ -277,15 +276,14 @@ export default function AgentRevenue() {
             ))}
 
             {agents.length === 0 && (
-              <EmptyState
-                icon={DollarSign}
-                title="No paid agents yet"
-                description="Publish agents with pricing to start earning revenue"
-              />
+              <div className="text-center py-12 text-muted-foreground">
+                <p>No paid agents yet</p>
+                <p className="text-sm mt-2">Publish agents with pricing to start earning revenue</p>
+              </div>
             )}
           </div>
         </Card>
       </div>
-    </AppLayout>
+    </PageLayout>
   );
 }

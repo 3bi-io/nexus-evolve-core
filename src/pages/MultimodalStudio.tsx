@@ -1,4 +1,4 @@
-import { AppLayout } from "@/components/layout/AppLayout";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ImageGenerator } from "@/components/multimodal/ImageGenerator";
 import { HuggingFaceImageGen } from "@/components/ai/HuggingFaceImageGen";
@@ -10,8 +10,8 @@ import { SEO } from "@/components/SEO";
 
 export default function MultimodalStudio() {
   return (
-    <AppLayout title="Multimodal Studio" showBottomNav>
-      <SEO
+    <PageLayout>
+      <SEO 
         title="Multimodal Studio - Image, Voice & Text AI Generation"
         description="Generate images with AI, transcribe audio to text, convert text to speech, and manage all your AI-generated content in one place. Powered by DALL-E and ElevenLabs."
         keywords="AI image generation, text to speech, voice to text, multimodal AI, DALL-E, audio transcription"
@@ -73,6 +73,6 @@ export default function MultimodalStudio() {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
+    </PageLayout>
   );
 }

@@ -74,8 +74,6 @@ export const LoginForm = ({ onToggle }: { onToggle: () => void }) => {
         <Input
           id="email"
           type="email"
-          inputMode="email"
-          autoComplete="email"
           placeholder="you@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -87,7 +85,6 @@ export const LoginForm = ({ onToggle }: { onToggle: () => void }) => {
         <Input
           id="password"
           type="password"
-          autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required

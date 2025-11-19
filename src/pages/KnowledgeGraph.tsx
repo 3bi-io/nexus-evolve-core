@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback, lazy, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { AppLayout } from "@/components/layout/AppLayout";
-import { PageLoading } from "@/components/ui/loading-state";
+import { PageLayout } from "@/components/layout/PageLayout";
 
 const ForceGraph2D = lazy(() => import("react-force-graph-2d"));
 import { useAuth } from "@/contexts/AuthContext";
@@ -156,8 +155,8 @@ export default function KnowledgeGraph() {
   }, [loadGraphData]);
 
   return (
-    <AppLayout title="Knowledge Graph" showBottomNav>
-      <SEO
+    <PageLayout title="Knowledge Graph" showBack={true}>
+      <SEO 
         title="Knowledge Graph - Visual Concept Network & Semantic Search"
         description="Visualize your AI's knowledge as an interactive network graph. See connections between learned concepts, memories, solutions, and patterns across the unified platform."
         keywords="knowledge graph, semantic network, AI knowledge base, concept visualization, network graph, knowledge management"
@@ -234,7 +233,9 @@ export default function KnowledgeGraph() {
           </CardHeader>
           <CardContent>
             {isLoading ? (
-              <PageLoading />
+              <div className="h-[600px] flex items-center justify-center">
+                <RefreshCw className="w-8 h-8 animate-spin text-primary" />
+              </div>
             ) : graphData.nodes.length === 0 ? (
               <EmptyState
                 icon={Network}
@@ -297,6 +298,6 @@ export default function KnowledgeGraph() {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
+    </PageLayout>
   );
 }

@@ -37,7 +37,7 @@ export default function Contact() {
   ];
 
   return (
-    <MarketingLayout title="Contact Us">
+    <MarketingLayout>
       <SEO
         title="Contact Us - Get Support & Answers | Oneiros"
         description="Get help with Oneiros. Contact our support team, explore documentation, or reach out for enterprise solutions."

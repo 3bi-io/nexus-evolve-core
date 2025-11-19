@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { PageLoading } from '@/components/ui/loading-state';
-import { EmptyState } from '@/components/ui/empty-state';
+import { PageLayout } from '@/components/layout/PageLayout';
 import { SEO } from '@/components/SEO';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -22,15 +20,6 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { z } from 'zod';
-
-const apiKeySchema = z.object({
-  name: z.string()
-    .trim()
-    .min(1, 'Key name is required')
-    .max(50, 'Key name must be less than 50 characters')
-    .regex(/^[a-zA-Z0-9\s\-_]+$/, 'Only letters, numbers, spaces, hyphens, and underscores allowed')
-});
 
 interface APIKey {
   id: string;
@@ -76,32 +65,19 @@ export default function APIAccess() {
       return;
     }
 
-    // Validate input
-    const validation = apiKeySchema.safeParse({ name: newKeyName });
-    if (!validation.success) {
-      toast.error(validation.error.issues[0].message);
-      return;
-    }
-
     try {
-      // Generate a cryptographically secure random API key
-      const key = `ok_${Array.from(crypto.getRandomValues(new Uint8Array(32)))
-        .map(b => b.toString(36).padStart(2, '0'))
-        .join('')
-        .substring(0, 32)}`;
+      // Generate a random API key
+      const key = `ok_${Array.from({ length: 32 }, () => 
+        Math.random().toString(36)[2]).join('')}`;
       
       const keyPrefix = key.substring(0, 12) + '...';
       
-      // Use Web Crypto API for secure hashing (SHA-256)
-      const encoder = new TextEncoder();
-      const data = encoder.encode(key);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const keyHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      // Hash the key (in production, use proper hashing)
+      const keyHash = btoa(key);
 
       const { error } = await supabase.from('api_keys').insert({
         user_id: user?.id,
-        name: validation.data.name,
+        name: newKeyName,
         key_hash: keyHash,
         key_prefix: keyPrefix,
       });
@@ -120,7 +96,6 @@ export default function APIAccess() {
       fetchAPIKeys();
     } catch (error: any) {
       toast.error('Failed to create API key');
-      console.error(error);
     }
   };
 
@@ -140,7 +115,7 @@ export default function APIAccess() {
   };
 
   return (
-    <AppLayout title="API Access" showBottomNav>
+    <PageLayout title="API Access">
       <SEO
         title="API Access - Oneiros AI"
         description="Integrate Oneiros AI into your applications with our developer API"
@@ -197,13 +172,15 @@ export default function APIAccess() {
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Your API Keys</h3>
               {loading ? (
-                <PageLoading />
+                <p className="text-muted-foreground text-center py-8">Loading...</p>
               ) : apiKeys.length === 0 ? (
-                <EmptyState
-                  icon={Key}
-                  title="No API keys yet"
-                  description="Create your first API key to get started"
-                />
+                <div className="text-center py-12 space-y-2">
+                  <Key className="h-12 w-12 text-muted-foreground mx-auto" />
+                  <p className="text-muted-foreground">No API keys yet</p>
+                  <p className="text-sm text-muted-foreground">
+                    Create your first API key to get started
+                  </p>
+                </div>
               ) : (
                 <div className="space-y-3">
                   {apiKeys.map((key) => (
@@ -347,6 +324,6 @@ export default function APIAccess() {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
+    </PageLayout>
   );
 }

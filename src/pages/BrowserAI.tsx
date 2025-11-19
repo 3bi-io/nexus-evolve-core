@@ -1,4 +1,4 @@
-import { AppLayout } from "@/components/layout/AppLayout";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { SEO } from "@/components/SEO";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BrowserEmbeddings } from "@/components/ai/BrowserEmbeddings";
@@ -10,8 +10,8 @@ import { Cpu, Zap, Shield } from "lucide-react";
 
 const BrowserAI = () => {
   return (
-    <AppLayout title="Browser AI" showBottomNav>
-      <SEO
+    <PageLayout title="Browser AI" showBack={true}>
+      <SEO 
         title="Browser AI - Private WebGPU-Accelerated AI Models"
         description="Run AI models directly in your browser with WebGPU acceleration. Private, instant, and free embeddings, classification, and speech recognition. No data leaves your device."
         keywords="browser AI, WebGPU, embeddings, classification, speech recognition, privacy AI, local AI"
@@ -91,7 +91,7 @@ const BrowserAI = () => {
           </ul>
         </Card>
       </div>
-    </AppLayout>
+    </PageLayout>
   );
 };
 

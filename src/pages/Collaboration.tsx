@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AppLayout } from '@/components/layout/AppLayout';
-import { PageLoading } from '@/components/ui/loading-state';
-import { EmptyState } from '@/components/ui/empty-state';
+import { PageLayout } from '@/components/layout/PageLayout';
 import { SEO } from '@/components/SEO';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -23,15 +21,6 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { z } from 'zod';
-
-const sessionNameSchema = z.object({
-  name: z.string()
-    .trim()
-    .min(1, 'Session name is required')
-    .max(200, 'Session name must be less than 200 characters')
-    .regex(/^[a-zA-Z0-9\s\-_.,!?()]+$/, 'Invalid characters in session name')
-});
 
 interface SharedSession {
   id: string;
@@ -98,18 +87,11 @@ export default function Collaboration() {
       return;
     }
 
-    // Validate input
-    const validation = sessionNameSchema.safeParse({ name: newSessionName });
-    if (!validation.success) {
-      toast.error(validation.error.issues[0].message);
-      return;
-    }
-
     try {
       const { data, error } = await supabase
         .from('shared_sessions')
         .insert({
-          name: validation.data.name,
+          name: newSessionName,
           owner_id: user?.id,
           is_public: false,
         })
@@ -133,7 +115,7 @@ export default function Collaboration() {
   };
 
   return (
-    <AppLayout title="Collaboration" showBottomNav>
+    <PageLayout title="Collaboration">
       <SEO
         title="Real-Time Collaboration - Oneiros AI"
         description="Collaborate with your team in real-time AI sessions"
@@ -178,14 +160,19 @@ export default function Collaboration() {
         {/* Sessions Grid */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {loading ? (
-            <PageLoading />
+            <Card className="p-6 col-span-full text-center">
+              <p className="text-muted-foreground">Loading sessions...</p>
+            </Card>
           ) : sessions.length === 0 ? (
-            <EmptyState
-              icon={MessageSquare}
-              title="No Active Sessions"
-              description="Create your first collaboration session to get started"
-              className="col-span-full"
-            />
+            <Card className="p-12 col-span-full text-center space-y-4">
+              <MessageSquare className="h-16 w-16 text-muted-foreground mx-auto" />
+              <div className="space-y-2">
+                <h3 className="text-xl font-semibold">No Active Sessions</h3>
+                <p className="text-muted-foreground">
+                  Create your first collaboration session to get started
+                </p>
+              </div>
+            </Card>
           ) : (
             sessions.map((session) => (
               <Card key={session.id} className="p-6 space-y-4 hover:shadow-lg transition-shadow">
@@ -265,6 +252,6 @@ export default function Collaboration() {
           </Card>
         </div>
       </div>
-    </AppLayout>
+    </PageLayout>
   );
 }

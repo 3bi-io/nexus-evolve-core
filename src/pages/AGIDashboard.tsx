@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AppLayout } from "@/components/layout/AppLayout";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { SEO } from "@/components/SEO";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -148,7 +148,7 @@ export default function AGIDashboard() {
   };
 
   return (
-    <AppLayout title="AGI Dashboard" showBottomNav>
+    <PageLayout>
       <SEO
         title="AGI Dashboard - Advanced AI Evolution"
         description="Monitor and control advanced AGI features including multi-agent collaboration, predictive capabilities, and meta-learning"
@@ -496,6 +496,6 @@ export default function AGIDashboard() {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
+    </PageLayout>
   );
 }

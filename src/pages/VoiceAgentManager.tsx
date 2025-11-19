@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { AppLayout } from "@/components/layout/AppLayout";
-import { PageLoading } from "@/components/ui/loading-state";
-import { EmptyState } from "@/components/ui/empty-state";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -91,7 +89,7 @@ export default function VoiceAgentManager() {
   };
 
   return (
-    <AppLayout title="Voice Agent Manager" showBottomNav>
+    <PageLayout title="Voice Agent Manager" showBack={true}>
       <SEO
         title="Voice Agent Manager - Manage ElevenLabs Agents"
         description="Create and manage ElevenLabs conversational AI agents. Configure voices, prompts, and settings."
@@ -228,7 +226,19 @@ export default function VoiceAgentManager() {
         </div>
 
         {isLoading ? (
-          <PageLoading />
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <Card key={i} className="animate-pulse">
+                <CardHeader>
+                  <div className="h-6 bg-muted rounded w-3/4"></div>
+                  <div className="h-4 bg-muted rounded w-1/2 mt-2"></div>
+                </CardHeader>
+                <CardContent>
+                  <div className="h-20 bg-muted rounded"></div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         ) : agents && agents.length > 0 ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {agents.map((agent: any) => (
@@ -326,17 +336,19 @@ export default function VoiceAgentManager() {
             ))}
           </div>
         ) : (
-          <EmptyState
-            icon={Mic}
-            title="No Agents Yet"
-            description="Create your first conversational AI agent to get started"
-            action={{
-              label: "Create Your First Agent",
-              onClick: () => setIsCreateOpen(true)
-            }}
-          />
+          <Card className="p-12 text-center">
+            <Mic className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-xl font-semibold mb-2">No Agents Yet</h3>
+            <p className="text-muted-foreground mb-6">
+              Create your first conversational AI agent to get started
+            </p>
+            <Button onClick={() => setIsCreateOpen(true)}>
+              <Plus className="w-4 h-4 mr-2" />
+              Create Your First Agent
+            </Button>
+          </Card>
         )}
       </div>
-    </AppLayout>
+    </PageLayout>
   );
 }

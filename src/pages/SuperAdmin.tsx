@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { AppLayout } from "@/components/layout/AppLayout";
-import { PageLoading } from "@/components/ui/loading-state";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
@@ -17,19 +16,6 @@ import { AgentManagement } from "@/components/admin/sections/AgentManagement";
 import { UserAnalytics } from "@/components/admin/sections/UserAnalytics";
 import { AgentAnalyticsOverview } from "@/components/admin/sections/AgentAnalyticsOverview";
 import { AuditLog } from "@/components/admin/sections/AuditLog";
-import { UpdateManagement } from "@/components/admin/sections/UpdateManagement";
-import { SubscriptionTierManagement } from "@/components/admin/sections/SubscriptionTierManagement";
-import { CreditSystemManagement } from "@/components/admin/sections/CreditSystemManagement";
-import { APIKeysManagement } from "@/components/admin/sections/APIKeysManagement";
-import { IntegrationManagement } from "@/components/admin/sections/IntegrationManagement";
-import { ContentModeration } from "@/components/admin/sections/ContentModeration";
-import { ReferralManagement } from "@/components/admin/sections/ReferralManagement";
-import { SystemLogsViewer } from "@/components/admin/sections/SystemLogsViewer";
-import { ModelManagement } from "@/components/admin/sections/ModelManagement";
-import { RouterManagement } from "@/components/admin/sections/RouterManagement";
-import { WorkflowManagement } from "@/components/admin/sections/WorkflowManagement";
-import { SocialManagement } from "@/components/admin/sections/SocialManagement";
-import { TeamManagement } from "@/components/admin/sections/TeamManagement";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbNav } from "@/components/BreadcrumbNav";
@@ -68,18 +54,18 @@ export default function SuperAdmin() {
 
   if (loading) {
     return (
-      <AppLayout title="Admin Panel" showBottomNav>
+      <PageLayout title="Admin Panel" showBack={true}>
         <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl">
-          <PageLoading />
+          <p>Loading...</p>
         </div>
-      </AppLayout>
+      </PageLayout>
     );
   }
 
   if (!isAdmin) {
     return (
-      <AppLayout title="Admin Panel" showBottomNav>
-        <SEO
+      <PageLayout title="Admin Panel" showBack={true}>
+        <SEO 
           title="Super Admin - Access Denied"
           description="Super admin dashboard - restricted access for authorized administrators only."
           canonical="https://oneiros.me/admin"
@@ -93,7 +79,7 @@ export default function SuperAdmin() {
             </CardHeader>
           </Card>
         </div>
-      </AppLayout>
+      </PageLayout>
     );
   }
 
@@ -117,38 +103,12 @@ export default function SuperAdmin() {
         return <AnnouncementCenter />;
       case "devtools":
         return <DevTools />;
-      case "updates":
-        return <UpdateManagement />;
       case "user-analytics":
         return <UserAnalytics />;
       case "agent-analytics":
         return <AgentAnalyticsOverview />;
       case "audit-log":
         return <AuditLog />;
-      case "subscription-tiers":
-        return <SubscriptionTierManagement />;
-      case "credit-system":
-        return <CreditSystemManagement />;
-      case "api-keys":
-        return <APIKeysManagement />;
-      case "integrations":
-        return <IntegrationManagement />;
-      case "moderation":
-        return <ContentModeration />;
-      case "referrals":
-        return <ReferralManagement />;
-      case "logs":
-        return <SystemLogsViewer />;
-      case "models":
-        return <ModelManagement />;
-      case "router":
-        return <RouterManagement />;
-      case "workflows":
-        return <WorkflowManagement />;
-      case "social":
-        return <SocialManagement />;
-      case "teams":
-        return <TeamManagement />;
       default:
         return <SystemOverview />;
     }
@@ -159,8 +119,8 @@ export default function SuperAdmin() {
       fallbackTitle="Admin Dashboard Error"
       fallbackMessage="The admin dashboard encountered an error. Please try refreshing the page."
     >
-      <AppLayout title="Admin - System Management" showBottomNav>
-      <SEO
+      <PageLayout title="Admin - System Management" showBack={true}>
+      <SEO 
         title="Super Admin - System Management Dashboard"
         description="Comprehensive super admin dashboard for managing users, agents, data, finances, security, and system configuration across the unified AI platform."
         canonical="https://oneiros.me/admin"
@@ -201,7 +161,7 @@ export default function SuperAdmin() {
           </div>
         </main>
       </div>
-      </AppLayout>
+      </PageLayout>
     </ErrorBoundaryWrapper>
   );
 }

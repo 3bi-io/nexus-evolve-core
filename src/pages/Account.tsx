@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { AppLayout } from "@/components/layout/AppLayout";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { UsageHistory } from "@/components/pricing/UsageHistory";
-import { PageLoading } from "@/components/ui/loading-state";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router-dom";
 import { CreditCard, TrendingUp, Calendar, AlertCircle, Brain, Trash2 } from "lucide-react";
 import { formatDistance } from "date-fns";
@@ -16,7 +16,6 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Wifi, WifiOff, Download } from "lucide-react";
 
 interface Subscription {
   tier_name: string;
@@ -58,13 +57,6 @@ const Account = () => {
     storage_saved_kb: 0,
   });
   const [savingPrefs, setSavingPrefs] = useState(false);
-  const [pwaEnabled, setPwaEnabled] = useState(() => {
-    const stored = localStorage.getItem("pwa-enabled");
-    return stored !== "false"; // Default to true if not set
-  });
-  const [visitCount, setVisitCount] = useState(() => {
-    return parseInt(localStorage.getItem('pwa-visit-count') || '0');
-  });
 
   useEffect(() => {
     fetchSubscription();
@@ -212,36 +204,13 @@ const Account = () => {
     }
   };
 
-  const togglePWA = (enabled: boolean) => {
-    setPwaEnabled(enabled);
-    localStorage.setItem("pwa-enabled", String(enabled));
-    
-    if (enabled) {
-      toast.success("PWA enabled", {
-        description: "Refresh the page to activate offline caching",
-      });
-    } else {
-      toast.info("PWA disabled", {
-        description: "Service worker will be unregistered on next page load",
-      });
-    }
-  };
-
-  const resetVisitCount = () => {
-    localStorage.setItem('pwa-visit-count', '0');
-    setVisitCount(0);
-    toast.success("Visit count reset", {
-      description: "Install prompt will show after 3 more visits"
-    });
-  };
-
   const usagePercentage = subscription
     ? Math.round((subscription.credits_remaining / subscription.credits_total) * 100)
     : 0;
 
   return (
-    <AppLayout title="Account" showBottomNav>
-      <SEO
+    <PageLayout title="Account" showBottomNav={true}>
+      <SEO 
         title="Account Settings - Manage Subscription & Credits"
         description="View your subscription plan, monitor credit usage, and manage your Oneiros.me account. Track usage history and upgrade your plan for more AI capabilities."
         keywords="account settings, subscription management, credit usage, AI plan"
@@ -256,7 +225,10 @@ const Account = () => {
         </div>
 
         {loading ? (
-          <PageLoading />
+          <div className="space-y-4 sm:space-y-6">
+            <Skeleton className="h-48 w-full" />
+            <Skeleton className="h-64 w-full" />
+          </div>
         ) : (
           <div className="space-mobile">
             {/* Subscription Overview */}
@@ -390,89 +362,6 @@ const Account = () => {
               </Alert>
             )}
 
-            {/* PWA Settings */}
-            <Card className="card-mobile">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
-                  {pwaEnabled ? <Wifi className="w-5 h-5 sm:w-6 sm:h-6" /> : <WifiOff className="w-5 h-5 sm:w-6 sm:h-6" />}
-                  PWA & Offline Mode
-                </CardTitle>
-                <CardDescription className="text-sm sm:text-base">
-                  Control service worker caching and offline functionality
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="space-y-1 flex-1">
-                    <Label className="text-sm sm:text-base">Enable PWA</Label>
-                    <p className="text-xs sm:text-sm text-muted-foreground">
-                      {pwaEnabled 
-                        ? "App works offline with service worker caching"
-                        : "Service worker disabled - online only mode"}
-                    </p>
-                  </div>
-                  <Switch
-                    checked={pwaEnabled}
-                    onCheckedChange={togglePWA}
-                    className="scale-110"
-                  />
-                </div>
-
-                <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription className="text-xs sm:text-sm">
-                    {pwaEnabled 
-                      ? "PWA mode enables offline access and faster loading, but may cache outdated content."
-                      : "Disabling PWA removes offline support but ensures you always see the latest version."}
-                  </AlertDescription>
-                </Alert>
-
-                {pwaEnabled && (
-                  <div className="space-y-3 pt-3 border-t">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label className="text-sm">Install Prompt Progress</Label>
-                        <p className="text-xs text-muted-foreground">
-                          {visitCount < 3 
-                            ? `${3 - visitCount} more visit${3 - visitCount === 1 ? '' : 's'} until install prompt`
-                            : "Install prompt will appear automatically"}
-                        </p>
-                      </div>
-                      <div className="text-2xl font-bold">{visitCount}/3</div>
-                    </div>
-                    
-                    {visitCount >= 3 && (
-                      <Alert className="bg-primary/10 border-primary/20">
-                        <Download className="h-4 w-4 text-primary" />
-                        <AlertDescription className="text-xs">
-                          Install prompt will appear on your next mobile visit!
-                        </AlertDescription>
-                      </Alert>
-                    )}
-
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={resetVisitCount}
-                      className="w-full"
-                    >
-                      Reset Visit Count
-                    </Button>
-                  </div>
-                )}
-
-                {!pwaEnabled && (
-                  <Button
-                    variant="outline"
-                    className="w-full h-12"
-                    onClick={() => navigate("/safe")}
-                  >
-                    Clear Cached Data
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
-
             <Card className="card-mobile">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
@@ -575,7 +464,7 @@ const Account = () => {
           </div>
         )}
       </div>
-    </AppLayout>
+    </PageLayout>
   );
 };
 

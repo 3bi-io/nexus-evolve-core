@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { InputWithClear } from "@/components/ui/input-with-clear";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Brain, Zap, Image, Workflow, TrendingUp, MessageSquare, 
@@ -10,7 +9,7 @@ import {
   ChevronRight, ExternalLink, BookOpen, Terminal, FileCode, Lightbulb
 } from "lucide-react";
 import { SEO } from "@/components/SEO";
-import { AppLayout } from "@/components/layout/AppLayout";
+import { PageLayout } from "@/components/layout/PageLayout";
 import { useNavigate } from "react-router-dom";
 
 const platformFeatures = [
@@ -248,7 +247,7 @@ export default function Capabilities() {
   );
 
   return (
-    <AppLayout title="Platform Documentation" showBottomNav>
+    <PageLayout title="Platform Documentation" showBack={true} showBottomNav={true}>
       <SEO
         title="Platform Documentation - API Reference & Usage Guides"
         description="Comprehensive documentation for Oneiros AI Platform. Learn about multi-modal workflows, automation pipelines, vision analysis, and 38+ edge functions."
@@ -269,12 +268,11 @@ export default function Capabilities() {
           
           {/* Search */}
           <div className="relative max-w-xl">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10 pointer-events-none" />
-            <InputWithClear
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
               placeholder="Search features, APIs, guides..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onClear={() => setSearchQuery("")}
               className="pl-10"
             />
           </div>
@@ -486,6 +484,6 @@ export default function Capabilities() {
           </CardContent>
         </Card>
       </div>
-    </AppLayout>
+    </PageLayout>
   );
 }

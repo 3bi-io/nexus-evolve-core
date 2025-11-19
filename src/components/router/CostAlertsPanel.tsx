@@ -79,7 +79,6 @@ export const CostAlertsPanel = () => {
                 <Label>Threshold ($)</Label>
                 <Input
                   type="number"
-                  inputMode="decimal"
                   step="0.01"
                   placeholder="1.00"
                   value={newAlert.threshold}

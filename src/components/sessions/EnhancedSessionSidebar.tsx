@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { InputWithClear } from "@/components/ui/input-with-clear";
+import { Input } from "@/components/ui/input";
 import { Plus, MessageSquare, Search, Trash2, Download, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import {
@@ -202,12 +202,11 @@ export const EnhancedSessionSidebar = ({
           </Button>
           
           <div className="relative">
-            <Search className="absolute left-2 top-2.5 w-4 h-4 text-muted-foreground z-10 pointer-events-none" />
-            <InputWithClear
+            <Search className="absolute left-2 top-2.5 w-4 h-4 text-muted-foreground" />
+            <Input
               placeholder="Search sessions..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onClear={() => setSearchQuery("")}
               className="pl-8 h-9"
             />
             {searchQuery && (

@@ -1,4 +1,4 @@
-import { AppLayout } from '@/components/layout/AppLayout';
+import { PageLayout } from '@/components/layout/PageLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ImageGenerationStudio } from '@/components/xai/ImageGenerationStudio';
 import { VisionAnalyzer } from '@/components/xai/VisionAnalyzer';
@@ -15,8 +15,8 @@ export default function XAIStudio() {
   const navigate = useNavigate();
 
   return (
-    <AppLayout title="XAI Studio" showBottomNav>
-      <SEO
+    <PageLayout>
+      <SEO 
         title="XAI Studio - Advanced AI Tools powered by Grok"
         description="Access cutting-edge AI capabilities including image generation, vision analysis, code review, and deep reasoning powered by Grok from @applyai"
         keywords="XAI, Grok, AI tools, image generation, vision AI, code analysis, reasoning AI"
@@ -91,6 +91,6 @@ export default function XAIStudio() {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
+    </PageLayout>
   );
 }

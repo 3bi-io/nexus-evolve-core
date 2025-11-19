@@ -10,13 +10,11 @@ export const BetaTrustSignals = () => {
     sessions: 0,
     interactions: 0,
   });
-  const [isLoading, setIsLoading] = useState(true);
 
   // Fetch REAL metrics from database
   useEffect(() => {
     const fetchRealMetrics = async () => {
       try {
-        setIsLoading(true);
         // Get actual session count
         const { count: sessionCount } = await supabase
           .from('sessions')
@@ -41,9 +39,6 @@ export const BetaTrustSignals = () => {
         });
       } catch (error) {
         console.error('Error fetching real metrics:', error);
-        // Keep default values on error
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -59,14 +54,10 @@ export const BetaTrustSignals = () => {
             <div className="flex items-center gap-3">
               <div className="w-3 h-3 rounded-full bg-success animate-pulse" />
               <div>
-                <div className="font-semibold text-foreground">Beta Launch - Building in Public</div>
-                {isLoading ? (
-                  <div className="text-sm text-muted-foreground">Loading metrics...</div>
-                ) : (
-                  <div className="text-sm text-muted-foreground">
-                    {realMetrics.users} early testers • {realMetrics.sessions} sessions created • {realMetrics.interactions} AI interactions
-                  </div>
-                )}
+                <div className="font-semibold">Beta Launch - Building in Public</div>
+                <div className="text-sm text-muted-foreground">
+                  {realMetrics.users} early testers • {realMetrics.sessions} sessions created • {realMetrics.interactions} AI interactions
+                </div>
               </div>
             </div>
             <Badge variant="outline" className="whitespace-nowrap">
