@@ -23,6 +23,10 @@ export default function Landing() {
     }
   }, [user, navigate]);
 
+  if (user) {
+    return null; // Prevent flash of content while redirecting
+  }
+
   return (
     <MarketingLayout title="Home - AI Platform">
       <SEO
