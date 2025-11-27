@@ -1,10 +1,10 @@
 project_id = "coobieessxvnujkkiadc"
 
 [functions.xai-chat]
-verify_jwt = true
+verify_jwt = false
 
 [functions.automation-pipeline-executor]
-verify_jwt = true
+verify_jwt = false
 
 [functions.scheduled-trend-monitor]
 verify_jwt = false
@@ -13,46 +13,46 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.coordinator-agent]
-verify_jwt = true
+verify_jwt = false
 
 [functions.reasoning-agent]
-verify_jwt = true
+verify_jwt = false
 
 [functions.creative-agent]
-verify_jwt = true
+verify_jwt = false
 
 [functions.learning-agent]
-verify_jwt = true
+verify_jwt = false
 
 [functions.prompt-optimizer]
-verify_jwt = true
+verify_jwt = false
 
 [functions.chat-stream-with-routing]
 verify_jwt = false
 
 [functions.custom-agent-executor]
-verify_jwt = true
+verify_jwt = false
 
 [functions.multi-agent-orchestrator]
-verify_jwt = true
+verify_jwt = false
 
 [functions.langchain-orchestrator]
-verify_jwt = true
+verify_jwt = false
 
 [functions.check-and-deduct-credits]
 verify_jwt = false
 
 [functions.claude-chat]
-verify_jwt = true
+verify_jwt = false
 
 [functions.computer-use]
-verify_jwt = true
+verify_jwt = false
 
 [functions.meta-router-agent]
-verify_jwt = true
+verify_jwt = false
 
 [functions.grok-reality-agent]
-verify_jwt = true
+verify_jwt = false
 
 [functions.reset-daily-credits]
 verify_jwt = false
@@ -79,70 +79,70 @@ verify_jwt = true
 verify_jwt = false
 
 [functions.generate-image]
-verify_jwt = true
+verify_jwt = false
 
 [functions.text-to-voice]
-verify_jwt = true
+verify_jwt = false
 
 [functions.voice-to-text]
-verify_jwt = true
+verify_jwt = false
 
 [functions.get-elevenlabs-signed-url]
-verify_jwt = true
+verify_jwt = false
 
 [functions.analyze-feedback]
-verify_jwt = true
+verify_jwt = false
 
 [functions.trigger-webhook]
-verify_jwt = true
+verify_jwt = false
 
 [functions.trigger-integration]
-verify_jwt = true
+verify_jwt = false
 
 [functions.semantic-search]
-verify_jwt = true
+verify_jwt = false
 
 [functions.discover-capabilities]
-verify_jwt = true
+verify_jwt = false
 
 [functions.predict-capabilities]
-verify_jwt = true
+verify_jwt = false
 
 [functions.generate-embeddings]
 verify_jwt = false
 
 [functions.mem0-memory]
-verify_jwt = true
+verify_jwt = false
 
 [functions.cross-agent-learner]
-verify_jwt = true
+verify_jwt = false
 
 [functions.emotional-analyzer]
-verify_jwt = true
+verify_jwt = false
 
 [functions.uncertainty-calculator]
-verify_jwt = true
+verify_jwt = false
 
 [functions.pinecone-vector]
-verify_jwt = true
+verify_jwt = false
 
 [functions.llamaindex-rag]
-verify_jwt = true
+verify_jwt = false
 
 [functions.replicate-runner]
-verify_jwt = true
+verify_jwt = false
 
 [functions.huggingface-inference]
-verify_jwt = true
+verify_jwt = false
 
 [functions.tavily-search]
-verify_jwt = true
+verify_jwt = false
 
 [functions.track-llm-observation]
 verify_jwt = false
 
 [functions.lovable-ai-router]
-verify_jwt = true
+verify_jwt = false
 
 [functions.validate-secrets]
 verify_jwt = false
@@ -154,43 +154,43 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.agent-analytics]
-verify_jwt = true
+verify_jwt = false
 
 [functions.agent-recommendations]
-verify_jwt = true
+verify_jwt = false
 
 [functions.agent-version-control]
-verify_jwt = true
+verify_jwt = false
 
 [functions.execute-scheduled-agent]
 verify_jwt = false
 
 [functions.elevenlabs-agents]
-verify_jwt = true
+verify_jwt = false
 
 [functions.manage-conversation]
-verify_jwt = true
+verify_jwt = false
 
 [functions.meta-optimizer]
-verify_jwt = true
+verify_jwt = false
 
 [functions.upload-agent-document]
-verify_jwt = true
+verify_jwt = false
 
 [functions.xai-image-generator]
-verify_jwt = true
+verify_jwt = false
 
 [functions.xai-vision-analyzer]
-verify_jwt = true
+verify_jwt = false
 
 [functions.xai-function-registry]
-verify_jwt = true
+verify_jwt = false
 
 [functions.xai-code-analyzer]
-verify_jwt = true
+verify_jwt = false
 
 [functions.xai-workflow-executor]
-verify_jwt = true
+verify_jwt = false
 
 [functions.github-pr-creator]
 verify_jwt = true
