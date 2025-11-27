@@ -28,7 +28,7 @@ verify_jwt = true
 verify_jwt = true
 
 [functions.chat-stream-with-routing]
-verify_jwt = true
+verify_jwt = false
 
 [functions.custom-agent-executor]
 verify_jwt = true

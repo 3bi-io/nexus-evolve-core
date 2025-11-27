@@ -19,20 +19,22 @@ export async function streamChat({
 }): Promise<void> {
   const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-stream-with-routing`;
 
-  // Get auth token
+  // Get auth token (optional for anonymous users)
   const { data: { session } } = await supabase.auth.getSession();
-  
-  if (!session) {
-    throw new Error("Not authenticated");
-  }
 
   try {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    
+    // Include auth token if user is logged in
+    if (session?.access_token) {
+      headers["Authorization"] = `Bearer ${session.access_token}`;
+    }
+
     const response = await fetch(CHAT_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${session.access_token}`,
-      },
+      headers,
       body: JSON.stringify({ messages, sessionId, forceAgent }),
     });
 
