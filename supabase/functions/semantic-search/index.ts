@@ -22,14 +22,36 @@ Deno.serve(async (req) => {
   try {
     logger.info('Processing semantic search request');
 
-    // Authenticate user
+    // Optional authentication - allow anonymous users
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      throw new Error('MISSING_AUTH_HEADER');
+    let user = null;
+    let isAnonymous = false;
+
+    if (authHeader) {
+      try {
+        const { supabase: authClient, user: authUser } = await createAuthenticatedClient(authHeader);
+        user = authUser;
+        logger.info('User authenticated', { userId: user.id });
+      } catch {
+        isAnonymous = true;
+        logger.info('Anonymous user');
+      }
+    } else {
+      isAnonymous = true;
+      logger.info('Anonymous user - no auth header');
     }
 
-    const { supabase, user } = await createAuthenticatedClient(authHeader);
-    logger.info('User authenticated', { userId: user.id });
+    // For anonymous users, semantic search doesn't work (no user-specific data)
+    if (isAnonymous) {
+      return successResponse({
+        results: [],
+        count: 0,
+        message: 'Semantic search requires authentication',
+      }, requestId);
+    }
+
+    // Create authenticated client for database operations
+    const { supabase } = await createAuthenticatedClient(authHeader!);
 
     // Parse and validate request body
     const body = await req.json();
@@ -74,7 +96,7 @@ Deno.serve(async (req) => {
         query_embedding: queryEmbedding,
         match_threshold: 0.5,
         match_count: limit,
-        user_id_param: user.id
+        user_id_param: user!.id  // user is guaranteed to exist here
       });
       
       if (error) {
@@ -83,7 +105,7 @@ Deno.serve(async (req) => {
         const { data: fallbackData } = await supabase
           .from('agent_memory')
           .select('*')
-          .eq('user_id', user.id)
+          .eq('user_id', user!.id)
           .not('embedding', 'is', null)
           .limit(limit);
         results = fallbackData;
@@ -94,7 +116,7 @@ Deno.serve(async (req) => {
       const { data: fallbackData } = await supabase
         .from('knowledge_base')
         .select('*')
-        .eq('user_id', user.id)
+        .eq('user_id', user!.id)
         .not('embedding', 'is', null)
         .limit(limit);
       results = fallbackData;
