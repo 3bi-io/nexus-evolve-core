@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom";
-import { Brain, Github, Twitter, Linkedin, Sparkles, Download } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+import { Brain, Github, Twitter, Linkedin, Sparkles, Download, Infinity } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export function Footer() {
-  const { user } = useAuth();
 
   return (
     <footer className="border-t border-border bg-card mt-auto">
@@ -18,6 +17,10 @@ export function Footer() {
               </div>
               <span className="font-semibold text-lg">Oneiros.me</span>
             </Link>
+            <Badge variant="secondary" className="gap-1.5">
+              <Infinity className="w-3 h-3" />
+              Everything is Free
+            </Badge>
             <p className="text-sm text-muted-foreground">
               Your intelligent AI companion for reasoning, creativity, and real-time insights.
             </p>
@@ -53,11 +56,6 @@ export function Footer() {
                   Install App
                 </Link>
               </li>
-              <li>
-                <Link to="/pricing" className="text-muted-foreground hover:text-foreground transition-colors">
-                  Pricing
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -88,39 +86,37 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Resources - Only show for authenticated users */}
-          {user && (
-            <div className="space-y-4">
-              <h3 className="font-semibold text-base">For Members</h3>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <Link to="/analytics" className="text-muted-foreground hover:text-foreground transition-colors">
-                    Analytics
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/agi-dashboard" className="text-muted-foreground hover:text-foreground transition-colors">
-                    AGI Dashboard
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/evolution" className="text-muted-foreground hover:text-foreground transition-colors">
-                    Evolution
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/integrations" className="text-muted-foreground hover:text-foreground transition-colors">
-                    Integrations
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/api-access" className="text-muted-foreground hover:text-foreground transition-colors">
-                    API Access
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          )}
+          {/* Advanced Features */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-base">Advanced</h3>
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link to="/analytics" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Analytics
+                </Link>
+              </li>
+              <li>
+                <Link to="/agi-dashboard" className="text-muted-foreground hover:text-foreground transition-colors">
+                  AGI Dashboard
+                </Link>
+              </li>
+              <li>
+                <Link to="/evolution" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Evolution
+                </Link>
+              </li>
+              <li>
+                <Link to="/integrations" className="text-muted-foreground hover:text-foreground transition-colors">
+                  Integrations
+                </Link>
+              </li>
+              <li>
+                <Link to="/api-access" className="text-muted-foreground hover:text-foreground transition-colors">
+                  API Access
+                </Link>
+              </li>
+            </ul>
+          </div>
 
           {/* Legal & Social */}
           <div className="space-y-4">

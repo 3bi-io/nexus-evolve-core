@@ -69,6 +69,20 @@ export const LoginForm = ({ onToggle }: { onToggle: () => void }) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="text-center mb-4">
+        <Button 
+          type="button"
+          variant="outline" 
+          className="w-full"
+          onClick={() => navigate('/chat')}
+        >
+          Skip Login • Continue as Guest
+        </Button>
+        <p className="text-xs text-muted-foreground mt-2">
+          All features work without an account
+        </p>
+      </div>
+
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input

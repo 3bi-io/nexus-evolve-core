@@ -222,7 +222,7 @@ export default function VoiceAgent() {
                   <div className="pt-4 border-t space-y-3">
                     <h4 className="font-semibold flex items-center gap-2">
                       <Phone className="h-4 w-4" />
-                      5-Minute Setup - Unlock Unlimited Voice Conversations
+                      5-Minute Setup - Free Voice Conversations
                     </h4>
                     <ol className="space-y-2 text-sm text-muted-foreground">
                       <li className="flex gap-2">

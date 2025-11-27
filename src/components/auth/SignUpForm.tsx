@@ -86,12 +86,26 @@ export const SignUpForm = ({ onToggle }: { onToggle: () => void }) => {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="text-center mb-4">
+        <Button 
+          type="button"
+          variant="outline" 
+          className="w-full"
+          onClick={() => window.location.href = '/chat'}
+        >
+          Continue as Guest
+        </Button>
+        <p className="text-xs text-muted-foreground mt-2">
+          All features work without an account
+        </p>
+      </div>
+
       {referralCode && (
         <div className="p-3 bg-primary/10 rounded-lg border border-primary/20 flex items-center gap-2">
           <Gift className="h-5 w-5 text-primary" />
           <div className="flex-1">
             <p className="text-sm font-medium">Referral Applied!</p>
-            <p className="text-xs text-muted-foreground">Get 50 bonus credits after signup</p>
+            <p className="text-xs text-muted-foreground">Unlock exclusive features after signup</p>
           </div>
           <Badge variant="secondary">{referralCode}</Badge>
         </div>

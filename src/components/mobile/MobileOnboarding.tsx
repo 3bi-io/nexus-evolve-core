@@ -15,19 +15,19 @@ interface OnboardingStep {
 const steps: OnboardingStep[] = [
   {
     title: 'Welcome to Oneiros.me',
-    description: 'The AI that gets smarter while you sleep. Join our beta and get 500 daily AI interactions for free, forever.',
+    description: 'The AI that gets smarter while you sleep. Free unlimited access to all features. No account required to get started.',
     icon: Sparkles,
     gradient: 'from-primary to-accent',
   },
   {
     title: 'Easy Navigation',
-    description: 'Use the bottom nav to quickly access Chat, Marketplace, AGI Dashboard, Stats, and your Account.',
+    description: 'Use the bottom nav to quickly access Chat, Marketplace, AGI Dashboard, Stats, and more.',
     icon: LayoutGrid,
     gradient: 'from-accent to-primary',
   },
   {
-    title: 'AI Interactions',
-    description: 'Every AI operation uses credits. Free beta users get 500 daily interactions. Upgrade for 10,000/month.',
+    title: 'Unlimited AI Access',
+    description: 'All AI operations are completely free with unlimited usage. No credit card, no limits, just AI.',
     icon: Zap,
     gradient: 'from-warning to-primary',
   },
@@ -38,10 +38,10 @@ const steps: OnboardingStep[] = [
     gradient: 'from-success to-accent',
   },
   {
-    title: 'Lock In Founder Rates',
-    description: 'Beta pricing won\'t last. Lock in $29/month forever before all 100 spots are taken.',
+    title: 'Start Using Instantly',
+    description: 'No signup required. Start chatting with AI immediately. Create an account only if you want to save preferences.',
     icon: TrendingUp,
-    gradient: 'from-destructive to-primary',
+    gradient: 'from-primary to-accent',
   },
 ];
 

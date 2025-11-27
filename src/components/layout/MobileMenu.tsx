@@ -46,19 +46,17 @@ export function MobileMenu({ authenticated, onSignOut, onNavigate }: MobileMenuP
   // Check if user is admin
   const isAdmin = false; // You can enhance this with actual admin check if needed
 
-  // Filter sections based on authentication and admin status
+  // Show all sections to everyone (removed auth filtering)
   const filteredSections = navSections
     .map(section => ({
       ...section,
       items: section.items.filter(item => {
-        // Filter admin-only items
+        // Only filter admin-only items
         if (item.adminOnly && !isAdmin) return false;
-        // Filter auth-required items for non-authenticated users
-        if (!item.public && !authenticated) return false;
         return true;
       })
     }))
-    .filter(section => section.items.length > 0); // Remove empty sections
+    .filter(section => section.items.length > 0);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -164,20 +162,21 @@ export function MobileMenu({ authenticated, onSignOut, onNavigate }: MobileMenuP
             ) : (
               <div className="px-2 space-y-2">
                 <Link
-                  to="/auth"
-                  onClick={() => handleLinkClick("/auth")}
+                  to="/chat"
+                  onClick={() => handleLinkClick("/chat")}
                 >
-                  <Button variant="outline" className="w-full min-h-[44px]">
-                    Sign In
+                  <Button className="w-full min-h-[44px] shadow-lg">
+                    Start Using AI
                   </Button>
                 </Link>
                 <Link
                   to="/auth"
                   onClick={() => handleLinkClick("/auth")}
+                  className="text-center"
                 >
-                  <Button className="w-full min-h-[44px] shadow-lg">
-                    Start Free
-                  </Button>
+                  <p className="text-xs text-muted-foreground py-2">
+                    Optional: Create account to save preferences
+                  </p>
                 </Link>
               </div>
             )}
