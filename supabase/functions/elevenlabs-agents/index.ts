@@ -1,7 +1,7 @@
 import { corsHeaders } from '../_shared/cors.ts';
 import { handleError, successResponse } from '../_shared/error-handler.ts';
 import { createLogger } from '../_shared/logger.ts';
-import { requireAuth } from '../_shared/auth.ts';
+import { optionalAuth } from '../_shared/auth.ts';
 import { initSupabaseClient } from '../_shared/supabase-client.ts';
 import { elevenLabsFetch } from '../_shared/api-client.ts';
 
@@ -31,9 +31,13 @@ Deno.serve(async (req) => {
 
   try {
     const supabase = initSupabaseClient();
-    const user = await requireAuth(req, supabase);
+    const user = await optionalAuth(req, supabase);
+    const isAnonymous = !user;
     
-    logger.info('Processing ElevenLabs agents request', { userId: user.id });
+    logger.info('Processing ElevenLabs agents request', { 
+      userId: user?.id || 'anonymous',
+      isAnonymous 
+    });
 
     const url = new URL(req.url);
     const action = url.searchParams.get('action') || 'list';

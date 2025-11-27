@@ -1,7 +1,7 @@
 import { corsHeaders } from "../_shared/cors.ts";
 import { handleError, successResponse } from "../_shared/error-handler.ts";
 import { createLogger } from "../_shared/logger.ts";
-import { requireAuth } from "../_shared/auth.ts";
+import { optionalAuth } from "../_shared/auth.ts";
 import { initSupabaseClient } from "../_shared/supabase-client.ts";
 import { validateRequiredFields } from "../_shared/validators.ts";
 import { lovableAIFetch } from "../_shared/api-client.ts";
@@ -24,14 +24,16 @@ Deno.serve(async (req) => {
 
   try {
     const supabase = initSupabaseClient();
-    const user = await requireAuth(req, supabase);
+    const user = await optionalAuth(req, supabase);
+    const isAnonymous = !user;
 
     const body: ExecuteRequest = await req.json();
     validateRequiredFields(body, ["agentId", "message"]);
     const { agentId, message, sessionId, conversationHistory } = body;
 
     logger.info("Executing custom agent", { 
-      userId: user.id, 
+      userId: user?.id || 'anonymous',
+      isAnonymous,
       agentId, 
       messagePreview: message.substring(0, 100) 
     });
@@ -47,10 +49,12 @@ Deno.serve(async (req) => {
       throw new Error('NOT_FOUND: Agent not found or access denied');
     }
 
-    // Check if user has access
-    const hasAccess = agent.user_id === user.id || agent.is_public;
+    // Check if user has access (anonymous users can only access public agents)
+    const hasAccess = isAnonymous 
+      ? agent.is_public 
+      : (agent.user_id === user.id || agent.is_public);
     
-    if (!hasAccess && agent.price_credits > 0) {
+    if (!hasAccess && agent.price_credits > 0 && !isAnonymous) {
       const { data: purchase } = await supabase
         .from('agent_purchases')
         .select('id')
@@ -63,7 +67,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Increment usage counter
+    // Increment usage counter (public metric)
     await supabase.rpc('increment_agent_usage', { p_agent_id: agentId });
 
     // Build messages array with agent's system prompt
@@ -92,19 +96,21 @@ Deno.serve(async (req) => {
 
     const executionTime = Date.now() - startTime;
 
-    // Log execution
-    await supabase.from('agent_executions').insert({
-      agent_id: agentId,
-      user_id: user.id,
-      session_id: sessionId,
-      input_message: message,
-      output_message: response.content,
-      tools_used: response.toolsUsed,
-      execution_time_ms: executionTime,
-      tokens_used: response.tokensUsed,
-      cost_credits: estimateCost(response.tokensUsed),
-      success: true,
-    });
+    // Log execution only for authenticated users
+    if (!isAnonymous) {
+      await supabase.from('agent_executions').insert({
+        agent_id: agentId,
+        user_id: user.id,
+        session_id: sessionId,
+        input_message: message,
+        output_message: response.content,
+        tools_used: response.toolsUsed,
+        execution_time_ms: executionTime,
+        tokens_used: response.tokensUsed,
+        cost_credits: estimateCost(response.tokensUsed),
+        success: true,
+      });
+    }
 
     logger.info("Agent execution complete", { executionTime, tokensUsed: response.tokensUsed });
 

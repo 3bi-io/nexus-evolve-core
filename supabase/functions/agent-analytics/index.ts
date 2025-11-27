@@ -4,7 +4,8 @@
  */
 
 import { corsHeaders } from '../_shared/cors.ts';
-import { createAuthenticatedClient } from '../_shared/supabase-client.ts';
+import { requireAuth } from '../_shared/auth.ts';
+import { initSupabaseClient } from '../_shared/supabase-client.ts';
 import { createLogger } from '../_shared/logger.ts';
 import { validateRequiredFields, validateString } from '../_shared/validators.ts';
 import { handleError, successResponse } from '../_shared/error-handler.ts';
@@ -19,16 +20,10 @@ Deno.serve(async (req) => {
   const logger = createLogger('agent-analytics', requestId);
 
   try {
-    logger.info('Processing agent analytics request');
-
-    // Authenticate user
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      throw new Error('MISSING_AUTH_HEADER');
-    }
-
-    const { supabase, user } = await createAuthenticatedClient(authHeader);
-    logger.info('User authenticated', { userId: user.id });
+    const supabase = initSupabaseClient();
+    const user = await requireAuth(req, supabase);
+    
+    logger.info('Processing agent analytics request', { userId: user.id });
 
     // Parse and validate request body
     const body = await req.json();
