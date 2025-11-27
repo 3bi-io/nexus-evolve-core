@@ -107,8 +107,8 @@ export const NavigationNew = () => {
           {/* Main Navigation */}
           <div className="flex items-center gap-1 lg:gap-2 flex-1 justify-center">
             {/* Core Features */}
-            <Link to="/chat">
-              <Button variant={isActive("/chat") ? "default" : "ghost"} size="sm" className="gap-2">
+            <Link to="/">
+              <Button variant={isActive("/") ? "default" : "ghost"} size="sm" className="gap-2">
                 <MessageSquare className="w-4 h-4" />
                 <span className="hidden xl:inline">Chat</span>
               </Button>

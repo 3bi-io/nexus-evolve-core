@@ -131,7 +131,7 @@ export function AdminSidebar({ section, onSectionChange }: AdminSidebarProps) {
 
       {/* Footer */}
       <div className="p-3 sm:p-4 border-t border-sidebar-border safe-bottom">
-        <Link to="/chat">
+        <Link to="/">
           <Button 
             variant="outline" 
             size={isMobile ? "default" : "sm"}

@@ -25,7 +25,7 @@ export interface NavSection {
 
 // Primary navigation items (shown prominently)
 export const primaryNavItems: NavItem[] = [
-  { to: "/chat", icon: MessageSquare, label: "Chat", shortLabel: "Chat", description: "AI Chat Interface", public: true },
+  { to: "/", icon: MessageSquare, label: "Chat", shortLabel: "Chat", description: "AI Chat Interface", public: true },
   { to: "/getting-started", icon: Rocket, label: "Getting Started", shortLabel: "Start", description: "Quick Start Guide", public: true },
   { to: "/agent-marketplace", icon: Store, label: "Marketplace", shortLabel: "Market", description: "Browse AI Agents", public: true },
   { to: "/voice-agent", icon: Phone, label: "Voice AI", shortLabel: "Voice", description: "Voice Agent Studio", public: true },
@@ -41,14 +41,14 @@ export const publicHeaderNavItems: NavItem[] = [
 // Mobile bottom nav items (simplified, most important routes)
 export const mobileBottomNavItems = {
   authenticated: [
-    { to: "/chat", icon: MessageSquare, label: "Chat" },
+    { to: "/", icon: MessageSquare, label: "Chat" },
     { to: "/agent-marketplace", icon: Store, label: "Market" },
     { to: "/agi-dashboard", icon: Sparkles, label: "AGI" },
     { to: "/analytics", icon: BarChart3, label: "Stats" },
     { to: "/account", icon: Users, label: "Account" },
   ],
   public: [
-    { to: "/chat", icon: MessageSquare, label: "Chat" },
+    { to: "/", icon: MessageSquare, label: "Chat" },
     { to: "/agent-marketplace", icon: Store, label: "Market" },
     { to: "/voice-agent", icon: Mic, label: "Voice" },
     { to: "/features", icon: Sparkles, label: "Features" },
@@ -62,7 +62,7 @@ export const navSections: NavSection[] = [
     id: "main",
     label: "Main",
     items: [
-      { to: "/chat", icon: MessageSquare, label: "Chat", description: "AI Chat Interface", public: true },
+      { to: "/", icon: MessageSquare, label: "Chat", description: "AI Chat Interface", public: true },
       { to: "/getting-started", icon: Rocket, label: "Getting Started", description: "Quick Start Guide", public: true },
       { to: "/agent-marketplace", icon: Store, label: "Marketplace", description: "Browse AI Agents", public: true },
       { to: "/install", icon: Download, label: "Install App", description: "Install as PWA", public: true },

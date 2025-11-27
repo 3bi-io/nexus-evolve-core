@@ -76,7 +76,7 @@ export function BreadcrumbNav() {
       <BreadcrumbList>
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link to="/chat" className="flex items-center gap-1">
+            <Link to="/" className="flex items-center gap-1">
               <Home className="w-3.5 h-3.5" />
               <span>Home</span>
             </Link>
