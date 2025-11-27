@@ -20,9 +20,9 @@ const Referrals = () => {
   return (
     <PageLayout title="Referrals" showBottomNav={true}>
       <SEO 
-        title="Referral Program - Earn 100 Credits Per Referral & Bonus Rewards"
-        description="Invite friends to Oneiros.me and earn 100 credits for each successful referral. Unlock milestone rewards: 500 bonus credits at 5 referrals, Premium Trial at 10, VIP Status at 25."
-        keywords="referral program, earn credits, invite friends, AI referrals, bonus rewards"
+        title="Referral Program - Invite Friends & Unlock Exclusive Features"
+        description="Invite friends to Oneiros.me and unlock exclusive features. Unlock milestone rewards: Priority support at 5 referrals, Beta Access at 10, VIP Status at 25."
+        keywords="referral program, invite friends, AI referrals, bonus rewards, exclusive features"
         canonical="https://oneiros.me/referrals"
       />
       <div className="container mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
@@ -90,7 +90,7 @@ const Referrals = () => {
                   <div>
                     <h4 className="font-medium mb-1">You Both Win!</h4>
                     <p className="text-sm text-muted-foreground">
-                      You earn 100 credits for each successful referral, and they get started with bonus credits too
+                      You unlock exclusive features for each successful referral, and they get started with full access
                     </p>
                   </div>
                 </div>
@@ -106,11 +106,11 @@ const Referrals = () => {
                   <div className="mt-3 space-y-2">
                     <div className="flex items-center justify-between text-sm">
                       <span>5 referrals</span>
-                      <Badge variant="secondary">500 bonus credits</Badge>
+                      <Badge variant="secondary">Priority Support</Badge>
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span>10 referrals</span>
-                      <Badge variant="secondary">Premium Trial</Badge>
+                      <Badge variant="secondary">Beta Access</Badge>
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span>25 referrals</span>

@@ -58,28 +58,22 @@ export function UnifiedHeader({
             {/* Center Navigation - Desktop Only */}
             <nav className="hidden md:flex items-center gap-8">
               <Link 
-                to="/getting-started" 
+                to="/features" 
                 className="text-sm font-medium hover:text-primary transition-colors"
               >
                 Features
               </Link>
               <Link 
-                to="/pricing" 
+                to="/solutions" 
                 className="text-sm font-medium hover:text-primary transition-colors"
               >
-                Pricing
+                Solutions
               </Link>
               <Link 
                 to="/agent-marketplace" 
                 className="text-sm font-medium hover:text-primary transition-colors"
               >
                 Marketplace
-              </Link>
-              <Link 
-                to="/capabilities" 
-                className="text-sm font-medium hover:text-primary transition-colors"
-              >
-                Docs
               </Link>
             </nav>
 
@@ -89,14 +83,7 @@ export function UnifiedHeader({
               
               {/* Desktop Actions */}
               <div className="hidden md:flex items-center gap-3">
-                <Button 
-                  onClick={() => navigate('/chat')}
-                  size="sm"
-                  className="shadow-lg"
-                >
-                  Try Free
-                </Button>
-                {user && (
+                {user ? (
                   <>
                     <NotificationBell />
                     <Button 
@@ -107,6 +94,14 @@ export function UnifiedHeader({
                       Sign Out
                     </Button>
                   </>
+                ) : (
+                  <Button 
+                    onClick={() => navigate('/chat')}
+                    size="sm"
+                    className="shadow-lg"
+                  >
+                    Start Now
+                  </Button>
                 )}
               </div>
 

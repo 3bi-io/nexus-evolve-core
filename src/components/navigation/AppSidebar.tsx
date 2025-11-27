@@ -66,24 +66,17 @@ export function AppSidebar() {
 
   const isActive = (path: string) => location.pathname === path;
 
-  // Filter sections based on user state
+  // Show all sections to everyone (removed auth filtering)
   const filteredSections = navSections
     .map(section => ({
       ...section,
       items: section.items.filter(item => {
-        // Show admin-only items only to admins
+        // Only filter admin-only items
         if (item.adminOnly && !isAdmin) return false;
-        
-        // For public items, always show
-        if (item.public) return true;
-        
-        // For non-public items, only show if user is authenticated
-        if (!item.public && !user) return false;
-        
         return true;
       })
     }))
-    .filter(section => section.items.length > 0); // Remove empty sections
+    .filter(section => section.items.length > 0);
 
   return (
     <Sidebar collapsible="icon" className="border-r">
@@ -265,11 +258,13 @@ export function AppSidebar() {
         ) : (
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <NavLink to="/auth">
-                  <User className="w-4 h-4" />
-                  {!collapsed && <span>Sign In</span>}
-                </NavLink>
+              <SidebarMenuButton onClick={toggleTheme}>
+                {theme === "dark" ? (
+                  <Sun className="w-4 h-4" />
+                ) : (
+                  <Moon className="w-4 h-4" />
+                )}
+                {!collapsed && <span>Toggle Theme</span>}
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>

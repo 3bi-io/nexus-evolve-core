@@ -12,28 +12,28 @@ const FAQS = [
     answer: 'No! Oneiros works out of the box with smart defaults. Our AI automatically learns your patterns, routes tasks to the best agents, and improves itself daily. Advanced users can customize everything, but beginners can start chatting immediately.',
   },
   {
-    question: 'What happens if I run out of credits?',
-    answer: 'You get 500 free credits daily that reset automatically - that\'s enough for 40+ hours of AI use. If you need more, upgrade to Professional (10,000 credits/mo) or Enterprise (unlimited). You can also earn bonus credits through referrals and achievements.',
+    question: 'Is everything really free and unlimited?',
+    answer: 'Yes! All features are completely free with unlimited usage. No credit limits, no time restrictions, no credit card required. We believe AI should be accessible to everyone.',
   },
   {
     question: 'Can Oneiros integrate with my existing tools?',
-    answer: 'Yes! Oneiros supports webhooks, API access, and can integrate with 1,000+ tools. Our agent marketplace includes pre-built integrations for popular services. Enterprise plans include custom integration support.',
+    answer: 'Yes! Oneiros supports webhooks, API access, and can integrate with 1,000+ tools. Our agent marketplace includes pre-built integrations for popular services. All integration features are free.',
   },
   {
     question: 'Is my data secure and private?',
-    answer: 'Absolutely. All data is encrypted in transit and at rest. We offer Browser AI mode where models run locally on your device - your data never leaves your computer. Enterprise plans include SSO, audit logs, and compliance certifications (SOC 2, GDPR, HIPAA available).',
+    answer: 'Absolutely. All data is encrypted in transit and at rest. We offer Browser AI mode where models run locally on your device - your data never leaves your computer. Optional accounts include SSO and audit logs.',
   },
   {
-    question: 'What happens when I cancel?',
-    answer: 'You can cancel anytime with no penalties. Your data remains accessible for 30 days, giving you time to export everything. We also offer a 14-day money-back guarantee on paid plans - if you\'re not satisfied, we\'ll refund you completely.',
+    question: 'Do I need to create an account?',
+    answer: 'No! You can start using Oneiros immediately without any account. Creating an account is optional and only needed if you want to save your chat history and preferences across devices.',
   },
   {
     question: 'How does the AI "learn" and improve?',
     answer: 'Oneiros has an autonomous evolution system. After each conversation, it extracts learnings and updates your knowledge graph. Every night, it analyzes performance metrics, discovers new capabilities, optimizes prompts, and improves routing decisions. It literally gets smarter while you sleep.',
   },
   {
-    question: 'Can I build and monetize my own AI agents?',
-    answer: 'Yes! Use Agent Studio to create custom agents with specific personalities, knowledge, and capabilities. List them on our marketplace to share with the community or monetize them. Creators earn credits when others use their agents.',
+    question: 'Can I build and share my own AI agents?',
+    answer: 'Yes! Use Agent Studio to create custom agents with specific personalities, knowledge, and capabilities. List them on our marketplace to share with the community. All agent creation and sharing features are completely free.',
   },
 ];
 

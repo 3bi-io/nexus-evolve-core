@@ -17,10 +17,10 @@ import {
 const steps = [
   {
     number: 1,
-    title: 'Sign Up (30 seconds)',
-    description: 'Click "Start Free" and create your account. No credit card needed.',
-    time: '30 sec',
-    action: 'Create account',
+    title: 'Start Chatting (instant)',
+    description: 'Open the chat and start talking to AI. No signup, no credit card, just AI.',
+    time: 'Instant',
+    action: 'Start using AI',
   },
   {
     number: 2,
@@ -75,8 +75,8 @@ export default function GettingStarted() {
             Follow this simple guide to unlock all 9 AI systems and start shipping 3x faster today.
           </p>
           <div className="flex gap-4 justify-center">
-            <Button size="lg" onClick={() => window.location.href = '/auth'}>
-              Start Free Now
+            <Button size="lg" onClick={() => window.location.href = '/chat'}>
+              Start Using AI
               <Zap className="ml-2 h-5 w-5" />
             </Button>
             <Button size="lg" variant="outline" onClick={() => window.scrollTo({ top: 600, behavior: 'smooth' })}>
@@ -194,12 +194,12 @@ export default function GettingStarted() {
             Join 10,847 teams using the unified AI platform to ship 3x faster
           </p>
           <div className="flex gap-4 justify-center">
-            <Button size="lg" onClick={() => window.location.href = '/auth'}>
-              Start Free (No Credit Card)
+            <Button size="lg" onClick={() => window.location.href = '/chat'}>
+              Start Using AI (No Account Required)
               <Zap className="ml-2 h-5 w-5" />
             </Button>
-            <Button size="lg" variant="outline" onClick={() => window.location.href = '/pricing'}>
-              View Pricing
+            <Button size="lg" variant="outline" onClick={() => window.location.href = '/features'}>
+              Explore Features
             </Button>
           </div>
         </div>
