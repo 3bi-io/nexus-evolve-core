@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { Brain, Network, Target, Zap, MessageSquare, AlertTriangle, TrendingUp, Settings, Sparkles } from "lucide-react";
+import { EmptyState } from "@/components/EmptyState";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 export default function AGIDashboard() {
@@ -238,28 +239,40 @@ export default function AGIDashboard() {
               </div>
 
               <div className="space-y-3">
-                {collaborations.map((collab) => (
-                  <Card key={collab.id} className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          {collab.agents_involved.map((agent: string) => (
-                            <Badge key={agent} variant="secondary">{agent}</Badge>
-                          ))}
-                        </div>
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {collab.task_description}
-                        </p>
-                        <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                          <span>{collab.duration_ms}ms</span>
-                          {collab.quality_score && (
-                            <span>Quality: {(collab.quality_score * 100).toFixed(0)}%</span>
-                          )}
+                {collaborations.length > 0 ? (
+                  collaborations.map((collab) => (
+                    <Card key={collab.id} className="p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            {collab.agents_involved.map((agent: string) => (
+                              <Badge key={agent} variant="secondary">{agent}</Badge>
+                            ))}
+                          </div>
+                          <p className="text-sm text-muted-foreground line-clamp-2">
+                            {collab.task_description}
+                          </p>
+                          <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                            <span>{collab.duration_ms}ms</span>
+                            {collab.quality_score && (
+                              <span>Quality: {(collab.quality_score * 100).toFixed(0)}%</span>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </Card>
-                ))}
+                    </Card>
+                  ))
+                ) : (
+                  <EmptyState
+                    icon={Brain}
+                    title="No Collaborations Yet"
+                    description="Start your first multi-agent collaboration to see how different AI agents work together to solve complex tasks."
+                    action={{
+                      label: "Start Collaboration",
+                      onClick: triggerMultiAgent
+                    }}
+                  />
+                )}
               </div>
             </Card>
           </TabsContent>
