@@ -132,6 +132,22 @@ export function MobileMenu({ authenticated, onSignOut, onNavigate }: MobileMenuP
             
             <Separator className="my-3" />
             
+            {/* Help Center - Available to all users */}
+            <div className="px-2 mb-2">
+              <Button
+                onClick={() => {
+                  setOpen(false);
+                  // Trigger help widget by dispatching custom event
+                  window.dispatchEvent(new CustomEvent('open-help-widget'));
+                }}
+                variant="outline"
+                className="w-full min-h-[44px] gap-2"
+              >
+                <HelpCircle className="w-4 h-4" />
+                Help Center
+              </Button>
+            </div>
+            
             {authenticated ? (
               <div className="px-2 space-y-2">
                 <Link
@@ -148,18 +164,6 @@ export function MobileMenu({ authenticated, onSignOut, onNavigate }: MobileMenuP
                 >
                   Account Settings
                 </Link>
-                <Button
-                  onClick={() => {
-                    setOpen(false);
-                    // Trigger help widget by dispatching custom event
-                    window.dispatchEvent(new CustomEvent('open-help-widget'));
-                  }}
-                  variant="outline"
-                  className="w-full min-h-[44px] gap-2"
-                >
-                  <HelpCircle className="w-4 h-4" />
-                  Help Center
-                </Button>
                 <Button
                   onClick={() => {
                     setOpen(false);
