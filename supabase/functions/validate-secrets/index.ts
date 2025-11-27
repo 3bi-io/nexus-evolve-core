@@ -94,7 +94,7 @@ Deno.serve(async (req) => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'google/gemini-2.5-flash-lite',
+            model: 'claude-3-sonnet-20240229',
             max_tokens: 1,
             messages: [{ role: 'user', content: 'test' }]
           })
@@ -213,6 +213,75 @@ Deno.serve(async (req) => {
       }
     } else {
       results.HUGGINGFACE_API_KEY = { valid: false, error: 'Not configured', lastChecked: timestamp };
+    }
+
+    // Validate Grok/xAI API Key
+    const grokKey = Deno.env.get('GROK_API_KEY');
+    if (grokKey) {
+      try {
+        const response = await fetch('https://api.x.ai/v1/models', {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${grokKey}` },
+        });
+        
+        results.GROK_API_KEY = {
+          valid: response.ok,
+          error: response.ok ? undefined : 'Authentication failed',
+          lastChecked: timestamp,
+          endpoint: 'https://api.x.ai/v1/models'
+        };
+      } catch (error) {
+        results.GROK_API_KEY = { valid: false, error: 'Network error', lastChecked: timestamp };
+      }
+    } else {
+      results.GROK_API_KEY = { valid: false, error: 'Not configured', lastChecked: timestamp };
+    }
+
+    // Validate ElevenLabs API Key
+    const elevenLabsKey = Deno.env.get('ELEVENLABS_API_KEY');
+    if (elevenLabsKey) {
+      try {
+        const response = await fetch('https://api.elevenlabs.io/v1/user', {
+          method: 'GET',
+          headers: { 'xi-api-key': elevenLabsKey },
+        });
+        
+        results.ELEVENLABS_API_KEY = {
+          valid: response.ok,
+          error: response.ok ? undefined : 'Authentication failed',
+          lastChecked: timestamp,
+          endpoint: 'https://api.elevenlabs.io/v1/user'
+        };
+      } catch (error) {
+        results.ELEVENLABS_API_KEY = { valid: false, error: 'Network error', lastChecked: timestamp };
+      }
+    } else {
+      results.ELEVENLABS_API_KEY = { valid: false, error: 'Not configured', lastChecked: timestamp };
+    }
+
+    // Validate GitHub Token
+    const githubToken = Deno.env.get('GITHUB_TOKEN');
+    if (githubToken) {
+      try {
+        const response = await fetch('https://api.github.com/user', {
+          method: 'GET',
+          headers: { 
+            'Authorization': `token ${githubToken}`,
+            'Accept': 'application/vnd.github.v3+json'
+          },
+        });
+        
+        results.GITHUB_TOKEN = {
+          valid: response.ok,
+          error: response.ok ? undefined : 'Authentication failed',
+          lastChecked: timestamp,
+          endpoint: 'https://api.github.com/user'
+        };
+      } catch (error) {
+        results.GITHUB_TOKEN = { valid: false, error: 'Network error', lastChecked: timestamp };
+      }
+    } else {
+      results.GITHUB_TOKEN = { valid: false, error: 'Not configured', lastChecked: timestamp };
     }
 
     // Calculate summary

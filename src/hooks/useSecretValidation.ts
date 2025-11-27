@@ -47,7 +47,7 @@ export const useSecretValidation = () => {
   // Show toast notification for critical missing keys on initial load
   useEffect(() => {
     if (validation && !validation.valid) {
-      const criticalKeys = ['OPENAI_API_KEY', 'LOVABLE_API_KEY'];
+      const criticalKeys = ['OPENAI_API_KEY', 'LOVABLE_API_KEY', 'GROK_API_KEY', 'ELEVENLABS_API_KEY'];
       const missingCritical = criticalKeys.filter(
         key => validation.results[key]?.error === 'Not configured'
       );
@@ -70,7 +70,7 @@ export const useSecretValidation = () => {
     criticalIssues: validation 
       ? Object.entries(validation.results ?? {})
           .filter(([key, result]) => 
-            ['OPENAI_API_KEY', 'LOVABLE_API_KEY'].includes(key) && !result?.valid
+            ['OPENAI_API_KEY', 'LOVABLE_API_KEY', 'GROK_API_KEY', 'ELEVENLABS_API_KEY'].includes(key) && !result?.valid
           )
           .length
       : 0,
