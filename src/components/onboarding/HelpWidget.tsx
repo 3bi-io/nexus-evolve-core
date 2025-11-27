@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SafeAnimatePresence } from '@/components/ui/SafeAnimatePresence';
+import { useMobile } from '@/hooks/useMobile';
 
 interface HelpArticle {
   id: string;
@@ -79,8 +80,12 @@ const helpArticles: HelpArticle[] = [
 ];
 
 export function HelpWidget() {
+  const { isMobile } = useMobile();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Hide on mobile - accessed through menu instead
+  if (isMobile) return null;
 
   const filteredArticles = helpArticles.filter(
     (article) =>

@@ -52,22 +52,24 @@ export const ChatHeader = ({
             onNewSession={onNewSession}
           />
         )}
-        <Brain className="w-7 h-7 sm:w-8 sm:h-8 text-primary flex-shrink-0" />
-        <div className="min-w-0 flex-1">
-          <h1 className="text-lg sm:text-2xl font-bold truncate">
-            {isMobile ? "Chat" : "AI Assistant"}
-          </h1>
-          {!isMobile && contextCount > 0 && (
-            <Badge 
-              variant="secondary" 
-              className="text-xs cursor-pointer hover:bg-secondary/80 mt-1"
-              onClick={() => navigate('/')}
-            >
-              <Brain className="w-3 h-3 mr-1" />
-              {contextCount} memories
-            </Badge>
-          )}
-        </div>
+        {!isMobile && (
+          <>
+            <Brain className="w-7 h-7 sm:w-8 sm:h-8 text-primary flex-shrink-0" />
+            <div className="min-w-0 flex-1">
+              <h1 className="text-lg sm:text-2xl font-bold truncate">AI Assistant</h1>
+              {contextCount > 0 && (
+                <Badge 
+                  variant="secondary" 
+                  className="text-xs cursor-pointer hover:bg-secondary/80 mt-1"
+                  onClick={() => navigate('/')}
+                >
+                  <Brain className="w-3 h-3 mr-1" />
+                  {contextCount} memories
+                </Badge>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
