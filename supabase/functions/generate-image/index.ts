@@ -1,7 +1,7 @@
 import { corsHeaders } from '../_shared/cors.ts';
 import { handleError, successResponse } from '../_shared/error-handler.ts';
 import { createLogger } from '../_shared/logger.ts';
-import { requireAuth } from '../_shared/auth.ts';
+import { optionalAuth } from '../_shared/auth.ts';
 import { initSupabaseClient } from '../_shared/supabase-client.ts';
 import { validateRequiredFields } from '../_shared/validators.ts';
 import { lovableAIFetch } from '../_shared/api-client.ts';
@@ -22,13 +22,18 @@ Deno.serve(async (req) => {
 
   try {
     const supabase = initSupabaseClient();
-    const user = await requireAuth(req, supabase);
+    const user = await optionalAuth(req, supabase);
+    const isAnonymous = !user;
 
     const body: GenerateImageRequest = await req.json();
     validateRequiredFields(body, ['prompt']);
     const { prompt, style } = body;
 
-    logger.info('Generating image', { userId: user.id, promptPreview: prompt.substring(0, 100) });
+    logger.info('Generating image', { 
+      userId: user?.id || 'anonymous',
+      isAnonymous,
+      promptPreview: prompt.substring(0, 100) 
+    });
 
     // Enhance prompt with style if provided
     const enhancedPrompt = style 
@@ -67,22 +72,27 @@ Deno.serve(async (req) => {
 
     const generationTime = Date.now() - startTime;
 
-    // Save to database
-    const { data: savedImage, error: dbError } = await supabase
-      .from('generated_images')
-      .insert({
-        user_id: user.id,
-        prompt,
-        image_data: imageUrl,
-        model_used: 'google/gemini-2.5-flash-image-preview',
-        generation_time_ms: generationTime,
-        metadata: { style: style || null },
-      })
-      .select()
-      .single();
+    // Save to database only for authenticated users
+    let savedImage = null;
+    if (!isAnonymous) {
+      const { data, error: dbError } = await supabase
+        .from('generated_images')
+        .insert({
+          user_id: user.id,
+          prompt,
+          image_data: imageUrl,
+          model_used: 'google/gemini-2.5-flash-image-preview',
+          generation_time_ms: generationTime,
+          metadata: { style: style || null },
+        })
+        .select()
+        .single();
 
-    if (dbError) {
-      logger.error('Database error', dbError);
+      if (dbError) {
+        logger.error('Database error', dbError);
+      } else {
+        savedImage = data;
+      }
     }
 
     logger.info('Image generated successfully', { generationTime, imageId: savedImage?.id });

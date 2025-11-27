@@ -24,7 +24,7 @@ serve(async (req) => {
   }
 
   try {
-    // Initialize Supabase client for auth
+    // Initialize Supabase client for optional auth
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
@@ -35,17 +35,23 @@ serve(async (req) => {
       }
     );
 
-    // Verify user authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabaseClient.auth.getUser();
-
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    // Optional authentication - allow anonymous users
+    let user = null;
+    let isAnonymous = false;
+    
+    try {
+      const {
+        data: { user: authUser },
+        error: authError,
+      } = await supabaseClient.auth.getUser();
+      
+      if (!authError && authUser) {
+        user = authUser;
+      } else {
+        isAnonymous = true;
+      }
+    } catch {
+      isAnonymous = true;
     }
 
     if (!GROK_API_KEY) {
@@ -72,7 +78,9 @@ serve(async (req) => {
       );
     }
 
-    console.log(`xAI Chat request from user ${user.id}:`, {
+    console.log(`xAI Chat request:`, {
+      userId: user?.id || 'anonymous',
+      isAnonymous,
       model,
       messageCount: messages.length,
       stream,
@@ -136,13 +144,15 @@ serve(async (req) => {
     // Handle non-streaming response
     const data = await response.json();
     
-    // Log usage for analytics
-    console.log('xAI Chat completion:', {
-      userId: user.id,
-      model,
-      usage: data.usage,
-      hasSearch: search
-    });
+    // Log usage for analytics (only for authenticated users)
+    if (!isAnonymous && user) {
+      console.log('xAI Chat completion:', {
+        userId: user.id,
+        model,
+        usage: data.usage,
+        hasSearch: search
+      });
+    }
 
     return new Response(
       JSON.stringify(data),
