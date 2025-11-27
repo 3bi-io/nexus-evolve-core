@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, Download } from "lucide-react";
+import { Menu, Download, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -148,6 +148,18 @@ export function MobileMenu({ authenticated, onSignOut, onNavigate }: MobileMenuP
                 >
                   Account Settings
                 </Link>
+                <Button
+                  onClick={() => {
+                    setOpen(false);
+                    // Trigger help widget by dispatching custom event
+                    window.dispatchEvent(new CustomEvent('open-help-widget'));
+                  }}
+                  variant="outline"
+                  className="w-full min-h-[44px] gap-2"
+                >
+                  <HelpCircle className="w-4 h-4" />
+                  Help Center
+                </Button>
                 <Button
                   onClick={() => {
                     setOpen(false);

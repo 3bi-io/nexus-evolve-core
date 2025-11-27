@@ -15,7 +15,6 @@ import "@/lib/observability";
 import "@/lib/security-honeypot";
 import { MobileOnboarding } from "@/components/mobile/MobileOnboarding";
 import { InstallPrompt } from "@/components/mobile/InstallPrompt";
-import { InstallBadge } from "@/components/mobile/InstallBadge";
 import { InstallSuccessDialog } from "@/components/mobile/InstallSuccessDialog";
 
 // Lazy load pages for better performance and code splitting
@@ -172,7 +171,6 @@ function App() {
               <BrowserRouter>
                 <MobileOnboarding />
                 <InstallPrompt />
-                <InstallBadge />
                 <InstallSuccessDialog />
                 <RoutesWithShortcuts />
               </BrowserRouter>
