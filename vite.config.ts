@@ -85,8 +85,6 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'ui-vendor': ['framer-motion', 'lucide-react'],
           'supabase-vendor': ['@supabase/supabase-js'],
           'chart-vendor': ['recharts'],
         }
