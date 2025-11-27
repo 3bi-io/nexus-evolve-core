@@ -1,7 +1,7 @@
 import { corsHeaders } from '../_shared/cors.ts';
 import { handleError, successResponse } from '../_shared/error-handler.ts';
 import { createLogger } from '../_shared/logger.ts';
-import { requireAuth } from '../_shared/auth.ts';
+import { optionalAuth } from '../_shared/auth.ts';
 import { initSupabaseClient } from '../_shared/supabase-client.ts';
 import { validateRequiredFields } from '../_shared/validators.ts';
 import { elevenLabsFetch } from '../_shared/api-client.ts';
@@ -21,9 +21,13 @@ Deno.serve(async (req) => {
 
   try {
     const supabase = initSupabaseClient();
-    const user = await requireAuth(req, supabase);
+    const user = await optionalAuth(req, supabase);
+    const isAnonymous = !user;
     
-    logger.info('Processing text-to-speech request', { userId: user.id });
+    logger.info('Processing text-to-speech request', { 
+      userId: user?.id || 'anonymous',
+      isAnonymous 
+    });
 
     const body: TextToVoiceRequest = await req.json();
     const { text, voice } = body;
@@ -63,14 +67,16 @@ Deno.serve(async (req) => {
       String.fromCharCode(...new Uint8Array(arrayBuffer))
     );
 
-    // Save to database
-    await supabase.from('voice_interactions').insert({
-      user_id: user.id,
-      interaction_type: 'text_to_speech',
-      input_text: text,
-      audio_data: base64Audio.substring(0, 1000), // Store preview only
-      model_used: 'eleven_turbo_v2_5',
-    });
+    // Save to database only for authenticated users
+    if (!isAnonymous) {
+      await supabase.from('voice_interactions').insert({
+        user_id: user!.id,
+        interaction_type: 'text_to_speech',
+        input_text: text,
+        audio_data: base64Audio.substring(0, 1000), // Store preview only
+        model_used: 'eleven_turbo_v2_5',
+      });
+    }
 
     logger.info('Text-to-speech completed', { audioSizeKB: Math.round(base64Audio.length / 1024) });
 

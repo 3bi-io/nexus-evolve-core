@@ -1,7 +1,7 @@
 import { corsHeaders } from '../_shared/cors.ts';
 import { handleError, successResponse } from '../_shared/error-handler.ts';
 import { createLogger } from '../_shared/logger.ts';
-import { requireAuth } from '../_shared/auth.ts';
+import { optionalAuth } from '../_shared/auth.ts';
 import { initSupabaseClient } from '../_shared/supabase-client.ts';
 import { validateRequiredFields } from '../_shared/validators.ts';
 import { huggingFaceFetch } from '../_shared/api-client.ts';
@@ -28,9 +28,13 @@ Deno.serve(async (req) => {
 
   try {
     const supabase = initSupabaseClient();
-    const user = await requireAuth(req, supabase);
+    const user = await optionalAuth(req, supabase);
+    const isAnonymous = !user;
     
-    logger.info('Processing HuggingFace request', { userId: user.id });
+    logger.info('Processing HuggingFace request', { 
+      userId: user?.id || 'anonymous',
+      isAnonymous 
+    });
 
     const body: HuggingFaceRequest = await req.json();
     const { modelId, task, inputs, parameters, options } = body;
@@ -129,24 +133,26 @@ Deno.serve(async (req) => {
       ? (typeof inputs === 'string' ? inputs.length / 4000 : 1) * (modelData.cost_per_1k_tokens * 1000)
       : 0.001;
 
-    // Log to llm_observations
-    await supabase.from('llm_observations').insert({
-      user_id: user.id,
-      agent_type: 'huggingface',
-      model_used: modelId,
-      prompt_tokens: typeof inputs === 'string' ? Math.ceil(inputs.length / 4) : 0,
-      completion_tokens: task === 'text-generation' && result[0]?.generated_text 
-        ? Math.ceil(result[0].generated_text.length / 4) 
-        : 0,
-      latency_ms: latencyMs,
-      total_cost: costCredits,
-      provider: 'huggingface',
-      metadata: {
-        task,
-        model_info: modelData,
-        parameters,
-      },
-    });
+    // Log to llm_observations only for authenticated users
+    if (!isAnonymous) {
+      await supabase.from('llm_observations').insert({
+        user_id: user!.id,
+        agent_type: 'huggingface',
+        model_used: modelId,
+        prompt_tokens: typeof inputs === 'string' ? Math.ceil(inputs.length / 4) : 0,
+        completion_tokens: task === 'text-generation' && result[0]?.generated_text 
+          ? Math.ceil(result[0].generated_text.length / 4) 
+          : 0,
+        latency_ms: latencyMs,
+        total_cost: costCredits,
+        provider: 'huggingface',
+        metadata: {
+          task,
+          model_info: modelData,
+          parameters,
+        },
+      });
+    }
 
     logger.info('Inference completed', { task, latencyMs });
 

@@ -2,7 +2,7 @@ import 'https://deno.land/x/xhr@0.1.0/mod.ts';
 import { corsHeaders } from '../_shared/cors.ts';
 import { handleError, successResponse } from '../_shared/error-handler.ts';
 import { createLogger } from '../_shared/logger.ts';
-import { requireAuth } from '../_shared/auth.ts';
+import { optionalAuth } from '../_shared/auth.ts';
 import { initSupabaseClient } from '../_shared/supabase-client.ts';
 import { validateRequiredFields } from '../_shared/validators.ts';
 
@@ -45,9 +45,13 @@ Deno.serve(async (req) => {
 
   try {
     const supabase = initSupabaseClient();
-    const user = await requireAuth(req, supabase);
+    const user = await optionalAuth(req, supabase);
+    const isAnonymous = !user;
     
-    logger.info('Processing speech-to-text request', { userId: user.id });
+    logger.info('Processing speech-to-text request', { 
+      userId: user?.id || 'anonymous',
+      isAnonymous 
+    });
 
     const body = await req.json();
     const { audio } = body;
@@ -87,13 +91,15 @@ Deno.serve(async (req) => {
 
     const result = await response.json();
 
-    // Save to database
-    await supabase.from('voice_interactions').insert({
-      user_id: user.id,
-      interaction_type: 'speech_to_text',
-      output_text: result.text,
-      model_used: 'whisper-1',
-    });
+    // Save to database only for authenticated users
+    if (!isAnonymous) {
+      await supabase.from('voice_interactions').insert({
+        user_id: user!.id,
+        interaction_type: 'speech_to_text',
+        output_text: result.text,
+        model_used: 'whisper-1',
+      });
+    }
 
     logger.info('Speech-to-text completed', { textLength: result.text.length });
 
