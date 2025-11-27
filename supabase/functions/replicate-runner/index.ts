@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders } from "../_shared/cors.ts";
 import { handleError, successResponse } from "../_shared/error-handler.ts";
 import { createLogger } from "../_shared/logger.ts";
-import { requireAuth } from "../_shared/auth.ts";
+import { optionalAuth } from "../_shared/auth.ts";
 import { initSupabaseClient } from "../_shared/supabase-client.ts";
 import { validateRequiredFields } from "../_shared/validators.ts";
 import { replicateFetch } from "../_shared/api-client.ts";
@@ -23,9 +23,13 @@ serve(async (req) => {
 
   try {
     const supabase = initSupabaseClient();
-    const user = await requireAuth(req, supabase);
+    const user = await optionalAuth(req, supabase);
+    const isAnonymous = !user;
     
-    logger.info("Processing Replicate request", { userId: user.id });
+    logger.info("Processing Replicate request", { 
+      userId: user?.id || 'anonymous',
+      isAnonymous 
+    });
 
     const body: ReplicateRequest = await req.json();
 
@@ -62,20 +66,22 @@ serve(async (req) => {
     const prediction = await createResponse.json();
     const latencyMs = Date.now() - startTime;
 
-    // Log the execution
-    await supabase.from("llm_observations").insert({
-      user_id: user.id,
-      model_name: body.model,
-      task_type: "replicate_inference",
-      latency_ms: latencyMs,
-      cost_credits: 10,
-      success: true,
-      metadata: {
-        prediction_id: prediction.id,
-        status: prediction.status,
-        input: body.input
-      }
-    });
+    // Log the execution only for authenticated users
+    if (!isAnonymous) {
+      await supabase.from("llm_observations").insert({
+        user_id: user.id,
+        model_name: body.model,
+        task_type: "replicate_inference",
+        latency_ms: latencyMs,
+        cost_credits: 10,
+        success: true,
+        metadata: {
+          prediction_id: prediction.id,
+          status: prediction.status,
+          input: body.input
+        }
+      });
+    }
 
     logger.info("Prediction created", { 
       predictionId: prediction.id,

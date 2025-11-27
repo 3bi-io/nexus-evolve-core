@@ -4,7 +4,8 @@
  */
 
 import { corsHeaders } from '../_shared/cors.ts';
-import { createAuthenticatedClient } from '../_shared/supabase-client.ts';
+import { optionalAuth } from '../_shared/auth.ts';
+import { initSupabaseClient } from '../_shared/supabase-client.ts';
 import { createLogger } from '../_shared/logger.ts';
 import { validateRequiredFields, validateString, validateArray } from '../_shared/validators.ts';
 import { handleError, successResponse } from '../_shared/error-handler.ts';
@@ -31,16 +32,14 @@ Deno.serve(async (req) => {
   const logger = createLogger('xai-workflow-executor', requestId);
 
   try {
-    logger.info('Processing xAI workflow execution request');
+    const supabase = initSupabaseClient();
+    const user = await optionalAuth(req, supabase);
+    const isAnonymous = !user;
 
-    // Authenticate user
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      throw new Error('MISSING_AUTH_HEADER');
-    }
-
-    const { supabase, user } = await createAuthenticatedClient(authHeader);
-    logger.info('User authenticated', { userId: user.id });
+    logger.info('Processing xAI workflow execution request', {
+      userId: user?.id || 'anonymous',
+      isAnonymous
+    });
 
     // Parse and validate request body
     const body = await req.json() as WorkflowRequest;
@@ -110,19 +109,21 @@ Deno.serve(async (req) => {
 
     const totalTime = Date.now() - startTime;
 
-    // Log workflow execution
-    await supabase.from('xai_usage_analytics').insert({
-      user_id: user.id,
-      model_id: 'workflow-executor',
-      feature_type: 'workflow',
-      latency_ms: totalTime,
-      success: results.every(r => r.success),
-      metadata: {
-        workflow_id: workflowId,
-        steps: steps.length,
-        completed_steps: results.filter(r => r.success).length,
-      },
-    });
+    // Log workflow execution only for authenticated users
+    if (!isAnonymous) {
+      await supabase.from('xai_usage_analytics').insert({
+        user_id: user.id,
+        model_id: 'workflow-executor',
+        feature_type: 'workflow',
+        latency_ms: totalTime,
+        success: results.every(r => r.success),
+        metadata: {
+          workflow_id: workflowId,
+          steps: steps.length,
+          completed_steps: results.filter(r => r.success).length,
+        },
+      });
+    }
 
     logger.info('Workflow execution complete', { 
       totalTime, 

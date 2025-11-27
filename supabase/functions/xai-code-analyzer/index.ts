@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders } from "../_shared/cors.ts";
 import { handleError, successResponse } from "../_shared/error-handler.ts";
 import { createLogger } from "../_shared/logger.ts";
-import { requireAuth } from "../_shared/auth.ts";
+import { optionalAuth } from "../_shared/auth.ts";
 import { initSupabaseClient } from "../_shared/supabase-client.ts";
 import { validateRequiredFields } from "../_shared/validators.ts";
 import { xAIFetch } from "../_shared/api-client.ts";
@@ -24,7 +24,8 @@ serve(async (req) => {
 
   try {
     const supabase = initSupabaseClient();
-    const user = await requireAuth(req, supabase);
+    const user = await optionalAuth(req, supabase);
+    const isAnonymous = !user;
 
     const body: CodeAnalysisRequest = await req.json();
     validateRequiredFields(body, ["code"]);
@@ -37,7 +38,8 @@ serve(async (req) => {
     } = body;
 
     logger.info("Analyzing code", { 
-      userId: user.id, 
+      userId: user?.id || 'anonymous',
+      isAnonymous,
       language, 
       analysisType, 
       codeLength: code.length 
@@ -95,16 +97,19 @@ Format your response as structured JSON:
     const tokensUsed = result.usage?.total_tokens || 1000;
     const costCredits = (tokensUsed / 1000000) * 0.5;
 
-    await supabase.from("xai_usage_analytics").insert({
-      user_id: user.id,
-      model_id: model,
-      feature_type: "code-analysis",
-      tokens_used: tokensUsed,
-      cost_credits: costCredits,
-      latency_ms: analysisTime,
-      success: true,
-      metadata: { language, analysis_type: analysisType, code_length: code.length },
-    });
+    // Log analytics only for authenticated users
+    if (!isAnonymous) {
+      await supabase.from("xai_usage_analytics").insert({
+        user_id: user.id,
+        model_id: model,
+        feature_type: "code-analysis",
+        tokens_used: tokensUsed,
+        cost_credits: costCredits,
+        latency_ms: analysisTime,
+        success: true,
+        metadata: { language, analysis_type: analysisType, code_length: code.length },
+      });
+    }
 
     logger.info("Code analysis complete", { analysisTime, tokensUsed });
 
