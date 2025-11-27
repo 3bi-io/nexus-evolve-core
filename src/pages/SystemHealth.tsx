@@ -53,6 +53,21 @@ const API_KEY_INFO: Record<string, { name: string; description: string; docsUrl:
     name: "HuggingFace API",
     description: "Access to 400,000+ open-source AI models",
     docsUrl: "https://huggingface.co/settings/tokens"
+  },
+  GROK_API_KEY: {
+    name: "xAI Grok",
+    description: "Powers Grok AI for social intelligence and real-time analysis",
+    docsUrl: "https://x.ai/api"
+  },
+  ELEVENLABS_API_KEY: {
+    name: "ElevenLabs Voice AI",
+    description: "Enables voice conversations and text-to-speech",
+    docsUrl: "https://elevenlabs.io/docs"
+  },
+  GITHUB_TOKEN: {
+    name: "GitHub Integration",
+    description: "Enables automated PR creation for platform improvements",
+    docsUrl: "https://github.com/settings/tokens"
   }
 };
 
