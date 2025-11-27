@@ -1,46 +1,26 @@
 import { MarketingLayout } from '@/components/layout/MarketingLayout';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { useEffect } from 'react';
 import { SEO } from '@/components/SEO';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { HeroSection } from '@/components/landing/HeroSection';
 import { FeaturesSection } from '@/components/landing/FeaturesSection';
 import { BetaTrustSignals } from '@/components/landing/BetaTrustSignals';
-import { PricingSection } from '@/components/landing/PricingSection';
 import { FinalCTASection } from '@/components/landing/FinalCTASection';
-import { ExitIntentPopup } from '@/components/conversion/ExitIntentPopup';
-import { SocialProofNotification } from '@/components/conversion/SocialProofNotification';
-import { StickySignupCTA } from '@/components/mobile/StickySignupCTA';
 
 export default function Landing() {
-  const navigate = useNavigate();
-  const { user } = useAuth();
-
-  useEffect(() => {
-    if (user) {
-      navigate('/chat');
-    }
-  }, [user, navigate]);
-
   return (
     <MarketingLayout>
       <SEO
-        title="Oneiros | AI Automation Platform - Vision, Generation, Workflows & Monitoring"
-        description="Production-ready AI automation platform with vision analysis, image generation, automated workflows, smart caching, and 24/7 trend monitoring. 38+ edge functions working autonomously."
+        title="Oneiros | Free AI Platform - Vision, Generation, Workflows & Monitoring"
+        description="Free AI platform with vision analysis, image generation, automated workflows, and intelligent monitoring. Unlimited access to all features - no credit card required."
         keywords={[
-          "AI automation platform",
+          "free AI platform",
+          "AI automation",
           "vision analysis",
           "image generation",
           "automated workflows",
-          "trend monitoring",
-          "smart caching",
+          "unlimited AI",
+          "free AI tools",
           "multi-modal AI",
-          "content pipeline",
-          "AI workflows",
-          "XAI studio",
-          "grok vision",
-          "temporal memory",
           "agent builder",
           "ChatGPT alternative"
         ]}
@@ -68,13 +48,7 @@ export default function Landing() {
 
           <FeaturesSection />
           
-          <PricingSection />
-          
           <FinalCTASection />
-          
-          <ExitIntentPopup />
-          <SocialProofNotification />
-          <StickySignupCTA />
         </div>
       </ErrorBoundary>
     </MarketingLayout>

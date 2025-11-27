@@ -89,39 +89,22 @@ export function UnifiedHeader({
               
               {/* Desktop Actions */}
               <div className="hidden md:flex items-center gap-3">
-                {user ? (
+                <Button 
+                  onClick={() => navigate('/chat')}
+                  size="sm"
+                  className="shadow-lg"
+                >
+                  Try Free
+                </Button>
+                {user && (
                   <>
                     <NotificationBell />
                     <Button 
-                      onClick={() => navigate('/chat')}
-                      variant="ghost"
-                      size="sm"
-                    >
-                      Dashboard
-                    </Button>
-                    <Button 
                       onClick={handleSignOut}
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
                     >
                       Sign Out
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button 
-                      onClick={() => navigate('/auth')}
-                      variant="ghost"
-                      size="sm"
-                    >
-                      Sign In
-                    </Button>
-                    <Button 
-                      onClick={() => navigate('/auth')}
-                      size="sm"
-                      className="shadow-lg"
-                    >
-                      Start Free
                     </Button>
                   </>
                 )}
@@ -165,24 +148,15 @@ export function UnifiedHeader({
             />
           ) : (
             <>
-              {user && (
-                <>
-                  <NotificationBell />
-                  <CreditBalance />
-                </>
-              )}
+              {user && <NotificationBell />}
               <ThemeToggle />
-              {user ? (
+              {user && (
                 <Button 
                   onClick={handleSignOut} 
                   variant="outline" 
                   size="sm"
                 >
                   Sign Out
-                </Button>
-              ) : (
-                <Button asChild size="sm">
-                  <Link to="/auth">Start Free</Link>
                 </Button>
               )}
             </>

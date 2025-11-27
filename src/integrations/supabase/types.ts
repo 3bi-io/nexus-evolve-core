@@ -4385,42 +4385,6 @@ export type Database = {
         }
         Relationships: []
       }
-      cron_job_status: {
-        Row: {
-          active: boolean | null
-          command: string | null
-          database: string | null
-          jobid: number | null
-          jobname: string | null
-          nodename: string | null
-          nodeport: number | null
-          schedule: string | null
-          username: string | null
-        }
-        Insert: {
-          active?: boolean | null
-          command?: string | null
-          database?: string | null
-          jobid?: number | null
-          jobname?: string | null
-          nodename?: string | null
-          nodeport?: number | null
-          schedule?: string | null
-          username?: string | null
-        }
-        Update: {
-          active?: boolean | null
-          command?: string | null
-          database?: string | null
-          jobid?: number | null
-          jobname?: string | null
-          nodename?: string | null
-          nodeport?: number | null
-          schedule?: string | null
-          username?: string | null
-        }
-        Relationships: []
-      }
     }
     Functions: {
       calculate_temporal_relevance: {
@@ -4464,6 +4428,21 @@ export type Database = {
       }
       generate_referral_code: { Args: never; Returns: string }
       get_admin_stats: { Args: never; Returns: Json }
+      get_cron_job_status: {
+        Args: never
+        Returns: {
+          active: boolean
+          command: string
+          database: string
+          jobid: number
+          jobid_at_entry: number
+          jobname: string
+          nodename: string
+          nodeport: number
+          schedule: string
+          username: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

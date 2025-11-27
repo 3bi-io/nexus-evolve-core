@@ -3,7 +3,7 @@ import { lazy, Suspense } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
-import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "next-themes";
 import { HelmetProvider } from "react-helmet-async";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -78,41 +78,23 @@ const Install = lazy(() => import("./pages/Install"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes cache
-      gcTime: 10 * 60 * 1000, // 10 minutes garbage collection
+      staleTime: 5 * 60 * 1000,
+      gcTime: 10 * 60 * 1000,
     },
   },
 });
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useAuth();
-  
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  }
-  
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
-  
-  return <>{children}</>;
-};
-
 const RoutesWithShortcuts = () => {
   useGlobalShortcuts();
-  useReferralProcessor(); // Process referral codes after signup
-  useReferralConversion(); // Track conversion after 3+ interactions
+  useReferralProcessor();
+  useReferralConversion();
   return (
     <>
       <Suspense fallback={<LoadingPage />}>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/chat" element={
-            <ProtectedRoute>
-              <Index />
-            </ProtectedRoute>
-          } />
+          <Route path="/chat" element={<Index />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
@@ -123,317 +105,52 @@ const RoutesWithShortcuts = () => {
           <Route path="/security" element={<Security />} />
           <Route path="/install" element={<Install />} />
           <Route path="/getting-started" element={<GettingStarted />} />
-          <Route
-            path="/account"
-            element={
-              <ProtectedRoute>
-                <Account />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/knowledge-graph"
-            element={
-              <ProtectedRoute>
-                <KnowledgeGraph />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/memory-graph"
-            element={
-              <ProtectedRoute>
-                <MemoryGraph />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/capabilities"
-            element={
-              <ProtectedRoute>
-                <Capabilities />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/problem-solver"
-            element={
-              <ProtectedRoute>
-                <ProblemSolver />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/evolution"
-            element={
-              <ProtectedRoute>
-                <Evolution />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/agi-dashboard"
-            element={
-              <ProtectedRoute>
-                <AGIDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/achievements"
-            element={
-              <ProtectedRoute>
-                <Achievements />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/analytics"
-            element={
-              <ProtectedRoute>
-                <Analytics />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/llm-analytics"
-            element={
-              <ProtectedRoute>
-                <LLMAnalytics />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/account" element={<Account />} />
+          <Route path="/knowledge-graph" element={<KnowledgeGraph />} />
+          <Route path="/memory-graph" element={<MemoryGraph />} />
+          <Route path="/capabilities" element={<Capabilities />} />
+          <Route path="/problem-solver" element={<ProblemSolver />} />
+          <Route path="/evolution" element={<Evolution />} />
+          <Route path="/agi-dashboard" element={<AGIDashboard />} />
+          <Route path="/achievements" element={<Achievements />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/llm-analytics" element={<LLMAnalytics />} />
           <Route path="/admin" element={<Navigate to="/admin/overview" replace />} />
           <Route path="/super-admin" element={<Navigate to="/admin/overview" replace />} />
-          <Route
-            path="/admin/:section"
-            element={
-              <ProtectedRoute>
-                <SuperAdmin />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/referrals"
-            element={
-              <ProtectedRoute>
-                <Referrals />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/integrations"
-            element={
-              <ProtectedRoute>
-                <Integrations />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/usage-analytics"
-            element={
-              <ProtectedRoute>
-                <UsageAnalytics />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/social-intelligence" element={
-            <ProtectedRoute>
-              <SocialIntelligence />
-            </ProtectedRoute>
-          } />
-          <Route path="/xai-studio" element={
-            <ProtectedRoute>
-              <XAIStudio />
-            </ProtectedRoute>
-          } />
-          <Route path="/xai-dashboard" element={
-            <ProtectedRoute>
-              <XAIDashboard />
-            </ProtectedRoute>
-          } />
-          <Route path="/xai-analytics" element={
-            <ProtectedRoute>
-              <XAIAnalytics />
-            </ProtectedRoute>
-          } />
-          <Route path="/automation-hub" element={
-            <ProtectedRoute>
-              <AutomationHub />
-            </ProtectedRoute>
-          } />
+          <Route path="/admin/:section" element={<SuperAdmin />} />
+          <Route path="/referrals" element={<Referrals />} />
+          <Route path="/integrations" element={<Integrations />} />
+          <Route path="/usage-analytics" element={<UsageAnalytics />} />
+          <Route path="/social-intelligence" element={<SocialIntelligence />} />
+          <Route path="/xai-studio" element={<XAIStudio />} />
+          <Route path="/xai-dashboard" element={<XAIDashboard />} />
+          <Route path="/xai-analytics" element={<XAIAnalytics />} />
+          <Route path="/automation-hub" element={<AutomationHub />} />
           <Route path="/agent-marketplace" element={<AgentMarketplace />} />
           <Route path="/voice-agent" element={<VoiceAgent />} />
-          <Route
-            path="/voice-agent-manager"
-            element={
-              <ProtectedRoute>
-                <VoiceAgentManager />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/agent-studio"
-            element={
-              <ProtectedRoute>
-                <AgentStudio />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/agent-studio/edit/:agentId"
-            element={
-              <ProtectedRoute>
-                <AgentStudio />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/agent-executor/:agentId"
-            element={
-              <ProtectedRoute>
-                <AgentExecutor />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/agent-revenue"
-            element={
-              <ProtectedRoute>
-                <AgentRevenue />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/agent-analytics/:agentId"
-            element={
-              <ProtectedRoute>
-                <AgentAnalytics />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/advanced-analytics"
-            element={
-              <ProtectedRoute>
-                <AdvancedAnalytics />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/advanced-ai"
-            element={
-              <ProtectedRoute>
-                <AdvancedAI />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/system-health"
-            element={
-              <ProtectedRoute>
-                <SystemHealth />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/collaboration"
-            element={
-              <ProtectedRoute>
-                <Collaboration />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/teams"
-            element={
-              <ProtectedRoute>
-                <Teams />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/api-access"
-            element={
-              <ProtectedRoute>
-                <APIAccess />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/webhooks"
-            element={
-              <ProtectedRoute>
-                <Webhooks />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/multimodal-studio"
-            element={
-              <ProtectedRoute>
-                <MultimodalStudio />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/voice-agent-manager" element={<VoiceAgentManager />} />
+          <Route path="/agent-studio" element={<AgentStudio />} />
+          <Route path="/agent-studio/edit/:agentId" element={<AgentStudio />} />
+          <Route path="/agent-executor/:agentId" element={<AgentExecutor />} />
+          <Route path="/agent-revenue" element={<AgentRevenue />} />
+          <Route path="/agent-analytics/:agentId" element={<AgentAnalytics />} />
+          <Route path="/advanced-analytics" element={<AdvancedAnalytics />} />
+          <Route path="/advanced-ai" element={<AdvancedAI />} />
+          <Route path="/system-health" element={<SystemHealth />} />
+          <Route path="/collaboration" element={<Collaboration />} />
+          <Route path="/teams" element={<Teams />} />
+          <Route path="/api-access" element={<APIAccess />} />
+          <Route path="/webhooks" element={<Webhooks />} />
+          <Route path="/multimodal-studio" element={<MultimodalStudio />} />
           <Route path="/model-comparison" element={<ModelComparison />} />
           <Route path="/sitemap" element={<Sitemap />} />
-          <Route
-            path="/browser-ai"
-            element={
-              <ProtectedRoute>
-                <BrowserAI />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/ai-hub"
-            element={
-              <ProtectedRoute>
-                <AIHub />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/advanced-browser-ai"
-            element={
-              <ProtectedRoute>
-                <AdvancedBrowserAI />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/router-dashboard"
-            element={
-              <ProtectedRoute>
-                <RouterDashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/enterprise-router"
-            element={
-              <ProtectedRoute>
-                <EnterpriseRouter />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/unified-router"
-            element={
-              <ProtectedRoute>
-                <UnifiedRouterDemo />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/platform-optimizer"
-            element={
-              <ProtectedRoute>
-                <PlatformOptimizer />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/browser-ai" element={<BrowserAI />} />
+          <Route path="/ai-hub" element={<AIHub />} />
+          <Route path="/advanced-browser-ai" element={<AdvancedBrowserAI />} />
+          <Route path="/router-dashboard" element={<RouterDashboard />} />
+          <Route path="/enterprise-router" element={<EnterpriseRouter />} />
+          <Route path="/unified-router" element={<UnifiedRouterDemo />} />
+          <Route path="/platform-optimizer" element={<PlatformOptimizer />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
