@@ -40,13 +40,13 @@ export function HeroSection() {
           animate={{ scale: [1, 1.1, 1] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          🚀 Beta Access
+          🎁 Free Forever
         </motion.span>
         <span className="text-xs sm:text-sm text-muted-foreground hidden sm:inline">
-          Live now - 500 free daily interactions
+          Unlimited access to all features
         </span>
         <span className="text-xs sm:text-sm text-muted-foreground sm:hidden">
-          500 free daily
+          All free
         </span>
       </motion.div>
       
@@ -94,10 +94,10 @@ export function HeroSection() {
       <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4 w-full sm:w-auto">
         <Button 
           size="lg" 
-          onClick={() => navigate('/auth')}
+          onClick={() => navigate('/chat')}
           className="w-full sm:w-auto text-base sm:text-lg px-8 sm:px-10 py-6 sm:py-7 shadow-xl hover:shadow-2xl transition-all hover:scale-105 group touch-feedback min-h-[56px]"
         >
-          Get Early Access Free
+          Start Free Now
           <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
         </Button>
         <Button 
@@ -130,8 +130,8 @@ export function HeroSection() {
         </div>
         <div className="flex items-center gap-1.5">
           <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
-          <span className="hidden sm:inline">500 free credits daily forever</span>
-          <span className="sm:hidden">500 free daily</span>
+          <span className="hidden sm:inline">Unlimited usage forever</span>
+          <span className="sm:hidden">Unlimited</span>
         </div>
         <div className="flex items-center gap-1.5">
           <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary flex-shrink-0" />

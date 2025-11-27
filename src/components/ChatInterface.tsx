@@ -11,7 +11,6 @@ import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { SessionSidebar } from "./SessionSidebar";
-import { UpgradePrompt } from "./pricing/UpgradePrompt";
 import { Link } from "react-router-dom";
 import { useClientIP } from "@/hooks/useClientIP";
 import { useSecretValidation } from "@/hooks/useSecretValidation";
@@ -46,9 +45,6 @@ export const ChatInterface = () => {
   const [selectedAgent, setSelectedAgent] = useState("auto");
   const [memoryModalOpen, setMemoryModalOpen] = useState(false);
   const [recentMemories, setRecentMemories] = useState<any[]>([]);
-  const [upgradePromptOpen, setUpgradePromptOpen] = useState(false);
-  const [currentCredits, setCurrentCredits] = useState(5);
-  const [suggestedTier, setSuggestedTier] = useState<string | undefined>();
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -166,33 +162,7 @@ export const ChatInterface = () => {
       }
     }
 
-    // Check credits before sending
-    try {
-      const { data: creditCheck } = await supabase.functions.invoke('check-and-deduct-credits', {
-        body: {
-          operation: 'chat_message',
-          userId: user?.id,
-          ipAddress: !user ? ipAddress : undefined
-        }
-      });
-
-      if (!creditCheck?.allowed) {
-        setCurrentCredits(creditCheck?.remaining || 0);
-        setSuggestedTier(creditCheck?.suggestedTier);
-        setUpgradePromptOpen(true);
-        return;
-      }
-
-      setCurrentCredits(creditCheck?.remainingCredits || 0);
-    } catch (error) {
-      console.error('Credit check failed:', error);
-      toast({
-        title: "Error checking credits",
-        description: "Please try again",
-        variant: "destructive",
-      });
-      return;
-    }
+    // Everything is free - no credit check needed
 
     const userMessage: Message = { 
       role: "user", 
@@ -550,14 +520,6 @@ export const ChatInterface = () => {
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Upgrade Prompt */}
-      <UpgradePrompt
-        open={upgradePromptOpen}
-        onOpenChange={setUpgradePromptOpen}
-        currentCredits={currentCredits}
-        suggestedTier={suggestedTier}
-      />
     </ResponsiveChatLayout>
   );
 };

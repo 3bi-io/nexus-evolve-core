@@ -25,11 +25,10 @@ export interface NavSection {
 
 // Primary navigation items (shown prominently)
 export const primaryNavItems: NavItem[] = [
-  { to: "/chat", icon: MessageSquare, label: "Chat", shortLabel: "Chat", description: "AI Chat Interface", public: false },
+  { to: "/chat", icon: MessageSquare, label: "Chat", shortLabel: "Chat", description: "AI Chat Interface", public: true },
   { to: "/getting-started", icon: Rocket, label: "Getting Started", shortLabel: "Start", description: "Quick Start Guide", public: true },
   { to: "/agent-marketplace", icon: Store, label: "Marketplace", shortLabel: "Market", description: "Browse AI Agents", public: true },
   { to: "/voice-agent", icon: Phone, label: "Voice AI", shortLabel: "Voice", description: "Voice Agent Studio", public: true },
-  { to: "/pricing", icon: Sparkles, label: "Pricing", shortLabel: "Price", description: "Plans & Pricing", public: true },
 ];
 
 // Public header navigation items (for marketing pages)
@@ -64,10 +63,9 @@ export const navSections: NavSection[] = [
     id: "main",
     label: "Main",
     items: [
-      { to: "/chat", icon: MessageSquare, label: "Chat", description: "AI Chat Interface", public: false },
+      { to: "/chat", icon: MessageSquare, label: "Chat", description: "AI Chat Interface", public: true },
       { to: "/getting-started", icon: Rocket, label: "Getting Started", description: "Quick Start Guide", public: true },
       { to: "/agent-marketplace", icon: Store, label: "Marketplace", description: "Browse AI Agents", public: true },
-      { to: "/pricing", icon: Sparkles, label: "Pricing", description: "Plans & Pricing", public: true },
       { to: "/install", icon: Download, label: "Install App", description: "Install as PWA", public: true },
     ],
   },

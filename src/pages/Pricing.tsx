@@ -1,199 +1,165 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { PricingCards } from "@/components/pricing/PricingCards";
 import { PageLayout } from "@/components/layout/PageLayout";
-import { ResponsiveContainer, ResponsiveGrid } from "@/components/layout/ResponsiveContainer";
-import { ResponsiveSection, MobileSafeArea, TouchTarget } from "@/components/layout/ResponsiveSection";
+import { ResponsiveContainer } from "@/components/layout/ResponsiveContainer";
+import { ResponsiveSection, MobileSafeArea } from "@/components/layout/ResponsiveSection";
 import { SEO } from "@/components/SEO";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
-import { ROICalculator } from "@/components/conversion/ROICalculator";
-import { TrendingUp, Shield, Zap, DollarSign, Clock } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Sparkles, Zap, Heart, Users, Gift, Star } from "lucide-react";
 
 const Pricing = () => {
   const navigate = useNavigate();
 
-  const faqs = [
-    {
-      question: "Why beta pricing? What's the catch?",
-      answer:
-        "No catch - we're transparent. We're in beta with a small but growing user base. Our tech is production-ready (68 database tables, 20+ edge functions, 9 AI systems, unified sidebar navigation), but we're building in public. Early users get lifetime founder rates as a thank you for joining early and providing feedback. When we officially launch, prices will increase - but yours stays locked in forever.",
-    },
-    {
-      question: "What's included in the free tier?",
-      answer:
-        "The free tier includes: 500 daily AI interactions (resets every day), unified sidebar navigation across all 9 AI systems, multi-agent orchestration, temporal memory, voice AI, agent marketplace access, browser AI, knowledge graphs, keyboard shortcuts (Cmd+B), beta tester badge, and community support. It's genuinely free forever - no credit card required, no surprise charges.",
-    },
-    {
-      question: "What does 'locked in forever' mean?",
-      answer:
-        "If you subscribe during beta at $29/mo, that's your rate forever - even after we raise prices post-launch. It's our way of rewarding early adopters. You'll never pay more as long as you stay subscribed. If you cancel and come back later, you'll pay the then-current rate. This is a genuine founder's benefit.",
-    },
-    {
-      question: "Can I upgrade or downgrade anytime?",
-      answer:
-        "Yes! Upgrade instantly and we'll add remaining interactions to your new tier. Downgrade at any time - you keep your paid features until the billing cycle ends. No penalties, no hassle. Beta users get flexible terms because we want you to find the right fit.",
-    },
-    {
-      question: "What happens when I run out of AI interactions?",
-      answer:
-        "Free users get 500 fresh AI interactions every day automatically. Paid subscribers can upgrade mid-cycle for instant access to more interactions, or wait until next billing cycle for automatic refill. You'll get notifications at 80% and 95% usage so you're never surprised. Interactions never expire within your billing period.",
-    },
-    {
-      question: "Is this really production-ready if it's beta?",
-      answer:
-        "Yes! Beta refers to our user base size, not technical readiness. We have 68 production database tables, 20+ serverless edge functions, enterprise-grade security with Row Level Security, automated cron jobs for autonomous evolution, and all 9 AI systems fully operational. We're beta because we're building community and gathering feedback - not because the tech isn't ready.",
-    },
-    {
-      question: "How long will beta pricing last?",
-      answer:
-        "We're aiming for the first 1,000 users, but we'll announce 30 days before any price increases. Current beta users will receive advance notice and keep their founder rates. We're committed to transparency - no surprise pricing changes. Join now to guarantee your rate.",
-    },
-    {
-      question: "What's your refund policy?",
-      answer:
-        "We offer a 14-day money-back guarantee on all paid plans. If you're unsatisfied for any reason, email us within 14 days and we'll refund you completely - no questions asked. Beta users get extra flexibility as we iterate and improve.",
-    },
+  const features = [
+    "Unlimited AI interactions",
+    "All 9 AI systems",
+    "Multi-agent orchestration",
+    "Temporal memory",
+    "Voice AI",
+    "Agent marketplace access",
+    "Browser AI",
+    "Knowledge graphs",
+    "Keyboard shortcuts",
+    "Advanced analytics",
+    "All features unlocked",
+    "Priority support"
   ];
 
   return (
     <PageLayout showHeader={true} showFooter={true} transition={true}>
       <SEO 
-        title="Beta Pricing - Lock In Founder Rates Forever | Early Access"
-        description="Join our beta. Start free with 500 daily credits forever. Founder rate $29/mo (normally $49). Lock in your rate for life. Limited to first 1,000 users."
-        keywords="beta pricing, founder rates, early access pricing, AI beta launch, startup pricing"
+        title="Everything Free Forever | Oneiros AI Platform"
+        description="Access all premium features for free. Unlimited AI interactions, 9 AI systems, multi-agent orchestration, and more. No credit card required."
+        keywords="free AI platform, unlimited AI, free AI tools, AI for everyone"
         canonical="https://oneiros.me/pricing"
         ogImage="/og-platform-automation.png"
       />
 
       <ResponsiveContainer size="xl" padding="md">
         <MobileSafeArea bottom>
-          <div className="space-y-12 md:space-y-16">
+          <div className="space-y-12 md:space-y-16 py-8 md:py-12">
             {/* Header */}
             <ResponsiveSection spacing="md">
-              <div className="text-center space-y-4">
-                <Badge variant="outline" className="text-sm sm:text-base px-3 sm:px-4 py-1.5 sm:py-2 animate-pulse">
-                  <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 sm:mr-2" />
-                  🚀 Beta Launch - Lock In Founder Rates
+              <div className="text-center space-y-6">
+                <Badge variant="outline" className="text-base px-6 py-3 animate-pulse">
+                  <Gift className="h-5 w-5 mr-2" />
+                  Everything Free Forever
                 </Badge>
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
-                  Beta Pricing for Early Users
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">
+                  No Pricing. Just{" "}
+                  <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
+                    Free Access
+                  </span>
                 </h1>
-                <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                  Join the first 1,000 founder rate users. Start free forever or lock in <strong className="text-primary">$29/mo for life</strong>. 
-                  Price increases to $49/mo after beta. Includes unified platform experience with all features.
+                <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                  We believe AI should be accessible to everyone. That's why{" "}
+                  <strong className="text-primary">every feature is completely free</strong>{" "}
+                  with <strong>unlimited usage</strong>. No credit card required. No hidden fees. Ever.
                 </p>
-                <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm pt-2">
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
-                    <span className="hidden sm:inline">No credit card required</span>
-                    <span className="sm:hidden">No card required</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
-                    <span className="hidden sm:inline">Beta access to all features</span>
-                    <span className="sm:hidden">All features</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
-                    <span className="hidden sm:inline">Lifetime founder pricing</span>
-                    <span className="sm:hidden">Locked price</span>
+              </div>
+            </ResponsiveSection>
+
+            {/* Main Free Card */}
+            <ResponsiveSection spacing="md">
+              <div className="max-w-4xl mx-auto">
+                <Card className="p-8 md:p-12 border-2 border-primary shadow-2xl bg-gradient-to-br from-primary/10 via-transparent to-primary/5">
+                  <CardHeader className="text-center pb-8">
+                    <div className="flex justify-center mb-4">
+                      <div className="p-4 bg-primary/20 rounded-full">
+                        <Sparkles className="h-12 w-12 text-primary" />
+                      </div>
+                    </div>
+                    <CardTitle className="text-3xl md:text-4xl font-bold mb-2">
+                      Free Forever Plan
+                    </CardTitle>
+                    <div className="flex items-baseline justify-center gap-2">
+                      <span className="text-6xl font-bold">$0</span>
+                      <span className="text-2xl text-muted-foreground">/forever</span>
+                    </div>
+                    <p className="text-lg text-muted-foreground mt-4">
+                      Unlimited everything. No strings attached.
+                    </p>
+                  </CardHeader>
+                  <CardContent className="space-y-8">
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      {features.map((feature, idx) => (
+                        <div key={idx} className="flex items-start gap-3">
+                          <Star className="h-5 w-5 text-primary flex-shrink-0 mt-0.5 fill-primary" />
+                          <span className="text-base">{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="pt-6 space-y-4">
+                      <Button 
+                        size="lg"
+                        className="w-full text-lg py-7 shadow-xl hover:shadow-2xl transition-all hover:scale-105"
+                        onClick={() => navigate('/chat')}
+                      >
+                        <Zap className="mr-2 h-5 w-5" />
+                        Start Using Now - It's Free
+                      </Button>
+                      <p className="text-center text-sm text-muted-foreground">
+                        No sign-up required to explore • Optional account for saving preferences
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </ResponsiveSection>
+
+            {/* Why Free Section */}
+            <ResponsiveSection spacing="md" background="muted">
+              <div className="p-8 md:p-12 max-w-4xl mx-auto">
+                <div className="text-center space-y-6">
+                  <Heart className="h-16 w-16 text-primary mx-auto" />
+                  <h2 className="text-3xl md:text-4xl font-bold">
+                    Why Everything Is Free
+                  </h2>
+                  <div className="space-y-4 text-lg text-muted-foreground text-left max-w-2xl mx-auto">
+                    <p>
+                      We're building Oneiros as a <strong className="text-foreground">community-driven platform</strong>.
+                      Our goal is to democratize AI and make advanced automation accessible to everyone.
+                    </p>
+                    <p>
+                      Instead of paywalls, we're focusing on creating the best AI platform possible and
+                      growing an engaged community. Your feedback and usage help us improve constantly.
+                    </p>
+                    <p className="text-primary font-semibold">
+                      Every feature. Every AI system. Unlimited usage. Completely free. Forever.
+                    </p>
                   </div>
                 </div>
               </div>
             </ResponsiveSection>
 
-            {/* Pricing Cards */}
+            {/* Community CTA */}
             <ResponsiveSection spacing="md">
-              <PricingCards />
-            </ResponsiveSection>
-
-            {/* Value Comparison */}
-            <ResponsiveSection spacing="md" background="muted">
-              <div className="p-6 md:p-8">
-                <h3 className="text-2xl font-bold text-center mb-4">Beta Value Proposition</h3>
-                <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
-                  We're in beta, building honestly. Here's what early users get vs. future pricing
-                </p>
-                <ResponsiveGrid cols={{ mobile: 1, tablet: 3, desktop: 3 }} gap="md">
-                  <div className="text-center space-y-2">
-                    <DollarSign className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                    <p className="text-3xl font-bold">$49/mo</p>
-                    <p className="text-sm font-semibold">After Beta Launch</p>
-                    <p className="text-xs text-muted-foreground">Standard Professional pricing</p>
-                  </div>
-                  <div className="text-center space-y-2">
-                    <DollarSign className="h-10 w-10 text-primary mx-auto mb-3" />
-                    <p className="text-3xl font-bold text-primary">$29/mo</p>
-                    <p className="text-sm font-semibold">Beta Founder Rate</p>
-                    <p className="text-xs text-muted-foreground">Locked in forever - Join now</p>
-                  </div>
-                  <div className="text-center space-y-2">
-                    <DollarSign className="h-10 w-10 text-success mx-auto mb-3" />
-                    <p className="text-3xl font-bold text-success">$0/mo</p>
-                    <p className="text-sm font-semibold">Forever Free Tier</p>
-                    <p className="text-xs text-muted-foreground">500 daily AI interactions, all features</p>
-                  </div>
-                </ResponsiveGrid>
-              </div>
-            </ResponsiveSection>
-
-            {/* ROI Calculator */}
-            <ResponsiveSection spacing="md">
-              <ROICalculator />
-            </ResponsiveSection>
-
-            {/* FAQ Section */}
-            <ResponsiveSection spacing="md">
-              <div className="max-w-4xl mx-auto">
-                <h2 className="text-3xl font-bold text-center mb-8">
-                  Frequently Asked Questions
-                </h2>
-                <Accordion type="single" collapsible className="space-y-4">
-                  {faqs.map((faq, index) => (
-                    <AccordionItem key={index} value={`item-${index}`} className="border rounded-lg px-6">
-                      <TouchTarget>
-                        <AccordionTrigger className="text-left text-lg py-5 hover:no-underline font-semibold">
-                          {faq.question}
-                        </AccordionTrigger>
-                      </TouchTarget>
-                      <AccordionContent className="text-muted-foreground text-base pb-5 leading-relaxed">
-                        {faq.answer}
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              </div>
-            </ResponsiveSection>
-
-            {/* Contact CTA */}
-            <ResponsiveSection spacing="md">
-              <div className="text-center space-y-6 py-12 bg-gradient-to-br from-primary/5 to-transparent rounded-lg">
-                <Clock className="h-12 w-12 text-primary mx-auto" />
-                <h2 className="text-3xl font-bold">
-                  Join the Beta Program
+              <div className="text-center space-y-6 py-12 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl">
+                <Users className="h-16 w-16 text-primary mx-auto" />
+                <h2 className="text-3xl md:text-4xl font-bold">
+                  Join Our Growing Community
                 </h2>
                 <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                  Have questions about beta access, founder pricing, or enterprise needs? 
-                  Connect with our team.
+                  Be part of a movement to make AI accessible to everyone.
+                  Start building, automating, and creating today.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <TouchTarget>
-                    <Button size="lg" onClick={() => window.location.href = "mailto:sales@oneiros.me"}>
-                      Contact Us
-                    </Button>
-                  </TouchTarget>
-                  <TouchTarget>
-                    <Button size="lg" variant="outline" onClick={() => navigate('/getting-started')}>
-                      Try Demo First
-                    </Button>
-                  </TouchTarget>
+                  <Button 
+                    size="lg"
+                    onClick={() => navigate('/chat')}
+                    className="text-lg px-12 py-7"
+                  >
+                    Get Started Free
+                  </Button>
+                  <Button 
+                    size="lg"
+                    variant="outline"
+                    onClick={() => navigate('/getting-started')}
+                    className="text-lg px-12 py-7"
+                  >
+                    Explore Features
+                  </Button>
                 </div>
               </div>
             </ResponsiveSection>

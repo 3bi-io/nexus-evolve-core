@@ -25,39 +25,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const REFRESH_COOLDOWN = 2 * 60 * 1000; // 2 minutes in milliseconds
 
   const refreshCredits = async (force = false) => {
-    if (!user) {
-      setCredits(0);
-      return;
-    }
-
-    // Check if cooldown period has passed
-    const now = Date.now();
-    const timeSinceLastRefresh = now - lastRefreshTime.current;
-    
-    if (!force && timeSinceLastRefresh < REFRESH_COOLDOWN) {
-      console.log('Credit refresh throttled, waiting for cooldown');
-      return;
-    }
-
-    try {
-      const { data, error } = await supabase.functions.invoke('check-and-deduct-credits', {
-        body: { 
-          operation: 'check_only',
-          userId: user.id
-        }
-      });
-
-      if (!error && data?.allowed) {
-        setCredits(data.remaining || 0);
-        lastRefreshTime.current = now; // Update last refresh timestamp
-      }
-    } catch (error) {
-      console.error('Failed to refresh credits:', error);
-    }
+    // Everything is free - always return unlimited credits
+    setCredits(999999);
   };
 
   const deductCredits = (amount: number) => {
-    setCredits(prev => Math.max(0, prev - amount));
+    // Everything is free - no deduction needed
+    setCredits(999999);
   };
 
   useEffect(() => {
