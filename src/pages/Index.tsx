@@ -1,6 +1,5 @@
 import { ChatInterface } from "@/components/ChatInterface";
 import { OnboardingChecklist } from "@/components/onboarding/OnboardingChecklist";
-import { ProductTour } from "@/components/onboarding/ProductTour";
 import { HelpWidget } from "@/components/onboarding/HelpWidget";
 import { useAuth } from "@/contexts/AuthContext";
 import { PageLayout } from "@/components/layout/PageLayout";
@@ -27,7 +26,6 @@ const Index = () => {
       
       <ChatInterface />
       {user && <OnboardingChecklist />}
-      <ProductTour />
       <HelpWidget />
     </PageLayout>
   );
