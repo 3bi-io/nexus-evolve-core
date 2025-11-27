@@ -383,10 +383,7 @@ export const ChatInterface = () => {
               {!isMobile && <Brain className="w-16 h-16 sm:w-20 sm:h-20 text-primary mb-4 sm:mb-6" />}
               <h2 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-3">Welcome to Oneiros</h2>
               <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-md leading-relaxed">
-                {user 
-                  ? "Your AI learns from every interaction. Start with 500 credits (41+ hours) and watch your AI evolve."
-                  : "Experience AI that learns from you. Sign up for 500 free credits—that's 41+ hours of intelligent conversation!"
-                }
+                Happy Thanksgiving!
               </p>
             </div>
           ) : (
