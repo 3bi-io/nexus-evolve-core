@@ -29,8 +29,8 @@ const Pricing = () => {
   return (
     <PageLayout showHeader={true} showFooter={true} transition={true}>
       <SEO 
-        title="Everything Free Forever | Oneiros AI Platform"
-        description="Access all premium features for free. Unlimited AI interactions, 9 AI systems, multi-agent orchestration, and more. No credit card required."
+        title="Black Friday Sale | Oneiros AI Platform"
+        description="Black Friday special - All premium features unlocked. Unlimited AI interactions, 9 AI systems, multi-agent orchestration, and more. Limited time offer."
         keywords="free AI platform, unlimited AI, free AI tools, AI for everyone"
         canonical="https://oneiros.me/pricing"
         ogImage="/og-platform-automation.png"
@@ -44,7 +44,7 @@ const Pricing = () => {
               <div className="text-center space-y-6">
                 <Badge variant="outline" className="text-base px-6 py-3 animate-pulse">
                   <Gift className="h-5 w-5 mr-2" />
-                  Everything Free Forever
+                  🔥 Black Friday Sale
                 </Badge>
                 <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">
                   No Pricing. Just{" "}
@@ -71,11 +71,11 @@ const Pricing = () => {
                       </div>
                     </div>
                     <CardTitle className="text-3xl md:text-4xl font-bold mb-2">
-                      Free Forever Plan
+                      Black Friday Plan
                     </CardTitle>
                     <div className="flex items-baseline justify-center gap-2">
                       <span className="text-6xl font-bold">$0</span>
-                      <span className="text-2xl text-muted-foreground">/forever</span>
+                      <span className="text-2xl text-muted-foreground">/limited time</span>
                     </div>
                     <p className="text-lg text-muted-foreground mt-4">
                       Unlimited everything. No strings attached.
@@ -114,7 +114,7 @@ const Pricing = () => {
                 <div className="text-center space-y-6">
                   <Heart className="h-16 w-16 text-primary mx-auto" />
                   <h2 className="text-3xl md:text-4xl font-bold">
-                    Why Everything Is Free
+                    Black Friday Exclusive
                   </h2>
                   <div className="space-y-4 text-lg text-muted-foreground text-left max-w-2xl mx-auto">
                     <p>
@@ -126,7 +126,7 @@ const Pricing = () => {
                       growing an engaged community. Your feedback and usage help us improve constantly.
                     </p>
                     <p className="text-primary font-semibold">
-                      Every feature. Every AI system. Unlimited usage. Completely free. Forever.
+                      Black Friday special - Every feature. Every AI system. Unlimited usage. Limited time offer.
                     </p>
                   </div>
                 </div>

@@ -13,17 +13,17 @@ export function FinalCTASection() {
         <div className="space-y-8 max-w-3xl mx-auto">
           <Badge variant="default" className="text-base px-4 py-2">
             <Sparkles className="h-4 w-4 mr-2" />
-            100% Free - No Limits
+            🔥 Black Friday - Limited Time
           </Badge>
           
           <div className="space-y-4">
             <h2 className="text-4xl md:text-5xl font-bold">
-              Start Using AI Today - It's Free
+              Black Friday AI Deal - Act Now
             </h2>
             <p className="text-xl text-muted-foreground">
               Production-ready platform with 38+ autonomous edge functions.
               <br />
-              <strong className="text-foreground">Unlimited access to all features. Forever free.</strong>
+              <strong className="text-foreground">Unlimited access to all features. Black Friday exclusive.</strong>
             </p>
           </div>
           
@@ -33,7 +33,7 @@ export function FinalCTASection() {
               onClick={() => navigate('/chat')}
               className="text-lg px-12 py-7 shadow-2xl hover:scale-105 transition-all"
             >
-              Get Started Free
+              Get Black Friday Deal
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
             <Button 

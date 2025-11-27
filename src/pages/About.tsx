@@ -134,7 +134,7 @@ export default function About() {
                 href="/auth" 
                 className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium"
               >
-                Get Started Free
+                Get Black Friday Deal
               </a>
             </CardContent>
           </Card>

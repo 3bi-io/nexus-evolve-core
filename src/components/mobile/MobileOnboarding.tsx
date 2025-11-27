@@ -15,7 +15,7 @@ interface OnboardingStep {
 const steps: OnboardingStep[] = [
   {
     title: 'Welcome to Oneiros.me',
-    description: 'The AI that gets smarter while you sleep. Free unlimited access to all features. No account required to get started.',
+    description: 'The AI that gets smarter while you sleep. Black Friday special - all features unlocked. No account required to get started.',
     icon: Sparkles,
     gradient: 'from-primary to-accent',
   },
@@ -27,7 +27,7 @@ const steps: OnboardingStep[] = [
   },
   {
     title: 'Unlimited AI Access',
-    description: 'All AI operations are completely free with unlimited usage. No credit card, no limits, just AI.',
+    description: 'Black Friday deal - unlimited AI access. No credit card, no limits, limited time offer.',
     icon: Zap,
     gradient: 'from-warning to-primary',
   },

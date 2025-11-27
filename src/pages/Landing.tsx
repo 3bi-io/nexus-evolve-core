@@ -10,8 +10,8 @@ export default function Landing() {
   return (
     <MarketingLayout>
       <SEO
-        title="Oneiros | Free AI Platform - Vision, Generation, Workflows & Monitoring"
-        description="Free AI platform with vision analysis, image generation, automated workflows, and intelligent monitoring. Unlimited access to all features - no credit card required."
+        title="Oneiros | Black Friday AI Platform Sale - Vision, Generation, Workflows & Monitoring"
+        description="Black Friday special - AI platform with vision analysis, image generation, automated workflows, and intelligent monitoring. Limited time unlimited access to all features."
         keywords={[
           "free AI platform",
           "AI automation",

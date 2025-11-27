@@ -14,9 +14,9 @@ export const CreditBalance = () => {
         </TooltipTrigger>
         <TooltipContent>
           <div className="space-y-1">
-            <p className="font-semibold">Free Unlimited Access</p>
+            <p className="font-semibold">🔥 Black Friday Unlimited Access</p>
             <p className="text-sm text-muted-foreground">
-              All features are completely free with unlimited usage
+              Black Friday special - unlimited usage on all features
             </p>
           </div>
         </TooltipContent>
