@@ -43,7 +43,7 @@ export const ChatHeader = ({
   const navigate = useNavigate();
 
   return (
-    <div className="flex items-center justify-between gap-2 sm:gap-3 pb-3 sm:pb-4 border-b border-border px-3 sm:px-0">
+    <div className="flex items-center justify-between gap-2 sm:gap-3 pb-3 sm:pb-4 sm:border-b border-border px-3 sm:px-0">
       <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
         {isMobile && user && (
           <MobileSessionDrawer
