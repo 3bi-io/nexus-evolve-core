@@ -76,7 +76,7 @@ export const ChatHeader = ({
         {isMobile ? (
           // Mobile: Compact menu
           <>
-            {user ? (
+            {user && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-10 w-10">
@@ -104,15 +104,6 @@ export const ChatHeader = ({
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            ) : (
-              <Button 
-                variant="default" 
-                size="sm" 
-                onClick={() => navigate('/auth')}
-                className="h-10 px-4"
-              >
-                Sign Up
-              </Button>
             )}
           </>
         ) : (
@@ -142,19 +133,10 @@ export const ChatHeader = ({
                 {isExtracting ? "Extracting..." : "Extract"}
               </Button>
             )}
-            {user ? (
+            {user && (
               <Button variant="ghost" size="sm" onClick={signOut} className="h-10">
                 <LogOut className="w-4 h-4 mr-2" />
                 Sign Out
-              </Button>
-            ) : (
-              <Button 
-                variant="default" 
-                size="sm" 
-                onClick={() => navigate('/auth')}
-                className="h-10 px-6"
-              >
-                Sign Up Free
               </Button>
             )}
           </>
