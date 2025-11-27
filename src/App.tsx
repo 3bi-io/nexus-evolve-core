@@ -92,9 +92,10 @@ const RoutesWithShortcuts = () => {
     <>
       <Suspense fallback={<LoadingPage />}>
         <Routes>
-          <Route path="/" element={<Landing />} />
+          <Route path="/" element={<Index />} />
+          <Route path="/chat" element={<Navigate to="/" replace />} />
+          <Route path="/welcome" element={<Landing />} />
           <Route path="/auth" element={<Auth />} />
-          <Route path="/chat" element={<Index />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />

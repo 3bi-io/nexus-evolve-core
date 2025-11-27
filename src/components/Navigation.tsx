@@ -45,13 +45,13 @@ export const Navigation = () => {
       <div className="max-w-7xl mx-auto px-4 lg:px-6 py-3">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2 lg:gap-4 overflow-x-auto scrollbar-hide flex-1 min-w-0">
-            <Link to="/chat" className="flex items-center gap-2 mr-2 lg:mr-4 flex-shrink-0">
+            <Link to="/" className="flex items-center gap-2 mr-2 lg:mr-4 flex-shrink-0">
               <Brain className="w-6 h-6 text-primary" />
               <span className="font-semibold text-lg hidden lg:inline">Oneiros.me</span>
             </Link>
-            <Link to="/chat" className="flex-shrink-0">
+            <Link to="/" className="flex-shrink-0">
               <Button
-                variant={isActive("/chat") ? "default" : "ghost"}
+                variant={isActive("/") ? "default" : "ghost"}
                 size="sm"
                 className="gap-2"
               >

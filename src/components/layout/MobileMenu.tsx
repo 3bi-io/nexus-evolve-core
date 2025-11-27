@@ -162,8 +162,8 @@ export function MobileMenu({ authenticated, onSignOut, onNavigate }: MobileMenuP
             ) : (
               <div className="px-2 space-y-2">
                 <Link
-                  to="/chat"
-                  onClick={() => handleLinkClick("/chat")}
+                  to="/"
+                  onClick={() => handleLinkClick("/")}
                 >
                   <Button className="w-full min-h-[44px] shadow-lg">
                     Start Using AI

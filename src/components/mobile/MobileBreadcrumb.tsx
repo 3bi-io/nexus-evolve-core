@@ -83,11 +83,11 @@ export function MobileBreadcrumb({ className, showBackButton = true }: MobileBre
   const pathSegments = location.pathname.split("/").filter(Boolean);
 
   // Don't show on landing or home
-  if (pathSegments.length === 0 || pathSegments[0] === "landing" || location.pathname === "/") {
+  if (pathSegments.length === 0 || pathSegments[0] === "landing" || pathSegments[0] === "welcome" || location.pathname === "/") {
     return null;
   }
 
-  const hasBack = pathSegments.length > 1 || location.pathname !== "/chat";
+  const hasBack = pathSegments.length > 1 || location.pathname !== "/";
 
   // Get breadcrumb items
   const breadcrumbItems = pathSegments.map((segment, index) => {
@@ -105,7 +105,7 @@ export function MobileBreadcrumb({ className, showBackButton = true }: MobileBre
     if (window.history.length > 1) {
       navigate(-1);
     } else {
-      navigate("/chat");
+      navigate("/");
     }
   };
 
@@ -130,7 +130,7 @@ export function MobileBreadcrumb({ className, showBackButton = true }: MobileBre
 
       {/* Home Icon */}
       <Link
-        to="/chat"
+        to="/"
         className="flex items-center justify-center h-9 w-9 rounded-md hover:bg-accent transition-colors touch-active"
         aria-label="Home"
       >

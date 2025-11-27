@@ -25,6 +25,7 @@ export default function Landing() {
           "ChatGPT alternative"
         ]}
         ogImage="/og-platform-automation.png"
+        canonical="https://oneiros.me/welcome"
         structuredData={{
           "@context": "https://schema.org",
           "@type": "SoftwareApplication",
