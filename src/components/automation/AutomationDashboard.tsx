@@ -51,6 +51,16 @@ export function AutomationDashboard() {
         .order('priority', { ascending: false })
         .limit(20);
 
+      // Calculate cache hit rate
+      const { data: cacheData } = await supabase
+        .from('ai_response_cache')
+        .select('hit_count')
+        .gte('expires_at', new Date().toISOString());
+
+      const totalHits = cacheData?.reduce((sum, item) => sum + (item.hit_count || 0), 0) || 0;
+      const totalRequests = cacheData?.length || 0;
+      const cacheHitRate = totalRequests > 0 ? totalHits / (totalHits + totalRequests) : 0;
+
       setPipelines(pipelinesData || []);
       setMonitors(monitorsData || []);
       setContentQueue(queueData || []);
@@ -60,7 +70,7 @@ export function AutomationDashboard() {
         activePipelines: pipelinesData?.filter(p => p.is_active).length || 0,
         activeMonitors: monitorsData?.filter(m => m.is_active).length || 0,
         pendingContent: queueData?.filter(q => q.status === 'pending').length || 0,
-        cacheHitRate: 0.85, // TODO: Calculate from cache table
+        cacheHitRate,
       });
     } catch (error) {
       console.error('Failed to load automation data:', error);
