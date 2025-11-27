@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders } from "../_shared/cors.ts";
 import { handleError, successResponse } from "../_shared/error-handler.ts";
 import { createLogger } from "../_shared/logger.ts";
-import { requireAuth } from "../_shared/auth.ts";
+import { optionalAuth } from "../_shared/auth.ts";
 import { initSupabaseClient } from "../_shared/supabase-client.ts";
 import { validateRequiredFields } from "../_shared/validators.ts";
 import { lovableAIFetch } from "../_shared/api-client.ts";
@@ -26,13 +26,18 @@ serve(async (req) => {
 
   try {
     const supabase = initSupabaseClient();
-    const user = await requireAuth(req, supabase);
+    const user = await optionalAuth(req, supabase);
+    const isAnonymous = !user;
 
     const body = await req.json();
     validateRequiredFields(body, ["message"]);
     const { message, sessionId } = body;
 
-    logger.info("Analyzing intent", { userId: user.id, messagePreview: message.substring(0, 50) });
+    logger.info("Analyzing intent", { 
+      userId: user?.id || 'anonymous',
+      isAnonymous,
+      messagePreview: message.substring(0, 50) 
+    });
 
     const analysisPrompt = `Analyze this user message and determine which specialized AI agent(s) should handle it.
 
@@ -109,21 +114,23 @@ Guidelines:
 
     logger.info("Intent analysis complete", { analysis });
 
-    // Log coordination decision
-    await supabase.from("evolution_logs").insert({
-      user_id: user.id,
-      log_type: "agent_coordination",
-      description: `Coordinator routed request to: ${analysis.recommended_agents.join(", ")}`,
-      change_type: "auto_discovery",
-      metrics: {
-        intent: analysis.intent,
-        complexity: analysis.complexity,
-        agents: analysis.recommended_agents,
-        requires_coordination: analysis.requires_coordination,
-        message_length: message.length
-      },
-      success: true
-    });
+    // Log coordination decision only for authenticated users
+    if (!isAnonymous) {
+      await supabase.from("evolution_logs").insert({
+        user_id: user.id,
+        log_type: "agent_coordination",
+        description: `Coordinator routed request to: ${analysis.recommended_agents.join(", ")}`,
+        change_type: "auto_discovery",
+        metrics: {
+          intent: analysis.intent,
+          complexity: analysis.complexity,
+          agents: analysis.recommended_agents,
+          requires_coordination: analysis.requires_coordination,
+          message_length: message.length
+        },
+        success: true
+      });
+    }
 
     return successResponse({
       analysis,

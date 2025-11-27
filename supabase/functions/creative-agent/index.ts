@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders } from "../_shared/cors.ts";
 import { handleError, successResponse } from "../_shared/error-handler.ts";
 import { createLogger } from "../_shared/logger.ts";
-import { requireAuth } from "../_shared/auth.ts";
+import { optionalAuth } from "../_shared/auth.ts";
 import { initSupabaseClient } from "../_shared/supabase-client.ts";
 import { validateRequiredFields } from "../_shared/validators.ts";
 import { lovableAIFetch } from "../_shared/api-client.ts";
@@ -17,27 +17,38 @@ serve(async (req) => {
 
   try {
     const supabase = initSupabaseClient();
-    const user = await requireAuth(req, supabase);
+    const user = await optionalAuth(req, supabase);
+    const isAnonymous = !user;
 
     const body = await req.json();
     validateRequiredFields(body, ["messages"]);
     const { messages, context } = body;
 
-    logger.info("Processing creative request", { userId: user.id });
+    logger.info("Processing creative request", { 
+      userId: user?.id || 'anonymous',
+      isAnonymous 
+    });
 
-    // Fetch creative context
-    const { data: solutions } = await supabase
-      .from("problem_solutions")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("success_score", { ascending: false })
-      .limit(10);
+    let solutions = null;
+    let capabilities = null;
 
-    const { data: capabilities } = await supabase
-      .from("capability_modules")
-      .select("*")
-      .eq("user_id", user.id)
-      .eq("is_enabled", true);
+    // Fetch creative context only for authenticated users
+    if (!isAnonymous) {
+      const solutionsResult = await supabase
+        .from("problem_solutions")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("success_score", { ascending: false })
+        .limit(10);
+      solutions = solutionsResult.data;
+
+      const capabilitiesResult = await supabase
+        .from("capability_modules")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("is_enabled", true);
+      capabilities = capabilitiesResult.data;
+    }
 
     const systemPrompt = `You are a Creative Agent specializing in ideation, brainstorming, and innovative problem-solving.
 
@@ -93,20 +104,22 @@ Focus on:
     const aiResult = await aiResponse.json();
     const response = aiResult.choices[0].message.content;
 
-    // Log creative session
-    await supabase.from("evolution_logs").insert({
-      user_id: user.id,
-      log_type: "creative_ideation",
-      description: `Creative agent generated ideas for: ${messages[messages.length - 1]?.content?.substring(0, 100)}...`,
-      change_type: "auto_discovery",
-      metrics: {
-        capabilities_used: capabilities?.length || 0,
-        past_solutions_referenced: solutions?.length || 0,
-        agent_type: "creative_agent",
-        temperature: 0.9
-      },
-      success: true
-    });
+    // Log creative session only for authenticated users
+    if (!isAnonymous) {
+      await supabase.from("evolution_logs").insert({
+        user_id: user.id,
+        log_type: "creative_ideation",
+        description: `Creative agent generated ideas for: ${messages[messages.length - 1]?.content?.substring(0, 100)}...`,
+        change_type: "auto_discovery",
+        metrics: {
+          capabilities_used: capabilities?.length || 0,
+          past_solutions_referenced: solutions?.length || 0,
+          agent_type: "creative_agent",
+          temperature: 0.9
+        },
+        success: true
+      });
+    }
 
     logger.info("Creative response generated successfully");
 

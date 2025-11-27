@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders } from "../_shared/cors.ts";
 import { handleError, successResponse } from "../_shared/error-handler.ts";
 import { createLogger } from "../_shared/logger.ts";
-import { requireAuth } from "../_shared/auth.ts";
+import { optionalAuth } from "../_shared/auth.ts";
 import { initSupabaseClient } from "../_shared/supabase-client.ts";
 import { validateRequiredFields } from "../_shared/validators.ts";
 import { lovableAIFetch } from "../_shared/api-client.ts";
@@ -17,45 +17,60 @@ serve(async (req) => {
 
   try {
     const supabase = initSupabaseClient();
-    const user = await requireAuth(req, supabase);
+    const user = await optionalAuth(req, supabase);
+    const isAnonymous = !user;
 
     const body = await req.json();
     validateRequiredFields(body, ["messages"]);
     const { messages, context } = body;
 
-    logger.info("Analyzing learning patterns", { userId: user.id });
+    logger.info("Analyzing learning patterns", { 
+      userId: user?.id || 'anonymous',
+      isAnonymous 
+    });
 
-    // Fetch learning context
-    const { data: memories } = await supabase
-      .from("agent_memory")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(50);
+    let memories = null;
+    let knowledgeBase = null;
+    let recentInteractions = null;
+    let avgRating = 0;
+    let knowledgeTopics = new Set();
 
-    const { data: knowledgeBase } = await supabase
-      .from("knowledge_base")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("importance_score", { ascending: false })
-      .limit(30);
+    // Fetch learning context only for authenticated users
+    if (!isAnonymous) {
+      const memoriesResult = await supabase
+        .from("agent_memory")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      memories = memoriesResult.data;
 
-    const { data: recentInteractions } = await supabase
-      .from("interactions")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(20);
+      const knowledgeResult = await supabase
+        .from("knowledge_base")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("importance_score", { ascending: false })
+        .limit(30);
+      knowledgeBase = knowledgeResult.data;
 
-    // Calculate learning metrics
-    const avgRating = recentInteractions && recentInteractions.length > 0
-      ? recentInteractions
-          .filter(i => i.quality_rating !== null)
-          .reduce((sum, i) => sum + (i.quality_rating || 0), 0) / 
-        recentInteractions.filter(i => i.quality_rating !== null).length
-      : 0;
+      const interactionsResult = await supabase
+        .from("interactions")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(20);
+      recentInteractions = interactionsResult.data;
 
-    const knowledgeTopics = new Set(knowledgeBase?.map(k => k.topic) || []);
+      // Calculate learning metrics
+      avgRating = recentInteractions && recentInteractions.length > 0
+        ? recentInteractions
+            .filter(i => i.quality_rating !== null)
+            .reduce((sum, i) => sum + (i.quality_rating || 0), 0) / 
+          recentInteractions.filter(i => i.quality_rating !== null).length
+        : 0;
+
+      knowledgeTopics = new Set(knowledgeBase?.map(k => k.topic) || []);
+    }
 
     const systemPrompt = `You are a Learning Agent specializing in meta-learning and knowledge analysis.
 
@@ -107,20 +122,22 @@ Focus on:
     const aiResult = await aiResponse.json();
     const response = aiResult.choices[0].message.content;
 
-    // Log learning insights
-    await supabase.from("evolution_logs").insert({
-      user_id: user.id,
-      log_type: "learning_analysis",
-      description: `Learning agent analyzed interaction: ${messages[messages.length - 1]?.content?.substring(0, 100)}...`,
-      change_type: "auto_discovery",
-      metrics: {
-        memories_analyzed: memories?.length || 0,
-        knowledge_entries: knowledgeBase?.length || 0,
-        avg_satisfaction: avgRating,
-        agent_type: "learning_agent"
-      },
-      success: true
-    });
+    // Log learning insights only for authenticated users
+    if (!isAnonymous) {
+      await supabase.from("evolution_logs").insert({
+        user_id: user.id,
+        log_type: "learning_analysis",
+        description: `Learning agent analyzed interaction: ${messages[messages.length - 1]?.content?.substring(0, 100)}...`,
+        change_type: "auto_discovery",
+        metrics: {
+          memories_analyzed: memories?.length || 0,
+          knowledge_entries: knowledgeBase?.length || 0,
+          avg_satisfaction: avgRating,
+          agent_type: "learning_agent"
+        },
+        success: true
+      });
+    }
 
     logger.info("Learning analysis completed successfully");
 
