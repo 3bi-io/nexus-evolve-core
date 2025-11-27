@@ -156,7 +156,7 @@ export default function Solutions() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" asChild>
-                  <a href="/auth">Start Free Trial</a>
+                  <a href="/auth">Get Black Friday Deal</a>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
                   <a href="/agent-marketplace">Browse Templates</a>

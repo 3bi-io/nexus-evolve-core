@@ -12,8 +12,8 @@ const FAQS = [
     answer: 'No! Oneiros works out of the box with smart defaults. Our AI automatically learns your patterns, routes tasks to the best agents, and improves itself daily. Advanced users can customize everything, but beginners can start chatting immediately.',
   },
   {
-    question: 'Is everything really free and unlimited?',
-    answer: 'Yes! All features are completely free with unlimited usage. No credit limits, no time restrictions, no credit card required. We believe AI should be accessible to everyone.',
+    question: 'Is the Black Friday deal really unlimited?',
+    answer: 'Yes! This Black Friday special gives you unlimited usage on every feature. No credit limits, no time restrictions on usage, limited time offer. We believe AI should be accessible to everyone.',
   },
   {
     question: 'Can Oneiros integrate with my existing tools?',

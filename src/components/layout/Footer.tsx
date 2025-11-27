@@ -17,9 +17,9 @@ export function Footer() {
               </div>
               <span className="font-semibold text-lg">Oneiros.me</span>
             </Link>
-            <Badge variant="secondary" className="gap-1.5">
+            <Badge variant="outline" className="text-xs px-2 py-1">
               <Infinity className="w-3 h-3" />
-              Everything is Free
+              🔥 Black Friday Sale
             </Badge>
             <p className="text-sm text-muted-foreground">
               Your intelligent AI companion for reasoning, creativity, and real-time insights.

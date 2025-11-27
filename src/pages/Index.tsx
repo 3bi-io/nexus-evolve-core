@@ -19,8 +19,8 @@ const Index = () => {
       showBack={false}
     >
       <SEO 
-        title="AI Chat - Free Unlimited Conversations with Multi-Agent System"
-        description="Free unlimited AI chat powered by 5 specialized agents. Get intelligent responses for reasoning, creativity, learning, and real-time data with Grok integration."
+        title="AI Chat - Black Friday Unlimited Conversations with Multi-Agent System"
+        description="Black Friday special - unlimited AI chat powered by 5 specialized agents. Get intelligent responses for reasoning, creativity, learning, and real-time data with Grok integration."
         keywords="free AI chat, unlimited chatbot, multi-agent AI, intelligent conversation, GPT alternative"
         canonical="https://oneiros.me/chat"
       />

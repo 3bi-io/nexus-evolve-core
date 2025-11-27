@@ -56,7 +56,7 @@ export default function GettingStarted() {
     <PageLayout title="Getting Started">
       <SEO
         title="Quick Start Guide - 5 Minutes to AI-Powered | Oneiros"
-        description="Get started with Oneiros AI in 5 minutes. Step-by-step guide, video tutorials, and quick-start templates. Start free - no credit card required."
+        description="Get started with Oneiros AI in 5 minutes. Black Friday special - unlimited access. Step-by-step guide, video tutorials, and quick-start templates."
         keywords="getting started, AI tutorial, onboarding, quick start guide, AI setup"
       />
 

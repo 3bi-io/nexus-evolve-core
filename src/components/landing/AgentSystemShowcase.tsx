@@ -49,7 +49,7 @@ export function AgentSystemShowcase() {
             <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            100% Free • Unlimited Access • No Account Required
+            🔥 Black Friday • All Features Unlocked • Limited Time
           </p>
         </div>
       </div>

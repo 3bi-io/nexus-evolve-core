@@ -19,7 +19,7 @@ export function CompactCreditDisplay({ credits, isAnonymous }: CompactCreditDisp
   return (
     <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-primary/10">
       <Globe className="w-4 h-4 text-primary" />
-      <span className="text-xs font-semibold text-primary">Free</span>
+      <span className="text-xs font-semibold text-primary">🔥 Sale</span>
     </div>
   );
 }
