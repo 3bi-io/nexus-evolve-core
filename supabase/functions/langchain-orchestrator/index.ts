@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders } from "../_shared/cors.ts";
 import { handleError, successResponse } from "../_shared/error-handler.ts";
 import { createLogger } from "../_shared/logger.ts";
-import { requireAuth } from "../_shared/auth.ts";
+import { optionalAuth } from "../_shared/auth.ts";
 import { initSupabaseClient } from "../_shared/supabase-client.ts";
 import { validateRequiredFields } from "../_shared/validators.ts";
 import { lovableAIFetch } from "../_shared/api-client.ts";
@@ -24,9 +24,13 @@ serve(async (req) => {
 
   try {
     const supabase = initSupabaseClient();
-    const user = await requireAuth(req, supabase);
+    const user = await optionalAuth(req, supabase);
+    const isAnonymous = !user;
     
-    logger.info("Processing LangChain task", { userId: user.id });
+    logger.info("Processing LangChain task", { 
+      userId: user?.id || 'anonymous',
+      isAnonymous 
+    });
 
     const body: ChainRequest = await req.json();
     const { task, input, context, language } = body;
@@ -91,23 +95,25 @@ serve(async (req) => {
     const latencyMs = Date.now() - startTime;
     const content = result.choices[0].message.content;
 
-    // Log the chain execution
-    await supabase.from("llm_observations").insert({
-      user_id: user.id,
-      model_name: "google/gemini-2.5-flash",
-      task_type: `langchain_${task}`,
-      prompt_tokens: result.usage?.prompt_tokens || 0,
-      completion_tokens: result.usage?.completion_tokens || 0,
-      total_tokens: result.usage?.total_tokens || 0,
-      latency_ms: latencyMs,
-      cost_credits: ((result.usage?.total_tokens || 0) / 1000) * 2,
-      success: true,
-      metadata: {
-        task,
-        input_length: input.length,
-        has_context: !!context
-      }
-    });
+    // Log the chain execution only for authenticated users
+    if (!isAnonymous) {
+      await supabase.from("llm_observations").insert({
+        user_id: user.id,
+        model_name: "google/gemini-2.5-flash",
+        task_type: `langchain_${task}`,
+        prompt_tokens: result.usage?.prompt_tokens || 0,
+        completion_tokens: result.usage?.completion_tokens || 0,
+        total_tokens: result.usage?.total_tokens || 0,
+        latency_ms: latencyMs,
+        cost_credits: ((result.usage?.total_tokens || 0) / 1000) * 2,
+        success: true,
+        metadata: {
+          task,
+          input_length: input.length,
+          has_context: !!context
+        }
+      });
+    }
 
     logger.info("Chain execution completed", { task, latencyMs });
 

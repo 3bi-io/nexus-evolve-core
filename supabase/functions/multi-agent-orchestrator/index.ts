@@ -4,7 +4,8 @@
  */
 
 import { corsHeaders } from '../_shared/cors.ts';
-import { createAuthenticatedClient } from '../_shared/supabase-client.ts';
+import { optionalAuth } from '../_shared/auth.ts';
+import { initSupabaseClient } from '../_shared/supabase-client.ts';
 import { createLogger } from '../_shared/logger.ts';
 import { validateRequiredFields, validateString, validateArray } from '../_shared/validators.ts';
 import { handleError, successResponse } from '../_shared/error-handler.ts';
@@ -20,16 +21,14 @@ Deno.serve(async (req) => {
   const logger = createLogger('multi-agent-orchestrator', requestId);
 
   try {
-    logger.info('Processing multi-agent orchestration request');
+    const supabase = initSupabaseClient();
+    const user = await optionalAuth(req, supabase);
+    const isAnonymous = !user;
 
-    // Authenticate user
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      throw new Error('MISSING_AUTH_HEADER');
-    }
-
-    const { supabase, user } = await createAuthenticatedClient(authHeader);
-    logger.info('User authenticated', { userId: user.id });
+    logger.info('Processing multi-agent orchestration request', {
+      userId: user?.id || 'anonymous',
+      isAnonymous
+    });
 
     // Parse and validate request body
     const body = await req.json();
@@ -109,27 +108,28 @@ Provide a unified, coherent response that:
 
     const duration = Date.now() - startTime;
 
-    // Log collaboration
-    await supabase.from('agent_collaborations').insert({
-      user_id: user.id,
-      session_id: sessionId,
-      agents_involved: requestedAgents,
-      task_description: task,
-      collaboration_type: 'parallel_synthesis',
-      synthesis_result: {
-        individual_responses: responses,
-        synthesized: synthesizedResponse,
-      },
-      duration_ms: duration,
-    });
+    // Log collaboration only for authenticated users
+    if (!isAnonymous) {
+      await supabase.from('agent_collaborations').insert({
+        user_id: user.id,
+        session_id: sessionId,
+        agents_involved: requestedAgents,
+        task_description: task,
+        collaboration_type: 'parallel_synthesis',
+        synthesis_result: {
+          individual_responses: responses,
+          synthesized: synthesizedResponse,
+        },
+        duration_ms: duration,
+      });
 
-    // Log to evolution
-    await supabase.from('evolution_logs').insert({
-      user_id: user.id,
-      log_type: 'multi_agent_collaboration',
-      description: `Multi-agent collaboration: ${requestedAgents.join(', ')}`,
-      metadata: { agents: requestedAgents, duration, task: task.substring(0, 100) },
-    });
+      await supabase.from('evolution_logs').insert({
+        user_id: user.id,
+        log_type: 'multi_agent_collaboration',
+        description: `Multi-agent collaboration: ${requestedAgents.join(', ')}`,
+        metadata: { agents: requestedAgents, duration, task: task.substring(0, 100) },
+      });
+    }
 
     logger.info('Multi-agent collaboration completed', { duration });
 
