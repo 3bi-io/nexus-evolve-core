@@ -72,6 +72,39 @@ verify_jwt = false
 [functions.system-health]
 verify_jwt = false
 
+[functions.generate-image]
+verify_jwt = false
+
+[functions.xai-image-generator]
+verify_jwt = false
+
+[functions.xai-vision-analyzer]
+verify_jwt = false
+
+[functions.xai-code-analyzer]
+verify_jwt = false
+
+[functions.xai-workflow-executor]
+verify_jwt = false
+
+[functions.replicate-runner]
+verify_jwt = false
+
+[functions.huggingface-inference]
+verify_jwt = false
+
+[functions.semantic-search]
+verify_jwt = false
+
+[functions.tavily-search]
+verify_jwt = false
+
+[functions.elevenlabs-agents]
+verify_jwt = false
+
+[functions.lovable-ai-router]
+verify_jwt = false
+
 [functions.manage-subscription]
 verify_jwt = true
 
