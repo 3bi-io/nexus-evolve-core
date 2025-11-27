@@ -25,10 +25,9 @@ Deno.serve(async (req) => {
 
     // Parse and validate request body
     const body = await req.json();
-    validateRequiredFields(body, ['agentType', 'modelUsed', 'userId']);
+    validateRequiredFields(body, ['agentType', 'modelUsed']);
     validateString(body.agentType, 'agentType');
     validateString(body.modelUsed, 'modelUsed');
-    validateString(body.userId, 'userId');
     
     const { 
       agentType, 
@@ -60,28 +59,33 @@ Deno.serve(async (req) => {
     const totalTokens = promptTokens + completionTokens;
     const cost = (totalTokens / 1000) * (costPer1kTokens[modelUsed] || 0.001);
     
-    logger.info('Inserting LLM observation', { 
-      agentType, 
-      modelUsed, 
-      totalTokens, 
-      cost 
-    });
+    // Only track observations for authenticated users
+    if (userId && userId !== 'anonymous') {
+      logger.info('Inserting LLM observation', { 
+        agentType, 
+        modelUsed, 
+        totalTokens, 
+        cost 
+      });
 
-    const { error } = await supabase.from('llm_observations').insert({
-      user_id: userId,
-      session_id: sessionId,
-      agent_type: agentType,
-      model_used: modelUsed,
-      prompt_tokens: promptTokens,
-      completion_tokens: completionTokens,
-      cost_usd: cost,
-      latency_ms: latencyMs,
-      metadata
-    });
+      const { error } = await supabase.from('llm_observations').insert({
+        user_id: userId,
+        session_id: sessionId,
+        agent_type: agentType,
+        model_used: modelUsed,
+        prompt_tokens: promptTokens,
+        completion_tokens: completionTokens,
+        cost_usd: cost,
+        latency_ms: latencyMs,
+        metadata
+      });
 
-    if (error) {
-      logger.error('Failed to track observation', error);
-      throw error;
+      if (error) {
+        logger.error('Failed to track observation', error);
+        throw error;
+      }
+    } else {
+      logger.debug('Skipping observation tracking for anonymous user');
     }
     
     logger.info('LLM observation tracked successfully');
