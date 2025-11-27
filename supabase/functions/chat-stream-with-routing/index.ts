@@ -17,7 +17,19 @@ serve(async (req) => {
 
   try {
     const supabase = initSupabaseClient();
-    const user = await requireAuth(req, supabase);
+    
+    // Allow both authenticated and anonymous users
+    let user = null;
+    let isAnonymous = false;
+    
+    try {
+      user = await requireAuth(req, supabase);
+    } catch (authError) {
+      // Anonymous user - provide basic chat without persistence
+      isAnonymous = true;
+      user = { id: 'anonymous-' + crypto.randomUUID(), email: null };
+      logger.info("Anonymous user chat request");
+    }
 
     const body = await req.json();
     validateRequiredFields(body, ["messages"]);
@@ -28,6 +40,7 @@ serve(async (req) => {
     logger.info("Chat request with routing", { 
       userId: user.id, 
       sessionId, 
+      isAnonymous,
       messagePreview: userMessage.substring(0, 100)
     });
 
@@ -62,11 +75,11 @@ serve(async (req) => {
 
     // Route to specialized agents if selected
     if (selectedAgent === "reasoning" || selectedAgent === "reasoning-agent") {
-      return await routeToReasoningAgent(supabase, messages, userMessage, user, sessionId, requestId);
+      return await routeToReasoningAgent(supabase, messages, userMessage, user, sessionId, requestId, isAnonymous);
     } else if (selectedAgent === "creative" || selectedAgent === "creative-agent") {
-      return await routeToCreativeAgent(supabase, messages, user, sessionId, requestId);
+      return await routeToCreativeAgent(supabase, messages, user, sessionId, requestId, isAnonymous);
     } else if (selectedAgent === "learning" || selectedAgent === "learning-agent") {
-      return await routeToLearningAgent(supabase, messages, user, sessionId, requestId);
+      return await routeToLearningAgent(supabase, messages, user, sessionId, requestId, isAnonymous);
     }
 
     // General agent with streaming
@@ -79,7 +92,8 @@ serve(async (req) => {
       agentAnalysis, 
       forceAgent,
       logger,
-      requestId
+      requestId,
+      isAnonymous
     );
 
   } catch (error) {
@@ -97,7 +111,8 @@ async function routeToReasoningAgent(
   userMessage: string, 
   user: any, 
   sessionId: string,
-  requestId: string
+  requestId: string,
+  isAnonymous: boolean = false
 ): Promise<Response> {
   const logger = createLogger("chat-stream-with-routing", requestId);
   
@@ -109,14 +124,17 @@ async function routeToReasoningAgent(
   if (reasoningResult.data) {
     const responseText = `## Reasoning Analysis\n\n${reasoningResult.data.solution}`;
     
-    await supabase.from("interactions").insert({
-      user_id: user.id,
-      session_id: sessionId,
-      message: userMessage,
-      response: responseText,
-      model_used: 'oneiros-ai',
-      context: { agent_used: "reasoning", session_id: sessionId }
-    });
+    // Skip database operations for anonymous users
+    if (!isAnonymous) {
+      await supabase.from("interactions").insert({
+        user_id: user.id,
+        session_id: sessionId,
+        message: userMessage,
+        response: responseText,
+        model_used: 'oneiros-ai',
+        context: { agent_used: "reasoning", session_id: sessionId }
+      });
+    }
 
     return new Response(
       JSON.stringify({ response: responseText, success: true }),
@@ -132,7 +150,8 @@ async function routeToCreativeAgent(
   messages: any[], 
   user: any, 
   sessionId: string,
-  requestId: string
+  requestId: string,
+  isAnonymous: boolean = false
 ): Promise<Response> {
   const logger = createLogger("chat-stream-with-routing", requestId);
   const userMessage = messages[messages.length - 1]?.content || "";
@@ -145,14 +164,17 @@ async function routeToCreativeAgent(
   if (creativeResult.data) {
     const responseText = creativeResult.data.response;
     
-    await supabase.from("interactions").insert({
-      user_id: user.id,
-      session_id: sessionId,
-      message: userMessage,
-      response: responseText,
-      model_used: 'oneiros-ai',
-      context: { agent_used: "creative", session_id: sessionId }
-    });
+    // Skip database operations for anonymous users
+    if (!isAnonymous) {
+      await supabase.from("interactions").insert({
+        user_id: user.id,
+        session_id: sessionId,
+        message: userMessage,
+        response: responseText,
+        model_used: 'oneiros-ai',
+        context: { agent_used: "creative", session_id: sessionId }
+      });
+    }
 
     return new Response(
       JSON.stringify({ response: responseText, success: true }),
@@ -168,7 +190,8 @@ async function routeToLearningAgent(
   messages: any[], 
   user: any, 
   sessionId: string,
-  requestId: string
+  requestId: string,
+  isAnonymous: boolean = false
 ): Promise<Response> {
   const logger = createLogger("chat-stream-with-routing", requestId);
   const userMessage = messages[messages.length - 1]?.content || "";
@@ -181,14 +204,17 @@ async function routeToLearningAgent(
   if (learningResult.data) {
     const responseText = learningResult.data.response;
     
-    await supabase.from("interactions").insert({
-      user_id: user.id,
-      session_id: sessionId,
-      message: userMessage,
-      response: responseText,
-      model_used: 'oneiros-ai',
-      context: { agent_used: "learning", session_id: sessionId }
-    });
+    // Skip database operations for anonymous users
+    if (!isAnonymous) {
+      await supabase.from("interactions").insert({
+        user_id: user.id,
+        session_id: sessionId,
+        message: userMessage,
+        response: responseText,
+        model_used: 'oneiros-ai',
+        context: { agent_used: "learning", session_id: sessionId }
+      });
+    }
 
     return new Response(
       JSON.stringify({ response: responseText, success: true }),
@@ -208,7 +234,8 @@ async function handleGeneralAgent(
   agentAnalysis: any,
   forceAgent: string | undefined,
   logger: any,
-  requestId: string
+  requestId: string,
+  isAnonymous: boolean = false
 ): Promise<Response> {
   const startTime = Date.now();
   let contextMemories: any[] = [];
@@ -240,60 +267,87 @@ async function handleGeneralAgent(
     }
   }
   
-  // PHASE 3E: Semantic Search Integration
-  try {
-    const { data: semanticResults } = await supabase.functions.invoke("semantic-search", {
-      body: { 
-        query: userMessage,
-        table: "agent_memory",
-        limit: 5
+  // PHASE 3E: Semantic Search Integration (skip for anonymous users)
+  if (!isAnonymous) {
+    try {
+      const { data: semanticResults } = await supabase.functions.invoke("semantic-search", {
+        body: { 
+          query: userMessage,
+          table: "agent_memory",
+          limit: 5
+        }
+      });
+
+      if (semanticResults?.results && semanticResults.results.length > 0) {
+        contextMemories = semanticResults.results;
+        logger.debug("Semantic search completed", { memoriesFound: contextMemories.length });
       }
-    });
-
-    if (semanticResults?.results && semanticResults.results.length > 0) {
-      contextMemories = semanticResults.results;
-      logger.debug("Semantic search completed", { memoriesFound: contextMemories.length });
+    } catch (semanticError) {
+      logger.error("Semantic search failed", semanticError);
     }
-  } catch (semanticError) {
-    logger.error("Semantic search failed", semanticError);
-  }
 
-  // Fallback or supplement with importance-based retrieval
-  if (contextMemories.length < 5) {
-    if (sessionId) {
-      const { data: sessionMemories } = await supabase
+    // Fallback or supplement with importance-based retrieval
+    if (contextMemories.length < 5) {
+      if (sessionId) {
+        const { data: sessionMemories } = await supabase
+          .from("agent_memory")
+          .select("id, content, memory_type, context_summary, importance_score")
+          .eq("user_id", user.id)
+          .eq("session_id", sessionId)
+          .order("importance_score", { ascending: false })
+          .limit(3);
+        contextMemories = [...contextMemories, ...(sessionMemories || [])];
+      }
+      
+      const { data: globalMemories } = await supabase
         .from("agent_memory")
         .select("id, content, memory_type, context_summary, importance_score")
         .eq("user_id", user.id)
-        .eq("session_id", sessionId)
         .order("importance_score", { ascending: false })
-        .limit(3);
-      contextMemories = [...contextMemories, ...(sessionMemories || [])];
+        .limit(5);
+      
+      contextMemories = [...contextMemories, ...(globalMemories || [])];
     }
     
-    const { data: globalMemories } = await supabase
-      .from("agent_memory")
-      .select("id, content, memory_type, context_summary, importance_score")
-      .eq("user_id", user.id)
-      .order("importance_score", { ascending: false })
-      .limit(5);
+    // Remove duplicates
+    const uniqueMemories = Array.from(
+      new Map(contextMemories.map(m => [m.id, m])).values()
+    ).slice(0, 10);
     
-    contextMemories = [...contextMemories, ...(globalMemories || [])];
+    // Get adaptive behaviors
+    const { data: adaptiveBehaviors } = await supabase
+      .from("adaptive_behaviors")
+      .select("id, behavior_type, description, effectiveness_score")
+      .eq("user_id", user.id)
+      .eq("active", true)
+      .order("effectiveness_score", { ascending: false })
+      .limit(10);
+
+    const memoryContext = uniqueMemories.length > 0
+      ? `\n## Context:\n${uniqueMemories.map(m => `- [${m.memory_type}] ${m.context_summary}`).join('\n')}\n`
+      : '';
+
+    const behaviorContext = adaptiveBehaviors && adaptiveBehaviors.length > 0
+      ? `\n## Style:\n${adaptiveBehaviors.map((b: any) => `- ${b.description}`).join('\n')}\n`
+      : '';
+
+    const systemPrompt = `You are a helpful AI assistant with learning capabilities.${behaviorContext}${memoryContext}${webSearchContext}`;
+  } else {
+    // Anonymous users get basic system prompt without personalization
+    const systemPrompt = `You are a helpful AI assistant.${webSearchContext}`;
   }
-  
-  // Remove duplicates
-  const uniqueMemories = Array.from(
+
+  const uniqueMemories = isAnonymous ? [] : Array.from(
     new Map(contextMemories.map(m => [m.id, m])).values()
   ).slice(0, 10);
   
-  // Get adaptive behaviors
-  const { data: adaptiveBehaviors } = await supabase
+  const adaptiveBehaviors = isAnonymous ? [] : (await supabase
     .from("adaptive_behaviors")
     .select("id, behavior_type, description, effectiveness_score")
     .eq("user_id", user.id)
     .eq("active", true)
     .order("effectiveness_score", { ascending: false })
-    .limit(10);
+    .limit(10)).data;
 
   const memoryContext = uniqueMemories.length > 0
     ? `\n## Context:\n${uniqueMemories.map(m => `- [${m.memory_type}] ${m.context_summary}`).join('\n')}\n`
@@ -303,7 +357,7 @@ async function handleGeneralAgent(
     ? `\n## Style:\n${adaptiveBehaviors.map((b: any) => `- ${b.description}`).join('\n')}\n`
     : '';
 
-  const systemPrompt = `You are a helpful AI assistant with learning capabilities.${behaviorContext}${memoryContext}${webSearchContext}`;
+  const systemPrompt = `You are a helpful AI assistant${isAnonymous ? '' : ' with learning capabilities'}.${behaviorContext}${memoryContext}${webSearchContext}`;
 
   // Determine model to use
   const complexity = agentAnalysis?.complexity || "medium";
@@ -347,21 +401,25 @@ async function handleGeneralAgent(
     if (!response.ok) throw response;
   }
 
-  // Store interaction
-  const { data: interactionData } = await supabase.from("interactions").insert({
-    user_id: user.id,
-    session_id: sessionId,
-    message: userMessage,
-    context: { 
-      agent_used: "general",
-      coordinator_analysis: agentAnalysis,
-      memories: uniqueMemories.length,
-      behaviors: adaptiveBehaviors?.length || 0,
-      web_search_used: needsWebSearch,
-      model_used: modelUsed
-    },
-    model_used: modelUsed,
-  }).select().single();
+  // Store interaction (skip for anonymous users)
+  let interactionData = null;
+  if (!isAnonymous) {
+    const { data } = await supabase.from("interactions").insert({
+      user_id: user.id,
+      session_id: sessionId,
+      message: userMessage,
+      context: { 
+        agent_used: "general",
+        coordinator_analysis: agentAnalysis,
+        memories: uniqueMemories.length,
+        behaviors: adaptiveBehaviors?.length || 0,
+        web_search_used: needsWebSearch,
+        model_used: modelUsed
+      },
+      model_used: modelUsed,
+    }).select().single();
+    interactionData = data;
+  }
 
   // Buffer and stream response
   const encoder = new TextEncoder();
@@ -401,31 +459,33 @@ async function handleGeneralAgent(
           }
         }
 
-        // Update interaction with response
-        if (interactionData?.id && assistantResponse) {
+        // Update interaction with response (skip for anonymous users)
+        if (!isAnonymous && interactionData?.id && assistantResponse) {
           await supabase.from("interactions")
             .update({ response: assistantResponse })
             .eq("id", interactionData.id);
         }
 
-        // Track LLM observation
-        const latencyMs = Date.now() - startTime;
-        supabase.functions.invoke('track-llm-observation', {
-          body: {
-            agentType: "general",
-            modelUsed: modelUsed,
-            promptTokens: promptTokens || Math.ceil(userMessage.length / 4),
-            completionTokens: completionTokens || Math.ceil(assistantResponse.length / 4),
-            latencyMs: latencyMs,
-            userId: user.id,
-            sessionId: sessionId,
-            metadata: {
-              complexity: complexity,
-              web_search_used: needsWebSearch,
-              memories_used: uniqueMemories.length
+        // Track LLM observation (skip for anonymous users)
+        if (!isAnonymous) {
+          const latencyMs = Date.now() - startTime;
+          supabase.functions.invoke('track-llm-observation', {
+            body: {
+              agentType: "general",
+              modelUsed: modelUsed,
+              promptTokens: promptTokens || Math.ceil(userMessage.length / 4),
+              completionTokens: completionTokens || Math.ceil(assistantResponse.length / 4),
+              latencyMs: latencyMs,
+              userId: user.id,
+              sessionId: sessionId,
+              metadata: {
+                complexity: complexity,
+                web_search_used: needsWebSearch,
+                memories_used: uniqueMemories.length
+              }
             }
-          }
-        }).catch((err: any) => logger.error("Failed to track observation", err));
+          }).catch((err: any) => logger.error("Failed to track observation", err));
+        }
 
         controller.close();
       } catch (error) {
