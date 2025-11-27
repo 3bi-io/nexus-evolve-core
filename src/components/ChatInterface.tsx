@@ -379,11 +379,11 @@ export const ChatInterface = () => {
           )}
           
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center px-4 py-6 sm:py-8">
+            <div className="flex flex-col items-center justify-center h-full text-center px-4 pt-0 pb-6 sm:pb-8">
               {!isMobile && <Brain className="w-16 h-16 sm:w-20 sm:h-20 text-primary mb-4 sm:mb-6" />}
               <h2 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-3">Welcome to Oneiros</h2>
               <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-md leading-relaxed">
-                Happy Thanksgiving!
+                Happy Thanksgiving, Cody Forbes
               </p>
             </div>
           ) : (
