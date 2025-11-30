@@ -1,5 +1,5 @@
 import "./App.css";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/sonner";
@@ -161,11 +161,25 @@ const RoutesWithShortcuts = () => {
   );
 };
 
+// Initialize OLED mode as default for first-time visitors
+function OLEDInitializer() {
+  useEffect(() => {
+    const hasOledPreference = localStorage.getItem('oled-mode');
+    if (hasOledPreference === null) {
+      // First-time visitor - enable OLED mode by default
+      localStorage.setItem('oled-mode', 'true');
+      document.documentElement.classList.add('oled');
+    }
+  }, []);
+  return null;
+}
+
 function App() {
   return (
     <HelmetProvider>
       <ErrorBoundary>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          <OLEDInitializer />
           <QueryClientProvider client={queryClient}>
             <AuthProvider>
               <BrowserRouter>
