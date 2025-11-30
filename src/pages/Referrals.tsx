@@ -1,5 +1,6 @@
 import { PageLayout } from "@/components/layout/PageLayout";
 import { LoadingPage } from "@/components/layout/LoadingPage";
+import { AuthGuard } from "@/components/auth/AuthGuard";
 import { ReferralCard } from "@/components/referral/ReferralCard";
 import { ShareDialog } from "@/components/referral/ShareDialog";
 import { InviteDialog } from "@/components/referral/InviteDialog";
@@ -18,8 +19,9 @@ const Referrals = () => {
   }
 
   return (
+    <AuthGuard featureName="referral program">
     <PageLayout title="Referrals" showBottomNav={true}>
-      <SEO 
+      <SEO
         title="Referral Program - Invite Friends & Unlock Exclusive Features"
         description="Invite friends to Oneiros.me and unlock exclusive features. Unlock milestone rewards: Priority support at 5 referrals, Beta Access at 10, VIP Status at 25."
         keywords="referral program, invite friends, AI referrals, bonus rewards, exclusive features"
@@ -163,6 +165,7 @@ const Referrals = () => {
           )}
       </div>
     </PageLayout>
+    </AuthGuard>
   );
 };
 

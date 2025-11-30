@@ -1,16 +1,16 @@
 import { useEffect, useState, useCallback, lazy, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { PageLayout } from "@/components/layout/PageLayout";
-
-const ForceGraph2D = lazy(() => import("react-force-graph-2d"));
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Network } from "lucide-react";
+import { RefreshCw, Network, Lock } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { EmptyState } from "@/components/EmptyState";
+
+const ForceGraph2D = lazy(() => import("react-force-graph-2d"));
 
 import { SEO } from "@/components/SEO";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -39,7 +39,10 @@ export default function KnowledgeGraph() {
   const [activeTab, setActiveTab] = useState("graph");
 
   const loadGraphData = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
 
     setIsLoading(true);
     try {
@@ -172,12 +175,24 @@ export default function KnowledgeGraph() {
               <p className="text-sm md:text-base text-muted-foreground">Visual representation of learned concepts and connections</p>
             </div>
           </div>
-          <Button onClick={loadGraphData} disabled={isLoading} variant="outline">
+          <Button onClick={loadGraphData} disabled={isLoading || !user} variant="outline">
             <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
             Refresh
           </Button>
         </div>
 
+        {!user && (
+          <Card className="p-6 text-center border-primary/20 bg-primary/5">
+            <Lock className="w-8 h-8 mx-auto text-primary mb-3" />
+            <h3 className="font-semibold mb-2">Sign In to View Your Knowledge Graph</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Your personal knowledge graph builds as you interact with AI. Sign in to see your learned concepts and connections.
+            </p>
+            <Button onClick={() => navigate('/auth')}>Sign In</Button>
+          </Card>
+        )}
+
+        {user && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           <Card>
             <CardHeader className="pb-3">
@@ -216,7 +231,9 @@ export default function KnowledgeGraph() {
             </CardContent>
           </Card>
         </div>
+        )}
 
+        {user && (
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full max-w-md grid-cols-2">
             <TabsTrigger value="graph">Graph View</TabsTrigger>
@@ -297,6 +314,7 @@ export default function KnowledgeGraph() {
             <RAGSearch />
           </TabsContent>
         </Tabs>
+        )}
       </div>
     </PageLayout>
   );

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { AuthGuard } from "@/components/auth/AuthGuard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -89,6 +90,7 @@ export default function VoiceAgentManager() {
   };
 
   return (
+    <AuthGuard featureName="voice agent management">
     <PageLayout title="Voice Agent Manager" showBack={true}>
       <SEO
         title="Voice Agent Manager - Manage ElevenLabs Agents"
@@ -350,5 +352,6 @@ export default function VoiceAgentManager() {
         )}
       </div>
     </PageLayout>
+    </AuthGuard>
   );
 }

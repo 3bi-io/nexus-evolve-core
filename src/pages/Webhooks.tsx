@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { AuthGuard } from "@/components/auth/AuthGuard";
 import { SEO } from "@/components/SEO";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -138,6 +139,7 @@ export default function Webhooks() {
   };
 
   return (
+    <AuthGuard featureName="webhook configuration">
     <PageLayout title="Webhooks" showBack={true}>
       <SEO
         title="Webhooks - Real-Time Event Notifications"
@@ -323,5 +325,6 @@ export default function Webhooks() {
         </div>
       </div>
     </PageLayout>
+    </AuthGuard>
   );
 }

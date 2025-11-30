@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { TrendingUp, Activity, Brain, Star, Network, Sparkles, BookOpen, RefreshCw } from "lucide-react";
+import { TrendingUp, Activity, Brain, Star, Network, Sparkles, BookOpen, RefreshCw, Lock } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { StatusCard } from "@/components/evolution/StatusCard";
 import { SettingsCard } from "@/components/evolution/SettingsCard";
@@ -41,6 +41,8 @@ export default function Evolution() {
   useEffect(() => {
     if (user) {
       loadDashboardData();
+    } else {
+      setIsLoading(false);
     }
   }, [user]);
 
@@ -408,12 +410,24 @@ export default function Evolution() {
               <p className="text-muted-foreground">Track learning progress and system improvements</p>
             </div>
           </div>
-          <Button onClick={loadDashboardData} variant="outline" disabled={isLoading}>
+          <Button onClick={loadDashboardData} variant="outline" disabled={isLoading || !user}>
             <RefreshCw className={`w-4 h-4 mr-2 ${isLoading ? "animate-spin" : ""}`} />
             Refresh
           </Button>
         </div>
 
+        {!user && (
+          <Card className="p-6 text-center border-primary/20 bg-primary/5">
+            <Lock className="w-8 h-8 mx-auto text-primary mb-3" />
+            <h3 className="font-semibold mb-2">Sign In to Track Your AI's Evolution</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              The Evolution Dashboard tracks your personal AI learning progress, adaptive behaviors, and system improvements. Sign in to start building your personalized AI.
+            </p>
+            <Button onClick={() => navigate('/auth')}>Sign In</Button>
+          </Card>
+        )}
+
+        {user && (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <Card>
             <CardHeader className="pb-3">
@@ -467,7 +481,10 @@ export default function Evolution() {
             </CardContent>
           </Card>
         </div>
+        )}
 
+        {user && (
+        <>
         {/* PHASE 3: Real-Time Status & Settings */}
         {stats.totalInteractions === 0 && experiments.length === 0 && archivedMemories.length === 0 ? (
           <EmptyState
@@ -761,6 +778,8 @@ export default function Evolution() {
               </CardContent>
             </Card>
           </>
+        )}
+        </>
         )}
       </div>
       </div>

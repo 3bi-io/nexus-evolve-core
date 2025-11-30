@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 import { Card } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { BarChart3, TrendingUp, Zap, DollarSign } from 'lucide-react';
@@ -75,8 +76,9 @@ export default function XAIAnalytics() {
   }
 
   return (
+    <AuthGuard featureName="XAI analytics">
     <PageLayout>
-      <SEO 
+      <SEO
         title="XAI Analytics - Usage & Performance Metrics"
         description="Track your XAI usage, performance metrics, and costs across all Grok-powered features"
         keywords="XAI analytics, AI usage, performance metrics, cost tracking"
@@ -170,5 +172,6 @@ export default function XAIAnalytics() {
         </div>
       </div>
     </PageLayout>
+    </AuthGuard>
   );
 }

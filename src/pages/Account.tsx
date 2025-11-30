@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { AuthGuard } from "@/components/auth/AuthGuard";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -209,8 +210,9 @@ const Account = () => {
     : 0;
 
   return (
+    <AuthGuard featureName="account settings">
     <PageLayout title="Account" showBottomNav={true}>
-      <SEO 
+      <SEO
         title="Account Settings - Manage Subscription & Credits"
         description="View your subscription plan, monitor credit usage, and manage your Oneiros.me account. Track usage history and upgrade your plan for more AI capabilities."
         keywords="account settings, subscription management, credit usage, AI plan"
@@ -465,6 +467,7 @@ const Account = () => {
         )}
       </div>
     </PageLayout>
+    </AuthGuard>
   );
 };
 
