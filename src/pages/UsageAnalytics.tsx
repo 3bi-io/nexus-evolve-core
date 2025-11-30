@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { PageLayout } from '@/components/layout/PageLayout';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
@@ -142,8 +143,9 @@ const UsageAnalytics = () => {
   const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(var(--accent))', 'hsl(var(--muted))'];
 
   return (
+    <AuthGuard featureName="usage analytics">
     <PageLayout title="Usage" showBottomNav={true}>
-      <SEO 
+      <SEO
         title="Usage Analytics - Track Credits, Time & Feature Activity"
         description="Monitor your AI platform usage with detailed analytics. Track credit consumption, time spent, average session length, and feature usage breakdown over 7, 30, or 90 days."
         keywords="usage analytics, credit tracking, usage dashboard, AI analytics, time tracking"
@@ -340,6 +342,7 @@ const UsageAnalytics = () => {
           </Card>
         </div>
       </PageLayout>
+    </AuthGuard>
   );
 };
 

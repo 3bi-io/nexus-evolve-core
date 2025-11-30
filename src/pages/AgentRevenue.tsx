@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { AuthGuard } from "@/components/auth/AuthGuard";
 import { SEO } from "@/components/SEO";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -124,6 +125,7 @@ export default function AgentRevenue() {
     .slice(-30);
 
   return (
+    <AuthGuard featureName="agent revenue tracking">
     <PageLayout title="Agent Revenue" showBack={true}>
       <SEO
         title="Agent Revenue - Track Marketplace Earnings & Sales"
@@ -285,5 +287,6 @@ export default function AgentRevenue() {
         </Card>
       </div>
     </PageLayout>
+    </AuthGuard>
   );
 }

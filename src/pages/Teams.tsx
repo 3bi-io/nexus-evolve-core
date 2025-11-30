@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
+import { AuthGuard } from '@/components/auth/AuthGuard';
 import { SEO } from '@/components/SEO';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -111,6 +112,7 @@ export default function Teams() {
   };
 
   return (
+    <AuthGuard featureName="team management">
     <PageLayout title="Teams">
       <SEO
         title="Team Management - Oneiros AI"
@@ -265,5 +267,6 @@ export default function Teams() {
         </div>
       </div>
     </PageLayout>
+    </AuthGuard>
   );
 }
