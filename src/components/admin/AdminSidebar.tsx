@@ -17,6 +17,7 @@ import {
   TrendingUp,
   Menu,
   X,
+  Mic,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ const sidebarSections = [
   { id: "overview", label: "System Overview", icon: Home, description: "Dashboard & stats" },
   { id: "user-analytics", label: "User Analytics", icon: TrendingUp, description: "Growth & retention" },
   { id: "agent-analytics", label: "Agent Analytics", icon: Activity, description: "Agent performance" },
+  { id: "eros", label: "Eros Voice Agent", icon: Mic, description: "Configure Eros AI" },
   { id: "users", label: "User Management", icon: Users, description: "Manage users & roles" },
   { id: "agents", label: "Agent Management", icon: Bot, description: "Moderate agents" },
   { id: "data", label: "Data Management", icon: Database, description: "Knowledge & memory" },

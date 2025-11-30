@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Mic, MicOff, Sparkles, Volume2, VolumeX, AlertCircle, CheckCircle } from 'lucide-react';
+import { Mic, MicOff, Sparkles, Volume2, VolumeX, AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -25,6 +25,34 @@ interface BrowserSupport {
   isIOS: boolean;
 }
 
+interface ErosConfig {
+  system_prompt: string;
+  model_settings: {
+    model: string;
+    temperature: number;
+    max_tokens: number;
+  };
+  wake_word: string;
+  features: {
+    web_search_enabled: boolean;
+    memory_enabled: boolean;
+    analytics_enabled: boolean;
+  };
+  voice_settings: {
+    rate: number;
+    pitch: number;
+    volume: number;
+  };
+}
+
+const DEFAULT_CONFIG: ErosConfig = {
+  system_prompt: "You are Eros, a sophisticated AI assistant. Respond concisely and naturally.",
+  model_settings: { model: "grok-beta", temperature: 0.7, max_tokens: 500 },
+  wake_word: "Zephel",
+  features: { web_search_enabled: true, memory_enabled: true, analytics_enabled: true },
+  voice_settings: { rate: 0.85, pitch: 0.9, volume: 1.0 }
+};
+
 const checkBrowserSupport = (): BrowserSupport => {
   const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
   
@@ -43,6 +71,8 @@ export const GrokVoiceAgent = () => {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [currentTranscript, setCurrentTranscript] = useState('');
   const [browserSupport, setBrowserSupport] = useState<BrowserSupport | null>(null);
+  const [config, setConfig] = useState<ErosConfig>(DEFAULT_CONFIG);
+  const [configLoading, setConfigLoading] = useState(true);
   const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
   
@@ -53,6 +83,44 @@ export const GrokVoiceAgent = () => {
     checkSpeakerPermission,
     updateMicPermission,
   } = useAudioPermissions();
+
+  // Load Eros configuration from database
+  useEffect(() => {
+    loadErosConfig();
+  }, []);
+
+  const loadErosConfig = async () => {
+    setConfigLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("eros_config")
+        .select("config_key, config_value");
+
+      if (error) {
+        console.error("Failed to load Eros config:", error);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        const configMap: Record<string, any> = {};
+        data.forEach((row: any) => {
+          configMap[row.config_key] = row.config_value;
+        });
+
+        setConfig({
+          system_prompt: configMap.system_prompt || DEFAULT_CONFIG.system_prompt,
+          model_settings: configMap.model_settings || DEFAULT_CONFIG.model_settings,
+          wake_word: configMap.wake_word || DEFAULT_CONFIG.wake_word,
+          features: configMap.features || DEFAULT_CONFIG.features,
+          voice_settings: configMap.voice_settings || DEFAULT_CONFIG.voice_settings,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to load Eros config:", error);
+    } finally {
+      setConfigLoading(false);
+    }
+  };
 
   useEffect(() => {
     const support = checkBrowserSupport();
@@ -88,16 +156,16 @@ export const GrokVoiceAgent = () => {
   };
 
   const { isListening } = useWakeWord({
-    wakeWord: 'Zephel',
+    wakeWord: config.wake_word,
     onWakeWordDetected: handleWakeWord,
-    enabled: !isActive && micPermission === 'granted'
+    enabled: !isActive && micPermission === 'granted' && !configLoading
   });
 
   const speak = (text: string) => {
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 0.85;
-    utterance.pitch = 0.9;
-    utterance.volume = 1;
+    utterance.rate = config.voice_settings.rate;
+    utterance.pitch = config.voice_settings.pitch;
+    utterance.volume = config.voice_settings.volume;
     
     utterance.onstart = () => setIsSpeaking(true);
     utterance.onend = () => setIsSpeaking(false);
@@ -193,27 +261,17 @@ export const GrokVoiceAgent = () => {
     setMessages(prev => [...prev, userMessage]);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        toast({
-          title: "Authentication Required",
-          description: "Please sign in to use Grok",
-          variant: "destructive"
-        });
-        return;
-      }
-
       const response = await supabase.functions.invoke('xai-chat', {
         body: {
           messages: [
-            { role: 'system', content: 'You are Eros, a sophisticated AI assistant. Respond concisely and naturally.' },
+            { role: 'system', content: config.system_prompt },
             ...messages.map(m => ({ role: m.role, content: m.content })),
             { role: 'user', content: transcript }
           ],
-          model: 'grok-beta',
-          temperature: 0.7,
-          max_tokens: 500
+          model: config.model_settings.model,
+          temperature: config.model_settings.temperature,
+          max_tokens: config.model_settings.max_tokens,
+          search: config.features.web_search_enabled
         }
       });
 
@@ -232,7 +290,7 @@ export const GrokVoiceAgent = () => {
       console.error('Grok API error:', error);
       toast({
         title: "Error",
-        description: "Failed to get response from Grok",
+        description: "Failed to get response from Eros",
         variant: "destructive"
       });
     }
@@ -259,6 +317,15 @@ export const GrokVoiceAgent = () => {
       speechSynthesis.cancel();
     };
   }, []);
+
+  if (configLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2 text-muted-foreground">Loading Eros configuration...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -310,6 +377,9 @@ export const GrokVoiceAgent = () => {
               {micPermission === 'granted' && (
                 <Badge variant="default" className="ml-auto">Ready</Badge>
               )}
+              {config.features.web_search_enabled && (
+                <Badge variant="secondary" className="ml-1">Web Search</Badge>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -317,7 +387,7 @@ export const GrokVoiceAgent = () => {
               <div className="space-y-1">
                 <p className="text-sm font-medium">Wake Word Status</p>
                 <p className="text-xs text-muted-foreground">
-                  {isListening ? 'Listening for "Zephel"' : micPermission === 'granted' ? 'Inactive' : 'Awaiting mic access'}
+                  {isListening ? `Listening for "${config.wake_word}"` : micPermission === 'granted' ? 'Inactive' : 'Awaiting mic access'}
                 </p>
               </div>
               <div className={`h-3 w-3 rounded-full ${isListening ? 'bg-green-500 animate-pulse' : 'bg-muted'}`} />
@@ -372,9 +442,9 @@ export const GrokVoiceAgent = () => {
             )}
 
             <div className="space-y-2 text-xs text-muted-foreground">
-              <p>• Say "Zephel" to activate wake word mode</p>
+              <p>• Say "{config.wake_word}" to activate wake word mode</p>
               <p>• Click "Activate Eros" for manual voice control</p>
-              <p>• Powered by xAI Grok with real-time web search</p>
+              <p>• Powered by xAI Grok {config.features.web_search_enabled ? 'with real-time web search' : ''}</p>
             </div>
           </CardContent>
         </Card>
