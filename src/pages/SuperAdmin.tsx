@@ -16,6 +16,7 @@ import { AgentManagement } from "@/components/admin/sections/AgentManagement";
 import { UserAnalytics } from "@/components/admin/sections/UserAnalytics";
 import { AgentAnalyticsOverview } from "@/components/admin/sections/AgentAnalyticsOverview";
 import { AuditLog } from "@/components/admin/sections/AuditLog";
+import { ErosManagement } from "@/components/admin/sections/ErosManagement";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
 import { BreadcrumbNav } from "@/components/BreadcrumbNav";
@@ -109,6 +110,8 @@ export default function SuperAdmin() {
         return <AgentAnalyticsOverview />;
       case "audit-log":
         return <AuditLog />;
+      case "eros":
+        return <ErosManagement />;
       default:
         return <SystemOverview />;
     }
