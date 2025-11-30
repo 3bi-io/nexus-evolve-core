@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
+import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,6 +44,7 @@ const USE_CASES = [
 
 export default function VoiceAgent() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [agentId, setAgentId] = useState("");
   const [isConfigured, setIsConfigured] = useState(false);
   const [browserWarning, setBrowserWarning] = useState<string | null>(null);
@@ -188,7 +190,13 @@ export default function VoiceAgent() {
           </TabsList>
 
           <TabsContent value="grok">
-            <GrokVoiceAgent />
+            {user ? (
+              <GrokVoiceAgent />
+            ) : (
+              <Card className="p-8 text-center">
+                <p className="text-muted-foreground">Please sign in to access Eros Voice Interface</p>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="setup">
