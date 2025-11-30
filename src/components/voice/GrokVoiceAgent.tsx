@@ -88,7 +88,7 @@ export const GrokVoiceAgent = () => {
   };
 
   const { isListening } = useWakeWord({
-    wakeWord: '416292',
+    wakeWord: 'Zephel',
     onWakeWordDetected: handleWakeWord,
     enabled: !isActive && micPermission === 'granted'
   });
@@ -317,7 +317,7 @@ export const GrokVoiceAgent = () => {
               <div className="space-y-1">
                 <p className="text-sm font-medium">Wake Word Status</p>
                 <p className="text-xs text-muted-foreground">
-                  {isListening ? 'Listening for "416292"' : micPermission === 'granted' ? 'Inactive' : 'Awaiting mic access'}
+                  {isListening ? 'Listening for "Zephel"' : micPermission === 'granted' ? 'Inactive' : 'Awaiting mic access'}
                 </p>
               </div>
               <div className={`h-3 w-3 rounded-full ${isListening ? 'bg-green-500 animate-pulse' : 'bg-muted'}`} />
@@ -372,7 +372,7 @@ export const GrokVoiceAgent = () => {
             )}
 
             <div className="space-y-2 text-xs text-muted-foreground">
-              <p>• Say "416292" to activate wake word mode</p>
+              <p>• Say "Zephel" to activate wake word mode</p>
               <p>• Click "Activate Eros" for manual voice control</p>
               <p>• Powered by xAI Grok with real-time web search</p>
             </div>
