@@ -61,7 +61,7 @@ export function ThemeToggle() {
           <span>System</span>
           {theme === "system" && <span className="ml-auto">✓</span>}
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={toggleOledMode} className="cursor-pointer md:hidden">
+        <DropdownMenuItem onClick={toggleOledMode} className="cursor-pointer">
           <Smartphone className="mr-2 h-4 w-4" />
           <span>OLED Mode</span>
           {isOledMode && <span className="ml-auto">✓</span>}
