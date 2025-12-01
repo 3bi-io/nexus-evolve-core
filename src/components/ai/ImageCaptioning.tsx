@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Upload, Loader2, Copy } from 'lucide-react';
+import { Upload, Loader2, Copy, Server } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { pipeline } from '@huggingface/transformers';
+import { executeWithFallback, serverImageCaptioning } from '@/lib/browser-ai-wrapper';
+import { Badge } from '@/components/ui/badge';
 
 export const ImageCaptioning = () => {
   const [image, setImage] = useState<string | null>(null);
   const [caption, setCaption] = useState<string>('');
   const [loading, setLoading] = useState(false);
+  const [usedServer, setUsedServer] = useState(false);
   const { toast } = useToast();
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,29 +40,46 @@ export const ImageCaptioning = () => {
 
     setLoading(true);
     try {
-      const captioner = await pipeline(
-        'image-to-text',
-        'Xenova/vit-gpt2-image-captioning',
-        { device: 'webgpu' }
+      const { result, usedServer: serverUsed } = await executeWithFallback(
+        'image-captioning',
+        async () => {
+          const captioner = await pipeline(
+            'image-to-text',
+            'Xenova/vit-gpt2-image-captioning',
+            { device: 'webgpu' }
+          );
+
+          const result = await captioner(image, {
+            max_new_tokens: 50,
+          });
+
+          // Handle both output formats from transformers.js
+          if (Array.isArray(result)) {
+            const firstResult = result[0];
+            return (firstResult as any)?.generated_text || '';
+          } else {
+            return (result as any)?.generated_text || '';
+          }
+        },
+        async () => {
+          return await serverImageCaptioning(image);
+        }
       );
 
-      const result = await captioner(image, {
-        max_new_tokens: 50,
-      });
+      setCaption(result);
+      setUsedServer(serverUsed);
 
-      // Handle both output formats from transformers.js
-      let text = '';
-      if (Array.isArray(result)) {
-        const firstResult = result[0];
-        text = (firstResult as any)?.generated_text || '';
+      if (serverUsed) {
+        toast({
+          title: "Caption Generated (Server)",
+          description: "Browser AI unavailable, used server inference",
+        });
       } else {
-        text = (result as any)?.generated_text || '';
+        toast({
+          title: "Caption Generated!",
+          description: "Image caption created successfully",
+        });
       }
-      setCaption(text);
-      toast({
-        title: "Caption Generated!",
-        description: "Image caption created successfully",
-      });
     } catch (error) {
       console.error('Captioning error:', error);
       toast({
@@ -83,10 +103,20 @@ export const ImageCaptioning = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Image Captioning</CardTitle>
-        <CardDescription>
-          Generate natural language descriptions of images
-        </CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Image Captioning</CardTitle>
+            <CardDescription>
+              Generate natural language descriptions of images
+            </CardDescription>
+          </div>
+          {usedServer && (
+            <Badge variant="secondary" className="gap-1">
+              <Server className="h-3 w-3" />
+              Server Mode
+            </Badge>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-col items-center gap-4">

@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { pipeline } from "@huggingface/transformers";
+import { isBrowserAISupported } from "@/lib/csp-detector";
 
 // Unified types
 export type AIProvider = "lovable" | "huggingface" | "browser";
@@ -82,6 +83,11 @@ export const useUnifiedAIRouter = () => {
 
   // Detect WebGPU capability
   const detectWebGPU = useCallback(async (): Promise<boolean> => {
+    // Check CSP first
+    if (!isBrowserAISupported()) {
+      return false;
+    }
+
     try {
       const nav = navigator as any;
       if (!nav.gpu) return false;

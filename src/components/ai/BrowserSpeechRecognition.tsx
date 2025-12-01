@@ -1,16 +1,24 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Loader2, Mic } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, Mic, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { pipeline } from "@huggingface/transformers";
+import { isBrowserAISupported } from "@/lib/csp-detector";
 
 export const BrowserSpeechRecognition = () => {
   const [transcription, setTranscription] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadTime, setLoadTime] = useState<number | null>(null);
+  const cspSupported = isBrowserAISupported();
 
   const transcribeAudio = async () => {
+    if (!cspSupported) {
+      toast.error("Browser AI blocked by Content Security Policy");
+      return;
+    }
+
     setLoading(true);
     const startTime = performance.now();
 
@@ -52,9 +60,18 @@ export const BrowserSpeechRecognition = () => {
           Transcribe audio directly in your browser using Whisper. No server required!
         </p>
 
+        {!cspSupported && (
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Browser AI is blocked by Content Security Policy. Speech recognition requires WebGPU and JavaScript eval support.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <Button 
           onClick={transcribeAudio} 
-          disabled={loading}
+          disabled={loading || !cspSupported}
           className="w-full"
         >
           {loading ? (

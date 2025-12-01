@@ -1,4 +1,5 @@
 import { pipeline, env } from '@huggingface/transformers';
+import { isBrowserAISupported } from './csp-detector';
 
 // Configure transformers.js
 env.allowLocalModels = false;
@@ -35,6 +36,11 @@ export const removeBackground = async (
   imageElement: HTMLImageElement,
   onProgress?: (progress: number) => void
 ): Promise<Blob> => {
+  // Check CSP support first
+  if (!isBrowserAISupported()) {
+    throw new Error('Browser AI blocked by Content Security Policy. Background removal requires WebGPU support and eval() permission.');
+  }
+
   try {
     console.log('Starting background removal process...');
     onProgress?.(10);

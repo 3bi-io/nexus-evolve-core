@@ -2,9 +2,11 @@ import { useState, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, Upload, Download, Eraser } from "lucide-react";
+import { Loader2, Upload, Download, Eraser, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { removeBackground, loadImage } from "@/lib/backgroundRemoval";
+import { isBrowserAISupported } from "@/lib/csp-detector";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export const BackgroundRemover = () => {
   const [originalImage, setOriginalImage] = useState<string | null>(null);
@@ -79,6 +81,8 @@ export const BackgroundRemover = () => {
     toast.success('Image downloaded!');
   };
 
+  const cspSupported = isBrowserAISupported();
+
   return (
     <Card className="p-6">
       <div className="space-y-4">
@@ -90,6 +94,15 @@ export const BackgroundRemover = () => {
         <p className="text-sm text-muted-foreground">
           Remove backgrounds from images directly in your browser. 100% private - images never leave your device.
         </p>
+
+        {!cspSupported && (
+          <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Browser AI is blocked by Content Security Policy. Background removal requires WebGPU and JavaScript eval support.
+            </AlertDescription>
+          </Alert>
+        )}
 
         {!originalImage ? (
           <div className="border-2 border-dashed border-border rounded-lg p-12 text-center">
