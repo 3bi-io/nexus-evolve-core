@@ -338,3 +338,30 @@ export const huggingFaceFetch = async (
     ...config,
   });
 };
+
+/**
+ * Moonshot AI (Kimi) API client with retry and timeout
+ */
+export const moonshotFetch = async (
+  endpoint: string,
+  options: RequestInit = {},
+  config: RetryConfig = {}
+): Promise<Response> => {
+  const apiKey = Deno.env.get('MOONSHOT_API_KEY');
+  if (!apiKey) throw new Error('MOONSHOT_API_KEY not configured');
+
+  const url = `https://api.moonshot.cn${endpoint}`;
+  
+  return fetchWithRetry(url, {
+    ...options,
+    headers: {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+      ...options.headers,
+    },
+  }, {
+    ...DEFAULT_CONFIG,
+    timeout: 120000, // 120s for long context models
+    ...config,
+  });
+};

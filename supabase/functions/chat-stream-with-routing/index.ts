@@ -80,6 +80,8 @@ serve(async (req) => {
       return await routeToCreativeAgent(supabase, messages, user, sessionId, requestId, isAnonymous);
     } else if (selectedAgent === "learning" || selectedAgent === "learning-agent") {
       return await routeToLearningAgent(supabase, messages, user, sessionId, requestId, isAnonymous);
+    } else if (selectedAgent.startsWith("kimi-")) {
+      return await routeToKimiModel(supabase, messages, userMessage, user, sessionId, selectedAgent, requestId, isAnonymous);
     }
 
     // General agent with streaming
@@ -223,6 +225,69 @@ async function routeToLearningAgent(
   }
 
   throw new Error("Learning agent failed");
+}
+
+async function routeToKimiModel(
+  supabase: any,
+  messages: any[],
+  userMessage: string,
+  user: any,
+  sessionId: string,
+  selectedAgent: string,
+  requestId: string,
+  isAnonymous: boolean = false
+): Promise<Response> {
+  const logger = createLogger("chat-stream-with-routing", requestId);
+  
+  const modelMap: Record<string, string> = {
+    "kimi-8k": "moonshot-v1-8k",
+    "kimi-32k": "moonshot-v1-32k",
+    "kimi-128k": "moonshot-v1-128k"
+  };
+  
+  const kimiModel = modelMap[selectedAgent] || "moonshot-v1-32k";
+  logger.info("Routing to Kimi model", { selectedAgent, kimiModel });
+  
+  const kimiResponse = await supabase.functions.invoke("moonshot-chat", {
+    body: { 
+      messages,
+      model: kimiModel,
+      temperature: 0.7,
+      maxTokens: 4096
+    }
+  });
+  
+  if (kimiResponse.error) {
+    logger.error("Kimi model error", kimiResponse.error);
+    throw new Error(kimiResponse.error.message || "Kimi model failed");
+  }
+  
+  // Store interaction (skip for anonymous users)
+  if (!isAnonymous) {
+    await supabase.from("interactions").insert({
+      user_id: user.id,
+      session_id: sessionId,
+      message: userMessage,
+      response: "[Streaming response from Kimi]",
+      model_used: kimiModel,
+      context: { agent_used: selectedAgent, session_id: sessionId }
+    });
+  }
+  
+  // Return the streaming response
+  if (kimiResponse.data) {
+    return new Response(kimiResponse.data, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+      },
+    });
+  }
+  
+  throw new Error("Kimi model returned no data");
 }
 
 async function handleGeneralAgent(

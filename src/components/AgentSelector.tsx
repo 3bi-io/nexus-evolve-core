@@ -1,4 +1,4 @@
-import { Brain, Sparkles, BookOpen, Network, Cpu } from "lucide-react";
+import { Brain, Sparkles, BookOpen, Network, Cpu, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -15,7 +15,7 @@ interface AgentSelectorProps {
   onSelectAgent: (agent: string) => void;
 }
 
-const agents = [
+const aiAgents = [
   {
     id: "auto",
     name: "Auto (Coordinator)",
@@ -60,8 +60,34 @@ const agents = [
   },
 ];
 
+const kimiModels = [
+  {
+    id: "kimi-8k",
+    name: "Kimi 8K",
+    icon: Moon,
+    description: "Fast responses, 8K context window",
+    color: "text-blue-500",
+  },
+  {
+    id: "kimi-32k",
+    name: "Kimi 32K",
+    icon: Moon,
+    description: "Balanced performance, 32K context",
+    color: "text-blue-500",
+  },
+  {
+    id: "kimi-128k",
+    name: "Kimi 128K",
+    icon: Moon,
+    description: "Long documents, 128K context window",
+    color: "text-blue-500",
+  },
+];
+
+const allAgents = [...aiAgents, ...kimiModels];
+
 export const AgentSelector = ({ selectedAgent, onSelectAgent }: AgentSelectorProps) => {
-  const currentAgent = agents.find(a => a.id === selectedAgent) || agents[0];
+  const currentAgent = allAgents.find(a => a.id === selectedAgent) || allAgents[0];
   const AgentIcon = currentAgent.icon;
 
   return (
@@ -76,9 +102,9 @@ export const AgentSelector = ({ selectedAgent, onSelectAgent }: AgentSelectorPro
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-72">
-        <DropdownMenuLabel>Select AI Agent</DropdownMenuLabel>
+        <DropdownMenuLabel>AI Agents</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {agents.map((agent) => {
+        {aiAgents.map((agent) => {
           const Icon = agent.icon;
           return (
             <DropdownMenuItem
@@ -96,6 +122,36 @@ export const AgentSelector = ({ selectedAgent, onSelectAgent }: AgentSelectorPro
                 </div>
                 <div className="text-xs text-muted-foreground mt-0.5">
                   {agent.description}
+                </div>
+              </div>
+            </DropdownMenuItem>
+          );
+        })}
+        
+        <DropdownMenuSeparator />
+        <DropdownMenuLabel className="flex items-center gap-2">
+          <Moon className="w-4 h-4 text-blue-500" />
+          Kimi Models
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {kimiModels.map((model) => {
+          const Icon = model.icon;
+          return (
+            <DropdownMenuItem
+              key={model.id}
+              onClick={() => onSelectAgent(model.id)}
+              className="flex items-start gap-3 p-3 cursor-pointer"
+            >
+              <Icon className={`w-5 h-5 mt-0.5 ${model.color}`} />
+              <div className="flex-1">
+                <div className="font-medium flex items-center gap-2">
+                  {model.name}
+                  {model.id === selectedAgent && (
+                    <Badge variant="default" className="text-xs">Active</Badge>
+                  )}
+                </div>
+                <div className="text-xs text-muted-foreground mt-0.5">
+                  {model.description}
                 </div>
               </div>
             </DropdownMenuItem>
