@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Mic, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
-import { pipeline } from "@huggingface/transformers";
+import { loadTransformers } from "@/lib/transformers-loader";
 import { isBrowserAISupported } from "@/lib/csp-detector";
 
 export const BrowserSpeechRecognition = () => {
@@ -23,8 +23,14 @@ export const BrowserSpeechRecognition = () => {
     const startTime = performance.now();
 
     try {
+      const transformers = await loadTransformers();
+      if (!transformers) {
+        toast.error("Browser AI unavailable (CSP restriction)");
+        return;
+      }
+
       // Create automatic speech recognition pipeline
-      const transcriber = await pipeline(
+      const transcriber = await transformers.pipeline(
         "automatic-speech-recognition",
         "Xenova/whisper-tiny.en",
         { device: "webgpu" }

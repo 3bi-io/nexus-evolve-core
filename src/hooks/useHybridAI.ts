@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { pipeline } from "@huggingface/transformers";
+import { loadTransformers } from "@/lib/transformers-loader";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { isBrowserAISupported } from "@/lib/csp-detector";
@@ -31,7 +31,12 @@ export const useHybridAI = () => {
 
   const generateTextBrowser = async (prompt: string) => {
     try {
-      const generator = await pipeline(
+      const transformers = await loadTransformers();
+      if (!transformers) {
+        throw new Error('Transformers.js unavailable');
+      }
+
+      const generator = await transformers.pipeline(
         "text-generation",
         "Xenova/gpt2",
         { device: "webgpu" }

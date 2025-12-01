@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Upload, Loader2, Server } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { pipeline } from '@huggingface/transformers';
+import { loadTransformers } from '@/lib/transformers-loader';
 import { executeWithFallback, serverObjectDetection } from '@/lib/browser-ai-wrapper';
 import { Badge } from '@/components/ui/badge';
 
@@ -43,7 +43,12 @@ export const ObjectDetector = () => {
       const { result, usedServer: serverUsed } = await executeWithFallback(
         'object-detection',
         async () => {
-          const detector = await pipeline(
+          const transformers = await loadTransformers();
+          if (!transformers) {
+            throw new Error('Transformers.js unavailable');
+          }
+
+          const detector = await transformers.pipeline(
             'object-detection',
             'Xenova/detr-resnet-50',
             { device: 'webgpu' }
