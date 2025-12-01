@@ -68,6 +68,11 @@ const API_KEY_INFO: Record<string, { name: string; description: string; docsUrl:
     name: "GitHub Integration",
     description: "Enables automated PR creation for platform improvements",
     docsUrl: "https://github.com/settings/tokens"
+  },
+  MOONSHOT_API_KEY: {
+    name: "Moonshot AI (Kimi)",
+    description: "Powers Kimi AI models with up to 128K context window for long-form content",
+    docsUrl: "https://platform.moonshot.cn"
   }
 };
 
