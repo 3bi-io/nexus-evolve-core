@@ -417,26 +417,37 @@ serve(async (req) => {
       if (existingSession) {
         session = existingSession;
         
-        // Get history
+        // Get conversation history with both user and agent messages
         const { data: rounds } = await supabase
           .from('negotiation_rounds')
-          .select('user_message')
+          .select('user_message, agent_response')
           .eq('session_id', session_id)
           .order('round_number', { ascending: true });
         
-        history = rounds?.map(r => r.user_message) || [];
-        roundNumber = history.length + 1;
+        // Build complete history including responses
+        history = [];
+        rounds?.forEach(r => {
+          history.push(r.user_message);
+          if (r.agent_response) {
+            history.push(r.agent_response);
+          }
+        });
+        roundNumber = (rounds?.length || 0) + 1;
       }
     }
 
-    if (!session && userId) {
+    // Create new session if needed (supports anonymous users)
+    if (!session) {
+      const anonymousId = userId ? null : `anon-${crypto.randomUUID()}`;
+      
       const { data: newSession, error } = await supabase
         .from('negotiation_sessions')
         .insert({
-          user_id: userId,
+          user_id: userId || null,
           agent_persona: persona,
           cumulative_favorability: 0,
-          current_price_tier: 11.99
+          current_price_tier: 11.99,
+          session_state: anonymousId ? { anonymous_id: anonymousId } : {}
         })
         .select()
         .single();
