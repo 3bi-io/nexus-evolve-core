@@ -73,8 +73,14 @@ export const ChatHeader = ({
       </div>
 
       <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+        {/* AgentSelector - Show on ALL devices */}
+        <AgentSelector 
+          selectedAgent={selectedAgent}
+          onSelectAgent={onSelectAgent}
+        />
+        
         {isMobile ? (
-          // Mobile: Compact menu
+          // Mobile: Compact menu for other actions
           <>
             {user && (
               <DropdownMenu>
@@ -107,12 +113,8 @@ export const ChatHeader = ({
             )}
           </>
         ) : (
-          // Desktop: Full controls
+          // Desktop: Additional controls
           <>
-            <AgentSelector 
-              selectedAgent={selectedAgent}
-              onSelectAgent={onSelectAgent}
-            />
             {contextCount > 0 && (
               <Link to="/evolution">
                 <Button variant="outline" size="sm" className="h-10">
