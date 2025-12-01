@@ -259,6 +259,28 @@ Deno.serve(async (req) => {
       results.ELEVENLABS_API_KEY = { valid: false, error: 'Not configured', lastChecked: timestamp };
     }
 
+    // Validate Moonshot API Key
+    const moonshotKey = Deno.env.get('MOONSHOT_API_KEY');
+    if (moonshotKey) {
+      try {
+        const response = await fetch('https://api.moonshot.cn/v1/models', {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${moonshotKey}` },
+        });
+        
+        results.MOONSHOT_API_KEY = {
+          valid: response.ok,
+          error: response.ok ? undefined : 'Authentication failed',
+          lastChecked: timestamp,
+          endpoint: 'https://api.moonshot.cn/v1/models'
+        };
+      } catch (error) {
+        results.MOONSHOT_API_KEY = { valid: false, error: 'Network error', lastChecked: timestamp };
+      }
+    } else {
+      results.MOONSHOT_API_KEY = { valid: false, error: 'Not configured', lastChecked: timestamp };
+    }
+
     // Validate GitHub Token
     const githubToken = Deno.env.get('GITHUB_TOKEN');
     if (githubToken) {
