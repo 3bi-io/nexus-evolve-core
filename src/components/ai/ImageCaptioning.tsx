@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Upload, Loader2, Copy, Server } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { pipeline } from '@huggingface/transformers';
+import { loadTransformers } from '@/lib/transformers-loader';
 import { executeWithFallback, serverImageCaptioning } from '@/lib/browser-ai-wrapper';
 import { Badge } from '@/components/ui/badge';
 
@@ -43,7 +43,12 @@ export const ImageCaptioning = () => {
       const { result, usedServer: serverUsed } = await executeWithFallback(
         'image-captioning',
         async () => {
-          const captioner = await pipeline(
+          const transformers = await loadTransformers();
+          if (!transformers) {
+            throw new Error('Transformers.js unavailable');
+          }
+
+          const captioner = await transformers.pipeline(
             'image-to-text',
             'Xenova/vit-gpt2-image-captioning',
             { device: 'webgpu' }

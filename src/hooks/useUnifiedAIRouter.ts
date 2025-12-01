@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { pipeline } from "@huggingface/transformers";
+import { loadTransformers } from "@/lib/transformers-loader";
 import { isBrowserAISupported } from "@/lib/csp-detector";
 
 // Unified types
@@ -274,24 +274,29 @@ export const useUnifiedAIRouter = () => {
 
   // Execute browser AI
   const executeBrowserAI = useCallback(async (model: string, task: TaskType, input: any): Promise<any> => {
+    const transformers = await loadTransformers();
+    if (!transformers) {
+      throw new Error('Transformers.js unavailable');
+    }
+
     switch (task) {
       case "embedding":
-        const extractor = await pipeline("feature-extraction", model, { device: "webgpu" });
+        const extractor = await transformers.pipeline("feature-extraction", model, { device: "webgpu" });
         const embedResult = await extractor(input, { pooling: "mean", normalize: true });
         return embedResult.tolist();
 
       case "classification":
-        const classifier = await pipeline("zero-shot-classification", model, { device: "webgpu" });
+        const classifier = await transformers.pipeline("zero-shot-classification", model, { device: "webgpu" });
         const labels = input.labels || ["positive", "negative", "neutral"];
         const classResult = await classifier(input.text || input, labels);
         return Array.isArray(classResult) ? classResult[0] : classResult;
 
       case "object-detection":
-        const detector = await pipeline("object-detection", model, { device: "webgpu" });
+        const detector = await transformers.pipeline("object-detection", model, { device: "webgpu" });
         return await detector(input);
 
       case "captioning":
-        const captioner = await pipeline("image-to-text", model, { device: "webgpu" });
+        const captioner = await transformers.pipeline("image-to-text", model, { device: "webgpu" });
         return await captioner(input);
 
       default:

@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Brain, Server } from "lucide-react";
 import { toast } from "sonner";
-import { pipeline } from "@huggingface/transformers";
+import { loadTransformers } from "@/lib/transformers-loader";
 import { executeWithFallback, serverClassification } from "@/lib/browser-ai-wrapper";
 
 export const IntentClassifier = () => {
@@ -37,7 +37,12 @@ export const IntentClassifier = () => {
       const { result, usedServer: serverUsed } = await executeWithFallback(
         'classification',
         async () => {
-          const classifier = await pipeline(
+          const transformers = await loadTransformers();
+          if (!transformers) {
+            throw new Error('Transformers.js unavailable');
+          }
+
+          const classifier = await transformers.pipeline(
             "zero-shot-classification",
             "Xenova/distilbert-base-uncased-mnli",
             { device: "webgpu" }

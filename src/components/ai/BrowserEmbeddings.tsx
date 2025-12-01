@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Loader2, Cpu, Server } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { pipeline } from "@huggingface/transformers";
+import { loadTransformers } from "@/lib/transformers-loader";
 import { executeWithFallback, serverEmbeddings } from "@/lib/browser-ai-wrapper";
 
 export const BrowserEmbeddings = () => {
@@ -28,7 +28,12 @@ export const BrowserEmbeddings = () => {
       const { result, usedServer: serverUsed } = await executeWithFallback(
         'embeddings',
         async () => {
-          const extractor = await pipeline(
+          const transformers = await loadTransformers();
+          if (!transformers) {
+            throw new Error('Transformers.js unavailable');
+          }
+
+          const extractor = await transformers.pipeline(
             "feature-extraction",
             "Xenova/all-MiniLM-L6-v2",
             { device: "webgpu" }

@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { pipeline } from "@huggingface/transformers";
+import { loadTransformers } from "@/lib/transformers-loader";
 import { isBrowserAISupported } from "@/lib/csp-detector";
 
 export type AIProvider = "lovable" | "huggingface-server" | "browser";
@@ -90,20 +90,25 @@ export const useSmartAIRouter = () => {
     const startTime = performance.now();
 
     try {
+      const transformers = await loadTransformers();
+      if (!transformers) {
+        throw new Error('Transformers.js unavailable');
+      }
+
       let result;
       let model;
 
       switch (request.task) {
         case "embeddings":
           model = "Xenova/all-MiniLM-L6-v2";
-          const extractor = await pipeline("feature-extraction", model, { device: "webgpu" });
+          const extractor = await transformers.pipeline("feature-extraction", model, { device: "webgpu" });
           const embedResult = await extractor(request.input, { pooling: "mean", normalize: true });
           result = embedResult.tolist();
           break;
 
         case "classification":
           model = "Xenova/distilbert-base-uncased-mnli";
-          const classifier = await pipeline("zero-shot-classification", model, { device: "webgpu" });
+          const classifier = await transformers.pipeline("zero-shot-classification", model, { device: "webgpu" });
           const labels = ["positive", "negative", "neutral"];
           const classResult = await classifier(request.input, labels);
           result = Array.isArray(classResult) ? classResult[0] : classResult;

@@ -1,9 +1,5 @@
-import { pipeline, env } from '@huggingface/transformers';
+import { loadTransformers } from './transformers-loader';
 import { isBrowserAISupported } from './csp-detector';
-
-// Configure transformers.js
-env.allowLocalModels = false;
-env.useBrowserCache = true;
 
 const MAX_IMAGE_DIMENSION = 1024;
 
@@ -45,7 +41,16 @@ export const removeBackground = async (
     console.log('Starting background removal process...');
     onProgress?.(10);
 
-    const segmenter = await pipeline(
+    const transformers = await loadTransformers();
+    if (!transformers) {
+      throw new Error('Transformers.js unavailable');
+    }
+
+    // Configure transformers
+    transformers.env.allowLocalModels = false;
+    transformers.env.useBrowserCache = true;
+
+    const segmenter = await transformers.pipeline(
       'image-segmentation',
       'Xenova/segformer-b0-finetuned-ade-512-512',
       { device: 'webgpu' }
