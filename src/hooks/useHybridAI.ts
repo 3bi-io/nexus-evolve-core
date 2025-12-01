@@ -2,6 +2,7 @@ import { useState } from "react";
 import { pipeline } from "@huggingface/transformers";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { isBrowserAISupported } from "@/lib/csp-detector";
 
 export type AIProvider = "browser" | "server";
 
@@ -10,6 +11,12 @@ export const useHybridAI = () => {
   const [loading, setLoading] = useState(false);
 
   const detectBrowserCapabilities = async () => {
+    // First check CSP support
+    if (!isBrowserAISupported()) {
+      console.info('[Hybrid AI] Browser AI blocked by CSP');
+      return false;
+    }
+
     try {
       const nav = navigator as any;
       if (!nav.gpu) {

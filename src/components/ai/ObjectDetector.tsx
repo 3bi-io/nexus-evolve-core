@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Upload, Loader2, Download } from 'lucide-react';
+import { Upload, Loader2, Server } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { pipeline } from '@huggingface/transformers';
+import { executeWithFallback, serverObjectDetection } from '@/lib/browser-ai-wrapper';
+import { Badge } from '@/components/ui/badge';
 
 export const ObjectDetector = () => {
   const [image, setImage] = useState<string | null>(null);
   const [detections, setDetections] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [usedServer, setUsedServer] = useState(false);
   const { toast } = useToast();
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,22 +40,39 @@ export const ObjectDetector = () => {
 
     setLoading(true);
     try {
-      const detector = await pipeline(
+      const { result, usedServer: serverUsed } = await executeWithFallback(
         'object-detection',
-        'Xenova/detr-resnet-50',
-        { device: 'webgpu' }
+        async () => {
+          const detector = await pipeline(
+            'object-detection',
+            'Xenova/detr-resnet-50',
+            { device: 'webgpu' }
+          );
+
+          return await detector(image, {
+            threshold: 0.5,
+            percentage: true,
+          });
+        },
+        async () => {
+          return await serverObjectDetection(image);
+        }
       );
 
-      const result = await detector(image, {
-        threshold: 0.5,
-        percentage: true,
-      });
-
       setDetections(result);
-      toast({
-        title: "Detection Complete!",
-        description: `Found ${result.length} objects`,
-      });
+      setUsedServer(serverUsed);
+
+      if (serverUsed) {
+        toast({
+          title: "Detection Complete (Server)!",
+          description: `Found ${result.length} objects using server inference`,
+        });
+      } else {
+        toast({
+          title: "Detection Complete!",
+          description: `Found ${result.length} objects`,
+        });
+      }
     } catch (error) {
       console.error('Detection error:', error);
       toast({
@@ -68,10 +88,20 @@ export const ObjectDetector = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Object Detection</CardTitle>
-        <CardDescription>
-          Detect and locate objects in images using DETR
-        </CardDescription>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle>Object Detection</CardTitle>
+            <CardDescription>
+              Detect and locate objects in images using DETR
+            </CardDescription>
+          </div>
+          {usedServer && (
+            <Badge variant="secondary" className="gap-1">
+              <Server className="h-3 w-3" />
+              Server Mode
+            </Badge>
+          )}
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex flex-col items-center gap-4">

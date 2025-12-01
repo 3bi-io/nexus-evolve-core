@@ -2,15 +2,18 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
-import { Loader2, Cpu } from "lucide-react";
+import { Loader2, Cpu, Server } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { pipeline } from "@huggingface/transformers";
+import { executeWithFallback, serverEmbeddings } from "@/lib/browser-ai-wrapper";
 
 export const BrowserEmbeddings = () => {
   const [text, setText] = useState("");
   const [embeddings, setEmbeddings] = useState<number[][] | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadTime, setLoadTime] = useState<number | null>(null);
+  const [usedServer, setUsedServer] = useState(false);
 
   const generateEmbeddings = async () => {
     if (!text.trim()) {
@@ -22,25 +25,37 @@ export const BrowserEmbeddings = () => {
     const startTime = performance.now();
 
     try {
-      // Create feature-extraction pipeline on WebGPU
-      const extractor = await pipeline(
-        "feature-extraction",
-        "Xenova/all-MiniLM-L6-v2",
-        { device: "webgpu" }
-      );
+      const { result, usedServer: serverUsed } = await executeWithFallback(
+        'embeddings',
+        async () => {
+          const extractor = await pipeline(
+            "feature-extraction",
+            "Xenova/all-MiniLM-L6-v2",
+            { device: "webgpu" }
+          );
 
-      // Compute embeddings
-      const result = await extractor(text, { pooling: "mean", normalize: true });
-      const embeddingArray = result.tolist();
+          const output = await extractor(text, { pooling: "mean", normalize: true });
+          return output.tolist();
+        },
+        async () => {
+          const result = await serverEmbeddings([text]);
+          return result;
+        }
+      );
       
-      setEmbeddings(embeddingArray);
+      setEmbeddings(result);
+      setUsedServer(serverUsed);
       const endTime = performance.now();
       setLoadTime(endTime - startTime);
       
-      toast.success("Embeddings generated in browser!");
+      if (serverUsed) {
+        toast.info("Browser AI unavailable, using server inference");
+      } else {
+        toast.success("Embeddings generated in browser!");
+      }
     } catch (error) {
       console.error("Embeddings error:", error);
-      toast.error("Failed to generate embeddings. Make sure WebGPU is supported.");
+      toast.error("Failed to generate embeddings");
     } finally {
       setLoading(false);
     }
@@ -49,9 +64,17 @@ export const BrowserEmbeddings = () => {
   return (
     <Card className="p-6">
       <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Cpu className="h-5 w-5" />
-          <h3 className="text-lg font-semibold">Browser-Based Embeddings</h3>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Cpu className="h-5 w-5" />
+            <h3 className="text-lg font-semibold">Browser-Based Embeddings</h3>
+          </div>
+          {usedServer && (
+            <Badge variant="secondary" className="gap-1">
+              <Server className="h-3 w-3" />
+              Server Mode
+            </Badge>
+          )}
         </div>
         
         <p className="text-sm text-muted-foreground">

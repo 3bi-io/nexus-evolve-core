@@ -3,15 +3,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Brain } from "lucide-react";
+import { Loader2, Brain, Server } from "lucide-react";
 import { toast } from "sonner";
 import { pipeline } from "@huggingface/transformers";
+import { executeWithFallback, serverClassification } from "@/lib/browser-ai-wrapper";
 
 export const IntentClassifier = () => {
   const [query, setQuery] = useState("");
   const [intent, setIntent] = useState<{ label: string; score: number }[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadTime, setLoadTime] = useState<number | null>(null);
+  const [usedServer, setUsedServer] = useState(false);
 
   const classifyIntent = async () => {
     if (!query.trim()) {
@@ -23,14 +25,6 @@ export const IntentClassifier = () => {
     const startTime = performance.now();
 
     try {
-      // Create zero-shot classification pipeline
-      const classifier = await pipeline(
-        "zero-shot-classification",
-        "Xenova/distilbert-base-uncased-mnli",
-        { device: "webgpu" }
-      );
-
-      // Define possible intents
       const candidateLabels = [
         "generate image",
         "translate text",
@@ -40,23 +34,44 @@ export const IntentClassifier = () => {
         "analyze data"
       ];
 
-      // Classify intent
-      const result = await classifier(query, candidateLabels);
-      
-      const resultData = Array.isArray(result) ? result[0] : result;
-      const intentResults = resultData.labels.map((label: string, i: number) => ({
-        label,
-        score: resultData.scores[i]
-      }));
+      const { result, usedServer: serverUsed } = await executeWithFallback(
+        'classification',
+        async () => {
+          const classifier = await pipeline(
+            "zero-shot-classification",
+            "Xenova/distilbert-base-uncased-mnli",
+            { device: "webgpu" }
+          );
 
-      setIntent(intentResults);
+          const output = await classifier(query, candidateLabels);
+          const resultData = Array.isArray(output) ? output[0] : output;
+          return resultData.labels.map((label: string, i: number) => ({
+            label,
+            score: resultData.scores[i]
+          }));
+        },
+        async () => {
+          const result = await serverClassification(query, candidateLabels);
+          return result.labels.map((label: string, i: number) => ({
+            label,
+            score: result.scores[i]
+          }));
+        }
+      );
+
+      setIntent(result);
+      setUsedServer(serverUsed);
       const endTime = performance.now();
       setLoadTime(endTime - startTime);
       
-      toast.success("Intent classified in browser!");
+      if (serverUsed) {
+        toast.info("Browser AI unavailable, using server inference");
+      } else {
+        toast.success("Intent classified in browser!");
+      }
     } catch (error) {
       console.error("Classification error:", error);
-      toast.error("Failed to classify intent. Make sure WebGPU is supported.");
+      toast.error("Failed to classify intent");
     } finally {
       setLoading(false);
     }
@@ -65,9 +80,17 @@ export const IntentClassifier = () => {
   return (
     <Card className="p-6">
       <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Brain className="h-5 w-5" />
-          <h3 className="text-lg font-semibold">Local Intent Classification</h3>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Brain className="h-5 w-5" />
+            <h3 className="text-lg font-semibold">Local Intent Classification</h3>
+          </div>
+          {usedServer && (
+            <Badge variant="secondary" className="gap-1">
+              <Server className="h-3 w-3" />
+              Server Mode
+            </Badge>
+          )}
         </div>
         
         <p className="text-sm text-muted-foreground">

@@ -2,6 +2,7 @@ import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { pipeline } from "@huggingface/transformers";
+import { isBrowserAISupported } from "@/lib/csp-detector";
 
 export type AIProvider = "lovable" | "huggingface-server" | "browser";
 export type AITask = "text-generation" | "text-to-image" | "embeddings" | "classification";
@@ -27,6 +28,11 @@ export const useSmartAIRouter = () => {
 
   // Detect browser capabilities
   const detectWebGPU = useCallback(async () => {
+    // Check CSP first
+    if (!isBrowserAISupported()) {
+      return false;
+    }
+
     try {
       const nav = navigator as any;
       if (!nav.gpu) return false;
