@@ -82,6 +82,8 @@ serve(async (req) => {
       return await routeToLearningAgent(supabase, messages, user, sessionId, requestId, isAnonymous);
     } else if (selectedAgent.startsWith("kimi-")) {
       return await routeToKimiModel(supabase, messages, userMessage, user, sessionId, selectedAgent, requestId, isAnonymous);
+    } else if (selectedAgent === "negotiator") {
+      return await routeToNegotiationAgent(supabase, messages, userMessage, user, sessionId, requestId, isAnonymous);
     }
 
     // General agent with streaming
@@ -225,6 +227,73 @@ async function routeToLearningAgent(
   }
 
   throw new Error("Learning agent failed");
+}
+
+async function routeToNegotiationAgent(
+  supabase: any,
+  messages: any[],
+  userMessage: string,
+  user: any,
+  sessionId: string,
+  requestId: string,
+  isAnonymous: boolean = false
+): Promise<Response> {
+  const logger = createLogger("chat-stream-with-routing", requestId);
+  
+  logger.info("Routing to negotiation agent (Zara)");
+  
+  const negotiationResult = await supabase.functions.invoke("negotiate-agent", {
+    body: { 
+      message: userMessage,
+      session_id: sessionId,
+      persona: "zara"
+    }
+  });
+  
+  if (negotiationResult.error) {
+    logger.error("Negotiation agent error", negotiationResult.error);
+    throw new Error(negotiationResult.error.message || "Negotiation agent failed");
+  }
+  
+  if (negotiationResult.data) {
+    const { response, cumulative_score, current_price, round_number } = negotiationResult.data;
+    
+    // Format response with score indicator (visible to user)
+    const formattedResponse = `${response}\n\n---\n*🎯 Score: ${cumulative_score} | 💰 Current Price: $${current_price.toFixed(2)} | Round ${round_number}*`;
+    
+    // Skip database operations for anonymous users
+    if (!isAnonymous) {
+      await supabase.from("interactions").insert({
+        user_id: user.id,
+        session_id: sessionId,
+        message: userMessage,
+        response: formattedResponse,
+        model_used: 'negotiator-zara',
+        context: { 
+          agent_used: "negotiator", 
+          session_id: sessionId,
+          cumulative_score,
+          current_price,
+          round_number
+        }
+      });
+    }
+
+    return new Response(
+      JSON.stringify({ 
+        response: formattedResponse, 
+        success: true,
+        negotiation: {
+          cumulative_score,
+          current_price,
+          round_number
+        }
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+
+  throw new Error("Negotiation agent failed");
 }
 
 async function routeToKimiModel(

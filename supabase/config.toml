@@ -203,3 +203,6 @@ verify_jwt = false
 
 [functions.health-check]
 verify_jwt = false
+
+[functions.negotiate-agent]
+verify_jwt = false

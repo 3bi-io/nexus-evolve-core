@@ -587,6 +587,45 @@ export type Database = {
           },
         ]
       }
+      agent_personas: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          cultural_references: Json | null
+          id: string
+          is_active: boolean | null
+          name: string
+          personality_config: Json
+          pricing_matrix: Json | null
+          response_patterns: Json | null
+          scoring_weights: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          cultural_references?: Json | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          personality_config?: Json
+          pricing_matrix?: Json | null
+          response_patterns?: Json | null
+          scoring_weights?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          cultural_references?: Json | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          personality_config?: Json
+          pricing_matrix?: Json | null
+          response_patterns?: Json | null
+          scoring_weights?: Json | null
+        }
+        Relationships: []
+      }
       agent_preview_interactions: {
         Row: {
           agent_id: string | null
@@ -2465,6 +2504,92 @@ export type Database = {
         }
         Relationships: []
       }
+      negotiation_rounds: {
+        Row: {
+          agent_response: string | null
+          created_at: string | null
+          id: string
+          response_time_ms: number | null
+          round_number: number
+          round_score: number | null
+          score_breakdown: Json | null
+          security_flags: Json | null
+          session_id: string
+          user_message: string
+        }
+        Insert: {
+          agent_response?: string | null
+          created_at?: string | null
+          id?: string
+          response_time_ms?: number | null
+          round_number: number
+          round_score?: number | null
+          score_breakdown?: Json | null
+          security_flags?: Json | null
+          session_id: string
+          user_message: string
+        }
+        Update: {
+          agent_response?: string | null
+          created_at?: string | null
+          id?: string
+          response_time_ms?: number | null
+          round_number?: number
+          round_score?: number | null
+          score_breakdown?: Json | null
+          security_flags?: Json | null
+          session_id?: string
+          user_message?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "negotiation_rounds_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "negotiation_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      negotiation_sessions: {
+        Row: {
+          agent_persona: string
+          completed_at: string | null
+          completion_reason: string | null
+          created_at: string | null
+          cumulative_favorability: number | null
+          current_price_tier: number | null
+          id: string
+          session_state: Json | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          agent_persona?: string
+          completed_at?: string | null
+          completion_reason?: string | null
+          created_at?: string | null
+          cumulative_favorability?: number | null
+          current_price_tier?: number | null
+          id?: string
+          session_state?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          agent_persona?: string
+          completed_at?: string | null
+          completion_reason?: string | null
+          created_at?: string | null
+          cumulative_favorability?: number | null
+          current_price_tier?: number | null
+          id?: string
+          session_state?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           created_at: string | null
@@ -3724,6 +3849,42 @@ export type Database = {
           min_age_days?: number | null
           pruning_aggressiveness?: string | null
           relevance_threshold?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_negotiation_profiles: {
+        Row: {
+          average_favorability: number | null
+          behavioral_patterns: Json | null
+          created_at: string | null
+          last_negotiation_at: string | null
+          preferred_personas: string[] | null
+          successful_negotiations: number | null
+          total_sessions: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          average_favorability?: number | null
+          behavioral_patterns?: Json | null
+          created_at?: string | null
+          last_negotiation_at?: string | null
+          preferred_personas?: string[] | null
+          successful_negotiations?: number | null
+          total_sessions?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          average_favorability?: number | null
+          behavioral_patterns?: Json | null
+          created_at?: string | null
+          last_negotiation_at?: string | null
+          preferred_personas?: string[] | null
+          successful_negotiations?: number | null
+          total_sessions?: number | null
           updated_at?: string | null
           user_id?: string
         }
