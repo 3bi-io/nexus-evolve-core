@@ -437,37 +437,40 @@ export const ChatInterface = () => {
           )}
         </ScrollArea>
 
-        <div className="flex gap-2 pt-2 pb-safe">
-          <div className="flex-1 flex gap-2">
+        <div className="pt-2 pb-safe">
+          <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-xl border border-border/50">
             <Button
-              variant={webSearchEnabled ? "default" : "outline"}
+              variant="outline"
               size="icon"
               onClick={() => setWebSearchEnabled(!webSearchEnabled)}
               disabled={isLoading || isSearching}
               className={cn(
-                "flex-shrink-0",
-                webSearchEnabled && "shadow-lg shadow-primary/20"
+                "h-11 w-11 rounded-lg shrink-0 border-border/50",
+                webSearchEnabled && "bg-primary text-primary-foreground border-primary"
               )}
-              title="Enable web search for real-time information"
+              title="Enable web search"
             >
               <Globe className="w-5 h-5" />
             </Button>
+            
             <Textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={webSearchEnabled ? "Search the web..." : (isMobile ? "Message..." : "Type your message...")}
-              className="min-h-[56px] sm:min-h-[60px] resize-none text-sm sm:text-base leading-relaxed"
+              placeholder={webSearchEnabled ? "Search the web..." : "Message..."}
+              className="flex-1 min-h-[44px] max-h-32 bg-background/50 border-0 resize-none focus-visible:ring-0 focus-visible:ring-offset-0 text-sm sm:text-base py-3"
+              rows={1}
               disabled={isLoading || !sessionId || isSearching}
             />
+            
+            <Button
+              onClick={sendMessage}
+              disabled={isLoading || !input.trim() || !sessionId || isSearching}
+              className="h-11 w-11 rounded-lg shrink-0"
+            >
+              <Send className="w-5 h-5" />
+            </Button>
           </div>
-          <Button
-            onClick={sendMessage}
-            disabled={isLoading || !input.trim() || !sessionId || isSearching}
-            className="h-auto px-3 sm:px-4 self-end"
-          >
-            <Send className="w-5 h-5" />
-          </Button>
         </div>
       </div>
 
