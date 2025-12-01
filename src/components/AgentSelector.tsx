@@ -1,4 +1,4 @@
-import { Brain, Sparkles, BookOpen, Network, Cpu, Moon } from "lucide-react";
+import { Brain, Sparkles, BookOpen, Network, Cpu, Moon, Handshake } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -57,6 +57,13 @@ const aiAgents = [
     icon: Cpu,
     description: "Access to 400,000+ open-source models",
     color: "text-accent",
+  },
+  {
+    id: "negotiator",
+    name: "Negotiator Agent",
+    icon: Handshake,
+    description: "Dynamic pricing negotiation with Zara",
+    color: "text-amber-500",
   },
 ];
 
