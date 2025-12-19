@@ -184,13 +184,20 @@ export function GoalWizard() {
   useEffect(() => {
     const hasCompleted = localStorage.getItem(WIZARD_KEY);
     const hasCompletedOnboarding = localStorage.getItem('hasCompletedOnboarding');
-    const hasCompletedTour = localStorage.getItem('hasCompletedProductTour');
     
-    // Show after basic onboarding/tour is complete
-    if (!hasCompleted && (hasCompletedOnboarding || hasCompletedTour)) {
-      const timer = setTimeout(() => setIsOpen(true), 500);
+    // Show for users who completed basic onboarding OR after 2 seconds for new users
+    if (!hasCompleted) {
+      const delay = hasCompletedOnboarding ? 500 : 2000;
+      const timer = setTimeout(() => setIsOpen(true), delay);
       return () => clearTimeout(timer);
     }
+  }, []);
+
+  // Listen for manual trigger
+  useEffect(() => {
+    const handler = () => setIsOpen(true);
+    window.addEventListener('show-goal-wizard', handler);
+    return () => window.removeEventListener('show-goal-wizard', handler);
   }, []);
 
   const handleGoalSelect = (goalId: string) => {
