@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { MobileHeader } from "./MobileHeader";
 import { MobileBottomNav } from "./MobileBottomNav";
-import { useMobile } from "@/hooks/useMobile";
+import { useMobile } from "@/hooks/useResponsive";
 import { cn } from "@/lib/utils";
 
 interface MobileLayoutProps {

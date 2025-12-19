@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Zap, Globe } from 'lucide-react';
-import { useMobile } from '@/hooks/useMobile';
+import { useMobile } from '@/hooks/useResponsive';
 
 interface CompactCreditDisplayProps {
   credits: number;

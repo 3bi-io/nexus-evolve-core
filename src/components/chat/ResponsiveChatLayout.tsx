@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { useMobile } from "@/hooks/useMobile";
+import { useMobile } from "@/hooks/useResponsive";
 
 interface ResponsiveChatLayoutProps {
   sidebar: ReactNode;

@@ -8,7 +8,7 @@ import {
   Sparkles, Zap, Brain, X, Check, ArrowRight, Loader2,
   ExternalLink, RefreshCw
 } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/useResponsive';
 
 const TOOLS_SEQUENCE = [
   { name: 'ChatGPT', icon: MessageSquare, color: '#10a37f' },

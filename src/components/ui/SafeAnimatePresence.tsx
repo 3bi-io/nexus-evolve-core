@@ -1,6 +1,6 @@
 import { AnimatePresence } from 'framer-motion';
 import { ReactNode, Fragment } from 'react';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/useResponsive';
 
 interface SafeAnimatePresenceProps {
   children: ReactNode;

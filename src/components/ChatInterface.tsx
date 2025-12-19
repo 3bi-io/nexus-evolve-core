@@ -18,7 +18,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { ResponsiveChatLayout } from "./chat/ResponsiveChatLayout";
 import { ChatHeader } from "./chat/ChatHeader";
-import { useMobile } from "@/hooks/useMobile";
+import { useMobile } from "@/hooks/useResponsive";
 import { useWebSearch } from "@/hooks/useWebSearch";
 import { WebSearchResults } from "./chat/WebSearchResults";
 import { cn } from "@/lib/utils";

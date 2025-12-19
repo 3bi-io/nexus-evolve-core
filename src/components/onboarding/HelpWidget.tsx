@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SafeAnimatePresence } from '@/components/ui/SafeAnimatePresence';
-import { useMobile } from '@/hooks/useMobile';
+import { useMobile } from '@/hooks/useResponsive';
 
 interface HelpArticle {
   id: string;
