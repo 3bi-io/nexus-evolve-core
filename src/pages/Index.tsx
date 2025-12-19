@@ -1,11 +1,11 @@
 import { ChatInterface } from "@/components/ChatInterface";
 import { OnboardingChecklist } from "@/components/onboarding/OnboardingChecklist";
 import { HelpWidget } from "@/components/onboarding/HelpWidget";
+import { GoalWizard } from "@/components/onboarding/GoalWizard";
 import { useAuth } from "@/contexts/AuthContext";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { useResponsive } from "@/hooks/useResponsive";
 import { SEO } from "@/components/SEO";
-
 const Index = () => {
   const { user } = useAuth();
   const { isMobile } = useResponsive();
@@ -27,6 +27,7 @@ const Index = () => {
       <ChatInterface />
       {user && <OnboardingChecklist />}
       <HelpWidget />
+      <GoalWizard />
     </PageLayout>
   );
 };
