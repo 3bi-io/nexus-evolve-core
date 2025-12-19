@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { X, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useMobile } from "@/hooks/useMobile";
+import { useMobile } from "@/hooks/useResponsive";
 import { motion } from "framer-motion";
 import { SafeAnimatePresence } from "@/components/ui/SafeAnimatePresence";
 

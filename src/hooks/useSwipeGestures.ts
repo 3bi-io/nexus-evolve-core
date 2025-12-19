@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useHaptics } from '@/hooks/useMobile';
+import { useHaptics } from '@/hooks/useResponsive';
 
 interface SwipeGestureOptions {
   onSwipeLeft?: () => void;

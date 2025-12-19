@@ -1,7 +1,7 @@
 import { ReactNode, useState, useEffect } from "react";
 import { motion, useAnimation } from "framer-motion";
 import { RefreshCw } from "lucide-react";
-import { useHaptics } from "@/hooks/useMobile";
+import { useHaptics } from "@/hooks/useResponsive";
 
 interface PullToRefreshProps {
   children: ReactNode;

@@ -3,7 +3,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Activity, DollarSign, Zap, TrendingUp, RefreshCw } from 'lucide-react';
-import { useAdvancedRouter } from '@/hooks/useAdvancedRouter';
+import { useAdvancedRouter } from '@/hooks/useUnifiedAIRouter';
 
 export const RouterMetricsDashboard = () => {
   const { getMetrics, getLoadBalancing, resetMetrics } = useAdvancedRouter();

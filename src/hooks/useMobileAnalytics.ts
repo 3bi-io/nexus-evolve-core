@@ -1,6 +1,6 @@
 import { useEffect, useCallback } from 'react';
 import { MobileAnalytics } from '@/lib/mobile-analytics';
-import { useMobile } from './useMobile';
+import { useMobile } from './useResponsive';
 
 export function useMobileAnalytics() {
   const { isMobile } = useMobile();

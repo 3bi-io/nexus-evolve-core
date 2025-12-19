@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { useMobile } from "@/hooks/useMobile";
+import { useMobile } from "@/hooks/useResponsive";
 import { useRealtimeStats } from "@/hooks/useRealtimeStats";
 import { Users, Bot, MessageSquare, Megaphone, AlertCircle, CreditCard, RefreshCw, XCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";

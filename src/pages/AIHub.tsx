@@ -3,7 +3,7 @@ import { SEO } from "@/components/SEO";
 import { AIProviderDashboard } from "@/components/ai/AIProviderDashboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import { useSmartAIRouter } from "@/hooks/useSmartAIRouter";
+import { useSmartAIRouter } from "@/hooks/useUnifiedAIRouter";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";

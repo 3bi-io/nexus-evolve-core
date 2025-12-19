@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, MoreVertical, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CreditBalance } from "@/components/pricing/CreditBalance";
-import { useHaptics, useMobile } from "@/hooks/useMobile";
+import { useHaptics, useMobile } from "@/hooks/useResponsive";
 import {
   DropdownMenu,
   DropdownMenuContent,
