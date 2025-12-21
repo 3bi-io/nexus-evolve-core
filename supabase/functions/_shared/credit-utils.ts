@@ -239,19 +239,69 @@ export async function deductCredits(
 
 /**
  * Standard credit costs for common operations
+ * Updated: 2024-01 with latest model versions
  */
 export const CREDIT_COSTS = {
-  // AI Model Costs
-  'claude-sonnet-4-5': 0.015,
-  'claude-opus-4-1': 0.075,
-  'claude-3-7-sonnet': 0.01,
+  // ===== OpenAI GPT Models =====
+  // Current GPT-5 family
+  'gpt-5': 0.05,
+  'gpt-5-2025-08-07': 0.05,
+  'gpt-5-mini': 0.02,
+  'gpt-5-mini-2025-08-07': 0.02,
+  'gpt-5-nano': 0.01,
+  'gpt-5-nano-2025-08-07': 0.01,
+  // GPT-4.1 family
+  'gpt-4.1': 0.03,
+  'gpt-4.1-2025-04-14': 0.03,
+  'gpt-4.1-mini': 0.015,
+  'gpt-4.1-mini-2025-04-14': 0.015,
+  // Reasoning models
+  'o3': 0.06,
+  'o3-2025-04-16': 0.06,
+  'o4-mini': 0.03,
+  'o4-mini-2025-04-16': 0.03,
+  // Legacy (deprecated)
   'gpt-4': 0.03,
   'gpt-4o': 0.025,
+  'gpt-4o-mini': 0.01,
   'gpt-3.5-turbo': 0.002,
+
+  // ===== Anthropic Claude Models =====
+  'claude-sonnet-4-5': 0.015,
+  'claude-opus-4-1': 0.075,
+  'claude-opus-4-1-20250805': 0.075,
+  'claude-sonnet-4': 0.012,
+  'claude-sonnet-4-20250514': 0.012,
+  'claude-3-7-sonnet': 0.01,
+  'claude-3-7-sonnet-20250219': 0.01,
+  'claude-3-5-haiku': 0.005,
+  'claude-3-5-haiku-20241022': 0.005,
+
+  // ===== xAI Grok Models =====
+  // Current Grok-3 family
+  'grok-3': 0.03,
+  'grok-3-mini': 0.01,
+  'grok-3-fast': 0.015,
+  // Grok-2 family
   'grok-2': 0.02,
+  'grok-2-1212': 0.02,
+  'grok-2-vision': 0.025,
+  'grok-2-vision-1212': 0.025,
+  // Legacy
   'grok-beta': 0.015,
-  
-  // Operations
+
+  // ===== Google Gemini Models (via Lovable AI Gateway) =====
+  'google/gemini-2.5-pro': 0.03,
+  'google/gemini-2.5-flash': 0.01,
+  'google/gemini-2.5-flash-lite': 0.005,
+  'google/gemini-3-pro-preview': 0.035,
+  'google/gemini-2.5-flash-image': 0.02,
+  'google/gemini-3-pro-image-preview': 0.025,
+  'gemini-2.5-pro': 0.03,
+  'gemini-2.5-flash': 0.01,
+  'gemini-2.5-flash-lite': 0.005,
+
+  // ===== Operations =====
   'text-to-speech': 0.1,
   'speech-to-text': 0.1,
   'image-generation': 0.5,
