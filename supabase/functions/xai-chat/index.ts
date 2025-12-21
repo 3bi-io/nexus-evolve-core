@@ -64,7 +64,7 @@ serve(async (req) => {
 
     const {
       messages,
-      model = 'grok-beta',
+      model = 'grok-3',
       temperature = 0.7,
       max_tokens = 2000,
       stream = false,
