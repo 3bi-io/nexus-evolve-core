@@ -10,7 +10,7 @@ import { streamChat } from "@/lib/chat";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { SessionSidebar } from "./SessionSidebar";
+import { SessionSidebar } from "./sessions/SessionSidebar";
 import { Link } from "react-router-dom";
 import { useClientIP } from "@/hooks/useClientIP";
 import { useSecretValidation } from "@/hooks/useSecretValidation";

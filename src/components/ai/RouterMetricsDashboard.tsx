@@ -3,12 +3,12 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Activity, DollarSign, Zap, TrendingUp, RefreshCw } from 'lucide-react';
-import { useAdvancedRouter } from '@/hooks/useUnifiedAIRouter';
+import { useUnifiedAIRouter } from '@/hooks/useUnifiedAIRouter';
 
 export const RouterMetricsDashboard = () => {
-  const { getMetrics, getLoadBalancing, resetMetrics } = useAdvancedRouter();
+  const { getMetrics, getLoadBalancing, resetMetrics } = useUnifiedAIRouter();
   const metrics = getMetrics();
-  const loadBalancing = getLoadBalancing();
+  const loadBalancing = getLoadBalancing;
 
   const totalCalls = Object.values(metrics).reduce((sum, m) => sum + m.totalCalls, 0);
   const totalCost = Object.values(metrics).reduce((sum, m) => sum + m.totalCost, 0);

@@ -9,109 +9,72 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { AI_AGENTS, KIMI_MODELS } from "@/config/models";
 
 interface AgentSelectorProps {
   selectedAgent: string;
   onSelectAgent: (agent: string) => void;
 }
 
-const aiAgents = [
-  {
-    id: "auto",
-    name: "Auto (Coordinator)",
-    icon: Network,
-    description: "Automatically selects the best agent",
-    color: "text-primary",
-  },
-  {
-    id: "general",
-    name: "General Assistant",
-    icon: Brain,
-    description: "Standard conversational AI",
-    color: "text-accent",
-  },
-  {
-    id: "reasoning",
-    name: "Reasoning Agent",
-    icon: Brain,
-    description: "Deep logical analysis & problem solving",
-    color: "text-primary",
-  },
-  {
-    id: "creative",
-    name: "Creative Agent",
-    icon: Sparkles,
-    description: "Ideation & innovative solutions",
-    color: "text-accent",
-  },
-  {
-    id: "learning",
-    name: "Learning Agent",
-    icon: BookOpen,
-    description: "Meta-learning & pattern analysis",
-    color: "text-success",
-  },
-  {
-    id: "huggingface",
-    name: "HuggingFace Models",
-    icon: Cpu,
-    description: "Access to 400,000+ open-source models",
-    color: "text-accent",
-  },
-  {
-    id: "negotiator",
-    name: "Negotiator Agent",
-    icon: Handshake,
-    description: "Dynamic pricing negotiation with Zara",
-    color: "text-amber-500",
-  },
-];
+const agentIcons: Record<string, any> = {
+  auto: Network,
+  general: Brain,
+  reasoning: Brain,
+  creative: Sparkles,
+  learning: BookOpen,
+  huggingface: Cpu,
+  negotiator: Handshake,
+};
 
-const kimiModels = [
-  {
-    id: "kimi-8k",
-    name: "Kimi 8K",
-    icon: Moon,
-    description: "Fast responses, 8K context window",
-    color: "text-blue-500",
-  },
-  {
-    id: "kimi-32k",
-    name: "Kimi 32K",
-    icon: Moon,
-    description: "Balanced performance, 32K context",
-    color: "text-blue-500",
-  },
-  {
-    id: "kimi-128k",
-    name: "Kimi 128K",
-    icon: Moon,
-    description: "Long documents, 128K context window",
-    color: "text-blue-500",
-  },
-];
-
-const allAgents = [...aiAgents, ...kimiModels];
+const agentColors: Record<string, string> = {
+  auto: "text-primary",
+  general: "text-accent",
+  reasoning: "text-primary",
+  creative: "text-accent",
+  learning: "text-success",
+  huggingface: "text-accent",
+  negotiator: "text-amber-500",
+};
 
 export const AgentSelector = ({ selectedAgent, onSelectAgent }: AgentSelectorProps) => {
-  const currentAgent = allAgents.find(a => a.id === selectedAgent) || allAgents[0];
-  const AgentIcon = currentAgent.icon;
+  // Combine AI agents and Kimi models for selection
+  const allOptions = [
+    ...AI_AGENTS.map(a => ({
+      id: a.id,
+      name: a.name,
+      description: a.description,
+      icon: agentIcons[a.id] || Brain,
+      color: agentColors[a.id] || "text-primary",
+      type: 'agent' as const,
+    })),
+    ...KIMI_MODELS.map(m => ({
+      id: m.id,
+      name: m.name,
+      description: m.description,
+      icon: Moon,
+      color: "text-blue-500",
+      type: 'kimi' as const,
+    })),
+  ];
+
+  const currentOption = allOptions.find(a => a.id === selectedAgent) || allOptions[0];
+  const AgentIcon = currentOption.icon;
+
+  const agents = allOptions.filter(o => o.type === 'agent');
+  const kimiModels = allOptions.filter(o => o.type === 'kimi');
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="gap-2">
-          <AgentIcon className={`w-4 h-4 ${currentAgent.color}`} />
-          <span className="hidden sm:inline">{currentAgent.name}</span>
-          <Badge variant="secondary" className="ml-1">
-            Phase 3C
-          </Badge>
+          <AgentIcon className={`w-4 h-4 ${currentOption.color}`} />
+          <span className="hidden sm:inline">{currentOption.name}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-72">
         <DropdownMenuLabel>AI Agents</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        {aiAgents.map((agent) => {
+        {agents.map((agent) => {
           const Icon = agent.icon;
           return (
             <DropdownMenuItem

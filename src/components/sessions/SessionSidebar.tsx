@@ -24,17 +24,17 @@ interface Session {
   last_message_at: string | null;
 }
 
-interface EnhancedSessionSidebarProps {
+interface SessionSidebarProps {
   currentSessionId: string | null;
   onSessionSelect: (sessionId: string) => void;
   onNewSession: () => void;
 }
 
-export const EnhancedSessionSidebar = ({ 
+export const SessionSidebar = ({ 
   currentSessionId, 
   onSessionSelect, 
   onNewSession 
-}: EnhancedSessionSidebarProps) => {
+}: SessionSidebarProps) => {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [filteredSessions, setFilteredSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(true);
@@ -320,3 +320,6 @@ export const EnhancedSessionSidebar = ({
     </>
   );
 };
+
+// Re-export for backward compatibility
+export { SessionSidebar as EnhancedSessionSidebar };
