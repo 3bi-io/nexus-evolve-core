@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Brain, Sparkles, TrendingUp, Users } from 'lucide-react';
+import { Brain, Sparkles, Infinity, Users } from 'lucide-react';
 
 const ONBOARDING_KEY = 'hasCompletedOnboarding';
 
@@ -9,7 +9,7 @@ const steps = [
   {
     icon: Brain,
     title: 'Welcome to Oneiros AI',
-    description: 'Your intelligent AI platform with 9 integrated AI systems. Get 500 free credits—that\'s 41+ hours of AI-powered conversations!',
+    description: 'Your intelligent AI platform with 9 integrated AI systems. Enjoy unlimited free access to all features!',
   },
   {
     icon: Sparkles,
@@ -17,9 +17,9 @@ const steps = [
     description: 'Every message is routed to the best AI model for your task. Our system learns from your interactions and improves over time.',
   },
   {
-    icon: TrendingUp,
-    title: 'Time-Based Credits',
-    description: 'Each credit gives you 5 minutes of conversation. Track your usage in real-time and upgrade anytime for unlimited access.',
+    icon: Infinity,
+    title: 'Unlimited Free Access',
+    description: 'All features are completely free with no usage limits. Explore everything the platform has to offer!',
   },
   {
     icon: Users,

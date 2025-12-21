@@ -1,21 +1,14 @@
-import { useEffect, useCallback } from 'react';
-import { MobileAnalytics } from '@/lib/mobile-analytics';
+/**
+ * @deprecated Use useAnalytics instead
+ * This file is kept for backward compatibility
+ */
+import { useEffect } from 'react';
+import { useAnalytics } from './useAnalytics';
 import { useMobile } from './useResponsive';
 
 export function useMobileAnalytics() {
   const { isMobile } = useMobile();
-
-  const trackGesture = useCallback((gestureType: string, target?: string) => {
-    if (isMobile) {
-      MobileAnalytics.trackGesture(gestureType, target);
-    }
-  }, [isMobile]);
-
-  const trackOfflineUsage = useCallback((duration: number) => {
-    if (isMobile) {
-      MobileAnalytics.trackOfflineUsage(duration);
-    }
-  }, [isMobile]);
+  const { trackGesture, trackOfflineUsage } = useAnalytics();
 
   // Track offline/online transitions
   useEffect(() => {
@@ -45,7 +38,15 @@ export function useMobileAnalytics() {
   }, [isMobile, trackOfflineUsage]);
 
   return {
-    trackGesture,
-    trackOfflineUsage,
+    trackGesture: (gestureType: string, target?: string) => {
+      if (isMobile) {
+        trackGesture(gestureType, target);
+      }
+    },
+    trackOfflineUsage: (duration: number) => {
+      if (isMobile) {
+        trackOfflineUsage(duration);
+      }
+    },
   };
 }

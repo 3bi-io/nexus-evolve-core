@@ -3,7 +3,7 @@ import { SEO } from "@/components/SEO";
 import { AIProviderDashboard } from "@/components/ai/AIProviderDashboard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import { useSmartAIRouter } from "@/hooks/useUnifiedAIRouter";
+import { useUnifiedAIRouter } from "@/hooks/useUnifiedAIRouter";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,18 +11,15 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2 } from "lucide-react";
 
 const AIHub = () => {
-  const { executeAI, loading } = useSmartAIRouter();
+  const { executeAI, loading } = useUnifiedAIRouter();
   const [input, setInput] = useState("");
   const [result, setResult] = useState<any>(null);
 
-  const testRouter = async (task: "text-generation" | "embeddings" | "classification") => {
+  const testRouter = async (task: "text-generation" | "embedding" | "classification") => {
     if (!input.trim()) return;
 
     try {
-      const response = await executeAI({
-        task,
-        input: input.trim()
-      });
+      const response = await executeAI(task, input.trim());
       setResult(response);
     } catch (error) {
       console.error("Test failed:", error);
@@ -82,7 +79,7 @@ const AIHub = () => {
                     Generate Text
                   </Button>
                   <Button
-                    onClick={() => testRouter("embeddings")}
+                    onClick={() => testRouter("embedding")}
                     disabled={loading || !input.trim()}
                     variant="secondary"
                   >
