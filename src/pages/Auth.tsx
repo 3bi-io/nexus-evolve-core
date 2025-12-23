@@ -24,7 +24,7 @@ const Auth = () => {
     <PageLayout showHeader={false} showFooter={false} transition={true}>
       <SEO 
         title={isLogin ? "Login - Access Your AI Platform" : "Sign Up - Start Your AI Journey"}
-        description={isLogin ? "Sign in to Oneiros.me to save your chat history and preferences across devices." : "Create your free Oneiros.me account. Black Friday special - unlimited access to all features."}
+        description={isLogin ? "Sign in to Oneiros.me to save your chat history and preferences across devices." : "Create your free Oneiros.me account. Free forever - unlimited access to all features."}
         keywords="AI login, AI signup, AI platform access, create AI account"
         canonical="https://oneiros.me/auth"
       />

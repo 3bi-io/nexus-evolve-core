@@ -4,6 +4,7 @@ import { QuickStartTemplates } from '@/components/onboarding/QuickStartTemplates
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useNavigate } from 'react-router-dom';
 import { 
   Play, 
   Zap, 
@@ -52,11 +53,13 @@ const quickWins = [
 ];
 
 export default function GettingStarted() {
+  const navigate = useNavigate();
+  
   return (
     <PageLayout title="Getting Started">
       <SEO
         title="Quick Start Guide - 5 Minutes to AI-Powered | Oneiros"
-        description="Get started with Oneiros AI in 5 minutes. Black Friday special - unlimited access. Step-by-step guide, video tutorials, and quick-start templates."
+        description="Get started with Oneiros AI in 5 minutes. Free forever - unlimited access. Step-by-step guide, video tutorials, and quick-start templates."
         keywords="getting started, AI tutorial, onboarding, quick start guide, AI setup"
       />
 
@@ -75,7 +78,7 @@ export default function GettingStarted() {
             Follow this simple guide to unlock all 9 AI systems and start shipping 3x faster today.
           </p>
           <div className="flex gap-4 justify-center">
-            <Button size="lg" onClick={() => window.location.href = '/chat'}>
+            <Button size="lg" onClick={() => navigate('/chat')}>
               Start Using AI
               <Zap className="ml-2 h-5 w-5" />
             </Button>
@@ -194,11 +197,11 @@ export default function GettingStarted() {
             Join 10,847 teams using the unified AI platform to ship 3x faster
           </p>
           <div className="flex gap-4 justify-center">
-            <Button size="lg" onClick={() => window.location.href = '/chat'}>
+            <Button size="lg" onClick={() => navigate('/chat')}>
               Start Using AI (No Account Required)
               <Zap className="ml-2 h-5 w-5" />
             </Button>
-            <Button size="lg" variant="outline" onClick={() => window.location.href = '/features'}>
+            <Button size="lg" variant="outline" onClick={() => navigate('/features')}>
               Explore Features
             </Button>
           </div>

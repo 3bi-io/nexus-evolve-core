@@ -2,6 +2,8 @@ import { MarketingLayout } from '@/components/layout/MarketingLayout';
 import { SEO } from '@/components/SEO';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 import { Brain, Zap, Shield, Users, Rocket, Target } from 'lucide-react';
 
 export default function About() {
@@ -130,12 +132,11 @@ export default function About() {
                 We're building the most advanced AI automation platform in the world. 
                 Join thousands of businesses already automating with Oneiros.
               </p>
-              <a 
-                href="/auth" 
-                className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium"
-              >
-                Get Black Friday Deal
-              </a>
+              <Button asChild size="lg">
+                <Link to="/auth">
+                  Start Free
+                </Link>
+              </Button>
             </CardContent>
           </Card>
         </section>

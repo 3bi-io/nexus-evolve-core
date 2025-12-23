@@ -18,9 +18,9 @@ const Index = () => {
       showBack={false}
     >
       <SEO 
-        title="Oneiros | Black Friday AI Platform - Vision, Generation, Workflows & Monitoring"
-        description="Black Friday special - AI platform with vision analysis, image generation, automated workflows, and intelligent monitoring. Limited time unlimited access to all features."
-        keywords="AI platform, Black Friday AI, vision analysis, image generation, automated workflows, multi-agent AI, ChatGPT alternative"
+        title="Oneiros | Free AI Platform - Vision, Generation, Workflows & Monitoring"
+        description="Free forever AI platform with vision analysis, image generation, automated workflows, and intelligent monitoring. Unlimited access to all features."
+        keywords="AI platform, free AI, vision analysis, image generation, automated workflows, multi-agent AI, ChatGPT alternative"
         canonical="https://oneiros.me/"
       />
       
