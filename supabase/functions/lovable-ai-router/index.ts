@@ -24,8 +24,6 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    console.log('Routing request:', { task, model });
-
     // Default model selection
     const defaultModel = model || 'google/gemini-2.5-flash';
 
