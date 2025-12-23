@@ -107,7 +107,7 @@ Deno.serve(async (req) => {
     if (avgResponseTime > 8000 && agent.model === 'google/gemini-2.5-pro') {
       suggestions.push({
         suggestion_type: 'model',
-        suggestion: 'Switch to claude-3-sonnet-20240229',
+        suggestion: 'Switch to claude-sonnet-4-5',
         reasoning: 'Sonnet is significantly faster while maintaining high quality for most tasks.',
         confidence_score: 0.85
       });
