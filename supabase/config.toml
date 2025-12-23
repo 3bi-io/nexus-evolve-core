@@ -206,3 +206,6 @@ verify_jwt = false
 
 [functions.negotiate-agent]
 verify_jwt = false
+
+[functions.seed-marketplace-agents]
+verify_jwt = true
