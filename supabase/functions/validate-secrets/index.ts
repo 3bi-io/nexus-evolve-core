@@ -90,11 +90,11 @@ Deno.serve(async (req) => {
           method: 'POST',
           headers: { 
             'x-api-key': anthropicKey,
-            'anthropic-version': '2023-06-01',
+            'anthropic-version': '2024-01-01',
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'claude-3-sonnet-20240229',
+            model: 'claude-sonnet-4-5',
             max_tokens: 1,
             messages: [{ role: 'user', content: 'test' }]
           })
