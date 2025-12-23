@@ -12,12 +12,38 @@ const logStep = (step: string, details?: any) => {
   console.log(`[STRIPE-WEBHOOK] ${step}${detailsStr}`);
 };
 
-// Oneiros product IDs to tier mapping
-const PRODUCT_TIERS: Record<string, { tier: string; credits: number }> = {
-  "prod_TesCNFzJKIiWJy": { tier: "pro", credits: 500 },
-  "prod_TesDcc7CpEAPyA": { tier: "pro_annual", credits: 500 },
-  "prod_TesDFtBSqeaQL7": { tier: "enterprise", credits: 10000 },
+// Map Stripe product IDs to database tier names
+const STRIPE_PRODUCT_TO_TIER: Record<string, { tierName: string; credits: number; billingCycle: string }> = {
+  "prod_TesCNFzJKIiWJy": { tierName: "professional", credits: 10000, billingCycle: "monthly" },
+  "prod_TesDcc7CpEAPyA": { tierName: "professional", credits: 10000, billingCycle: "yearly" },
+  "prod_TesDFtBSqeaQL7": { tierName: "enterprise", credits: 999999, billingCycle: "monthly" },
 };
+
+async function getTierIdByName(supabase: any, tierName: string): Promise<string | null> {
+  const { data, error } = await supabase
+    .from("subscription_tiers")
+    .select("id")
+    .eq("tier_name", tierName)
+    .eq("active", true)
+    .single();
+  
+  if (error || !data) {
+    logStep("Error finding tier", { tierName, error: error?.message });
+    return null;
+  }
+  return data.id;
+}
+
+async function getUserIdByEmail(supabase: any, email: string): Promise<string | null> {
+  const { data, error } = await supabase.auth.admin.listUsers();
+  if (error) {
+    logStep("Error listing users", { error: error.message });
+    return null;
+  }
+  
+  const user = data.users.find((u: any) => u.email === email);
+  return user?.id || null;
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -52,6 +78,7 @@ serve(async (req) => {
         return new Response(JSON.stringify({ error: "No signature" }), { status: 400 });
       }
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+      logStep("Webhook signature verified");
     } else {
       // For development without webhook secret
       event = JSON.parse(body);
@@ -63,93 +90,133 @@ serve(async (req) => {
     switch (event.type) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
-        const userId = session.metadata?.user_id;
-        const customerId = session.customer as string;
+        const customerEmail = session.customer_email || session.customer_details?.email;
+        const subscriptionId = session.subscription as string;
         
-        logStep("Checkout completed", { sessionId: session.id, userId, customerId });
+        logStep("Checkout completed", { sessionId: session.id, customerEmail, subscriptionId });
         
-        if (userId) {
-          // Fetch subscription details
-          const subscriptionId = session.subscription as string;
-          if (subscriptionId) {
-            const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-            const productId = subscription.items.data[0]?.price.product as string;
-            const tierInfo = PRODUCT_TIERS[productId] || { tier: "pro", credits: 500 };
-            
-            // Update user subscription in database
-            const { error: updateError } = await supabase
-              .from("user_subscriptions")
-              .upsert({
-                user_id: userId,
-                stripe_customer_id: customerId,
-                stripe_subscription_id: subscriptionId,
-                status: "active",
-                tier_name: tierInfo.tier,
-                credits_total: tierInfo.credits,
-                credits_remaining: tierInfo.credits,
-                started_at: new Date().toISOString(),
-                renews_at: new Date(subscription.current_period_end * 1000).toISOString(),
-              }, { onConflict: "user_id" });
+        if (!customerEmail || !subscriptionId) {
+          logStep("Missing customer email or subscription ID");
+          break;
+        }
 
-            if (updateError) {
-              logStep("Database update error", { error: updateError.message });
-            } else {
-              logStep("Subscription activated", { userId, tier: tierInfo.tier });
-            }
-          }
+        // Get user ID from email
+        const userId = await getUserIdByEmail(supabase, customerEmail);
+        if (!userId) {
+          logStep("User not found for email", { customerEmail });
+          break;
+        }
+
+        // Fetch subscription details from Stripe
+        const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+        const productId = subscription.items.data[0]?.price.product as string;
+        const tierMapping = STRIPE_PRODUCT_TO_TIER[productId];
+        
+        if (!tierMapping) {
+          logStep("Unknown product ID", { productId });
+          break;
+        }
+
+        // Get tier ID from database
+        const tierId = await getTierIdByName(supabase, tierMapping.tierName);
+        if (!tierId) {
+          logStep("Tier not found in database", { tierName: tierMapping.tierName });
+          break;
+        }
+
+        // Upsert user subscription
+        const { error: upsertError } = await supabase
+          .from("user_subscriptions")
+          .upsert({
+            user_id: userId,
+            tier_id: tierId,
+            credits_total: tierMapping.credits,
+            credits_remaining: tierMapping.credits,
+            billing_cycle: tierMapping.billingCycle,
+            status: "active",
+            started_at: new Date().toISOString(),
+            renews_at: new Date(subscription.current_period_end * 1000).toISOString(),
+            stripe_subscription_id: subscriptionId,
+          }, { onConflict: "user_id" });
+
+        if (upsertError) {
+          logStep("Database upsert error", { error: upsertError.message });
+        } else {
+          logStep("Subscription activated", { userId, tierName: tierMapping.tierName });
         }
         break;
       }
 
       case "customer.subscription.updated": {
         const subscription = event.data.object as Stripe.Subscription;
-        const customerId = subscription.customer as string;
+        const subscriptionId = subscription.id;
         
-        logStep("Subscription updated", { subscriptionId: subscription.id, status: subscription.status });
+        logStep("Subscription updated", { subscriptionId, status: subscription.status });
 
-        // Find user by customer ID
+        // Find user by subscription ID
         const { data: subData } = await supabase
           .from("user_subscriptions")
-          .select("user_id")
-          .eq("stripe_customer_id", customerId)
+          .select("user_id, tier_id")
+          .eq("stripe_subscription_id", subscriptionId)
           .single();
 
         if (subData) {
           const productId = subscription.items.data[0]?.price.product as string;
-          const tierInfo = PRODUCT_TIERS[productId] || { tier: "pro", credits: 500 };
+          const tierMapping = STRIPE_PRODUCT_TO_TIER[productId];
+
+          const updateData: any = {
+            status: subscription.status === "active" ? "active" : subscription.status,
+            renews_at: new Date(subscription.current_period_end * 1000).toISOString(),
+          };
+
+          // If product changed, update tier
+          if (tierMapping) {
+            const newTierId = await getTierIdByName(supabase, tierMapping.tierName);
+            if (newTierId) {
+              updateData.tier_id = newTierId;
+              updateData.credits_total = tierMapping.credits;
+              updateData.billing_cycle = tierMapping.billingCycle;
+            }
+          }
 
           await supabase
             .from("user_subscriptions")
-            .update({
-              status: subscription.status,
-              tier_name: tierInfo.tier,
-              renews_at: new Date(subscription.current_period_end * 1000).toISOString(),
-            })
+            .update(updateData)
             .eq("user_id", subData.user_id);
+
+          logStep("Subscription updated in database", { userId: subData.user_id });
         }
         break;
       }
 
       case "customer.subscription.deleted": {
         const subscription = event.data.object as Stripe.Subscription;
-        const customerId = subscription.customer as string;
+        const subscriptionId = subscription.id;
         
-        logStep("Subscription canceled", { subscriptionId: subscription.id });
+        logStep("Subscription canceled", { subscriptionId });
 
+        // Get starter tier for downgrade
+        const starterTierId = await getTierIdByName(supabase, "starter");
+        
         const { data: subData } = await supabase
           .from("user_subscriptions")
           .select("user_id")
-          .eq("stripe_customer_id", customerId)
+          .eq("stripe_subscription_id", subscriptionId)
           .single();
 
-        if (subData) {
+        if (subData && starterTierId) {
           await supabase
             .from("user_subscriptions")
             .update({
-              status: "canceled",
-              tier_name: "free",
+              status: "cancelled",
+              cancelled_at: new Date().toISOString(),
+              tier_id: starterTierId,
+              credits_total: 500,
+              stripe_subscription_id: null,
             })
             .eq("user_id", subData.user_id);
+
+          logStep("User downgraded to starter", { userId: subData.user_id });
         }
         break;
       }
@@ -158,8 +225,8 @@ serve(async (req) => {
         const invoice = event.data.object as Stripe.Invoice;
         logStep("Invoice paid", { invoiceId: invoice.id, amount: invoice.amount_paid });
         
-        // Reset credits on successful payment
-        if (invoice.subscription) {
+        // Reset credits on successful payment (renewal)
+        if (invoice.subscription && invoice.billing_reason === "subscription_cycle") {
           const { data: subData } = await supabase
             .from("user_subscriptions")
             .select("user_id, credits_total")
@@ -169,10 +236,13 @@ serve(async (req) => {
           if (subData) {
             await supabase
               .from("user_subscriptions")
-              .update({ credits_remaining: subData.credits_total })
+              .update({ 
+                credits_remaining: subData.credits_total,
+                status: "active"
+              })
               .eq("user_id", subData.user_id);
             
-            logStep("Credits reset", { userId: subData.user_id, credits: subData.credits_total });
+            logStep("Credits reset on renewal", { userId: subData.user_id, credits: subData.credits_total });
           }
         }
         break;
