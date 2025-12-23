@@ -47,7 +47,9 @@ export function AnimatedPlatformComparison() {
   // Pre-calculate current tool with bounds checking
   const currentTool = useMemo(() => {
     if (!TOOLS_SEQUENCE || TOOLS_SEQUENCE.length === 0) {
-      console.warn('[AnimatedPlatformComparison] TOOLS_SEQUENCE is empty');
+      if (import.meta.env.DEV) {
+        console.warn('[AnimatedPlatformComparison] TOOLS_SEQUENCE is empty');
+      }
       return null;
     }
     return TOOLS_SEQUENCE[beforeStep % TOOLS_SEQUENCE.length];
@@ -56,7 +58,9 @@ export function AnimatedPlatformComparison() {
   // Pre-calculate current feature with bounds checking
   const currentFeature = useMemo(() => {
     if (!UNIFIED_FEATURES || UNIFIED_FEATURES.length === 0) {
-      console.warn('[AnimatedPlatformComparison] UNIFIED_FEATURES is empty');
+      if (import.meta.env.DEV) {
+        console.warn('[AnimatedPlatformComparison] UNIFIED_FEATURES is empty');
+      }
       return null;
     }
     const idx = showUnifiedFeatures % UNIFIED_FEATURES.length;
@@ -148,8 +152,8 @@ export function AnimatedPlatformComparison() {
 
               {/* Animated Tool Windows - Direct Render Pattern */}
               <div className="relative h-[350px]">
-                <SafeAnimatePresence mode="wait">
-                  {enableAnimations && (
+                {enableAnimations && (
+                  <SafeAnimatePresence mode="wait">
                     <motion.div
                       key={`${currentTool.name}-${cycleCount}`}
                       initial={{ opacity: 0, scale: 0.8, rotate: -10 }}
@@ -202,8 +206,8 @@ export function AnimatedPlatformComparison() {
                         </div>
                       </Card>
                     </motion.div>
-                  )}
-                </SafeAnimatePresence>
+                  </SafeAnimatePresence>
+                )}
 
                 {/* Chaos indicators */}
                 <div className="absolute -bottom-2 left-0 right-0 flex justify-center gap-1">
@@ -284,8 +288,8 @@ export function AnimatedPlatformComparison() {
 
                 {/* Main Content Area - Direct Render Pattern */}
                 <div className="flex-1 space-y-4">
-                  <SafeAnimatePresence mode="wait">
-                    {enableAnimations && (
+                  {enableAnimations && (
+                    <SafeAnimatePresence mode="wait">
                       <motion.div
                         key={showUnifiedFeatures}
                         initial={{ opacity: 0, x: 20 }}
@@ -319,8 +323,8 @@ export function AnimatedPlatformComparison() {
                           </div>
                         </Card>
                       </motion.div>
-                    )}
-                  </SafeAnimatePresence>
+                    </SafeAnimatePresence>
+                  )}
 
                   {/* Keyboard shortcut hint */}
                   <motion.div

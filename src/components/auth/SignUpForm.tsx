@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +16,7 @@ const signupSchema = z.object({
 });
 
 export const SignUpForm = ({ onToggle }: { onToggle: () => void }) => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -91,7 +93,7 @@ export const SignUpForm = ({ onToggle }: { onToggle: () => void }) => {
           type="button"
           variant="outline" 
           className="w-full"
-          onClick={() => window.location.href = '/chat'}
+          onClick={() => navigate('/')}
         >
           Continue as Guest
         </Button>

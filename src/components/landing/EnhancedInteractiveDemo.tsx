@@ -31,6 +31,10 @@ export const EnhancedInteractiveDemo = () => {
     }, 1500);
   };
 
+  // Determine which state to show
+  const showEmpty = !selectedPrompt && !isTyping;
+  const showConversation = selectedPrompt && !isTyping;
+
   return (
     <Card className="w-full shadow-xl border-primary/20 relative overflow-hidden">
       {/* Animated gradient background */}
@@ -51,7 +55,7 @@ export const EnhancedInteractiveDemo = () => {
         {/* Chat Display with animations */}
         <div className="min-h-[200px] max-h-[300px] overflow-y-auto space-y-4 bg-muted/30 rounded-lg p-4">
           <SafeAnimatePresence mode="wait">
-            {!selectedPrompt && !isTyping && (
+            {showEmpty && (
               <motion.div 
                 key="empty"
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -65,7 +69,7 @@ export const EnhancedInteractiveDemo = () => {
               </motion.div>
             )}
 
-            {selectedPrompt && !isTyping && (
+            {showConversation && (
               <motion.div
                 key="conversation"
                 initial={{ opacity: 0 }}
@@ -149,8 +153,8 @@ export const EnhancedInteractiveDemo = () => {
 
         {/* Credits & CTAs */}
         <div className="pt-4 border-t space-y-3">
-          <SafeAnimatePresence>
-            {totalCredits > 0 && (
+          {totalCredits > 0 && (
+            <SafeAnimatePresence>
               <motion.div 
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
@@ -167,8 +171,8 @@ export const EnhancedInteractiveDemo = () => {
                   <Badge variant="secondary">{totalCredits} credits</Badge>
                 </motion.div>
               </motion.div>
-            )}
-          </SafeAnimatePresence>
+            </SafeAnimatePresence>
+          )}
           
           <div className="space-y-2">
             <Button 
