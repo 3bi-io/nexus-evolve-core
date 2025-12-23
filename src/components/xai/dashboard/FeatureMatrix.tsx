@@ -23,14 +23,14 @@ interface FeatureMatrixProps {
 }
 
 const defaultFeatures: Feature[] = [
-  { name: "Image Generation", speed: "medium", cost: "medium", useCase: "Creative content", model: "aurora" },
-  { name: "Vision Analysis", speed: "fast", cost: "low", useCase: "Image understanding", model: "grok-vision-beta" },
-  { name: "Code Analysis", speed: "fast", cost: "low", useCase: "Code review & security", model: "grok-beta" },
-  { name: "Deep Reasoning", speed: "slow", cost: "high", useCase: "Complex problem solving", model: "grok-beta" },
-  { name: "Trending Topics", speed: "fast", cost: "low", useCase: "Social intelligence", model: "grok-beta" },
-  { name: "Sentiment Analysis", speed: "fast", cost: "low", useCase: "Opinion mining", model: "grok-beta" },
-  { name: "Viral Content", speed: "medium", cost: "medium", useCase: "Content creation", model: "grok-beta" },
-  { name: "Real-time Search", speed: "fast", cost: "low", useCase: "Information retrieval", model: "grok-beta" },
+  { name: "Image Generation", speed: "medium", cost: "medium", useCase: "Creative content", model: "gemini-image" },
+  { name: "Vision Analysis", speed: "fast", cost: "low", useCase: "Image understanding", model: "grok-2-vision" },
+  { name: "Code Analysis", speed: "fast", cost: "low", useCase: "Code review & security", model: "grok-3" },
+  { name: "Deep Reasoning", speed: "slow", cost: "high", useCase: "Complex problem solving", model: "grok-3" },
+  { name: "Trending Topics", speed: "fast", cost: "low", useCase: "Social intelligence", model: "grok-3" },
+  { name: "Sentiment Analysis", speed: "fast", cost: "low", useCase: "Opinion mining", model: "grok-3" },
+  { name: "Viral Content", speed: "medium", cost: "medium", useCase: "Content creation", model: "grok-3" },
+  { name: "Real-time Search", speed: "fast", cost: "low", useCase: "Information retrieval", model: "grok-3" },
 ];
 
 export function FeatureMatrix({ features = defaultFeatures }: FeatureMatrixProps) {

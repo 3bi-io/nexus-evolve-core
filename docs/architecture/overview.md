@@ -44,7 +44,7 @@ This is a production-grade AI-powered application built with modern web technolo
 - **Fallbacks**: Direct API integrations
   - Anthropic (Claude Sonnet 4.5)
   - Google (Gemini 2.5 Flash)
-  - OpenAI (GPT-4o)
+  - OpenAI (GPT-5)
   - HuggingFace (Image generation, embeddings)
   - Replicate (Advanced models)
 

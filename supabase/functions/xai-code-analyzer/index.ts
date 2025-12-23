@@ -34,7 +34,7 @@ serve(async (req) => {
       code,
       language = "auto",
       analysisType = "review",
-      model = "grok-code-fast-1",
+      model = "grok-3",
     } = body;
 
     logger.info("Analyzing code", { 

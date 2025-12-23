@@ -28,7 +28,7 @@ serve(async (req) => {
 
     const body: VisionRequest = await req.json();
     validateRequiredFields(body, ["imageUrl", "query"]);
-    const { imageUrl, query, model = "grok-vision-beta" } = body;
+    const { imageUrl, query, model = "grok-2-vision-1212" } = body;
 
     logger.info("Analyzing image", { 
       userId: user?.id || 'anonymous',

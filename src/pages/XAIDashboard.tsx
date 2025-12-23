@@ -87,7 +87,7 @@ export default function XAIDashboard() {
     {
       icon: Image,
       title: "Image Generation",
-      description: "Generate stunning images from text prompts using Aurora",
+      description: "Generate stunning images from text prompts using Gemini Image",
       route: "/xai-studio?tab=image-gen",
       status: "available" as const,
     },
