@@ -1,39 +1,82 @@
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { ResponsiveContainer } from "@/components/layout/ResponsiveContainer";
 import { ResponsiveSection, MobileSafeArea } from "@/components/layout/ResponsiveSection";
 import { SEO } from "@/components/SEO";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, Zap, Heart, Users, Gift, Star } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { PricingCard } from "@/components/stripe/PricingCard";
+import { useSubscription } from "@/hooks/useSubscription";
+import { useAuth } from "@/contexts/AuthContext";
+import { PRICING_TIERS } from "@/config/stripe";
+import { toast } from "sonner";
+import { Zap, Shield, Users, Headphones, CheckCircle, XCircle } from "lucide-react";
 
 const Pricing = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { user } = useAuth();
+  const { tier: currentTier, loading, createCheckout, openCustomerPortal, checkSubscription } = useSubscription();
+  const [billingInterval, setBillingInterval] = useState<"month" | "year">("month");
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  const features = [
-    "Unlimited AI interactions",
-    "All 9 AI systems",
-    "Multi-agent orchestration",
-    "Temporal memory",
-    "Voice AI",
-    "Agent marketplace access",
-    "Browser AI",
-    "Knowledge graphs",
-    "Keyboard shortcuts",
-    "Advanced analytics",
-    "All features unlocked",
-    "Priority support"
-  ];
+  // Handle success/cancel redirects from Stripe
+  useEffect(() => {
+    const success = searchParams.get("success");
+    const canceled = searchParams.get("canceled");
+
+    if (success === "true") {
+      toast.success("Subscription successful! Welcome to Oneiros Pro.", {
+        duration: 5000,
+      });
+      checkSubscription();
+      // Clear URL params
+      navigate("/pricing", { replace: true });
+    } else if (canceled === "true") {
+      toast.info("Checkout canceled. You can try again anytime.");
+      navigate("/pricing", { replace: true });
+    }
+  }, [searchParams, navigate, checkSubscription]);
+
+  const handleSubscribe = async (priceId: string) => {
+    try {
+      setCheckoutLoading(true);
+      await createCheckout(priceId);
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to start checkout");
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
+  const handleManage = async () => {
+    try {
+      setCheckoutLoading(true);
+      await openCustomerPortal();
+    } catch (error) {
+      console.error("Portal error:", error);
+      toast.error(error instanceof Error ? error.message : "Failed to open customer portal");
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
+  const handleLoginRequired = () => {
+    navigate("/auth?redirect=/pricing");
+  };
 
   return (
     <PageLayout showHeader={true} showFooter={true} transition={true}>
-      <SEO 
-        title="Free AI Platform | Oneiros - All Features Unlocked"
-        description="Get unlimited access to all AI features for free. No credit card required. 9 AI systems, multi-agent orchestration, voice AI, and more."
-        keywords="free AI platform, unlimited AI, free AI tools, AI for everyone"
+      <SEO
+        title="Pricing | Oneiros - AI Platform Plans"
+        description="Choose the perfect plan for your AI needs. From free to enterprise, Oneiros offers flexible pricing for individuals and teams."
+        keywords="AI pricing, subscription plans, AI platform pricing, Oneiros plans"
         canonical="https://oneiros.me/pricing"
-        ogImage="/og-platform-automation.png"
+        ogImage="/og-pricing-v2.png"
       />
 
       <ResponsiveContainer size="xl" padding="md">
@@ -43,122 +86,189 @@ const Pricing = () => {
             <ResponsiveSection spacing="md">
               <div className="text-center space-y-6">
                 <Badge variant="outline" className="text-base px-6 py-3">
-                  <Gift className="h-5 w-5 mr-2" />
-                  ✨ Free Forever
+                  <Zap className="h-5 w-5 mr-2" />
+                  Simple, Transparent Pricing
                 </Badge>
                 <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight">
-                  No Pricing. Just{" "}
+                  Power Your AI{" "}
                   <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent">
-                    Free Access
+                    Journey
                   </span>
                 </h1>
                 <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                  We believe AI should be accessible to everyone. That's why{" "}
-                  <strong className="text-primary">every feature is completely free</strong>{" "}
-                  with <strong>unlimited usage</strong>. No credit card required. No hidden fees. Ever.
+                  Start free and scale as you grow. No hidden fees, cancel anytime.
                 </p>
-              </div>
-            </ResponsiveSection>
 
-            {/* Main Free Card */}
-            <ResponsiveSection spacing="md">
-              <div className="max-w-4xl mx-auto">
-                <Card className="p-8 md:p-12 border-2 border-primary shadow-2xl bg-gradient-to-br from-primary/10 via-transparent to-primary/5">
-                  <CardHeader className="text-center pb-8">
-                    <div className="flex justify-center mb-4">
-                      <div className="p-4 bg-primary/20 rounded-full">
-                        <Sparkles className="h-12 w-12 text-primary" />
-                      </div>
-                    </div>
-                    <CardTitle className="text-3xl md:text-4xl font-bold mb-2">
-                      Free Forever Plan
-                    </CardTitle>
-                    <div className="flex items-baseline justify-center gap-2">
-                      <span className="text-6xl font-bold">$0</span>
-                      <span className="text-2xl text-muted-foreground">/forever</span>
-                    </div>
-                    <p className="text-lg text-muted-foreground mt-4">
-                      Unlimited everything. No strings attached.
-                    </p>
-                  </CardHeader>
-                  <CardContent className="space-y-8">
-                    <div className="grid sm:grid-cols-2 gap-4">
-                      {features.map((feature, idx) => (
-                        <div key={idx} className="flex items-start gap-3">
-                          <Star className="h-5 w-5 text-primary flex-shrink-0 mt-0.5 fill-primary" />
-                          <span className="text-base">{feature}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="pt-6 space-y-4">
-                      <Button 
-                        size="lg"
-                        className="w-full text-lg py-7 shadow-xl hover:shadow-2xl transition-all hover:scale-105"
-                        onClick={() => navigate('/chat')}
-                      >
-                        <Zap className="mr-2 h-5 w-5" />
-                        Start Using Now - It's Free
-                      </Button>
-                      <p className="text-center text-sm text-muted-foreground">
-                        No sign-up required to explore • Optional account for saving preferences
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </ResponsiveSection>
-
-            {/* Why Free Section */}
-            <ResponsiveSection spacing="md" background="muted">
-              <div className="p-8 md:p-12 max-w-4xl mx-auto">
-                <div className="text-center space-y-6">
-                  <Heart className="h-16 w-16 text-primary mx-auto" />
-                  <h2 className="text-3xl md:text-4xl font-bold">
-                    Why It's Free
-                  </h2>
-                  <div className="space-y-4 text-lg text-muted-foreground text-left max-w-2xl mx-auto">
-                    <p>
-                      We're building Oneiros as a <strong className="text-foreground">community-driven platform</strong>.
-                      Our goal is to democratize AI and make advanced automation accessible to everyone.
-                    </p>
-                    <p>
-                      Instead of paywalls, we're focusing on creating the best AI platform possible and
-                      growing an engaged community. Your feedback and usage help us improve constantly.
-                    </p>
-                    <p className="text-primary font-semibold">
-                      Every feature. Every AI system. Unlimited usage. Forever free.
-                    </p>
-                  </div>
+                {/* Billing Toggle */}
+                <div className="flex items-center justify-center gap-4 pt-4">
+                  <Label
+                    htmlFor="billing-toggle"
+                    className={billingInterval === "month" ? "text-foreground" : "text-muted-foreground"}
+                  >
+                    Monthly
+                  </Label>
+                  <Switch
+                    id="billing-toggle"
+                    checked={billingInterval === "year"}
+                    onCheckedChange={(checked) => setBillingInterval(checked ? "year" : "month")}
+                  />
+                  <Label
+                    htmlFor="billing-toggle"
+                    className={billingInterval === "year" ? "text-foreground" : "text-muted-foreground"}
+                  >
+                    Annual
+                    <Badge variant="secondary" className="ml-2">
+                      Save 20%
+                    </Badge>
+                  </Label>
                 </div>
               </div>
             </ResponsiveSection>
 
-            {/* Community CTA */}
+            {/* Pricing Cards */}
+            <ResponsiveSection spacing="md">
+              <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                {PRICING_TIERS.map((tier) => (
+                  <PricingCard
+                    key={tier.tier}
+                    {...tier}
+                    currentTier={currentTier}
+                    billingInterval={billingInterval}
+                    loading={loading || checkoutLoading}
+                    onSubscribe={handleSubscribe}
+                    onManage={handleManage}
+                    isLoggedIn={!!user}
+                    onLoginRequired={handleLoginRequired}
+                  />
+                ))}
+              </div>
+            </ResponsiveSection>
+
+            {/* Feature Comparison */}
+            <ResponsiveSection spacing="md" background="muted">
+              <div className="p-8 md:p-12 max-w-5xl mx-auto">
+                <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">
+                  Compare Plans
+                </h2>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-4 px-4">Feature</th>
+                        <th className="text-center py-4 px-4">Free</th>
+                        <th className="text-center py-4 px-4">Pro</th>
+                        <th className="text-center py-4 px-4">Enterprise</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                      {[
+                        { feature: "Monthly Credits", free: "100", pro: "500", enterprise: "Unlimited" },
+                        { feature: "AI Systems", free: "5", pro: "All 9", enterprise: "All 9" },
+                        { feature: "Multi-Agent Orchestration", free: "Basic", pro: "Full", enterprise: "Full" },
+                        { feature: "Voice AI", free: false, pro: true, enterprise: true },
+                        { feature: "Custom Agents", free: false, pro: true, enterprise: true },
+                        { feature: "Knowledge Graphs", free: false, pro: true, enterprise: true },
+                        { feature: "API Access", free: false, pro: false, enterprise: true },
+                        { feature: "Team Management", free: false, pro: false, enterprise: true },
+                        { feature: "Dedicated Support", free: false, pro: false, enterprise: true },
+                        { feature: "SLA Guarantee", free: false, pro: false, enterprise: true },
+                      ].map((row) => (
+                        <tr key={row.feature}>
+                          <td className="py-4 px-4 font-medium">{row.feature}</td>
+                          <td className="text-center py-4 px-4">
+                            {typeof row.free === "boolean" ? (
+                              row.free ? (
+                                <CheckCircle className="h-5 w-5 text-green-500 mx-auto" />
+                              ) : (
+                                <XCircle className="h-5 w-5 text-muted-foreground mx-auto" />
+                              )
+                            ) : (
+                              row.free
+                            )}
+                          </td>
+                          <td className="text-center py-4 px-4">
+                            {typeof row.pro === "boolean" ? (
+                              row.pro ? (
+                                <CheckCircle className="h-5 w-5 text-green-500 mx-auto" />
+                              ) : (
+                                <XCircle className="h-5 w-5 text-muted-foreground mx-auto" />
+                              )
+                            ) : (
+                              row.pro
+                            )}
+                          </td>
+                          <td className="text-center py-4 px-4">
+                            {typeof row.enterprise === "boolean" ? (
+                              row.enterprise ? (
+                                <CheckCircle className="h-5 w-5 text-green-500 mx-auto" />
+                              ) : (
+                                <XCircle className="h-5 w-5 text-muted-foreground mx-auto" />
+                              )
+                            ) : (
+                              row.enterprise
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </ResponsiveSection>
+
+            {/* Trust Signals */}
+            <ResponsiveSection spacing="md">
+              <div className="grid sm:grid-cols-3 gap-8 max-w-4xl mx-auto text-center">
+                <div className="space-y-3">
+                  <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                    <Shield className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold">Secure Payments</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Powered by Stripe with bank-level encryption
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                    <Users className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold">Cancel Anytime</h3>
+                  <p className="text-sm text-muted-foreground">
+                    No long-term commitments, cancel with one click
+                  </p>
+                </div>
+                <div className="space-y-3">
+                  <div className="h-12 w-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+                    <Headphones className="h-6 w-6 text-primary" />
+                  </div>
+                  <h3 className="font-semibold">24/7 Support</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Priority support for Pro and Enterprise users
+                  </p>
+                </div>
+              </div>
+            </ResponsiveSection>
+
+            {/* CTA */}
             <ResponsiveSection spacing="md">
               <div className="text-center space-y-6 py-12 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl">
-                <Users className="h-16 w-16 text-primary mx-auto" />
                 <h2 className="text-3xl md:text-4xl font-bold">
-                  Join Our Growing Community
+                  Ready to Get Started?
                 </h2>
                 <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                  Be part of a movement to make AI accessible to everyone.
-                  Start building, automating, and creating today.
+                  Start with our free plan and upgrade when you're ready.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button 
-                    size="lg"
-                    onClick={() => navigate('/chat')}
-                    className="text-lg px-12 py-7"
-                  >
-                    Get Started Free
+                  <Button size="lg" onClick={() => navigate("/chat")} className="text-lg px-12 py-7">
+                    Try Free Now
                   </Button>
-                  <Button 
+                  <Button
                     size="lg"
                     variant="outline"
-                    onClick={() => navigate('/getting-started')}
+                    onClick={() => navigate("/contact")}
                     className="text-lg px-12 py-7"
                   >
-                    Explore Features
+                    Contact Sales
                   </Button>
                 </div>
               </div>
