@@ -2,6 +2,7 @@ import { MarketingLayout } from '@/components/layout/MarketingLayout';
 import { SEO } from '@/components/SEO';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Link } from 'react-router-dom';
 import { Mail, MessageSquare, Book, Shield } from 'lucide-react';
 
 export default function Contact() {
@@ -66,12 +67,21 @@ export default function Contact() {
                   <p className="text-muted-foreground">{option.description}</p>
                 </CardHeader>
                 <CardContent>
-                  <a
-                    href={option.link}
-                    className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors font-medium text-sm"
-                  >
-                    {option.action}
-                  </a>
+                  {option.link.startsWith('mailto:') ? (
+                    <a
+                      href={option.link}
+                      className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors font-medium text-sm"
+                    >
+                      {option.action}
+                    </a>
+                  ) : (
+                    <Link
+                      to={option.link}
+                      className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors font-medium text-sm"
+                    >
+                      {option.action}
+                    </Link>
+                  )}
                 </CardContent>
               </Card>
             );
@@ -96,7 +106,7 @@ export default function Contact() {
               </div>
               <div>
                 <h3 className="font-semibold mb-2">Where can I find more information?</h3>
-                <p className="text-muted-foreground">Check out our <a href="/getting-started" className="text-primary hover:underline">Getting Started guide</a> and <a href="/agent-marketplace" className="text-primary hover:underline">Agent Marketplace</a> for detailed information.</p>
+                <p className="text-muted-foreground">Check out our <Link to="/getting-started" className="text-primary hover:underline">Getting Started guide</Link> and <Link to="/agent-marketplace" className="text-primary hover:underline">Agent Marketplace</Link> for detailed information.</p>
               </div>
             </div>
           </CardContent>
