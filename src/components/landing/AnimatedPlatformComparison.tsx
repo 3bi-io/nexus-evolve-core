@@ -8,7 +8,7 @@ import {
   Sparkles, Zap, Brain, X, Check, ArrowRight, Loader2,
   ExternalLink, RefreshCw
 } from 'lucide-react';
-import { useIsMobile } from '@/hooks/useResponsive';
+import { useResponsive } from '@/hooks/useResponsive';
 
 const TOOLS_SEQUENCE = [
   { name: 'ChatGPT', icon: MessageSquare, color: '#10a37f' },
@@ -34,7 +34,7 @@ export function AnimatedPlatformComparison() {
   const [showUnifiedFeatures, setShowUnifiedFeatures] = useState(0);
   const [cycleCount, setCycleCount] = useState(0);
   const [enableAnimations, setEnableAnimations] = useState(false);
-  const isMobile = useIsMobile();
+  const { isMobile } = useResponsive();
 
   // Delay animation initialization on mobile to prevent timing issues
   useEffect(() => {

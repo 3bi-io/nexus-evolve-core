@@ -1,6 +1,6 @@
 import { AnimatePresence } from 'framer-motion';
 import { ReactNode, Fragment } from 'react';
-import { useIsMobile } from '@/hooks/useResponsive';
+import { useResponsive } from '@/hooks/useResponsive';
 
 interface SafeAnimatePresenceProps {
   children: ReactNode;
@@ -24,7 +24,7 @@ export const SafeAnimatePresence = ({
   mode,
   disableOnMobile = true 
 }: SafeAnimatePresenceProps) => {
-  const isMobile = useIsMobile();
+  const { isMobile } = useResponsive();
   
   // Development warning with stack trace for null/undefined children
   if (process.env.NODE_ENV === 'development') {

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { X, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useMobile } from "@/hooks/useResponsive";
+import { useResponsive } from "@/hooks/useResponsive";
 import { motion } from "framer-motion";
 import { SafeAnimatePresence } from "@/components/ui/SafeAnimatePresence";
 
@@ -14,7 +14,7 @@ interface BeforeInstallPromptEvent extends Event {
 export function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
-  const { isMobile, isNative } = useMobile();
+  const { isMobile, isNative } = useResponsive();
 
   useEffect(() => {
     // Don't show if already installed or running as native app

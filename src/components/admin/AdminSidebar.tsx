@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { useMobile } from "@/hooks/useResponsive";
+import { useResponsive } from "@/hooks/useResponsive";
 import {
   BarChart3,
   Users,
@@ -46,7 +46,7 @@ const sidebarSections = [
 ];
 
 export function AdminSidebar({ section, onSectionChange }: AdminSidebarProps) {
-  const { isMobile, isOled } = useMobile();
+  const { isMobile, isOled } = useResponsive();
   const [isOpen, setIsOpen] = useState(false);
 
   const sidebarContent = (

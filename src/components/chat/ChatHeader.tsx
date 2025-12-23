@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Link, useNavigate } from "react-router-dom";
 import { AgentSelector } from "@/components/AgentSelector";
 import { MobileSessionDrawer } from "./MobileSessionDrawer";
-import { useMobile } from "@/hooks/useResponsive";
+import { useResponsive } from "@/hooks/useResponsive";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   DropdownMenu,
@@ -38,7 +38,7 @@ export const ChatHeader = ({
   onSessionSelect,
   onNewSession,
 }: ChatHeaderProps) => {
-  const { isMobile } = useMobile();
+  const { isMobile } = useResponsive();
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
 

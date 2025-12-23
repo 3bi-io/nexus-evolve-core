@@ -72,7 +72,7 @@ import { MobileLayout } from '@/components/mobile/MobileLayout';
 
 ### Add Haptic Feedback
 ```tsx
-import { useHaptics } from '@/hooks/useMobile';
+import { useHaptics } from '@/hooks/useResponsive';
 
 const { light } = useHaptics();
 <Button onClick={async () => {
@@ -81,12 +81,14 @@ const { light } = useHaptics();
 }}>
 ```
 
-### Detect Mobile
+### Detect Mobile (UPDATED)
 ```tsx
-import { useMobile } from '@/hooks/useMobile';
+import { useResponsive } from '@/hooks/useResponsive';
 
-const { isMobile, isNative, platform } = useMobile();
+const { isMobile, isNative, platform, isOled } = useResponsive();
 ```
+
+> **Note:** `useMobile()` and `useIsMobile()` are deprecated. Use `useResponsive()` instead.
 
 ---
 

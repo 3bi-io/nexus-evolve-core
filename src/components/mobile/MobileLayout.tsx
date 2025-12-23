@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { MobileHeader } from "./MobileHeader";
 import { MobileBottomNav } from "./MobileBottomNav";
-import { useMobile } from "@/hooks/useResponsive";
+import { useResponsive } from "@/hooks/useResponsive";
 import { cn } from "@/lib/utils";
 
 interface MobileLayoutProps {
@@ -19,7 +19,7 @@ export function MobileLayout({
   showMenu = true,
   showBottomNav = true,
 }: MobileLayoutProps) {
-  const { isMobile } = useMobile();
+  const { isMobile } = useResponsive();
 
   if (!isMobile) {
     return <>{children}</>;

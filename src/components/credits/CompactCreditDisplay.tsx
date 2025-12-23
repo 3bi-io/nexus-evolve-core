@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Zap, Globe } from 'lucide-react';
-import { useMobile } from '@/hooks/useResponsive';
+import { useResponsive } from '@/hooks/useResponsive';
 
 interface CompactCreditDisplayProps {
   credits: number;
@@ -8,7 +8,7 @@ interface CompactCreditDisplayProps {
 }
 
 export function CompactCreditDisplay({ credits, isAnonymous }: CompactCreditDisplayProps) {
-  const { isMobile } = useMobile();
+  const { isMobile } = useResponsive();
 
   const getColorClass = () => {
     if (credits > 20) return 'text-success';

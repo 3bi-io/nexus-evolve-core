@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, MoreVertical, Brain, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CreditBalance } from "@/components/pricing/CreditBalance";
-import { useHaptics, useMobile } from "@/hooks/useResponsive";
+import { useHaptics, useResponsive } from "@/hooks/useResponsive";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,7 +31,7 @@ export function MobileHeader({
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { light } = useHaptics();
-  const { isOled } = useMobile();
+  const { isOled } = useResponsive();
   const { theme, setTheme } = useTheme();
   const [isAdmin, setIsAdmin] = useState(false);
 
