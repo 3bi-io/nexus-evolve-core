@@ -12,11 +12,11 @@ const logStep = (step: string, details?: any) => {
   console.log(`[CHECK-SUBSCRIPTION] ${step}${detailsStr}`);
 };
 
-// Oneiros product IDs
-const PRODUCT_TIERS: Record<string, string> = {
-  "prod_TesCNFzJKIiWJy": "pro",
-  "prod_TesDcc7CpEAPyA": "pro_annual",
-  "prod_TesDFtBSqeaQL7": "enterprise",
+// Oneiros product IDs mapped to tier names (must match database tier_name)
+const PRODUCT_TO_TIER: Record<string, { tier: string; stripeTier: string }> = {
+  "prod_TesCNFzJKIiWJy": { tier: "professional", stripeTier: "pro" },
+  "prod_TesDcc7CpEAPyA": { tier: "professional", stripeTier: "pro_annual" },
+  "prod_TesDFtBSqeaQL7": { tier: "enterprise", stripeTier: "enterprise" },
 };
 
 serve(async (req) => {
@@ -50,11 +50,12 @@ serve(async (req) => {
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
 
     if (customers.data.length === 0) {
-      logStep("No customer found");
+      logStep("No customer found, returning free tier");
       return new Response(JSON.stringify({ 
         subscribed: false, 
         tier: "free",
-        subscription_end: null 
+        subscription_end: null,
+        product_id: null,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
@@ -79,8 +80,17 @@ serve(async (req) => {
       const subscription = subscriptions.data[0];
       subscriptionEnd = new Date(subscription.current_period_end * 1000).toISOString();
       productId = subscription.items.data[0].price.product as string;
-      tier = PRODUCT_TIERS[productId] || "pro";
-      logStep("Active subscription found", { subscriptionId: subscription.id, tier, endDate: subscriptionEnd });
+      
+      // Map to tier name for frontend
+      const tierMapping = PRODUCT_TO_TIER[productId];
+      tier = tierMapping?.stripeTier || "pro";
+      
+      logStep("Active subscription found", { 
+        subscriptionId: subscription.id, 
+        tier, 
+        productId,
+        endDate: subscriptionEnd 
+      });
     } else {
       logStep("No active subscription found");
     }

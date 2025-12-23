@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Check, Loader2, Crown, Sparkles } from "lucide-react";
+import { Check, Loader2, Crown, Sparkles, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface PricingCardProps {
@@ -43,13 +43,31 @@ export function PricingCard({
   isLoggedIn,
   onLoginRequired,
 }: PricingCardProps) {
-  const isCurrentPlan = currentTier === tier || 
-    (tier === "pro" && currentTier === "pro_annual") ||
-    (tier === "pro" && billingInterval === "year" && currentTier === "pro_annual");
+  // Map tier names for comparison (handle both old and new tier names)
+  const normalizeTier = (t: string) => {
+    if (t === "pro" || t === "pro_annual" || t === "professional") return "pro";
+    if (t === "free" || t === "starter") return "free";
+    return t;
+  };
+  
+  const normalizedCurrentTier = normalizeTier(currentTier);
+  const normalizedCardTier = normalizeTier(tier);
+  
+  const isCurrentPlan = normalizedCurrentTier === normalizedCardTier;
   
   const displayPrice = billingInterval === "year" && annualPrice ? annualPrice : price;
   const displayInterval = billingInterval === "year" && annualPrice ? "year" : interval;
   const activePriceId = billingInterval === "year" && annualPriceId ? annualPriceId : priceId;
+
+  // Calculate monthly equivalent for annual plans
+  const monthlyEquivalent = billingInterval === "year" && annualPrice 
+    ? Math.round(annualPrice / 12) 
+    : null;
+
+  // Calculate savings for annual plan
+  const annualSavings = billingInterval === "year" && annualPrice && price > 0
+    ? (price * 12) - annualPrice
+    : null;
 
   const handleClick = () => {
     if (!isLoggedIn) {
@@ -69,26 +87,46 @@ export function PricingCard({
     if (isCurrentPlan) return "Manage Subscription";
     if (!priceId) return "Current Plan";
     if (!isLoggedIn) return "Sign Up to Subscribe";
-    return `Upgrade to ${name}`;
+    
+    // Show upgrade/downgrade based on tier level
+    const tierLevels: Record<string, number> = { free: 0, pro: 1, enterprise: 2 };
+    const currentLevel = tierLevels[normalizedCurrentTier] ?? 0;
+    const cardLevel = tierLevels[normalizedCardTier] ?? 0;
+    
+    if (cardLevel > currentLevel) return `Upgrade to ${name}`;
+    if (cardLevel < currentLevel) return `Switch to ${name}`;
+    return `Get ${name}`;
+  };
+
+  const getTierIcon = () => {
+    if (tier === "enterprise") return <Crown className="h-5 w-5 text-amber-500" />;
+    if (tier === "pro") return <Sparkles className="h-5 w-5 text-primary" />;
+    return <Zap className="h-5 w-5 text-muted-foreground" />;
+  };
+
+  const getButtonVariant = () => {
+    if (isCurrentPlan) return "outline";
+    if (popular) return "default";
+    return "secondary";
   };
 
   return (
     <Card
       className={cn(
-        "relative flex flex-col h-full transition-all duration-300",
-        popular && "border-primary shadow-lg shadow-primary/20 scale-[1.02]",
-        isCurrentPlan && "ring-2 ring-primary"
+        "relative flex flex-col h-full transition-all duration-300 hover:shadow-lg",
+        popular && "border-primary shadow-lg shadow-primary/10 scale-[1.02]",
+        isCurrentPlan && "ring-2 ring-primary bg-primary/5"
       )}
     >
-      {popular && (
-        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1">
+      {popular && !isCurrentPlan && (
+        <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 shadow-md">
           <Sparkles className="h-3 w-3 mr-1" />
           Most Popular
         </Badge>
       )}
       
       {isCurrentPlan && (
-        <Badge variant="secondary" className="absolute -top-3 right-4 px-3 py-1">
+        <Badge variant="default" className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary">
           <Crown className="h-3 w-3 mr-1" />
           Your Plan
         </Badge>
@@ -96,8 +134,10 @@ export function PricingCard({
 
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center justify-between">
-          <span className="text-xl">{name}</span>
-          {tier === "enterprise" && <Crown className="h-5 w-5 text-primary" />}
+          <span className="text-xl flex items-center gap-2">
+            {getTierIcon()}
+            {name}
+          </span>
         </CardTitle>
         <p className="text-sm text-muted-foreground">{description}</p>
       </CardHeader>
@@ -112,10 +152,19 @@ export function PricingCard({
               <span className="text-muted-foreground">/{displayInterval}</span>
             )}
           </div>
-          {billingInterval === "year" && annualPrice && price > 0 && (
-            <p className="text-sm text-green-500 mt-1">
-              Save ${((price * 12 - annualPrice) / 100).toFixed(0)}/year
+          
+          {/* Show monthly equivalent for annual plans */}
+          {monthlyEquivalent && price > 0 && (
+            <p className="text-sm text-muted-foreground mt-1">
+              ${(monthlyEquivalent / 100).toFixed(0)}/month billed annually
             </p>
+          )}
+          
+          {/* Show savings for annual plans */}
+          {annualSavings && annualSavings > 0 && (
+            <Badge variant="secondary" className="mt-2 text-green-600 bg-green-500/10">
+              Save ${(annualSavings / 100).toFixed(0)}/year
+            </Badge>
           )}
         </div>
 
@@ -131,8 +180,11 @@ export function PricingCard({
         <Button
           onClick={handleClick}
           disabled={loading || (!priceId && !isCurrentPlan)}
-          variant={popular ? "default" : isCurrentPlan ? "outline" : "secondary"}
-          className="w-full"
+          variant={getButtonVariant()}
+          className={cn(
+            "w-full transition-all",
+            popular && !isCurrentPlan && "shadow-md hover:shadow-lg"
+          )}
           size="lg"
         >
           {getButtonText()}

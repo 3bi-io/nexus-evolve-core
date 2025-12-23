@@ -1,100 +1,80 @@
 // Stripe product and price configuration for Oneiros
+// These must align with the tiers.ts configuration
+
+import { TIERS, STRIPE_PRODUCTS, STRIPE_PRICES } from "./tiers";
+
 export const STRIPE_CONFIG = {
   products: {
     pro: {
-      id: "prod_TesCNFzJKIiWJy",
+      id: STRIPE_PRODUCTS.pro,
       name: "Oneiros Pro",
-      description: "500 credits/month, all 9 AI systems, multi-agent orchestration, priority support",
+      description: `${TIERS.professional.credits.toLocaleString()} credits/month, all 9 AI systems, multi-agent orchestration, priority support`,
     },
     proAnnual: {
-      id: "prod_TesDcc7CpEAPyA",
+      id: STRIPE_PRODUCTS.proAnnual,
       name: "Oneiros Pro Annual",
-      description: "500 credits/month, all 9 AI systems, multi-agent orchestration, priority support - Annual billing (save 20%)",
+      description: `${TIERS.professional.credits.toLocaleString()} credits/month, all 9 AI systems, multi-agent orchestration, priority support - Annual billing (save 20%)`,
     },
     enterprise: {
-      id: "prod_TesDFtBSqeaQL7",
+      id: STRIPE_PRODUCTS.enterprise,
       name: "Oneiros Enterprise",
       description: "Unlimited credits, dedicated support, custom integrations, SLA guarantee",
     },
   },
   prices: {
     proMonthly: {
-      id: "price_1ShYSY2MfT7Ozvjx6cXRwG9P",
-      amount: 1900, // $19.00
+      id: STRIPE_PRICES.proMonthly,
+      amount: TIERS.professional.monthlyPrice,
       interval: "month",
-      productId: "prod_TesCNFzJKIiWJy",
+      productId: STRIPE_PRODUCTS.pro,
     },
     proAnnual: {
-      id: "price_1ShYSa2MfT7OzvjxBRe5TZTb",
-      amount: 18200, // $182.00 (save 20%)
+      id: STRIPE_PRICES.proAnnual,
+      amount: TIERS.professional.yearlyPrice,
       interval: "year",
-      productId: "prod_TesDcc7CpEAPyA",
+      productId: STRIPE_PRODUCTS.proAnnual,
     },
     enterprise: {
-      id: "price_1ShYSc2MfT7OzvjxF6wCMyax",
-      amount: 9900, // $99.00
+      id: STRIPE_PRICES.enterprise,
+      amount: TIERS.enterprise.monthlyPrice,
       interval: "month",
-      productId: "prod_TesDFtBSqeaQL7",
+      productId: STRIPE_PRODUCTS.enterprise,
     },
   },
 } as const;
 
+// Pricing tiers for the pricing page - derived from unified TIERS config
 export const PRICING_TIERS = [
   {
-    name: "Free",
-    tier: "free",
+    name: TIERS.starter.displayName,
+    tier: "free" as const, // For backward compatibility with PricingCard
     price: 0,
-    interval: "forever",
+    interval: "forever" as const,
     description: "Get started with basic AI features",
-    features: [
-      "100 credits/month",
-      "Access to 5 AI systems",
-      "Basic multi-agent support",
-      "Community support",
-      "Browser AI",
-      "Basic analytics",
-    ],
+    features: TIERS.starter.features,
     popular: false,
     priceId: null,
   },
   {
-    name: "Pro",
-    tier: "pro",
-    price: 19,
-    interval: "month",
-    annualPrice: 182,
+    name: TIERS.professional.displayName,
+    tier: "pro" as const, // For backward compatibility with PricingCard
+    price: TIERS.professional.monthlyPrice,
+    interval: "month" as const,
+    annualPrice: TIERS.professional.yearlyPrice,
     description: "For power users and small teams",
-    features: [
-      "500 credits/month",
-      "All 9 AI systems",
-      "Full multi-agent orchestration",
-      "Priority support",
-      "Voice AI",
-      "Advanced analytics",
-      "Knowledge graphs",
-      "Custom agents",
-    ],
+    features: TIERS.professional.features,
     popular: true,
-    priceId: "price_1ShYSY2MfT7Ozvjx6cXRwG9P",
-    annualPriceId: "price_1ShYSa2MfT7OzvjxBRe5TZTb",
+    priceId: STRIPE_PRICES.proMonthly,
+    annualPriceId: STRIPE_PRICES.proAnnual,
   },
   {
-    name: "Enterprise",
-    tier: "enterprise",
-    price: 99,
-    interval: "month",
+    name: TIERS.enterprise.displayName,
+    tier: "enterprise" as const,
+    price: TIERS.enterprise.monthlyPrice,
+    interval: "month" as const,
     description: "For organizations with advanced needs",
-    features: [
-      "Unlimited credits",
-      "All Pro features",
-      "Dedicated support",
-      "Custom integrations",
-      "SLA guarantee",
-      "Team management",
-      "API access",
-      "White-label options",
-    ],
+    features: TIERS.enterprise.features,
     popular: false,
-    priceId: "price_1ShYSc2MfT7OzvjxF6wCMyax",
+    priceId: STRIPE_PRICES.enterprise,
   },
 ] as const;
