@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Mic, Loader2, Phone, PhoneOff, AlertCircle } from "lucide-react";
+import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
 import { useAudioPermissions } from "@/hooks/useAudioPermissions";
 import { AudioTestButton } from "./AudioTestButton";
 
@@ -310,7 +311,11 @@ export function VoiceAgentChat({ agentId }: VoiceAgentChatProps) {
                               : "bg-muted"
                           }`}
                         >
-                          <p className="text-sm">{msg.content}</p>
+                          {msg.role === "assistant" ? (
+                            <MarkdownRenderer content={msg.content} className="text-sm" />
+                          ) : (
+                            <p className="text-sm">{msg.content}</p>
+                          )}
                           <p className="text-xs opacity-70 mt-1">
                             {msg.timestamp.toLocaleTimeString()}
                           </p>

@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { BookOpen, Search, Sparkles, ExternalLink } from 'lucide-react';
+import { MarkdownRenderer } from '@/components/ui/markdown-renderer';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export function RAGSearch() {
@@ -95,9 +96,7 @@ export function RAGSearch() {
 
               <Card className="bg-muted/30">
                 <CardContent className="pt-6">
-                  <div className="prose prose-sm max-w-none dark:prose-invert">
-                    {result.answer}
-                  </div>
+                  <MarkdownRenderer content={result.answer} />
                 </CardContent>
               </Card>
 

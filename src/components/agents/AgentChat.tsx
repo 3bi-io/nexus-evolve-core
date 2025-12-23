@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Send, Bot, User, Loader2, ArrowLeft } from 'lucide-react';
+import { MarkdownRenderer } from '@/components/ui/markdown-renderer';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -161,7 +162,11 @@ export function AgentChat({ agentId }: AgentChatProps) {
                       : 'bg-muted'
                   }`}
                 >
-                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  {message.role === 'assistant' ? (
+                    <MarkdownRenderer content={message.content} className="text-sm" />
+                  ) : (
+                    <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  )}
                   <span className="text-xs opacity-60 mt-1 block">
                     {message.timestamp.toLocaleTimeString()}
                   </span>

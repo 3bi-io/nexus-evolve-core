@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, Eye, Upload } from 'lucide-react';
+import { MarkdownRenderer } from '@/components/ui/markdown-renderer';
 import { ApplyAIBadge } from './ApplyAIBadge';
 
 export function VisionAnalyzer() {
@@ -125,9 +126,7 @@ export function VisionAnalyzer() {
                 <span className="text-xs text-muted-foreground">(Cached)</span>
               )}
             </div>
-            <div className="prose prose-sm max-w-none">
-              <p className="whitespace-pre-wrap">{analysis.analysis}</p>
-            </div>
+            <MarkdownRenderer content={analysis.analysis} />
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <span>Model: {analysis.model}</span>
               <span>Confidence: {(analysis.confidence_score * 100).toFixed(0)}%</span>
