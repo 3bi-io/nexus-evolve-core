@@ -150,20 +150,6 @@ export function MobileMenu({ authenticated, onSignOut, onNavigate }: MobileMenuP
             
             {authenticated ? (
               <div className="px-2 space-y-2">
-                <Link
-                  to="/account"
-                  onClick={() => handleLinkClick("/account")}
-                  className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2.5",
-                    "text-sm font-medium transition-colors touch-active",
-                    "min-h-[44px]",
-                    location.pathname === "/account"
-                      ? "bg-primary/10 text-primary"
-                      : "text-foreground hover:bg-accent"
-                  )}
-                >
-                  Account Settings
-                </Link>
                 <Button
                   onClick={() => {
                     setOpen(false);

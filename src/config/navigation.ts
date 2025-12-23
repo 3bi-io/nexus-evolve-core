@@ -2,7 +2,8 @@ import {
   MessageSquare, Network, Brain, BarChart3, Store, Phone, 
   Sparkles, Shield, Rocket, GitBranch, Layers, Cpu, Activity, 
   Settings, Plug, TrendingUp, Users, Zap, Trophy, Keyboard,
-  Webhook, Globe, BookOpen, Target, LineChart, Bot, Mic, Download
+  Webhook, Globe, BookOpen, Target, LineChart, Bot, Mic, Download,
+  DollarSign, Puzzle
 } from "lucide-react";
 import { LucideIcon } from "lucide-react";
 
@@ -35,6 +36,7 @@ export const primaryNavItems: NavItem[] = [
 export const publicHeaderNavItems: NavItem[] = [
   { to: "/features", icon: Rocket, label: "Features", description: "Platform Features" },
   { to: "/solutions", icon: Target, label: "Solutions", description: "Industry Solutions" },
+  { to: "/pricing", icon: DollarSign, label: "Pricing", description: "Plans & Pricing" },
   { to: "/agent-marketplace", icon: Store, label: "Marketplace", description: "Browse AI Agents" },
 ];
 
@@ -50,8 +52,8 @@ export const mobileBottomNavItems = {
   public: [
     { to: "/", icon: MessageSquare, label: "Chat" },
     { to: "/agent-marketplace", icon: Store, label: "Agents" },
+    { to: "/pricing", icon: DollarSign, label: "Pricing" },
     { to: "/voice-agent", icon: Mic, label: "Voice" },
-    { to: "/multimodal-studio", icon: Layers, label: "Create" },
     { to: "/getting-started", icon: Rocket, label: "Start" },
   ],
 };
@@ -65,6 +67,7 @@ export const navSections: NavSection[] = [
       { to: "/", icon: MessageSquare, label: "Chat", description: "AI Chat Interface", public: true },
       { to: "/getting-started", icon: Rocket, label: "Getting Started", description: "Quick Start Guide", public: true },
       { to: "/install", icon: Download, label: "Install App", description: "Install as PWA", public: true },
+      { to: "/pricing", icon: DollarSign, label: "Pricing", description: "Plans & Pricing", public: true },
     ],
   },
   {
@@ -76,7 +79,7 @@ export const navSections: NavSection[] = [
       { to: "/voice-agent", icon: Phone, label: "Voice AI", description: "Voice conversations", public: true },
       { to: "/voice-agent-manager", icon: Mic, label: "Voice Manager", description: "Manage voice agents", public: true },
       { to: "/agent-revenue", icon: TrendingUp, label: "Revenue", description: "Agent revenue", public: true },
-      { to: "/agent-analytics", icon: BarChart3, label: "Agent Analytics", description: "Agent performance", public: true },
+      { to: "/model-comparison", icon: BarChart3, label: "Model Comparison", description: "Compare AI models", public: true },
     ],
   },
   {
@@ -88,6 +91,8 @@ export const navSections: NavSection[] = [
       { to: "/problem-solver", icon: Target, label: "Problem Solver", description: "AI problem solving", public: true },
       { to: "/xai-studio", icon: Sparkles, label: "XAI Studio", description: "Explainable AI tools", public: true },
       { to: "/browser-ai", icon: Globe, label: "Browser AI", description: "In-browser AI", public: true },
+      { to: "/ai-hub", icon: Cpu, label: "AI Hub", description: "Central AI hub", public: true },
+      { to: "/collaboration", icon: Users, label: "Collaboration", description: "Team collaboration", public: true },
     ],
   },
   {
@@ -96,10 +101,12 @@ export const navSections: NavSection[] = [
     items: [
       { to: "/analytics", icon: BarChart3, label: "Dashboard", description: "Analytics overview", public: true },
       { to: "/xai-dashboard", icon: Sparkles, label: "XAI Dashboard", description: "AI insights", public: true },
+      { to: "/xai-analytics", icon: LineChart, label: "XAI Analytics", description: "XAI performance", public: true },
       { to: "/knowledge-graph", icon: Network, label: "Knowledge Graph", description: "Visual knowledge", public: true },
       { to: "/memory-graph", icon: GitBranch, label: "Memory Graph", description: "AI memory visualization", public: true },
       { to: "/agi-dashboard", icon: Brain, label: "AGI Dashboard", description: "AGI Control Center", public: true },
       { to: "/router-dashboard", icon: Activity, label: "Router Metrics", description: "AI routing metrics", public: true },
+      { to: "/capabilities", icon: Puzzle, label: "Capabilities", description: "System capabilities", public: true },
     ],
   },
   {

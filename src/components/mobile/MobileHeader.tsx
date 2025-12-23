@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, MoreVertical, Brain } from "lucide-react";
+import { ArrowLeft, MoreVertical, Brain, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CreditBalance } from "@/components/pricing/CreditBalance";
 import { useHaptics, useMobile } from "@/hooks/useResponsive";
@@ -15,6 +15,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { navSections } from "@/config/navigation";
+import { useTheme } from "next-themes";
 
 interface MobileHeaderProps {
   title?: string;
@@ -31,6 +32,7 @@ export function MobileHeader({
   const { user, signOut } = useAuth();
   const { light } = useHaptics();
   const { isOled } = useMobile();
+  const { theme, setTheme } = useTheme();
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
@@ -80,17 +82,15 @@ export function MobileHeader({
             variant="ghost"
             size="icon"
             onClick={() => {
-              const html = document.documentElement;
-              html.classList.toggle('dark');
+              light();
+              setTheme(theme === 'dark' ? 'light' : 'dark');
             }}
             className="h-10 w-10 touch-active"
             aria-label="Toggle theme"
           >
+            <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+            <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="sr-only">Toggle theme</span>
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path className="dark:hidden" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-              <path className="hidden dark:block" strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-            </svg>
           </Button>
           
           {showMenu && (
