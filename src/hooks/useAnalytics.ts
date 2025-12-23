@@ -169,6 +169,3 @@ export function useAnalytics() {
     trackOfflineUsage,
   };
 }
-
-// Re-export for backward compatibility
-export { useAnalytics as useEngagementTracking };
