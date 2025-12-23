@@ -25,6 +25,7 @@ import { QuickActionChips } from "./chat/QuickActionChips";
 import { SmartSuggestions } from "./chat/SmartSuggestions";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { MarkdownRenderer } from "./ui/markdown-renderer";
 
 type Message = {
   role: "user" | "assistant";
@@ -496,9 +497,13 @@ export const ChatInterface = () => {
                           : "bg-muted"
                       )}
                     >
-                      <p className="whitespace-pre-wrap text-sm sm:text-base leading-relaxed break-words">
-                        {message.content}
-                      </p>
+                      {message.role === "assistant" ? (
+                        <MarkdownRenderer content={message.content} className="text-sm sm:text-base" />
+                      ) : (
+                        <p className="whitespace-pre-wrap text-sm sm:text-base leading-relaxed break-words">
+                          {message.content}
+                        </p>
+                      )}
                     </div>
                     {message.role === "assistant" && message.interactionId && (
                       <div className="flex items-center gap-1">

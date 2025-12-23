@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, Brain, ExternalLink } from 'lucide-react';
+import { MarkdownRenderer } from '@/components/ui/markdown-renderer';
 import { ApplyAIBadge } from './ApplyAIBadge';
 
 export function ReasoningAssistant() {
@@ -101,9 +102,7 @@ export function ReasoningAssistant() {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Reasoning Chain</h3>
             
-            <div className="prose prose-sm max-w-none">
-              <div className="whitespace-pre-wrap">{reasoning.reasoning}</div>
-            </div>
+            <MarkdownRenderer content={reasoning.reasoning} />
 
             {reasoning.citations && reasoning.citations.length > 0 && (
               <div className="space-y-2">

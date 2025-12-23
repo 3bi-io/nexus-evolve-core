@@ -8,6 +8,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2, Code, AlertTriangle, CheckCircle } from 'lucide-react';
 import { ApplyAIBadge } from './ApplyAIBadge';
+import { MarkdownRenderer } from '@/components/ui/markdown-renderer';
 import { Badge } from '@/components/ui/badge';
 
 export function GrokCodeAnalyzer() {
@@ -163,9 +164,7 @@ export function GrokCodeAnalyzer() {
             </div>
 
             {analysis.summary && (
-              <div className="prose prose-sm max-w-none">
-                <p>{analysis.summary}</p>
-              </div>
+              <MarkdownRenderer content={analysis.summary} />
             )}
 
             {analysis.issues && analysis.issues.length > 0 && (
@@ -207,9 +206,7 @@ export function GrokCodeAnalyzer() {
             )}
 
             {analysis.raw && (
-              <div className="prose prose-sm max-w-none">
-                <pre className="whitespace-pre-wrap text-xs">{analysis.summary}</pre>
-              </div>
+              <MarkdownRenderer content={analysis.summary} />
             )}
           </div>
         </Card>

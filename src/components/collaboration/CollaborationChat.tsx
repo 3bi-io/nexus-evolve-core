@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Send, Code, FileText } from "lucide-react";
+import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 
@@ -149,7 +150,7 @@ export function CollaborationChat({ sessionId }: CollaborationChatProps) {
                       <span className="text-xs capitalize">{msg.message_type}</span>
                     </div>
                   )}
-                  <p className="text-sm whitespace-pre-wrap">{msg.message}</p>
+                  <MarkdownRenderer content={msg.message} className="text-sm" />
                 </div>
                 <p className="text-xs text-muted-foreground mt-1 px-3">
                   {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
