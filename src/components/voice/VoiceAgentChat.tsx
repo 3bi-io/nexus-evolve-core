@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useConversation } from "@11labs/react";
+import { useConversation } from "@elevenlabs/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
