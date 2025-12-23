@@ -122,6 +122,7 @@ interface TouchTargetProps {
   className?: string;
   onClick?: () => void;
   disabled?: boolean;
+  asChild?: boolean;
 }
 
 export function TouchTarget({
@@ -129,25 +130,30 @@ export function TouchTarget({
   className,
   onClick,
   disabled = false,
+  asChild = false,
 }: TouchTargetProps) {
+  // When asChild is true, render as div to avoid button-in-button nesting
+  const Comp = asChild ? 'div' : 'button';
+  
   return (
-    <button
-      onClick={onClick}
-      disabled={disabled}
+    <Comp
+      onClick={disabled ? undefined : onClick}
       className={cn(
         // Minimum 44x44px touch target for accessibility
         'min-h-[44px] min-w-[44px]',
         'inline-flex items-center justify-center',
         'touch-manipulation',
-        'active:scale-95 transition-transform',
+        !disabled && 'active:scale-95 transition-transform',
         disabled && 'opacity-50 cursor-not-allowed',
+        !asChild && 'cursor-pointer',
         className
       )}
       style={{
         WebkitTapHighlightColor: 'transparent',
       }}
+      {...(!asChild && { disabled })}
     >
       {children}
-    </button>
+    </Comp>
   );
 }

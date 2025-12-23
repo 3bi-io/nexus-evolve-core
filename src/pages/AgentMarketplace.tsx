@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { PageLayout } from '@/components/layout/PageLayout';
 import { ResponsiveContainer, ResponsiveGrid } from '@/components/layout/ResponsiveContainer';
-import { ResponsiveSection, MobileSafeArea, TouchTarget } from '@/components/layout/ResponsiveSection';
+import { ResponsiveSection, MobileSafeArea } from '@/components/layout/ResponsiveSection';
 import { AgentMarketplaceCard } from '@/components/agents/AgentMarketplaceCard';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -142,12 +142,10 @@ export default function AgentMarketplace() {
                     className="pl-10 min-h-[48px]"
                   />
                 </div>
-                <TouchTarget>
-                  <Button variant="outline" className="gap-2 min-h-[48px]">
-                    <Filter className="w-4 h-4" />
-                    <span>Filters</span>
-                  </Button>
-                </TouchTarget>
+                <Button variant="outline" className="gap-2 min-h-[48px]">
+                  <Filter className="w-4 h-4" />
+                  <span>Filters</span>
+                </Button>
               </div>
             </ResponsiveSection>
 
@@ -155,15 +153,14 @@ export default function AgentMarketplace() {
             <ScrollArea className="w-full">
               <div className="flex gap-2 pb-2">
                 {categories.map((category) => (
-                  <TouchTarget key={category}>
-                    <Badge
-                      variant={selectedCategory === category ? 'default' : 'outline'}
-                      className="cursor-pointer capitalize whitespace-nowrap min-h-[44px] px-4 flex items-center"
-                      onClick={() => setSelectedCategory(category)}
-                    >
-                      {category}
-                    </Badge>
-                  </TouchTarget>
+                  <Badge
+                    key={category}
+                    variant={selectedCategory === category ? 'default' : 'outline'}
+                    className="cursor-pointer capitalize whitespace-nowrap min-h-[44px] px-4 flex items-center hover:bg-accent transition-colors"
+                    onClick={() => setSelectedCategory(category)}
+                  >
+                    {category}
+                  </Badge>
                 ))}
               </div>
             </ScrollArea>
@@ -219,12 +216,10 @@ export default function AgentMarketplace() {
                         <span>Analytics & performance tracking</span>
                       </div>
                     </div>
-                    <TouchTarget>
-                      <Button size="lg" className="w-full sm:w-auto">
-                        <Sparkles className="mr-2 h-5 w-5" />
-                        Start Building Agents
-                      </Button>
-                    </TouchTarget>
+                    <Button size="lg" className="w-full sm:w-auto">
+                      <Sparkles className="mr-2 h-5 w-5" />
+                      Start Building Agents
+                    </Button>
                   </div>
                   
                   <Card className="p-6 bg-background">
