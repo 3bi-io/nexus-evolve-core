@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Brain, Send, ThumbsUp, ThumbsDown, TrendingUp, Globe } from "lucide-react";
+import { Brain, Send, ThumbsUp, ThumbsDown, TrendingUp, Globe, Sparkles, ArrowDown, Image, MessageSquare, Zap } from "lucide-react";
 import { TTSButton } from "@/components/voice/TTSButton";
 import { streamChat } from "@/lib/chat";
 import { toast } from "@/hooks/use-toast";
@@ -21,7 +21,10 @@ import { ChatHeader } from "./chat/ChatHeader";
 import { useMobile } from "@/hooks/useResponsive";
 import { useWebSearch } from "@/hooks/useWebSearch";
 import { WebSearchResults } from "./chat/WebSearchResults";
+import { QuickActionChips } from "./chat/QuickActionChips";
+import { SmartSuggestions } from "./chat/SmartSuggestions";
 import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
 type Message = {
   role: "user" | "assistant";
@@ -46,13 +49,52 @@ export const ChatInterface = () => {
   const [memoryModalOpen, setMemoryModalOpen] = useState(false);
   const [recentMemories, setRecentMemories] = useState<any[]>([]);
   const [webSearchEnabled, setWebSearchEnabled] = useState(false);
+  const [showScrollButton, setShowScrollButton] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Scroll button visibility
+  const handleScroll = () => {
+    if (scrollAreaRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollAreaRef.current;
+      setShowScrollButton(scrollHeight - scrollTop - clientHeight > 100);
+    }
+  };
+
+  const scrollToBottom = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+    }
+  };
+
+  // Get greeting based on time
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Good morning";
+    if (hour < 18) return "Good afternoon";
+    return "Good evening";
+  };
+
+  // Handle quick action
+  const handleQuickAction = (prompt: string) => {
+    setInput(prompt);
+  };
+
+  // Handle suggestion click
+  const handleSuggestionClick = (suggestion: string) => {
+    setInput(suggestion);
+    // Auto-send after a short delay for better UX
+    setTimeout(() => {
+      const fakeEvent = { key: "Enter", shiftKey: false, preventDefault: () => {} } as React.KeyboardEvent;
+      handleKeyDown(fakeEvent);
+    }, 100);
+  };
 
   useEffect(() => {
     if (user) {
@@ -370,7 +412,7 @@ export const ChatInterface = () => {
           onNewSession={createNewSession}
         />
 
-        <ScrollArea ref={scrollRef} className="flex-1 my-3 sm:my-4 px-1">
+        <ScrollArea ref={scrollRef} className="flex-1 my-3 sm:my-4 px-1 relative" onScrollCapture={handleScroll}>
           {searchResults && (
             <WebSearchResults 
               results={searchResults} 
@@ -379,27 +421,80 @@ export const ChatInterface = () => {
           )}
           
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center px-4 pt-0 pb-6 sm:pb-8">
-              {!isMobile && <Brain className="w-16 h-16 sm:w-20 sm:h-20 text-primary mb-4 sm:mb-6" />}
-              <h2 className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-3">Welcome to Oneiros</h2>
-              <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-md leading-relaxed">
-                Happy Thanksgiving, Cody Forbes
-              </p>
+            <div className="flex flex-col items-center justify-center h-full text-center px-4 pt-4 pb-6 sm:pb-8">
+              {!isMobile && (
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 text-primary mb-4 sm:mb-6" />
+                </motion.div>
+              )}
+              <motion.h2 
+                className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-3"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.1 }}
+              >
+                {getGreeting()}! What can I help you with?
+              </motion.h2>
+              <motion.p 
+                className="text-sm sm:text-base text-muted-foreground max-w-md leading-relaxed mb-6"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                Generate images, search the web, analyze data, or just chat
+              </motion.p>
+              
+              {/* Quick action chips for empty state */}
+              <QuickActionChips onAction={handleQuickAction} disabled={isLoading || !sessionId} />
+              
+              {/* Example prompts */}
+              <motion.div 
+                className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-6 w-full max-w-lg"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                {[
+                  { icon: Image, text: "Create a sunset over mountains" },
+                  { icon: MessageSquare, text: "Explain quantum computing" },
+                  { icon: Zap, text: "Write a Python script" },
+                  { icon: Brain, text: "Brainstorm app ideas" },
+                ].map((example, idx) => (
+                  <Button
+                    key={idx}
+                    variant="outline"
+                    className="justify-start gap-2 h-auto py-3 px-4 text-left hover:bg-primary/5 hover:border-primary/30 transition-all"
+                    onClick={() => handleQuickAction(example.text)}
+                    disabled={isLoading || !sessionId}
+                  >
+                    <example.icon className="h-4 w-4 text-primary shrink-0" />
+                    <span className="text-sm truncate">{example.text}</span>
+                  </Button>
+                ))}
+              </motion.div>
             </div>
           ) : (
             <div className="space-y-3 sm:space-y-4 pb-2">
               {messages.map((message, idx) => (
-                <div
+                <motion.div
                   key={idx}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
                   className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                 >
                   <div className="flex flex-col gap-2 max-w-[85%] sm:max-w-[80%] md:max-w-[75%]">
                     <div
-                      className={`rounded-2xl px-4 py-2.5 sm:px-5 sm:py-3 ${
+                      className={cn(
+                        "rounded-2xl px-4 py-2.5 sm:px-5 sm:py-3",
                         message.role === "user"
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted"
-                      }`}
+                      )}
                     >
                       <p className="whitespace-pre-wrap text-sm sm:text-base leading-relaxed break-words">
                         {message.content}
@@ -430,22 +525,58 @@ export const ChatInterface = () => {
                         </Button>
                       </div>
                     )}
+                    {/* Smart suggestions after assistant message */}
+                    {message.role === "assistant" && idx === messages.length - 1 && !isLoading && (
+                      <SmartSuggestions 
+                        lastResponse={message.content} 
+                        onSuggestionClick={handleSuggestionClick}
+                      />
+                    )}
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}
+          
+          {/* Scroll to bottom button */}
+          <AnimatePresence>
+            {showScrollButton && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                className="absolute bottom-4 right-4"
+              >
+                <Button
+                  size="icon"
+                  variant="secondary"
+                  onClick={scrollToBottom}
+                  className="rounded-full shadow-lg h-10 w-10"
+                >
+                  <ArrowDown className="h-4 w-4" />
+                </Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </ScrollArea>
 
-        <div className="pt-2 pb-safe">
-          <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-xl border border-border/50">
+        {/* Sticky input bar */}
+        <div className="pt-2 pb-safe sticky bottom-0 bg-background/95 backdrop-blur-sm">
+          {/* Quick actions above input when there are messages */}
+          {messages.length > 0 && !isLoading && (
+            <div className="mb-2 overflow-x-auto scrollbar-hide">
+              <QuickActionChips onAction={handleQuickAction} disabled={isLoading || !sessionId} />
+            </div>
+          )}
+          
+          <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-xl border border-border/50 shadow-lg">
             <Button
               variant="outline"
               size="icon"
               onClick={() => setWebSearchEnabled(!webSearchEnabled)}
               disabled={isLoading || isSearching}
               className={cn(
-                "h-11 w-11 rounded-lg shrink-0 border-border/50",
+                "h-11 w-11 rounded-lg shrink-0 border-border/50 transition-all",
                 webSearchEnabled && "bg-primary text-primary-foreground border-primary"
               )}
               title="Enable web search"
@@ -457,7 +588,7 @@ export const ChatInterface = () => {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={webSearchEnabled ? "Search the web..." : "Message..."}
+              placeholder={webSearchEnabled ? "Search the web..." : "Ask me anything..."}
               className="flex-1 min-h-[44px] max-h-32 bg-background/50 border-0 resize-none focus-visible:ring-0 focus-visible:ring-offset-0 text-sm sm:text-base py-3"
               rows={1}
               disabled={isLoading || !sessionId || isSearching}
@@ -466,7 +597,7 @@ export const ChatInterface = () => {
             <Button
               onClick={sendMessage}
               disabled={isLoading || !input.trim() || !sessionId || isSearching}
-              className="h-11 w-11 rounded-lg shrink-0"
+              className="h-11 w-11 rounded-lg shrink-0 transition-all"
             >
               <Send className="w-5 h-5" />
             </Button>
