@@ -113,7 +113,7 @@ function MainLayout({
         {children}
       </main>
       {isMobile && showBottomNav && <MobileBottomNav />}
-      {showFooter && !isMobile && <Footer />}
+      {showFooter && <Footer />}
     </div>
   );
 }
