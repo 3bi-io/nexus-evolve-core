@@ -4,12 +4,12 @@ import { ArrowRight, Sparkles, Zap, Shield, Brain, Users, Clock, Download } from
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useInstallStatus } from '@/hooks/useInstallStatus';
-import { useMobile } from '@/hooks/useResponsive';
+import { useResponsive } from '@/hooks/useResponsive';
 
 export function HeroSection() {
   const navigate = useNavigate();
   const { canPrompt, triggerInstall } = useInstallStatus();
-  const { isMobile } = useMobile();
+  const { isMobile } = useResponsive();
 
   const handleInstallClick = async () => {
     if (canPrompt) {

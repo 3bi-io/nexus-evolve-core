@@ -18,7 +18,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { ResponsiveChatLayout } from "./chat/ResponsiveChatLayout";
 import { ChatHeader } from "./chat/ChatHeader";
-import { useMobile } from "@/hooks/useResponsive";
+import { useResponsive } from "@/hooks/useResponsive";
 import { useWebSearch } from "@/hooks/useWebSearch";
 import { WebSearchResults } from "./chat/WebSearchResults";
 import { QuickActionChips } from "./chat/QuickActionChips";
@@ -36,7 +36,7 @@ type Message = {
 
 export const ChatInterface = () => {
   const { user } = useAuth();
-  const { isMobile } = useMobile();
+  const { isMobile } = useResponsive();
   const { ipAddress } = useClientIP();
   const { criticalIssues } = useSecretValidation();
   const { searchWeb, isSearching, searchResults, clearResults } = useWebSearch();

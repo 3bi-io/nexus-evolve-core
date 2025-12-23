@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { useMobile } from "@/hooks/useResponsive";
+import { useResponsive } from "@/hooks/useResponsive";
 
 interface ResponsiveChatLayoutProps {
   sidebar: ReactNode;
@@ -7,7 +7,7 @@ interface ResponsiveChatLayoutProps {
 }
 
 export const ResponsiveChatLayout = ({ sidebar, children }: ResponsiveChatLayoutProps) => {
-  const { isMobile } = useMobile();
+  const { isMobile } = useResponsive();
 
   if (isMobile) {
     // Mobile: Full width, sidebar as drawer

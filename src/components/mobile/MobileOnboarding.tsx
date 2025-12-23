@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { X, ChevronRight, Sparkles, Zap, Globe, TrendingUp, LayoutGrid } from 'lucide-react';
-import { useMobile, useHaptics } from '@/hooks/useResponsive';
+import { useResponsive, useHaptics } from '@/hooks/useResponsive';
 import { SafeAnimatePresence } from '@/components/ui/SafeAnimatePresence';
 
 interface OnboardingStep {
@@ -48,7 +48,7 @@ const steps: OnboardingStep[] = [
 export function MobileOnboarding() {
   const [currentStep, setCurrentStep] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
-  const { isMobile } = useMobile();
+  const { isMobile } = useResponsive();
   const { medium } = useHaptics();
 
   useEffect(() => {

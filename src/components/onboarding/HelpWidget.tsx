@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SafeAnimatePresence } from '@/components/ui/SafeAnimatePresence';
-import { useMobile } from '@/hooks/useResponsive';
+import { useResponsive } from '@/hooks/useResponsive';
 
 interface HelpArticle {
   id: string;
@@ -83,7 +83,7 @@ const helpArticles: HelpArticle[] = [
 
 export function HelpWidget() {
   const navigate = useNavigate();
-  const { isMobile } = useMobile();
+  const { isMobile } = useResponsive();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   
