@@ -47,7 +47,7 @@ interface ErosConfig {
 
 const DEFAULT_CONFIG: ErosConfig = {
   system_prompt: "You are Eros, a sophisticated AI assistant. Respond concisely and naturally.",
-  model_settings: { model: "grok-beta", temperature: 0.7, max_tokens: 500 },
+  model_settings: { model: "grok-3", temperature: 0.7, max_tokens: 500 },
   wake_word: "Zephel",
   features: { web_search_enabled: true, memory_enabled: true, analytics_enabled: true },
   voice_settings: { rate: 0.85, pitch: 0.9, volume: 1.0 }

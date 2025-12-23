@@ -60,7 +60,7 @@ export function VisionAnalyzer() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">AI Vision Analyzer</h2>
-          <p className="text-sm text-muted-foreground">Powered by Grok Vision Beta</p>
+          <p className="text-sm text-muted-foreground">Powered by Grok 2 Vision</p>
         </div>
         <ApplyAIBadge variant="compact" />
       </div>
