@@ -37,16 +37,16 @@ export function HeroSection() {
       >
         <motion.span 
           className="text-sm sm:text-base md:text-lg font-semibold text-primary"
-          animate={{ scale: [1, 1.1, 1] }}
+          animate={{ scale: [1, 1.05, 1] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          🔥 Black Friday Special
+          ✨ Free Forever
         </motion.span>
         <span className="text-xs sm:text-sm text-muted-foreground hidden sm:inline">
-          Limited time - All features unlocked
+          All features unlocked - No credit card
         </span>
         <span className="text-xs sm:text-sm text-muted-foreground sm:hidden">
-          Limited time
+          All features free
         </span>
       </motion.div>
       
@@ -97,7 +97,7 @@ export function HeroSection() {
           onClick={() => navigate('/chat')}
           className="w-full sm:w-auto text-base sm:text-lg px-8 sm:px-10 py-6 sm:py-7 shadow-xl hover:shadow-2xl transition-all hover:scale-105 group touch-feedback min-h-[56px]"
         >
-          Claim Black Friday Deal
+          Start Creating Free
           <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5 group-hover:translate-x-1 transition-transform" />
         </Button>
         <Button 
@@ -106,7 +106,7 @@ export function HeroSection() {
           onClick={() => navigate('/getting-started')}
           className="w-full sm:w-auto text-base sm:text-lg px-8 sm:px-10 py-6 sm:py-7 hover:bg-primary/10 touch-feedback min-h-[56px]"
         >
-          Explore Live Demo
+          Explore Features
           <Sparkles className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
         </Button>
         {isMobile && (
@@ -125,13 +125,13 @@ export function HeroSection() {
       <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm px-4">
         <div className="flex items-center gap-1.5">
           <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
-          <span className="hidden sm:inline">Enterprise security included</span>
+          <span className="hidden sm:inline">Enterprise-grade security</span>
           <span className="sm:hidden">Secure</span>
         </div>
         <div className="flex items-center gap-1.5">
           <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
-          <span className="hidden sm:inline">Black Friday unlimited access</span>
-          <span className="sm:hidden">Limited time</span>
+          <span className="hidden sm:inline">Unlimited AI usage</span>
+          <span className="sm:hidden">Unlimited</span>
         </div>
         <div className="flex items-center gap-1.5">
           <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary flex-shrink-0" />
