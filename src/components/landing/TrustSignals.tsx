@@ -25,7 +25,9 @@ export function TrustSignals() {
   useEffect(() => {
     // Validate ACTIVITY_MESSAGES array
     if (!ACTIVITY_MESSAGES || ACTIVITY_MESSAGES.length === 0) {
-      console.warn('[TrustSignals] ACTIVITY_MESSAGES is empty or undefined');
+      if (import.meta.env.DEV) {
+        console.warn('[TrustSignals] ACTIVITY_MESSAGES is empty or undefined');
+      }
       return;
     }
 
@@ -52,8 +54,8 @@ export function TrustSignals() {
     <div className="space-y-8">
       {/* Live Activity Ticker */}
       <div className="flex justify-center">
-        <SafeAnimatePresence mode="wait">
-          {showActivity && (
+        {showActivity && (
+          <SafeAnimatePresence mode="wait">
             <motion.div
               key={currentActivity}
               initial={{ opacity: 0, y: 20 }}
@@ -71,8 +73,8 @@ export function TrustSignals() {
                 </div>
               </Card>
             </motion.div>
-          )}
-        </SafeAnimatePresence>
+          </SafeAnimatePresence>
+        )}
       </div>
 
       {/* Trust Metrics */}

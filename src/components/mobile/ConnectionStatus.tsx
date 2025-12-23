@@ -46,35 +46,35 @@ export function ConnectionStatus() {
     };
   }, []);
 
+  if (!showStatus) return null;
+
   return (
     <SafeAnimatePresence>
-      {showStatus ? (
-        <motion.div
-          initial={{ y: -100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -100, opacity: 0 }}
-          className="fixed top-20 left-4 right-4 z-50"
-        >
-          <Alert className={isOnline ? 'bg-green-500/10 border-green-500/20' : 'bg-destructive/10 border-destructive/20'}>
-            <div className="flex items-center gap-2">
+      <motion.div
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: -100, opacity: 0 }}
+        className="fixed top-20 left-4 right-4 z-50"
+      >
+        <Alert className={isOnline ? 'bg-green-500/10 border-green-500/20' : 'bg-destructive/10 border-destructive/20'}>
+          <div className="flex items-center gap-2">
+            {isOnline ? (
+              <Wifi className="h-4 w-4 text-green-500" />
+            ) : (
+              <WifiOff className="h-4 w-4 text-destructive" />
+            )}
+            <AlertDescription className="text-sm">
               {isOnline ? (
-                <Wifi className="h-4 w-4 text-green-500" />
+                <>
+                  Back online{connectionType !== 'unknown' && ` (${connectionType})`}
+                </>
               ) : (
-                <WifiOff className="h-4 w-4 text-destructive" />
+                'You are offline. Some features may be limited.'
               )}
-              <AlertDescription className="text-sm">
-                {isOnline ? (
-                  <>
-                    Back online{connectionType !== 'unknown' && ` (${connectionType})`}
-                  </>
-                ) : (
-                  'You are offline. Some features may be limited.'
-                )}
-              </AlertDescription>
-            </div>
-          </Alert>
-        </motion.div>
-      ) : null}
+            </AlertDescription>
+          </div>
+        </Alert>
+      </motion.div>
     </SafeAnimatePresence>
   );
 }
