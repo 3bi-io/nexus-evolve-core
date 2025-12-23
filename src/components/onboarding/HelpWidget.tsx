@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,6 +27,7 @@ interface HelpArticle {
   icon: any;
   description: string;
   link: string;
+  isExternal?: boolean;
 }
 
 const helpArticles: HelpArticle[] = [
@@ -35,7 +37,7 @@ const helpArticles: HelpArticle[] = [
     category: 'Basics',
     icon: Book,
     description: 'Learn the fundamentals of using Oneiros AI',
-    link: '/docs/getting-started',
+    link: '/getting-started',
   },
   {
     id: 'multi-agent',
@@ -43,7 +45,7 @@ const helpArticles: HelpArticle[] = [
     category: 'Features',
     icon: MessageCircle,
     description: 'Understand how our 9 AI agents work together',
-    link: '/docs/multi-agent',
+    link: '/features',
   },
   {
     id: 'browser-ai',
@@ -75,11 +77,12 @@ const helpArticles: HelpArticle[] = [
     category: 'Developers',
     icon: FileText,
     description: 'Integrate Oneiros into your applications',
-    link: '/docs/api',
+    link: '/api-access',
   },
 ];
 
 export function HelpWidget() {
+  const navigate = useNavigate();
   const { isMobile } = useMobile();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -93,6 +96,15 @@ export function HelpWidget() {
       article.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       article.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleArticleClick = (article: HelpArticle) => {
+    setIsOpen(false);
+    if (article.isExternal) {
+      window.open(article.link, '_blank');
+    } else {
+      navigate(article.link);
+    }
+  };
 
   return (
     <>
@@ -112,8 +124,8 @@ export function HelpWidget() {
       </motion.div>
 
       {/* Help Panel */}
-      <SafeAnimatePresence>
-        {isOpen ? (
+      {isOpen && (
+        <SafeAnimatePresence>
           <>
             {/* Backdrop */}
             <motion.div
@@ -222,9 +234,7 @@ export function HelpWidget() {
                                 <Button
                                   variant="ghost"
                                   className="w-full justify-start h-auto p-3 hover:bg-muted/50"
-                                  onClick={() => {
-                                    window.location.href = article.link;
-                                  }}
+                                  onClick={() => handleArticleClick(article)}
                                 >
                                   <div className="flex items-start gap-3 flex-1 text-left">
                                     <div className="rounded-lg bg-primary/10 p-2 group-hover:bg-primary/20 transition-colors">
@@ -260,7 +270,14 @@ export function HelpWidget() {
                       <p className="text-sm text-muted-foreground">
                         Still need help?
                       </p>
-                      <Button className="w-full" variant="default">
+                      <Button 
+                        className="w-full" 
+                        variant="default"
+                        onClick={() => {
+                          setIsOpen(false);
+                          navigate('/contact');
+                        }}
+                      >
                         <MessageCircle className="h-4 w-4 mr-2" />
                         Contact Support
                       </Button>
@@ -270,8 +287,8 @@ export function HelpWidget() {
               </Card>
             </motion.div>
           </>
-        ) : null}
-      </SafeAnimatePresence>
+        </SafeAnimatePresence>
+      )}
     </>
   );
 }

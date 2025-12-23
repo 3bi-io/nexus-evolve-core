@@ -172,9 +172,11 @@ export const ReferralRewards = () => {
 
   return (
     <>
-      <SafeAnimatePresence>
-        {showSuccess ? <SuccessAnimation message="Reward claimed!" /> : null}
-      </SafeAnimatePresence>
+      {showSuccess && (
+        <SafeAnimatePresence>
+          <SuccessAnimation message="Reward claimed!" />
+        </SafeAnimatePresence>
+      )}
 
       <Card>
         <CardHeader>

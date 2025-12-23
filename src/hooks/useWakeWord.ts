@@ -33,25 +33,33 @@ export const useWakeWord = ({ wakeWord, onWakeWordDetected, enabled = true }: Us
 
     recognition.onstart = () => {
       setIsListening(true);
-      console.log('Wake word detection started');
+      if (import.meta.env.DEV) {
+        console.log('Wake word detection started');
+      }
     };
 
     recognition.onresult = (event: any) => {
       const transcript = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
-      console.log('Heard:', transcript);
+      if (import.meta.env.DEV) {
+        console.log('Heard:', transcript);
+      }
 
       // Normalize transcript (handles "four one six two nine two", "416292", etc.)
       const normalized = transcript.replace(/\s/g, '');
       const wakeWordNormalized = wakeWord.toLowerCase().replace(/\s/g, '');
 
       if (normalized.includes(wakeWordNormalized)) {
-        console.log('Wake word detected!');
+        if (import.meta.env.DEV) {
+          console.log('Wake word detected!');
+        }
         onWakeWordDetected();
       }
     };
 
     recognition.onerror = (event: any) => {
-      console.error('Speech recognition error:', event.error);
+      if (import.meta.env.DEV) {
+        console.error('Speech recognition error:', event.error);
+      }
       if (event.error === 'not-allowed') {
         toast({
           title: "Microphone Permission Required",
@@ -63,7 +71,9 @@ export const useWakeWord = ({ wakeWord, onWakeWordDetected, enabled = true }: Us
 
     recognition.onend = () => {
       if (enabled) {
-        console.log('Recognition ended, restarting...');
+        if (import.meta.env.DEV) {
+          console.log('Recognition ended, restarting...');
+        }
         setTimeout(() => recognition.start(), 1000);
       }
     };
@@ -73,7 +83,9 @@ export const useWakeWord = ({ wakeWord, onWakeWordDetected, enabled = true }: Us
     try {
       recognition.start();
     } catch (error) {
-      console.error('Failed to start recognition:', error);
+      if (import.meta.env.DEV) {
+        console.error('Failed to start recognition:', error);
+      }
     }
 
     return () => {
