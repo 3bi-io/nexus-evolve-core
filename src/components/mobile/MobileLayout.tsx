@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { MobileHeader } from "./MobileHeader";
 import { MobileBottomNav } from "./MobileBottomNav";
+import { PullToRefresh } from "./PullToRefresh";
 import { useResponsive } from "@/hooks/useResponsive";
 import { cn } from "@/lib/utils";
 
@@ -29,14 +30,16 @@ export function MobileLayout({
     <div className="flex flex-col min-h-screen">
       <MobileHeader title={title} showBack={showBack} showMenu={showMenu} />
       
-      <main
-        className={cn(
-          "flex-1 overflow-y-auto",
-          showBottomNav && "pb-20"
-        )}
-      >
-        {children}
-      </main>
+      <PullToRefresh hardRefresh>
+        <main
+          className={cn(
+            "flex-1 overflow-y-auto",
+            showBottomNav && "pb-20"
+          )}
+        >
+          {children}
+        </main>
+      </PullToRefresh>
 
       {showBottomNav && <MobileBottomNav />}
     </div>

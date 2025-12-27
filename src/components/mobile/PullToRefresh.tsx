@@ -1,18 +1,20 @@
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode, useState } from "react";
 import { motion, useAnimation } from "framer-motion";
 import { RefreshCw } from "lucide-react";
 import { useHaptics } from "@/hooks/useResponsive";
 
 interface PullToRefreshProps {
   children: ReactNode;
-  onRefresh: () => Promise<void>;
+  onRefresh?: () => Promise<void>;
   threshold?: number;
+  hardRefresh?: boolean;
 }
 
 export function PullToRefresh({
   children,
   onRefresh,
   threshold = 80,
+  hardRefresh = false,
 }: PullToRefreshProps) {
   const [startY, setStartY] = useState(0);
   const [pullDistance, setPullDistance] = useState(0);
@@ -43,8 +45,21 @@ export function PullToRefresh({
       medium();
       controls.start({ rotate: 360 });
 
+      if (hardRefresh) {
+        // Clear service worker caches for fresh content
+        if ('caches' in window) {
+          const cacheNames = await caches.keys();
+          await Promise.all(cacheNames.map(name => caches.delete(name)));
+        }
+        // Hard refresh the page
+        window.location.reload();
+        return;
+      }
+
       try {
-        await onRefresh();
+        if (onRefresh) {
+          await onRefresh();
+        }
       } finally {
         setIsRefreshing(false);
         setPullDistance(0);
