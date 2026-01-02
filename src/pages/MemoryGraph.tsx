@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { SEO } from "@/components/SEO";
 import { useTemporalMemory } from "@/hooks/useTemporalMemory";
@@ -27,15 +27,29 @@ interface Memory {
   temporal_relevance?: number;
 }
 
+interface TemporalScore {
+  memory_id: string;
+  calculated_relevance: number;
+  access_count: number;
+  last_accessed: string;
+}
+
 const MemoryGraph = () => {
   const { getAllMemoriesWithTemporal, getTemporalScores, loading } = useTemporalMemory();
   const [memories, setMemories] = useState<Memory[]>([]);
+  const [scores, setScores] = useState<TemporalScore[]>([]);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [timeFilter, setTimeFilter] = useState<number>(365); // Days
   const [stats, setStats] = useState({ total: 0, highRelevance: 0, lowRelevance: 0 });
+  const isLoadingRef = useRef(false);
+  const hasLoadedRef = useRef(false);
 
+  // Fetch memories - stable function, no timeFilter dependency
   const loadMemories = useCallback(async () => {
+    if (isLoadingRef.current) return;
+    isLoadingRef.current = true;
+
     try {
       const [memoriesData, scoresData] = await Promise.all([
         getAllMemoriesWithTemporal(),
@@ -43,87 +57,97 @@ const MemoryGraph = () => {
       ]);
 
       setMemories(memoriesData);
-
-      // Build graph structure
-      const graphNodes: Node[] = memoriesData
-        .filter((m) => {
-          const age = (Date.now() - new Date(m.created_at).getTime()) / (1000 * 60 * 60 * 24);
-          return age <= timeFilter;
-        })
-        .map((memory, index) => {
-          const score = scoresData.find((s) => s.memory_id === memory.id);
-          const relevance = score?.calculated_relevance || 0.5;
-
-          return {
-            id: memory.id,
-            type: "default",
-            data: {
-              label: typeof memory.content === "string" 
-                ? memory.content.slice(0, 50) + "..." 
-                : JSON.stringify(memory.content).slice(0, 50) + "...",
-              relevance,
-              accessCount: score?.access_count || 0,
-              lastAccessed: score?.last_accessed,
-            },
-            position: {
-              x: (index % 10) * 250,
-              y: Math.floor(index / 10) * 150,
-            },
-            style: {
-              background: relevance > 0.7 ? "hsl(var(--success))" : relevance > 0.4 ? "hsl(var(--warning))" : "hsl(var(--muted))",
-              color: "hsl(var(--foreground))",
-              border: "2px solid hsl(var(--border))",
-              borderRadius: "8px",
-              padding: "10px",
-              fontSize: "12px",
-              width: 200,
-            },
-          };
-        });
-
-      // Create edges based on temporal proximity (memories created within 1 day of each other)
-      const graphEdges: Edge[] = [];
-      for (let i = 0; i < graphNodes.length - 1; i++) {
-        const current = memoriesData[i];
-        const next = memoriesData[i + 1];
-        const timeDiff = Math.abs(
-          new Date(current.created_at).getTime() - new Date(next.created_at).getTime()
-        ) / (1000 * 60 * 60 * 24);
-
-        if (timeDiff <= 1) {
-          graphEdges.push({
-            id: `e${current.id}-${next.id}`,
-            source: current.id,
-            target: next.id,
-            type: "smoothstep",
-            animated: true,
-            style: { stroke: "hsl(var(--primary))", strokeWidth: 1 },
-          });
-        }
-      }
-
-      setNodes(graphNodes);
-      setEdges(graphEdges);
-
-      // Calculate stats
-      const highRelevance = scoresData.filter((s) => s.calculated_relevance > 0.7).length;
-      const lowRelevance = scoresData.filter((s) => s.calculated_relevance < 0.3).length;
-      setStats({
-        total: graphNodes.length,
-        highRelevance,
-        lowRelevance,
-      });
-
-      toast.success(`Loaded ${graphNodes.length} memories`);
+      setScores(scoresData);
+      hasLoadedRef.current = true;
+      toast.success(`Loaded ${memoriesData.length} memories`);
     } catch (error) {
       console.error("Error loading memories:", error);
       toast.error("Failed to load memory graph");
+    } finally {
+      isLoadingRef.current = false;
     }
-  }, [getAllMemoriesWithTemporal, getTemporalScores, timeFilter]);
+  }, [getAllMemoriesWithTemporal, getTemporalScores]);
 
+  // Load once on mount
   useEffect(() => {
-    loadMemories();
+    if (!hasLoadedRef.current) {
+      loadMemories();
+    }
   }, [loadMemories]);
+
+  // Client-side filtering based on timeFilter - no API calls
+  useMemo(() => {
+    if (memories.length === 0) return;
+
+    const filteredMemories = memories.filter((m) => {
+      const age = (Date.now() - new Date(m.created_at).getTime()) / (1000 * 60 * 60 * 24);
+      return age <= timeFilter;
+    });
+
+    const graphNodes: Node[] = filteredMemories.map((memory, index) => {
+      const score = scores.find((s) => s.memory_id === memory.id);
+      const relevance = score?.calculated_relevance || 0.5;
+
+      return {
+        id: memory.id,
+        type: "default",
+        data: {
+          label: typeof memory.content === "string" 
+            ? memory.content.slice(0, 50) + "..." 
+            : JSON.stringify(memory.content).slice(0, 50) + "...",
+          relevance,
+          accessCount: score?.access_count || 0,
+          lastAccessed: score?.last_accessed,
+        },
+        position: {
+          x: (index % 10) * 250,
+          y: Math.floor(index / 10) * 150,
+        },
+        style: {
+          background: relevance > 0.7 ? "hsl(var(--success))" : relevance > 0.4 ? "hsl(var(--warning))" : "hsl(var(--muted))",
+          color: "hsl(var(--foreground))",
+          border: "2px solid hsl(var(--border))",
+          borderRadius: "8px",
+          padding: "10px",
+          fontSize: "12px",
+          width: 200,
+        },
+      };
+    });
+
+    // Create edges based on temporal proximity
+    const graphEdges: Edge[] = [];
+    for (let i = 0; i < filteredMemories.length - 1; i++) {
+      const current = filteredMemories[i];
+      const next = filteredMemories[i + 1];
+      const timeDiff = Math.abs(
+        new Date(current.created_at).getTime() - new Date(next.created_at).getTime()
+      ) / (1000 * 60 * 60 * 24);
+
+      if (timeDiff <= 1) {
+        graphEdges.push({
+          id: `e${current.id}-${next.id}`,
+          source: current.id,
+          target: next.id,
+          type: "smoothstep",
+          animated: true,
+          style: { stroke: "hsl(var(--primary))", strokeWidth: 1 },
+        });
+      }
+    }
+
+    setNodes(graphNodes);
+    setEdges(graphEdges);
+
+    // Calculate stats
+    const highRelevance = scores.filter((s) => s.calculated_relevance > 0.7).length;
+    const lowRelevance = scores.filter((s) => s.calculated_relevance < 0.3).length;
+    setStats({
+      total: graphNodes.length,
+      highRelevance,
+      lowRelevance,
+    });
+  }, [memories, scores, timeFilter, setNodes, setEdges]);
 
   return (
     <PageLayout title="Memory Graph" showBottomNav={true}>

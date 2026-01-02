@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
@@ -23,11 +23,10 @@ export const useTemporalMemory = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
 
-  const updateMemoryAccess = async (memoryId: string) => {
+  const updateMemoryAccess = useCallback(async (memoryId: string) => {
     if (!user) return;
 
     try {
-      // Increment access count and update last_accessed
       const { error } = await supabase
         .from("memory_temporal_scores")
         .upsert({
@@ -43,9 +42,9 @@ export const useTemporalMemory = () => {
     } catch (error) {
       console.error("Error updating memory access:", error);
     }
-  };
+  }, [user]);
 
-  const getTemporalScores = async (): Promise<TemporalScore[]> => {
+  const getTemporalScores = useCallback(async (): Promise<TemporalScore[]> => {
     if (!user) return [];
 
     try {
@@ -61,14 +60,13 @@ export const useTemporalMemory = () => {
       console.error("Error fetching temporal scores:", error);
       return [];
     }
-  };
+  }, [user]);
 
-  const searchWithTemporal = async (query: string, limit: number = 10): Promise<Memory[]> => {
+  const searchWithTemporal = useCallback(async (query: string, limit: number = 10): Promise<Memory[]> => {
     if (!user) return [];
 
     setLoading(true);
     try {
-      // Call mem0-memory function for search
       const { data, error } = await supabase.functions.invoke("mem0-memory", {
         body: {
           action: "search",
@@ -79,7 +77,6 @@ export const useTemporalMemory = () => {
 
       if (error) throw error;
 
-      // Results already include temporal_relevance from edge function
       return data?.result?.results || [];
     } catch (error) {
       console.error("Error searching with temporal:", error);
@@ -88,14 +85,13 @@ export const useTemporalMemory = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
-  const getAllMemoriesWithTemporal = async (): Promise<Memory[]> => {
+  const getAllMemoriesWithTemporal = useCallback(async (): Promise<Memory[]> => {
     if (!user) return [];
 
     setLoading(true);
     try {
-      // Get all memories from Mem0
       const { data, error } = await supabase.functions.invoke("mem0-memory", {
         body: {
           action: "get",
@@ -112,7 +108,7 @@ export const useTemporalMemory = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   return {
     loading,
