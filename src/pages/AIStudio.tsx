@@ -164,7 +164,7 @@ export default function AIStudio() {
         canonical="https://oneiros.me/ai-studio"
       />
 
-      <div className="container max-w-7xl py-8 space-y-8">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-8">
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-3">

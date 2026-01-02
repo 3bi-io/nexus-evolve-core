@@ -133,7 +133,7 @@ const MemoryGraph = () => {
         keywords="memory graph, knowledge network, AI visualization, memory management"
         canonical="https://oneiros.me/memory-graph"
       />
-      <div className="container-mobile mx-auto px-4 py-6 max-w-7xl">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-6">
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold mb-2">Memory Graph</h1>

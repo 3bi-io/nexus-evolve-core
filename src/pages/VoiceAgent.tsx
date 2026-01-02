@@ -96,7 +96,7 @@ export default function VoiceAgent() {
         canonical="https://oneiros.me/voice-agent"
         ogImage="/og-platform-automation.png"
       />
-      <div className="container mx-auto px-4 py-6 max-w-7xl space-y-8">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-8">
         {/* Browser Compatibility Alert */}
         {browserWarning && (
           <Alert className="mb-6">

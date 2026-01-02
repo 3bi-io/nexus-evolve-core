@@ -21,7 +21,7 @@ export default function SocialIntelligence() {
         canonical="https://oneiros.me/social-intelligence"
         ogImage="/og-platform-automation.png"
       />
-      <div className="container max-w-7xl py-8 space-y-8">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-8">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Sparkles className="w-8 h-8 text-primary" />
