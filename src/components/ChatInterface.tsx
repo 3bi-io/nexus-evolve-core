@@ -4,9 +4,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Brain, Send, ThumbsUp, ThumbsDown, TrendingUp, Globe, Sparkles, ArrowDown, Image, MessageSquare, Zap } from "lucide-react";
+import { Brain, Send, ThumbsUp, ThumbsDown, TrendingUp, Globe, Sparkles, ArrowDown, Image, MessageSquare, Zap, AlertTriangle } from "lucide-react";
 import { TTSButton } from "@/components/voice/TTSButton";
 import { streamChat } from "@/lib/chat";
+import { CreditCostBadge } from "@/components/credits/CreditCostWarning";
+import { useSubscriptionContext } from "@/contexts/SubscriptionContext";
 import { toast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,6 +42,7 @@ export const ChatInterface = () => {
   const { ipAddress } = useClientIP();
   const { criticalIssues } = useSecretValidation();
   const { searchWeb, isSearching, searchResults, clearResults } = useWebSearch();
+  const { isLowCredits, creditsRemaining, isEnterprise, formattedCreditsRemaining } = useSubscriptionContext();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -574,38 +577,53 @@ export const ChatInterface = () => {
             </div>
           )}
           
-          <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-xl border border-border/50 shadow-lg">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setWebSearchEnabled(!webSearchEnabled)}
-              disabled={isLoading || isSearching}
-              className={cn(
-                "h-11 w-11 rounded-lg shrink-0 border-border/50 transition-all",
-                webSearchEnabled && "bg-primary text-primary-foreground border-primary"
-              )}
-              title="Enable web search"
-            >
-              <Globe className="w-5 h-5" />
-            </Button>
+          <div className="flex flex-col gap-2 p-2 bg-muted/50 rounded-xl border border-border/50 shadow-lg">
+            {/* Low credit warning */}
+            {isLowCredits && !isEnterprise && (
+              <div className="flex items-center gap-2 px-2 py-1.5 text-xs text-warning bg-warning/10 rounded-lg">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
+                <span>Low credits ({formattedCreditsRemaining} remaining)</span>
+              </div>
+            )}
             
-            <Textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={webSearchEnabled ? "Search the web..." : "Ask me anything..."}
-              className="flex-1 min-h-[44px] max-h-32 bg-background/50 border-0 resize-none focus-visible:ring-0 focus-visible:ring-offset-0 text-sm sm:text-base py-3"
-              rows={1}
-              disabled={isLoading || !sessionId || isSearching}
-            />
-            
-            <Button
-              onClick={sendMessage}
-              disabled={isLoading || !input.trim() || !sessionId || isSearching}
-              className="h-11 w-11 rounded-lg shrink-0 transition-all"
-            >
-              <Send className="w-5 h-5" />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setWebSearchEnabled(!webSearchEnabled)}
+                disabled={isLoading || isSearching}
+                className={cn(
+                  "h-11 w-11 rounded-lg shrink-0 border-border/50 transition-all",
+                  webSearchEnabled && "bg-primary text-primary-foreground border-primary"
+                )}
+                title="Enable web search"
+              >
+                <Globe className="w-5 h-5" />
+              </Button>
+              
+              <Textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={webSearchEnabled ? "Search the web..." : "Ask me anything..."}
+                className="flex-1 min-h-[44px] max-h-32 bg-background/50 border-0 resize-none focus-visible:ring-0 focus-visible:ring-offset-0 text-sm sm:text-base py-3"
+                rows={1}
+                disabled={isLoading || !sessionId || isSearching}
+              />
+              
+              <div className="flex flex-col items-center gap-0.5">
+                <Button
+                  onClick={sendMessage}
+                  disabled={isLoading || !input.trim() || !sessionId || isSearching}
+                  className="h-11 w-11 rounded-lg shrink-0 transition-all"
+                >
+                  <Send className="w-5 h-5" />
+                </Button>
+                {!isEnterprise && input.trim() && (
+                  <CreditCostBadge operationType={webSearchEnabled ? 'web-search' : 'chat'} />
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
