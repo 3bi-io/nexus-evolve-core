@@ -26,6 +26,8 @@ import {
   Clock,
   Zap,
 } from "lucide-react";
+import { useFeatureAccess } from "@/hooks/useFeatureAccess";
+import { UpgradePrompt } from "@/components/stripe/UpgradePrompt";
 import {
   LineChart,
   Line,
@@ -53,6 +55,7 @@ export default function AgentsHub() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get("tab") || "marketplace";
+  const { canAccess: canCreateAgents, requiredTier: createTier } = useFeatureAccess("customAgents");
 
   // Revenue state
   const [agents, setAgents] = useState<any[]>([]);
@@ -284,7 +287,15 @@ export default function AgentsHub() {
 
           {/* Create Tab */}
           <TabsContent value="create">
-            <AgentBuilder agentId={agentId} />
+            {canCreateAgents ? (
+              <AgentBuilder agentId={agentId} />
+            ) : createTier ? (
+              <UpgradePrompt 
+                feature="Custom Agent Builder" 
+                requiredTier={createTier} 
+                variant="card" 
+              />
+            ) : null}
           </TabsContent>
 
           {/* Templates Tab */}
