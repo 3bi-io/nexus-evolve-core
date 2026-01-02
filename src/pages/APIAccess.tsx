@@ -119,7 +119,7 @@ export default function APIAccess() {
         keywords="API, developer, integration, REST API"
       />
 
-      <div className="container mx-auto px-4 py-6 max-w-6xl space-y-8">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-8">
         {/* Header */}
         <div className="flex items-center gap-3">
           <Code className="w-8 h-8 text-primary" />
