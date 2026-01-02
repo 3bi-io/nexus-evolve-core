@@ -7,12 +7,14 @@ import { InviteDialog } from "@/components/referral/InviteDialog";
 import { ReferralRewards } from "@/components/referral/ReferralRewards";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useReferrals } from "@/hooks/useReferrals";
+import { useResponsive } from "@/hooks/useResponsive";
 import { Users, Gift, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { SEO } from "@/components/SEO";
 
 const Referrals = () => {
   const { stats, userReferralCode, referrals, loading } = useReferrals();
+  const { isMobile } = useResponsive();
 
   if (loading) {
     return <LoadingPage cardCount={3} />;
@@ -29,140 +31,117 @@ const Referrals = () => {
       />
       <div className="container mx-auto px-4 py-6 md:py-8 space-y-6 md:space-y-8">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col gap-4">
           <div>
-            <h1 className="text-2xl md:text-4xl font-bold mb-2">Referral Program</h1>
+            <h1 className="text-2xl md:text-4xl font-bold mb-1 md:mb-2">Referral Program</h1>
             <p className="text-sm md:text-base text-muted-foreground">
               Invite friends and earn rewards together
             </p>
           </div>
-            <div className="flex gap-3">
-              <InviteDialog />
-              <ShareDialog referralCode={userReferralCode} />
-            </div>
+          <div className="flex gap-2 md:gap-3">
+            <InviteDialog />
+            <ShareDialog referralCode={userReferralCode} />
           </div>
+        </div>
 
-          {/* Main Referral Card */}
-          <ReferralCard stats={stats} referralCode={userReferralCode} />
+        {/* Main Referral Card */}
+        <ReferralCard stats={stats} referralCode={userReferralCode} />
 
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Rewards */}
-            <ReferralRewards />
+        {/* Stack on mobile, grid on desktop */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+          {/* Rewards */}
+          <ReferralRewards />
 
-            {/* How It Works */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5" />
-                  How It Works
-                </CardTitle>
-                <CardDescription>
-                  Simple steps to earn rewards
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex gap-3">
+          {/* How It Works */}
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+                <TrendingUp className="h-5 w-5" />
+                How It Works
+              </CardTitle>
+              <CardDescription className="text-sm">
+                Simple steps to earn rewards
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {[
+                { step: 1, title: "Share Your Link", desc: "Share your unique referral link via social media, email, or messaging" },
+                { step: 2, title: "They Sign Up", desc: "Your friends create an account using your referral link" },
+                { step: 3, title: "You Both Win!", desc: "You unlock exclusive features for each successful referral" },
+              ].map((item) => (
+                <div key={item.step} className="flex gap-3">
                   <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-sm font-bold text-primary">1</span>
+                    <span className="text-sm font-bold text-primary">{item.step}</span>
                   </div>
-                  <div>
-                    <h4 className="font-medium mb-1">Share Your Link</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Share your unique referral link with friends via social media, email, or messaging
-                    </p>
+                  <div className="min-w-0">
+                    <h4 className="font-medium text-sm md:text-base mb-0.5">{item.title}</h4>
+                    <p className="text-xs md:text-sm text-muted-foreground">{item.desc}</p>
                   </div>
                 </div>
+              ))}
 
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-sm font-bold text-primary">2</span>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-1">They Sign Up</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Your friends create an account using your referral link
-                    </p>
-                  </div>
+              <div className="p-4 bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg border border-primary/20 mt-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Gift className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                  <h4 className="font-semibold text-sm md:text-base">Milestone Rewards</h4>
                 </div>
-
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-sm font-bold text-primary">3</span>
-                  </div>
-                  <div>
-                    <h4 className="font-medium mb-1">You Both Win!</h4>
-                    <p className="text-sm text-muted-foreground">
-                      You unlock exclusive features for each successful referral, and they get started with full access
-                    </p>
-                  </div>
-                </div>
-
-                <div className="p-4 bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg border border-primary/20 mt-6">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Gift className="h-5 w-5 text-primary" />
-                    <h4 className="font-semibold">Bonus Rewards</h4>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Reach milestones to unlock special rewards:
-                  </p>
-                  <div className="mt-3 space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span>5 referrals</span>
-                      <Badge variant="secondary">Priority Support</Badge>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span>10 referrals</span>
-                      <Badge variant="secondary">Beta Access</Badge>
-                    </div>
-                    <div className="flex items-center justify-between text-sm">
-                      <span>25 referrals</span>
-                      <Badge variant="secondary">VIP Status</Badge>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Recent Referrals */}
-          {referrals.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  Recent Referrals
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {referrals.slice(0, 10).map((referral) => (
-                    <div
-                      key={referral.id}
-                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
-                    >
-                      <div>
-                        <p className="font-medium">{referral.referred_email}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(referral.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <Badge
-                        variant={
-                          referral.status === 'converted'
-                            ? 'default'
-                            : referral.status === 'signed_up'
-                            ? 'secondary'
-                            : 'outline'
-                        }
-                      >
-                        {referral.status.replace('_', ' ')}
-                      </Badge>
+                <div className="space-y-2 mt-3">
+                  {[
+                    { count: 5, reward: "Priority Support" },
+                    { count: 10, reward: "Beta Access" },
+                    { count: 25, reward: "VIP Status" },
+                  ].map((milestone) => (
+                    <div key={milestone.count} className="flex items-center justify-between text-xs md:text-sm">
+                      <span>{milestone.count} referrals</span>
+                      <Badge variant="secondary" className="text-xs">{milestone.reward}</Badge>
                     </div>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Recent Referrals */}
+        {referrals.length > 0 && (
+          <Card>
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center gap-2 text-lg md:text-xl">
+                <Users className="h-5 w-5" />
+                Recent Referrals
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 md:space-y-3">
+                {referrals.slice(0, isMobile ? 5 : 10).map((referral) => (
+                  <div
+                    key={referral.id}
+                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm md:text-base truncate">{referral.referred_email}</p>
+                      <p className="text-xs md:text-sm text-muted-foreground">
+                        {new Date(referral.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <Badge
+                      variant={
+                        referral.status === 'converted'
+                          ? 'default'
+                          : referral.status === 'signed_up'
+                          ? 'secondary'
+                          : 'outline'
+                      }
+                      className="text-xs flex-shrink-0 ml-2"
+                    >
+                      {referral.status.replace('_', ' ')}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </PageLayout>
     </AuthGuard>

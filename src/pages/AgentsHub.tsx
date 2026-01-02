@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useParams, useNavigate } from "react-router-dom";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { SEO } from "@/components/SEO";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollableTabs, TabsContent } from "@/components/ui/scrollable-tabs";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -29,15 +29,9 @@ import {
 import { useFeatureAccess } from "@/hooks/useFeatureAccess";
 import { UpgradePrompt } from "@/components/stripe/UpgradePrompt";
 import {
-  LineChart,
-  Line,
   PieChart,
   Pie,
   Cell,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
   ResponsiveContainer,
 } from "recharts";
 
@@ -48,6 +42,15 @@ import { MyAgents } from "@/components/agents/MyAgents";
 import { AgentMarketplaceCard } from "@/components/agents/AgentMarketplaceCard";
 
 const COLORS = ["#8B5CF6", "#D946EF", "#F97316", "#10B981", "#3B82F6"];
+
+const TABS = [
+  { value: "marketplace", label: "Marketplace", shortLabel: "Market", icon: <Store className="w-4 h-4" /> },
+  { value: "my-agents", label: "My Agents", shortLabel: "Mine", icon: <Library className="w-4 h-4" /> },
+  { value: "create", label: "Create", shortLabel: "Create", icon: <Plus className="w-4 h-4" /> },
+  { value: "templates", label: "Templates", shortLabel: "Templates", icon: <Sparkles className="w-4 h-4" /> },
+  { value: "analytics", label: "Analytics", shortLabel: "Stats", icon: <BarChart3 className="w-4 h-4" /> },
+  { value: "revenue", label: "Revenue", shortLabel: "Earn", icon: <DollarSign className="w-4 h-4" /> },
+];
 
 export default function AgentsHub() {
   const { user } = useAuth();
@@ -205,74 +208,47 @@ export default function AgentsHub() {
         canonical="https://oneiros.me/agents"
       />
 
-      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-8">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-6 md:space-y-8">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <Bot className="w-8 h-8 text-primary" />
+          <Bot className="w-7 h-7 md:w-8 md:h-8 text-primary" />
           <div>
-            <h1 className="text-3xl font-bold">Agents Hub</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl md:text-3xl font-bold">Agents Hub</h1>
+            <p className="text-sm md:text-base text-muted-foreground">
               Build, deploy, and monetize AI agents
             </p>
           </div>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 max-w-3xl">
-            <TabsTrigger value="marketplace" className="flex items-center gap-2">
-              <Store className="w-4 h-4" />
-              <span className="hidden sm:inline">Market</span>
-            </TabsTrigger>
-            <TabsTrigger value="my-agents" className="flex items-center gap-2">
-              <Library className="w-4 h-4" />
-              <span className="hidden sm:inline">My Agents</span>
-            </TabsTrigger>
-            <TabsTrigger value="create" className="flex items-center gap-2">
-              <Plus className="w-4 h-4" />
-              <span className="hidden sm:inline">Create</span>
-            </TabsTrigger>
-            <TabsTrigger value="templates" className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4" />
-              <span className="hidden sm:inline">Templates</span>
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              <span className="hidden sm:inline">Stats</span>
-            </TabsTrigger>
-            <TabsTrigger value="revenue" className="flex items-center gap-2">
-              <DollarSign className="w-4 h-4" />
-              <span className="hidden sm:inline">Revenue</span>
-            </TabsTrigger>
-          </TabsList>
-
+        <ScrollableTabs tabs={TABS} value={activeTab} onValueChange={setTab} maxWidth="max-w-3xl">
           {/* Marketplace Tab */}
           <TabsContent value="marketplace" className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-semibold">Agent Marketplace</h2>
-                <p className="text-muted-foreground">Discover and deploy specialized AI agents</p>
+                <h2 className="text-xl md:text-2xl font-semibold">Agent Marketplace</h2>
+                <p className="text-sm md:text-base text-muted-foreground">Discover and deploy specialized AI agents</p>
               </div>
-              <Button onClick={() => setTab("create")}>
+              <Button onClick={() => setTab("create")} className="w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
                 Create Agent
               </Button>
             </div>
 
             {marketplaceLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-64" />)}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-56 md:h-64" />)}
               </div>
             ) : marketplaceAgents.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 {marketplaceAgents.map((listing) => (
                   <AgentMarketplaceCard key={listing.id} listing={listing} />
                 ))}
               </div>
             ) : (
-              <Card className="p-12 text-center">
-                <Store className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+              <Card className="p-8 md:p-12 text-center">
+                <Store className="w-10 h-10 md:w-12 md:h-12 mx-auto text-muted-foreground mb-4" />
                 <h3 className="text-lg font-semibold mb-2">No Agents Yet</h3>
-                <p className="text-muted-foreground mb-4">
+                <p className="text-sm md:text-base text-muted-foreground mb-4">
                   Be the first to publish an agent to the marketplace
                 </p>
                 <Button onClick={() => setTab("create")}>Create Your First Agent</Button>
@@ -306,66 +282,64 @@ export default function AgentsHub() {
           {/* Analytics Tab */}
           <TabsContent value="analytics" className="space-y-6">
             {analyticsLoading ? (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-32" />)}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 md:h-32" />)}
               </div>
             ) : analyticsData ? (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <Card className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-lg bg-primary/10">
-                        <Activity className="w-6 h-6 text-primary" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Total Executions</p>
-                        <p className="text-2xl font-bold">{analyticsData.totalExecutions}</p>
-                      </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                <Card className="p-4 md:p-6">
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <div className="p-2 md:p-3 rounded-lg bg-primary/10">
+                      <Activity className="w-5 h-5 md:w-6 md:h-6 text-primary" />
                     </div>
-                  </Card>
+                    <div>
+                      <p className="text-xs md:text-sm text-muted-foreground">Executions</p>
+                      <p className="text-xl md:text-2xl font-bold">{analyticsData.totalExecutions}</p>
+                    </div>
+                  </div>
+                </Card>
 
-                  <Card className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-lg bg-green-500/10">
-                        <TrendingUp className="w-6 h-6 text-green-500" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Success Rate</p>
-                        <p className="text-2xl font-bold">{analyticsData.successRate}%</p>
-                      </div>
+                <Card className="p-4 md:p-6">
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <div className="p-2 md:p-3 rounded-lg bg-green-500/10">
+                      <TrendingUp className="w-5 h-5 md:w-6 md:h-6 text-green-500" />
                     </div>
-                  </Card>
+                    <div>
+                      <p className="text-xs md:text-sm text-muted-foreground">Success</p>
+                      <p className="text-xl md:text-2xl font-bold">{analyticsData.successRate}%</p>
+                    </div>
+                  </div>
+                </Card>
 
-                  <Card className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-lg bg-blue-500/10">
-                        <Clock className="w-6 h-6 text-blue-500" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Avg Response</p>
-                        <p className="text-2xl font-bold">{analyticsData.avgResponseTime}ms</p>
-                      </div>
+                <Card className="p-4 md:p-6">
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <div className="p-2 md:p-3 rounded-lg bg-blue-500/10">
+                      <Clock className="w-5 h-5 md:w-6 md:h-6 text-blue-500" />
                     </div>
-                  </Card>
+                    <div>
+                      <p className="text-xs md:text-sm text-muted-foreground">Avg Time</p>
+                      <p className="text-xl md:text-2xl font-bold">{analyticsData.avgResponseTime}ms</p>
+                    </div>
+                  </div>
+                </Card>
 
-                  <Card className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-lg bg-purple-500/10">
-                        <Zap className="w-6 h-6 text-purple-500" />
-                      </div>
-                      <div>
-                        <p className="text-sm text-muted-foreground">Credits Used</p>
-                        <p className="text-2xl font-bold">{analyticsData.totalCreditsUsed}</p>
-                      </div>
+                <Card className="p-4 md:p-6">
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <div className="p-2 md:p-3 rounded-lg bg-purple-500/10">
+                      <Zap className="w-5 h-5 md:w-6 md:h-6 text-purple-500" />
                     </div>
-                  </Card>
-                </div>
-              </>
+                    <div>
+                      <p className="text-xs md:text-sm text-muted-foreground">Credits</p>
+                      <p className="text-xl md:text-2xl font-bold">{analyticsData.totalCreditsUsed}</p>
+                    </div>
+                  </div>
+                </Card>
+              </div>
             ) : (
-              <Card className="p-12 text-center">
-                <BarChart3 className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+              <Card className="p-8 md:p-12 text-center">
+                <BarChart3 className="w-10 h-10 md:w-12 md:h-12 mx-auto text-muted-foreground mb-4" />
                 <h3 className="text-lg font-semibold mb-2">No Analytics Data</h3>
-                <p className="text-muted-foreground">
+                <p className="text-sm md:text-base text-muted-foreground">
                   Start using agents to see performance analytics
                 </p>
               </Card>
@@ -374,68 +348,68 @@ export default function AgentsHub() {
 
           {/* Revenue Tab */}
           <TabsContent value="revenue" className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h2 className="text-2xl font-semibold">Agent Revenue</h2>
-                <p className="text-muted-foreground">Monitor earnings from your agents</p>
+                <h2 className="text-xl md:text-2xl font-semibold">Agent Revenue</h2>
+                <p className="text-sm md:text-base text-muted-foreground">Monitor earnings from your agents</p>
               </div>
-              <Button onClick={exportRevenue} variant="outline">
+              <Button onClick={exportRevenue} variant="outline" className="w-full sm:w-auto">
                 <Download className="w-4 h-4 mr-2" />
                 Export Report
               </Button>
             </div>
 
             {revenueLoading ? (
-              <div className="grid md:grid-cols-4 gap-4">
-                {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-32" />)}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 md:h-32" />)}
               </div>
             ) : (
               <>
-                <div className="grid md:grid-cols-4 gap-4">
-                  <Card className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-green-500/10 rounded-lg">
-                        <DollarSign className="w-6 h-6 text-green-500" />
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                  <Card className="p-4 md:p-6">
+                    <div className="flex items-center gap-3 md:gap-4">
+                      <div className="p-2 md:p-3 bg-green-500/10 rounded-lg">
+                        <DollarSign className="w-5 h-5 md:w-6 md:h-6 text-green-500" />
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Total Revenue</p>
-                        <p className="text-2xl font-bold">${totalRevenue.toFixed(2)}</p>
+                        <p className="text-xs md:text-sm text-muted-foreground">Revenue</p>
+                        <p className="text-xl md:text-2xl font-bold">${totalRevenue.toFixed(2)}</p>
                       </div>
                     </div>
                   </Card>
 
-                  <Card className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-blue-500/10 rounded-lg">
-                        <TrendingUp className="w-6 h-6 text-blue-500" />
+                  <Card className="p-4 md:p-6">
+                    <div className="flex items-center gap-3 md:gap-4">
+                      <div className="p-2 md:p-3 bg-blue-500/10 rounded-lg">
+                        <TrendingUp className="w-5 h-5 md:w-6 md:h-6 text-blue-500" />
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Total Sales</p>
-                        <p className="text-2xl font-bold">{totalSales}</p>
+                        <p className="text-xs md:text-sm text-muted-foreground">Sales</p>
+                        <p className="text-xl md:text-2xl font-bold">{totalSales}</p>
                       </div>
                     </div>
                   </Card>
 
-                  <Card className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-purple-500/10 rounded-lg">
-                        <Users className="w-6 h-6 text-purple-500" />
+                  <Card className="p-4 md:p-6">
+                    <div className="flex items-center gap-3 md:gap-4">
+                      <div className="p-2 md:p-3 bg-purple-500/10 rounded-lg">
+                        <Users className="w-5 h-5 md:w-6 md:h-6 text-purple-500" />
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Published Agents</p>
-                        <p className="text-2xl font-bold">{agents.length}</p>
+                        <p className="text-xs md:text-sm text-muted-foreground">Published</p>
+                        <p className="text-xl md:text-2xl font-bold">{agents.length}</p>
                       </div>
                     </div>
                   </Card>
 
-                  <Card className="p-6">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 bg-yellow-500/10 rounded-lg">
-                        <Star className="w-6 h-6 text-yellow-500" />
+                  <Card className="p-4 md:p-6">
+                    <div className="flex items-center gap-3 md:gap-4">
+                      <div className="p-2 md:p-3 bg-yellow-500/10 rounded-lg">
+                        <Star className="w-5 h-5 md:w-6 md:h-6 text-yellow-500" />
                       </div>
                       <div>
-                        <p className="text-sm text-muted-foreground">Avg. Rating</p>
-                        <p className="text-2xl font-bold">
+                        <p className="text-xs md:text-sm text-muted-foreground">Avg Rating</p>
+                        <p className="text-xl md:text-2xl font-bold">
                           {(agents.reduce((sum, a) => sum + (a.rating_avg || 0), 0) / agents.length || 0).toFixed(1)}
                         </p>
                       </div>
@@ -444,67 +418,31 @@ export default function AgentsHub() {
                 </div>
 
                 {agents.length > 0 && (
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <Card className="p-6">
-                      <h3 className="font-semibold mb-4">Revenue by Agent</h3>
-                      <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                          <Pie
-                            data={revenueByAgent}
-                            dataKey="revenue"
-                            nameKey="name"
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={100}
-                            label
-                          >
-                            {revenueByAgent.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                          </Pie>
-                          <Tooltip />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </Card>
-
-                    <Card className="p-6">
-                      <h3 className="font-semibold mb-4">Your Agents</h3>
-                      <div className="space-y-4 max-h-[300px] overflow-y-auto">
-                        {agents.map((agent) => (
-                          <div key={agent.id} className="flex items-center justify-between border-b pb-3">
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium">{agent.name}</span>
-                                <Badge variant="outline" className="capitalize text-xs">
-                                  {agent.pricing_model}
-                                </Badge>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <p className="font-semibold text-green-600">${Number(agent.total_revenue).toFixed(2)}</p>
-                              <p className="text-xs text-muted-foreground">{agent.usage_count} sales</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </Card>
-                  </div>
-                )}
-
-                {agents.length === 0 && (
-                  <Card className="p-12 text-center">
-                    <DollarSign className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">No Paid Agents Yet</h3>
-                    <p className="text-muted-foreground mb-4">
-                      Publish agents with pricing to start earning revenue
-                    </p>
-                    <Button onClick={() => setTab("create")}>Create Paid Agent</Button>
+                  <Card className="p-4 md:p-6">
+                    <h3 className="font-semibold mb-4">Revenue by Agent</h3>
+                    <ResponsiveContainer width="100%" height={250}>
+                      <PieChart>
+                        <Pie
+                          data={revenueByAgent}
+                          dataKey="revenue"
+                          nameKey="name"
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={80}
+                          label={({ name }) => name}
+                        >
+                          {revenueByAgent.map((_, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                      </PieChart>
+                    </ResponsiveContainer>
                   </Card>
                 )}
               </>
             )}
           </TabsContent>
-        </Tabs>
+        </ScrollableTabs>
       </div>
     </PageLayout>
   );
