@@ -20,11 +20,12 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { ResponsiveChatLayout } from "./chat/ResponsiveChatLayout";
 import { ChatHeader } from "./chat/ChatHeader";
-import { useResponsive } from "@/hooks/useResponsive";
+import { useResponsive, useHaptics } from "@/hooks/useResponsive";
 import { useWebSearch } from "@/hooks/useWebSearch";
 import { WebSearchResults } from "./chat/WebSearchResults";
 import { QuickActionChips } from "./chat/QuickActionChips";
 import { SmartSuggestions } from "./chat/SmartSuggestions";
+import { WelcomeHero } from "./chat/WelcomeHero";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { MarkdownRenderer } from "./ui/markdown-renderer";
@@ -39,6 +40,7 @@ type Message = {
 export const ChatInterface = () => {
   const { user } = useAuth();
   const { isMobile } = useResponsive();
+  const { light } = useHaptics();
   const { ipAddress } = useClientIP();
   const { criticalIssues } = useSecretValidation();
   const { searchWeb, isSearching, searchResults, clearResults } = useWebSearch();
@@ -85,8 +87,9 @@ export const ChatInterface = () => {
     return "Good evening";
   };
 
-  // Handle quick action
+  // Handle quick action with haptic feedback
   const handleQuickAction = (prompt: string) => {
+    light();
     setInput(prompt);
   };
 
@@ -425,62 +428,68 @@ export const ChatInterface = () => {
           )}
           
           {messages.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full text-center px-4 pt-4 pb-6 sm:pb-8">
-              {!isMobile && (
+            isMobile ? (
+              // Mobile: Use WelcomeHero for engaging empty state
+              <WelcomeHero onPromptSelect={handleQuickAction} />
+            ) : (
+              // Desktop: Keep the original clean layout with improvements
+              <div className="flex flex-col items-center justify-center h-full text-center px-4 pt-4 pb-6 sm:pb-8">
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ duration: 0.3 }}
+                  className="relative mb-6"
                 >
-                  <Sparkles className="w-12 h-12 sm:w-16 sm:h-16 text-primary mb-4 sm:mb-6" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 blur-2xl rounded-full" />
+                  <Sparkles className="w-14 h-14 text-primary relative" />
                 </motion.div>
-              )}
-              <motion.h2 
-                className="text-xl sm:text-2xl font-semibold mb-2 sm:mb-3"
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.1 }}
-              >
-                {getGreeting()}! What can I help you with?
-              </motion.h2>
-              <motion.p 
-                className="text-sm sm:text-base text-muted-foreground max-w-md leading-relaxed mb-6"
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.2 }}
-              >
-                Generate images, search the web, analyze data, or just chat
-              </motion.p>
-              
-              {/* Quick action chips for empty state */}
-              <QuickActionChips onAction={handleQuickAction} disabled={isLoading || !sessionId} />
-              
-              {/* Example prompts */}
-              <motion.div 
-                className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-6 w-full max-w-lg"
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 0.3 }}
-              >
-                {[
-                  { icon: Image, text: "Create a sunset over mountains" },
-                  { icon: MessageSquare, text: "Explain quantum computing" },
-                  { icon: Zap, text: "Write a Python script" },
-                  { icon: Brain, text: "Brainstorm app ideas" },
-                ].map((example, idx) => (
-                  <Button
-                    key={idx}
-                    variant="outline"
-                    className="justify-start gap-2 h-auto py-3 px-4 text-left hover:bg-primary/5 hover:border-primary/30 transition-all"
-                    onClick={() => handleQuickAction(example.text)}
-                    disabled={isLoading || !sessionId}
-                  >
-                    <example.icon className="h-4 w-4 text-primary shrink-0" />
-                    <span className="text-sm truncate">{example.text}</span>
-                  </Button>
-                ))}
-              </motion.div>
-            </div>
+                <motion.h2 
+                  className="text-2xl md:text-3xl font-bold mb-3"
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.1 }}
+                >
+                  {getGreeting()}! What can I help you with?
+                </motion.h2>
+                <motion.p 
+                  className="text-base text-muted-foreground max-w-md leading-relaxed mb-6"
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  Generate images, search the web, analyze data, or just chat
+                </motion.p>
+                
+                {/* Quick action chips for empty state */}
+                <QuickActionChips onAction={handleQuickAction} disabled={isLoading || !sessionId} />
+                
+                {/* Example prompts */}
+                <motion.div 
+                  className="grid grid-cols-2 gap-3 mt-6 w-full max-w-lg"
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                >
+                  {[
+                    { icon: Image, text: "Create a sunset over mountains" },
+                    { icon: MessageSquare, text: "Explain quantum computing" },
+                    { icon: Zap, text: "Write a Python script" },
+                    { icon: Brain, text: "Brainstorm app ideas" },
+                  ].map((example, idx) => (
+                    <Button
+                      key={idx}
+                      variant="outline"
+                      className="justify-start gap-3 h-auto py-4 px-4 text-left hover:bg-accent/50 hover:border-primary/30 transition-all rounded-xl"
+                      onClick={() => handleQuickAction(example.text)}
+                      disabled={isLoading || !sessionId}
+                    >
+                      <example.icon className="h-5 w-5 text-primary shrink-0" />
+                      <span className="text-sm">{example.text}</span>
+                    </Button>
+                  ))}
+                </motion.div>
+              </div>
+            )
           ) : (
             <div className="space-y-3 sm:space-y-4 pb-2">
               {messages.map((message, idx) => (
