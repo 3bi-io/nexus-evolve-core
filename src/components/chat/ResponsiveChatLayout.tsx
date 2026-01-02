@@ -10,19 +10,20 @@ export const ResponsiveChatLayout = ({ sidebar, children }: ResponsiveChatLayout
   const { isMobile } = useResponsive();
 
   if (isMobile) {
-    // Mobile: Full width, sidebar as drawer
+    // Mobile: Full screen chat, optimized for touch
+    // Using dvh (dynamic viewport height) to handle mobile keyboard correctly
     return (
-      <div className="flex flex-col h-[calc(100vh-120px)] w-full">
+      <div className="flex flex-col h-[100dvh] w-full safe-bottom">
         {children}
       </div>
     );
   }
 
-  // Desktop/Tablet: Side-by-side layout
+  // Desktop/Tablet: Side-by-side layout with proper height calculation
   return (
-    <div className="flex h-[calc(100vh-57px)] w-full">
+    <div className="flex h-[calc(100dvh-57px)] w-full">
       {sidebar}
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden flex flex-col">
         {children}
       </div>
     </div>
