@@ -400,8 +400,7 @@ export default function Evolution() {
         keywords="AI evolution, self-learning AI, autonomous AI, adaptive behavior, AI improvement tracking"
         canonical="https://oneiros.me/evolution"
       />
-      <div className="p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <TrendingUp className="w-8 h-8 text-primary" />
@@ -781,7 +780,6 @@ export default function Evolution() {
         )}
         </>
         )}
-      </div>
       </div>
     </PageLayout>
   );

@@ -142,7 +142,7 @@ const ModelComparison = () => {
         canonical="https://oneiros.me/model-comparison"
       />
 
-      <div className="container mx-auto py-8 space-y-6">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-6">
         <div>
           <h1 className="text-4xl font-bold mb-2 flex items-center gap-3">
             <Sparkles className="w-8 h-8 text-primary" />
