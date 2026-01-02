@@ -125,6 +125,7 @@ export const FEATURE_TIERS: Record<string, TierName[]> = {
   voiceAI: ["professional", "enterprise"],
   customAgents: ["professional", "enterprise"],
   knowledgeGraphs: ["professional", "enterprise"],
+  automation: ["enterprise"],
   apiAccess: ["enterprise"],
   teamManagement: ["enterprise"],
   dedicatedSupport: ["enterprise"],

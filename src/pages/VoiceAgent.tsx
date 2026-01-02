@@ -14,6 +14,8 @@ import { GrokVoiceAgent } from "@/components/voice/GrokVoiceAgent";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SEO } from "@/components/SEO";
 import { ErrorBoundaryWrapper } from "@/components/ErrorBoundaryWrapper";
+import { useFeatureAccess } from "@/hooks/useFeatureAccess";
+import { UpgradePrompt } from "@/components/stripe/UpgradePrompt";
 
 const USE_CASES = [
   {
@@ -45,6 +47,7 @@ const USE_CASES = [
 export default function VoiceAgent() {
   const { toast } = useToast();
   const { user } = useAuth();
+  const { canAccess, requiredTier } = useFeatureAccess("voiceAI");
   const [agentId, setAgentId] = useState("");
   const [isConfigured, setIsConfigured] = useState(false);
   const [browserWarning, setBrowserWarning] = useState<string | null>(null);
@@ -85,7 +88,7 @@ export default function VoiceAgent() {
       fallbackTitle="Voice Agent Error"
       fallbackMessage="The voice agent encountered an error. This may be due to browser compatibility or microphone permissions."
     >
-      <PageLayout>
+      <PageLayout title="Voice AI" showBack>
       <SEO 
         title="Voice AI - Have Meetings, Not Messages | Natural Conversations"
         description="Stop typing. Start talking. Natural voice conversations with AI that understands interruptions, context switches, and complex discussions. 3x faster than typing. Powered by ElevenLabs."
@@ -93,7 +96,7 @@ export default function VoiceAgent() {
         canonical="https://oneiros.me/voice-agent"
         ogImage="/og-platform-automation.png"
       />
-      <div className="container mx-auto py-8 space-y-8">
+      <div className="container mx-auto px-4 py-6 max-w-7xl space-y-8">
         {/* Browser Compatibility Alert */}
         {browserWarning && (
           <Alert className="mb-6">
@@ -172,125 +175,136 @@ export default function VoiceAgent() {
           </div>
         </div>
 
-        {/* Main Interface */}
-        <Tabs defaultValue="grok" className="space-y-6">
-          <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3">
-            <TabsTrigger value="grok" className="gap-2">
-              <Sparkles className="w-4 h-4" />
-              Grok (Eros)
-            </TabsTrigger>
-            <TabsTrigger value="setup" className="gap-2">
-              <Settings className="w-4 h-4" />
-              ElevenLabs Setup
-            </TabsTrigger>
-            <TabsTrigger value="chat" className="gap-2" disabled={!isConfigured}>
-              <Mic className="w-4 h-4" />
-              ElevenLabs Chat
-            </TabsTrigger>
-          </TabsList>
+        {/* Feature Gate Check */}
+        {!canAccess && requiredTier && (
+          <UpgradePrompt 
+            feature="Voice AI" 
+            requiredTier={requiredTier} 
+            variant="card" 
+          />
+        )}
 
-          <TabsContent value="grok">
-            {user ? (
-              <GrokVoiceAgent />
-            ) : (
-              <Card className="p-8 text-center">
-                <p className="text-muted-foreground">Please sign in to access Eros Voice Interface</p>
-              </Card>
-            )}
-          </TabsContent>
+        {/* Main Interface - Only show if user has access */}
+        {canAccess && (
+          <Tabs defaultValue="grok" className="space-y-6">
+            <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-3">
+              <TabsTrigger value="grok" className="gap-2">
+                <Sparkles className="w-4 h-4" />
+                Grok (Eros)
+              </TabsTrigger>
+              <TabsTrigger value="setup" className="gap-2">
+                <Settings className="w-4 h-4" />
+                ElevenLabs Setup
+              </TabsTrigger>
+              <TabsTrigger value="chat" className="gap-2" disabled={!isConfigured}>
+                <Mic className="w-4 h-4" />
+                ElevenLabs Chat
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="setup">
-            <div className="max-w-2xl mx-auto space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Configure Your Voice Agent</CardTitle>
-                  <CardDescription>
-                    Connect your ElevenLabs agent to enable natural voice conversations
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="agentId">ElevenLabs Agent ID</Label>
-                    <Input
-                      id="agentId"
-                      placeholder="your-agent-id-here"
-                      value={agentId}
-                      onChange={(e) => setAgentId(e.target.value)}
-                    />
-                    <p className="text-sm text-muted-foreground">
-                      Find your agent ID in the ElevenLabs Conversational AI dashboard
-                    </p>
-                  </div>
+            <TabsContent value="grok">
+              {user ? (
+                <GrokVoiceAgent />
+              ) : (
+                <Card className="p-8 text-center">
+                  <p className="text-muted-foreground">Please sign in to access Eros Voice Interface</p>
+                </Card>
+              )}
+            </TabsContent>
 
-                  <Button onClick={handleConfigure} className="w-full" size="lg">
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Connect Agent
-                  </Button>
-
-                  <div className="pt-4 border-t space-y-3">
-                    <h4 className="font-semibold flex items-center gap-2">
-                      <Phone className="h-4 w-4" />
-                      5-Minute Setup - Free Voice Conversations
-                    </h4>
-                    <ol className="space-y-2 text-sm text-muted-foreground">
-                      <li className="flex gap-2">
-                        <span className="font-semibold text-foreground">1.</span>
-                        <span>Go to <a href="https://elevenlabs.io" target="_blank" rel="noopener" className="text-primary hover:underline">elevenlabs.io</a> and create an account (free tier available)</span>
-                      </li>
-                      <li className="flex gap-2">
-                        <span className="font-semibold text-foreground">2.</span>
-                        <span>Navigate to "Conversational AI" and create your agent with custom personality</span>
-                      </li>
-                      <li className="flex gap-2">
-                        <span className="font-semibold text-foreground">3.</span>
-                        <span>Configure voice, language, and knowledge base in ElevenLabs dashboard</span>
-                      </li>
-                      <li className="flex gap-2">
-                        <span className="font-semibold text-foreground">4.</span>
-                        <span>Copy the Agent ID and paste it above to connect</span>
-                      </li>
-                    </ol>
-                  </div>
-
-                  <div className="pt-4 border-t space-y-3">
-                    <h4 className="font-semibold flex items-center gap-2">
-                      <Zap className="h-4 w-4" />
-                      Built-in Tools
-                    </h4>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Badge variant="outline" className="justify-center">🖼️ Generate Images</Badge>
-                      <Badge variant="outline" className="justify-center">📈 Get Trends</Badge>
-                      <Badge variant="outline" className="justify-center">🔗 Trigger Integrations</Badge>
-                      <Badge variant="outline" className="justify-center">📚 Search Knowledge</Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      Your voice agent can invoke these tools during conversations automatically
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-gradient-to-br from-primary/5 to-transparent">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <Sparkles className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+            <TabsContent value="setup">
+              <div className="max-w-2xl mx-auto space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Configure Your Voice Agent</CardTitle>
+                    <CardDescription>
+                      Connect your ElevenLabs agent to enable natural voice conversations
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
                     <div className="space-y-2">
-                      <p className="font-semibold">From Support Calls to Creative Brainstorms</p>
+                      <Label htmlFor="agentId">ElevenLabs Agent ID</Label>
+                      <Input
+                        id="agentId"
+                        placeholder="your-agent-id-here"
+                        value={agentId}
+                        onChange={(e) => setAgentId(e.target.value)}
+                      />
                       <p className="text-sm text-muted-foreground">
-                        Voice makes AI feel human. Perfect for customer support, team collaboration, content creation, 
-                        and any scenario where typing slows you down. Access from sidebar anytime with full platform integration.
+                        Find your agent ID in the ElevenLabs Conversational AI dashboard
                       </p>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
 
-          <TabsContent value="chat">
-            {isConfigured && <VoiceAgentChat agentId={agentId} />}
-          </TabsContent>
-        </Tabs>
+                    <Button onClick={handleConfigure} className="w-full" size="lg">
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Connect Agent
+                    </Button>
+
+                    <div className="pt-4 border-t space-y-3">
+                      <h4 className="font-semibold flex items-center gap-2">
+                        <Phone className="h-4 w-4" />
+                        5-Minute Setup - Free Voice Conversations
+                      </h4>
+                      <ol className="space-y-2 text-sm text-muted-foreground">
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-foreground">1.</span>
+                          <span>Go to <a href="https://elevenlabs.io" target="_blank" rel="noopener" className="text-primary hover:underline">elevenlabs.io</a> and create an account (free tier available)</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-foreground">2.</span>
+                          <span>Navigate to "Conversational AI" and create your agent with custom personality</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-foreground">3.</span>
+                          <span>Configure voice, language, and knowledge base in ElevenLabs dashboard</span>
+                        </li>
+                        <li className="flex gap-2">
+                          <span className="font-semibold text-foreground">4.</span>
+                          <span>Copy the Agent ID and paste it above to connect</span>
+                        </li>
+                      </ol>
+                    </div>
+
+                    <div className="pt-4 border-t space-y-3">
+                      <h4 className="font-semibold flex items-center gap-2">
+                        <Zap className="h-4 w-4" />
+                        Built-in Tools
+                      </h4>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Badge variant="outline" className="justify-center">🖼️ Generate Images</Badge>
+                        <Badge variant="outline" className="justify-center">📈 Get Trends</Badge>
+                        <Badge variant="outline" className="justify-center">🔗 Trigger Integrations</Badge>
+                        <Badge variant="outline" className="justify-center">📚 Search Knowledge</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Your voice agent can invoke these tools during conversations automatically
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-primary/5 to-transparent">
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4">
+                      <Sparkles className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
+                      <div className="space-y-2">
+                        <p className="font-semibold">From Support Calls to Creative Brainstorms</p>
+                        <p className="text-sm text-muted-foreground">
+                          Voice makes AI feel human. Perfect for customer support, team collaboration, content creation, 
+                          and any scenario where typing slows you down. Access from sidebar anytime with full platform integration.
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="chat">
+              {isConfigured && <VoiceAgentChat agentId={agentId} />}
+            </TabsContent>
+          </Tabs>
+        )}
       </div>
       </PageLayout>
     </ErrorBoundaryWrapper>

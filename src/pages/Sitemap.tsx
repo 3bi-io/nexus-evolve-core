@@ -4,10 +4,9 @@ import { SEO } from "@/components/SEO";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   Home, Sparkles, Store, MessageSquare, Mic, BarChart3, 
-  Brain, Network, Layers, Building2, Settings, Shield, 
-  FileText, Zap, Users, Globe, Webhook, Box, TrendingUp,
-  Award, Gift, Activity, Cpu, Binary, Code, BookOpen,
-  LineChart, PieChart, Database, Terminal
+  Brain, Network, Building2, Settings, Shield, 
+  FileText, Zap, Users, Globe, Webhook, Box,
+  Award, Gift, Activity, Cpu, Code, BookOpen, Layers
 } from "lucide-react";
 
 interface SitemapLink {
@@ -44,15 +43,13 @@ const sitemapSections: SitemapSection[] = [
   },
   {
     title: "AI Agents",
-    description: "Create and manage AI agents",
+    description: "Build, deploy, and monetize AI agents",
     icon: Zap,
     links: [
-      { path: "/agent-marketplace", title: "Agent Marketplace", description: "Discover and share agents", icon: Store },
-      { path: "/agent-studio", title: "Agent Studio", description: "Build custom AI agents", icon: Zap },
+      { path: "/agents", title: "Agents Hub", description: "Marketplace, builder, templates, analytics, and revenue", icon: Store },
       { path: "/voice-agent", title: "Voice Agent", description: "Voice-powered AI assistant", icon: Mic },
       { path: "/voice-agent-manager", title: "Voice Agent Manager", description: "Manage voice AI agents", icon: Mic },
-      { path: "/agent-executor", title: "Agent Executor", description: "Execute agent workflows", icon: Terminal },
-      { path: "/agent-revenue", title: "Agent Revenue", description: "Track agent monetization", icon: TrendingUp },
+      { path: "/agent-executor", title: "Agent Executor", description: "Execute agent workflows", icon: Code },
       { path: "/model-comparison", title: "Model Comparison", description: "Compare AI model performance", icon: BarChart3 },
     ]
   },
@@ -61,29 +58,22 @@ const sitemapSections: SitemapSection[] = [
     description: "Create and interact with AI",
     icon: Brain,
     links: [
+      { path: "/ai-studio", title: "AI Studio", description: "Unified AI creation hub with all tools", icon: Layers },
       { path: "/multimodal-studio", title: "Multimodal Studio", description: "Work with text, images, and voice", icon: Layers },
       { path: "/problem-solver", title: "Problem Solver", description: "AI-powered problem solving", icon: Brain },
       { path: "/ai-hub", title: "AI Hub", description: "Central AI management hub", icon: Cpu },
-      { path: "/browser-ai", title: "Browser AI", description: "AI models running in your browser", icon: Binary },
-      { path: "/advanced-browser-ai", title: "Advanced Browser AI", description: "Advanced local AI capabilities", icon: Code },
-      { path: "/xai-studio", title: "XAI Studio", description: "Explainable AI tools", icon: Sparkles },
       { path: "/collaboration", title: "Collaboration", description: "Real-time team collaboration", icon: MessageSquare },
-      { path: "/automation-hub", title: "Automation Hub", description: "Automated workflows", icon: Zap },
+      { path: "/automation-hub", title: "Automation Hub", description: "Enterprise automated workflows", icon: Zap },
     ]
   },
   {
     title: "Intelligence & Analytics",
     description: "Insights and data visualization",
-    icon: LineChart,
+    icon: BarChart3,
     links: [
-      { path: "/analytics", title: "Analytics Dashboard", description: "Usage and performance metrics", icon: PieChart },
-      { path: "/advanced-analytics", title: "Advanced Analytics", description: "In-depth analytics tools", icon: LineChart },
-      { path: "/llm-analytics", title: "LLM Analytics", description: "Language model performance tracking", icon: BarChart3 },
-      { path: "/usage-analytics", title: "Usage Analytics", description: "Detailed usage statistics", icon: Activity },
-      { path: "/xai-dashboard", title: "XAI Dashboard", description: "Explainable AI insights", icon: Sparkles },
-      { path: "/xai-analytics", title: "XAI Analytics", description: "XAI performance metrics", icon: TrendingUp },
+      { path: "/analytics", title: "Unified Analytics", description: "All analytics in one place", icon: Activity },
       { path: "/knowledge-graph", title: "Knowledge Graph", description: "Visual knowledge representation", icon: Network },
-      { path: "/memory-graph", title: "Memory Graph", description: "AI memory visualization", icon: Database },
+      { path: "/memory-graph", title: "Memory Graph", description: "AI memory visualization", icon: Network },
       { path: "/capabilities", title: "Capabilities", description: "System capabilities overview", icon: Zap },
     ]
   },
@@ -92,14 +82,11 @@ const sitemapSections: SitemapSection[] = [
     description: "System monitoring and evolution",
     icon: Activity,
     links: [
-      { path: "/evolution", title: "Evolution", description: "AI system self-improvement tracking", icon: TrendingUp },
+      { path: "/evolution", title: "Evolution", description: "AI system self-improvement tracking", icon: Sparkles },
       { path: "/agi-dashboard", title: "AGI Dashboard", description: "Artificial General Intelligence metrics", icon: Brain },
       { path: "/system-health", title: "System Health", description: "Platform health monitoring", icon: Activity },
       { path: "/router-dashboard", title: "Router Dashboard", description: "AI routing analytics", icon: Network },
-      { path: "/enterprise-router", title: "Enterprise Router", description: "Advanced routing controls", icon: Layers },
-      { path: "/unified-router", title: "Unified Router", description: "Demo of unified routing", icon: Code },
-      { path: "/social-intelligence", title: "Social Intelligence", description: "Social media insights", icon: TrendingUp },
-      { path: "/advanced-ai", title: "Advanced AI", description: "Cutting-edge AI features", icon: Cpu },
+      { path: "/social-intelligence", title: "Social Intelligence", description: "Social media insights", icon: Globe },
     ]
   },
   {
@@ -108,7 +95,7 @@ const sitemapSections: SitemapSection[] = [
     icon: Building2,
     links: [
       { path: "/teams", title: "Teams", description: "Team management and collaboration", icon: Users },
-      { path: "/api-access", title: "API Access", description: "Developer API access", icon: Code },
+      { path: "/api-access", title: "API Access", description: "Developer API access (Enterprise)", icon: Code },
       { path: "/webhooks", title: "Webhooks", description: "Configure webhooks and integrations", icon: Webhook },
       { path: "/integrations", title: "Integrations", description: "Third-party integrations", icon: Box },
     ]
@@ -144,15 +131,15 @@ const sitemapSections: SitemapSection[] = [
 
 export default function Sitemap() {
   return (
-    <PageLayout showHeader={true} showFooter={true} transition={true}>
+    <PageLayout showHeader showFooter transition>
       <SEO
         title="Sitemap - Explore All Features | Unified Navigation"
-        description="Complete sitemap of Oneiros.me unified AI platform. Explore 9 AI systems, analytics, agent marketplace, voice AI, integrations, and more - all accessible from the sidebar."
+        description="Complete sitemap of Oneiros.me unified AI platform. Explore AI agents, analytics, voice AI, integrations, and more."
         keywords="sitemap, AI tools, platform navigation, features, unified sidebar, platform map"
         canonical="https://oneiros.me/sitemap"
       />
 
-      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-8">
+      <div className="container mx-auto px-4 py-6 max-w-7xl space-y-8">
         {/* Header */}
         <div className="space-y-4 text-center max-w-3xl mx-auto">
           <h1 className="text-4xl font-bold tracking-tight">Platform Sitemap</h1>
