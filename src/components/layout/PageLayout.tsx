@@ -154,8 +154,9 @@ export function PageLayout({
           user={user}
           signOut={signOut}
           navigate={navigate}
-          children={children}
-        />
+        >
+          {children}
+        </MainLayout>
       </div>
     </SidebarProvider>
   );

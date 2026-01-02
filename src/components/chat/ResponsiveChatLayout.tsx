@@ -10,10 +10,9 @@ export const ResponsiveChatLayout = ({ sidebar, children }: ResponsiveChatLayout
   const { isMobile } = useResponsive();
 
   if (isMobile) {
-    // Mobile: Full screen chat, optimized for touch
-    // Using dvh (dynamic viewport height) to handle mobile keyboard correctly
+    // Mobile: Account for bottom nav (72px) and use dvh for keyboard handling
     return (
-      <div className="flex flex-col h-[100dvh] w-full safe-bottom">
+      <div className="flex flex-col h-[calc(100dvh-72px)] w-full">
         {children}
       </div>
     );
