@@ -116,8 +116,9 @@ TIMP addresses these challenges by implementing a biologically-inspired memory m
 | Object | Type | Purpose |
 |--------|------|---------|
 | `memory_temporal_scores` | Table | Stores temporal metadata for each memory |
+| `user_memory_preferences` | Table | Stores user pruning preferences |
+| `memory_pruning_logs` | Table | Logs automated pruning operations |
 | `calculate_temporal_relevance` | Function | Computes relevance score |
-| `update_memory_access` | Function | Updates access patterns on retrieval |
 
 ---
 
@@ -217,11 +218,11 @@ CREATE TABLE memory_temporal_scores (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id),
   memory_id TEXT NOT NULL,
-  access_count INTEGER DEFAULT 0,
-  importance_score NUMERIC(4,3) DEFAULT 0.5,
-  decay_rate NUMERIC(4,3) DEFAULT 0.1,
+  access_count INTEGER DEFAULT 1,
+  importance_score REAL DEFAULT 0.5,
+  decay_rate REAL DEFAULT 0.1,
   last_accessed TIMESTAMPTZ DEFAULT NOW(),
-  calculated_relevance NUMERIC(5,4),
+  calculated_relevance REAL,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   
@@ -242,10 +243,10 @@ CREATE INDEX idx_temporal_scores_last_accessed
 CREATE TABLE user_memory_preferences (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users(id) UNIQUE,
-  auto_prune_enabled BOOLEAN DEFAULT true,
-  prune_threshold NUMERIC(4,3) DEFAULT 0.1,
-  max_memories INTEGER DEFAULT 1000,
-  decay_rate_override NUMERIC(4,3),
+  auto_pruning_enabled BOOLEAN DEFAULT true,
+  pruning_aggressiveness TEXT DEFAULT 'moderate',
+  min_age_days INTEGER DEFAULT 90,
+  relevance_threshold REAL DEFAULT 0.3,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -257,10 +258,11 @@ CREATE TABLE user_memory_preferences (
 CREATE TABLE memory_pruning_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL,
-  memories_pruned INTEGER,
-  threshold_used NUMERIC(4,3),
+  pruned_count INTEGER DEFAULT 0,
+  storage_saved_kb INTEGER DEFAULT 0,
+  threshold_used REAL,
   pruned_memory_ids TEXT[],
-  executed_at TIMESTAMPTZ DEFAULT NOW()
+  created_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```
 
@@ -355,11 +357,12 @@ New Memory Content
 The `auto-prune-memories` edge function runs on a schedule (default: daily) to remove low-relevance memories.
 
 ```typescript
-interface PruningConfig {
-  min_age_days: number;        // Minimum age before eligible (default: 7)
-  relevance_threshold: number; // Base threshold (default: 0.1)
-  max_prune_per_run: number;   // Safety limit (default: 100)
-  aggressiveness: 'conservative' | 'moderate' | 'aggressive';
+// User preferences stored in user_memory_preferences table
+interface UserMemoryPreferences {
+  auto_pruning_enabled: boolean;       // Enable automatic pruning (default: true)
+  pruning_aggressiveness: string;      // 'conservative' | 'moderate' | 'aggressive'
+  min_age_days: number;                // Minimum age before eligible (default: 90)
+  relevance_threshold: number;         // Base threshold (default: 0.3)
 }
 ```
 
@@ -367,50 +370,73 @@ interface PruningConfig {
 
 | Level | Threshold Multiplier | Description |
 |-------|---------------------|-------------|
-| Conservative | 0.5× | Only prune very low relevance |
+| Conservative | 0.7× | Only prune very low relevance (threshold × 0.7) |
 | Moderate | 1.0× | Standard threshold |
-| Aggressive | 1.5× | Prune more aggressively |
+| Aggressive | 1.3× | Prune more aggressively (threshold × 1.3) |
 
 ### Pruning Logic
 
 ```typescript
-async function pruneMemories(userId: string, config: PruningConfig) {
-  const aggressivenessMultiplier = {
-    conservative: 0.5,
-    moderate: 1.0,
-    aggressive: 1.5
-  }[config.aggressiveness];
+// From auto-prune-memories edge function
+for (const userPref of users || []) {
+  const userId = userPref.user_id;
+  const aggressiveness = userPref.pruning_aggressiveness;
+  const minAgeDays = userPref.min_age_days;
+  const relevanceThreshold = userPref.relevance_threshold;
 
-  const effectiveThreshold = config.relevance_threshold * aggressivenessMultiplier;
-  const cutoffDate = new Date();
-  cutoffDate.setDate(cutoffDate.getDate() - config.min_age_days);
+  // Adjust threshold based on aggressiveness
+  let adjustedThreshold = relevanceThreshold;
+  if (aggressiveness === 'conservative') adjustedThreshold *= 0.7;
+  if (aggressiveness === 'aggressive') adjustedThreshold *= 1.3;
 
-  // Find eligible memories
-  const { data: candidates } = await supabase
+  // Get all memories for user from Mem0
+  const memories = await fetchMemoriesFromMem0(userId);
+
+  // Get temporal scores for these memories
+  const { data: scores } = await supabase
     .from('memory_temporal_scores')
-    .select('memory_id, calculated_relevance')
-    .eq('user_id', userId)
-    .lt('calculated_relevance', effectiveThreshold)
-    .lt('created_at', cutoffDate.toISOString())
-    .order('calculated_relevance', { ascending: true })
-    .limit(config.max_prune_per_run);
+    .select('*')
+    .eq('user_id', userId);
 
-  // Delete from Mem0 and local database
-  for (const memory of candidates) {
-    await mem0Client.delete(memory.memory_id);
-    await supabase
-      .from('memory_temporal_scores')
-      .delete()
-      .eq('memory_id', memory.memory_id);
+  const prunedMemoryIds: string[] = [];
+  let storageSaved = 0;
+
+  for (const memory of memories.results || []) {
+    const score = scores?.find(s => s.memory_id === memory.id);
+    if (!score) continue;
+
+    // Calculate age in days
+    const ageInDays = (Date.now() - new Date(score.created_at).getTime()) / (1000 * 60 * 60 * 24);
+
+    // Decide if memory should be pruned
+    const shouldPrune = 
+      ageInDays >= minAgeDays && 
+      (score.calculated_relevance || 0) < adjustedThreshold;
+
+    if (shouldPrune) {
+      // Delete from Mem0 and local database
+      await deleteFromMem0(memory.id);
+      await supabase
+        .from('memory_temporal_scores')
+        .delete()
+        .eq('user_id', userId)
+        .eq('memory_id', memory.id);
+      
+      prunedMemoryIds.push(memory.id);
+      storageSaved += 1; // Estimate: 1KB per memory
+    }
   }
 
   // Log pruning action
-  await supabase.from('memory_pruning_logs').insert({
-    user_id: userId,
-    memories_pruned: candidates.length,
-    threshold_used: effectiveThreshold,
-    pruned_memory_ids: candidates.map(m => m.memory_id)
-  });
+  if (prunedMemoryIds.length > 0) {
+    await supabase.from('memory_pruning_logs').insert({
+      user_id: userId,
+      pruned_count: prunedMemoryIds.length,
+      storage_saved_kb: storageSaved,
+      threshold_used: adjustedThreshold,
+      pruned_memory_ids: prunedMemoryIds,
+    });
+  }
 }
 ```
 
@@ -650,23 +676,13 @@ async function hybridSearch(query: string, userId: string) {
 #### calculate_temporal_relevance
 
 ```sql
--- Signature
+-- Signature (actual implementation in database)
 calculate_temporal_relevance(
-  p_importance_score NUMERIC,
   p_access_count INTEGER,
-  p_decay_rate NUMERIC,
-  p_last_accessed TIMESTAMPTZ
-) RETURNS NUMERIC
-```
-
-#### update_memory_access
-
-```sql
--- Signature
-update_memory_access(
-  p_user_id UUID,
-  p_memory_id TEXT
-) RETURNS VOID
+  p_importance_score REAL,
+  p_last_accessed TIMESTAMPTZ,
+  p_decay_rate REAL
+) RETURNS REAL
 ```
 
 ### Appendix C: Configuration Defaults
@@ -682,16 +698,25 @@ const TIMP_DEFAULTS = {
   DEFAULT_DECAY_RATE: 0.1,
   FREQUENCY_SATURATION: 10,
   
-  // Pruning settings
-  PRUNE_MIN_AGE_DAYS: 7,
-  PRUNE_THRESHOLD: 0.1,
-  PRUNE_MAX_PER_RUN: 100,
+  // Pruning settings (user_memory_preferences defaults)
+  PRUNE_MIN_AGE_DAYS: 90,
+  PRUNE_THRESHOLD: 0.3,
+  DEFAULT_AGGRESSIVENESS: 'moderate',
+  
+  // Aggressiveness multipliers
+  AGGRESSIVENESS_MULTIPLIERS: {
+    conservative: 0.7,
+    moderate: 1.0,
+    aggressive: 1.3
+  },
+  
+  // Memory defaults
+  DEFAULT_ACCESS_COUNT: 1,
+  DEFAULT_IMPORTANCE_SCORE: 0.5,
   
   // Limits
-  MAX_MEMORIES_PER_USER: 1000,
   MAX_SEARCH_RESULTS: 50
 };
-```
 
 ---
 
