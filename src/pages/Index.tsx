@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { PageLayout } from "@/components/layout/PageLayout";
 import { useResponsive } from "@/hooks/useResponsive";
 import { SEO } from "@/components/SEO";
+
 const Index = () => {
   const { user } = useAuth();
   const { isMobile } = useResponsive();
@@ -16,6 +17,7 @@ const Index = () => {
       title="Chat"
       showBottomNav={isMobile}
       showBack={false}
+      showHeader={!isMobile} // Hide redundant header on mobile chat
     >
       <SEO 
         title="Oneiros | Free AI Platform - Vision, Generation, Workflows & Monitoring"

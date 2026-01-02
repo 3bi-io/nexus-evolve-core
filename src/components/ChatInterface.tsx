@@ -394,9 +394,9 @@ export const ChatInterface = () => {
 
   return (
     <ResponsiveChatLayout sidebar={sidebar}>
-      <div className="flex flex-col h-full max-w-4xl mx-auto w-full p-3 sm:p-4 md:p-6">
+      <div className="flex flex-col h-full max-w-4xl mx-auto w-full px-2 py-1 sm:p-4 md:p-6">
         {user && criticalIssues > 0 && (
-          <Alert variant="destructive" className="mb-3 sm:mb-4">
+          <Alert variant="destructive" className="mb-2 sm:mb-4">
             <AlertCircle className="h-5 w-5" />
             <AlertDescription className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
               <span className="text-sm">Critical API keys need configuration</span>
@@ -419,7 +419,7 @@ export const ChatInterface = () => {
           onNewSession={createNewSession}
         />
 
-        <ScrollArea ref={scrollRef} className="flex-1 my-3 sm:my-4 px-1 relative" onScrollCapture={handleScroll}>
+        <ScrollArea ref={scrollRef} className="flex-1 my-1 sm:my-4 px-1 relative scrollbar-hide" onScrollCapture={handleScroll}>
           {searchResults && (
             <WebSearchResults 
               results={searchResults} 
