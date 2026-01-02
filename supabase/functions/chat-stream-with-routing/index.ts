@@ -402,6 +402,9 @@ async function handleGeneralAgent(
   }
   
   // PHASE 3E: Semantic Search Integration (skip for anonymous users)
+  let uniqueMemories: any[] = [];
+  let adaptiveBehaviors: any[] = [];
+  
   if (!isAnonymous) {
     try {
       const { data: semanticResults } = await supabase.functions.invoke("semantic-search", {
@@ -444,50 +447,27 @@ async function handleGeneralAgent(
     }
     
     // Remove duplicates
-    const uniqueMemories = Array.from(
+    uniqueMemories = Array.from(
       new Map(contextMemories.map(m => [m.id, m])).values()
     ).slice(0, 10);
     
     // Get adaptive behaviors
-    const { data: adaptiveBehaviors } = await supabase
+    const { data: behaviors } = await supabase
       .from("adaptive_behaviors")
       .select("id, behavior_type, description, effectiveness_score")
       .eq("user_id", user.id)
       .eq("active", true)
       .order("effectiveness_score", { ascending: false })
       .limit(10);
-
-    const memoryContext = uniqueMemories.length > 0
-      ? `\n## Context:\n${uniqueMemories.map(m => `- [${m.memory_type}] ${m.context_summary}`).join('\n')}\n`
-      : '';
-
-    const behaviorContext = adaptiveBehaviors && adaptiveBehaviors.length > 0
-      ? `\n## Style:\n${adaptiveBehaviors.map((b: any) => `- ${b.description}`).join('\n')}\n`
-      : '';
-
-    const systemPrompt = `You are a helpful AI assistant with learning capabilities.${behaviorContext}${memoryContext}${webSearchContext}`;
-  } else {
-    // Anonymous users get basic system prompt without personalization
-    const systemPrompt = `You are a helpful AI assistant.${webSearchContext}`;
+    
+    adaptiveBehaviors = behaviors || [];
   }
-
-  const uniqueMemories = isAnonymous ? [] : Array.from(
-    new Map(contextMemories.map(m => [m.id, m])).values()
-  ).slice(0, 10);
-  
-  const adaptiveBehaviors = isAnonymous ? [] : (await supabase
-    .from("adaptive_behaviors")
-    .select("id, behavior_type, description, effectiveness_score")
-    .eq("user_id", user.id)
-    .eq("active", true)
-    .order("effectiveness_score", { ascending: false })
-    .limit(10)).data;
 
   const memoryContext = uniqueMemories.length > 0
     ? `\n## Context:\n${uniqueMemories.map(m => `- [${m.memory_type}] ${m.context_summary}`).join('\n')}\n`
     : '';
 
-  const behaviorContext = adaptiveBehaviors && adaptiveBehaviors.length > 0
+  const behaviorContext = adaptiveBehaviors.length > 0
     ? `\n## Style:\n${adaptiveBehaviors.map((b: any) => `- ${b.description}`).join('\n')}\n`
     : '';
 

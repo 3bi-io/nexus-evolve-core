@@ -78,7 +78,7 @@ export function MyAgents() {
         <p className="text-muted-foreground mb-4">
           Create your first custom agent to get started
         </p>
-        <Button onClick={() => navigate('/agent-studio?tab=create')}>Create Agent</Button>
+        <Button onClick={() => navigate('/agents?tab=create')}>Create Agent</Button>
       </Card>
     );
   }
@@ -121,7 +121,7 @@ export function MyAgents() {
               <Button 
                 size="sm" 
                 variant="outline"
-                onClick={() => navigate(`/agent-studio/edit/${agent.id}`)}
+                onClick={() => navigate(`/agents?tab=create&edit=${agent.id}`)}
                 title="Edit Agent"
               >
                 <Edit className="w-4 h-4" />

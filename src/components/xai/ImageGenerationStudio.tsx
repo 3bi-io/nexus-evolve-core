@@ -47,11 +47,31 @@ export function ImageGenerationStudio() {
       });
     } catch (error: any) {
       console.error('Image generation error:', error);
-      toast({
-        title: 'Generation Failed',
-        description: error.message || 'Failed to generate images',
-        variant: 'destructive',
-      });
+      
+      // Handle specific error types
+      const errorMessage = error?.message || 'Failed to generate images';
+      const isRateLimit = errorMessage.includes('429') || errorMessage.toLowerCase().includes('rate limit');
+      const isPaymentRequired = errorMessage.includes('402') || errorMessage.toLowerCase().includes('credits') || errorMessage.toLowerCase().includes('payment');
+      
+      if (isRateLimit) {
+        toast({
+          title: 'Rate Limit Reached',
+          description: 'Too many requests. Please wait a moment and try again.',
+          variant: 'destructive',
+        });
+      } else if (isPaymentRequired) {
+        toast({
+          title: 'Insufficient Credits',
+          description: 'You need more credits to generate images. Please upgrade your plan.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Generation Failed',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+      }
     } finally {
       setGenerating(false);
     }

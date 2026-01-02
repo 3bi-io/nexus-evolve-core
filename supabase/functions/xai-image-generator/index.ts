@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { corsHeaders } from "../_shared/cors.ts";
 import { handleError, successResponse } from "../_shared/error-handler.ts";
 import { createLogger } from "../_shared/logger.ts";
-import { requireAuth } from "../_shared/auth.ts";
+import { optionalAuth } from "../_shared/auth.ts";
 import { initSupabaseClient } from "../_shared/supabase-client.ts";
 import { validateRequiredFields } from "../_shared/validators.ts";
 import { xAIFetch } from "../_shared/api-client.ts";
@@ -24,14 +24,15 @@ serve(async (req) => {
 
   try {
     const supabase = initSupabaseClient();
-    const user = await requireAuth(req, supabase);
+    const user = await optionalAuth(req, supabase);
+    const isAnonymous = !user;
 
     const body: ImageGenRequest = await req.json();
     validateRequiredFields(body, ["prompt"]);
     const { prompt, negativePrompt, numImages = 1, model = "grok-2-image-1212" } = body;
 
     logger.info("Generating images", { 
-      userId: user.id, 
+      userId: user?.id || "anonymous", 
       numImages, 
       promptPreview: prompt.substring(0, 50) 
     });
@@ -57,38 +58,42 @@ serve(async (req) => {
 
     const costCredits = numImages * 0.05;
 
-    // Store in database
-    const { data: imageRecord, error: insertError } = await supabase
-      .from("xai_generated_images")
-      .insert({
+    // Store in database (only for authenticated users)
+    let imageRecord = null;
+    if (!isAnonymous) {
+      const { data, error: insertError } = await supabase
+        .from("xai_generated_images")
+        .insert({
+          user_id: user.id,
+          prompt,
+          negative_prompt: negativePrompt,
+          model,
+          num_images: numImages,
+          image_urls: imageUrls,
+          image_data: result.data,
+          generation_time_ms: generationTime,
+          cost_credits: costCredits,
+          settings: { model, numImages },
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+        logger.error("Failed to save image record", insertError);
+      }
+      imageRecord = data;
+
+      // Log usage analytics
+      await supabase.from("xai_usage_analytics").insert({
         user_id: user.id,
-        prompt,
-        negative_prompt: negativePrompt,
-        model,
-        num_images: numImages,
-        image_urls: imageUrls,
-        image_data: result.data,
-        generation_time_ms: generationTime,
+        model_id: model,
+        feature_type: "image-generation",
         cost_credits: costCredits,
-        settings: { model, numImages },
-      })
-      .select()
-      .single();
-
-    if (insertError) {
-      logger.error("Failed to save image record", insertError);
+        latency_ms: generationTime,
+        success: true,
+        metadata: { prompt, num_images: numImages },
+      });
     }
-
-    // Log usage analytics
-    await supabase.from("xai_usage_analytics").insert({
-      user_id: user.id,
-      model_id: model,
-      feature_type: "image-generation",
-      cost_credits: costCredits,
-      latency_ms: generationTime,
-      success: true,
-      metadata: { prompt, num_images: numImages },
-    });
 
     logger.info("Image generation complete", { generationTime, numImages });
 
