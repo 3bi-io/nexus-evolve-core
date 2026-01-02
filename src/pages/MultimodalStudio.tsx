@@ -17,7 +17,7 @@ export default function MultimodalStudio() {
         keywords="AI image generation, text to speech, voice to text, multimodal AI, DALL-E, audio transcription"
         canonical="https://oneiros.me/multimodal"
       />
-      <div className="container mx-auto py-8 space-y-6">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-6">
         <div className="flex items-center gap-3">
           <Sparkles className="w-8 h-8 text-primary" />
           <div>
