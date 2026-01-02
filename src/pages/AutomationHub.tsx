@@ -41,7 +41,7 @@ export default function AutomationHub() {
         keywords="AI automation, scheduled monitoring, content pipelines, smart caching, agentic workflows"
         canonical="https://oneiros.me/automation-hub"
       />
-      <div className="container mx-auto px-4 py-6 max-w-7xl">
+      <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-6">
         <div className="flex items-center gap-3 mb-8">
           <Zap className="w-8 h-8 text-primary" />
           <div>
