@@ -22,6 +22,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
+import { SidebarCreditDisplay } from "@/components/credits/SidebarCreditDisplay";
 
 export function AppSidebar() {
   const { user, signOut } = useAuth();
@@ -163,6 +164,9 @@ export function AppSidebar() {
       <SidebarFooter className="border-t">
         {user ? (
           <div className="space-y-2">
+            {/* Credit Display */}
+            <SidebarCreditDisplay collapsed={collapsed} />
+            
             {!collapsed && (
               <div className="flex items-center gap-3 px-2 py-2">
                 <Avatar className="h-8 w-8">

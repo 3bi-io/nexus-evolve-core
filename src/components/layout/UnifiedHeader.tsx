@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/contexts/AuthContext";
-import { CreditBalance } from "@/components/pricing/CreditBalance";
+import { HeaderCreditBadge } from "@/components/credits/HeaderCreditBadge";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { Brain, Sparkles } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -143,6 +143,7 @@ export function UnifiedHeader({
             />
           ) : (
             <>
+              {user && <HeaderCreditBadge />}
               {user && <NotificationBell />}
               <ThemeToggle />
               {user && (
