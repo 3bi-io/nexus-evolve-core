@@ -28,7 +28,7 @@ export interface NavSection {
 export const primaryNavItems: NavItem[] = [
   { to: "/", icon: MessageSquare, label: "Chat", shortLabel: "Chat", description: "AI Chat Interface", public: true },
   { to: "/getting-started", icon: Rocket, label: "Getting Started", shortLabel: "Start", description: "Quick Start Guide", public: true },
-  { to: "/agent-marketplace", icon: Store, label: "Marketplace", shortLabel: "Market", description: "Browse AI Agents", public: true },
+  { to: "/agents", icon: Store, label: "Agents", shortLabel: "Agents", description: "AI Agent Hub", public: true },
   { to: "/voice-agent", icon: Phone, label: "Voice AI", shortLabel: "Voice", description: "Voice Agent Studio", public: true },
 ];
 
@@ -37,32 +37,32 @@ export const publicHeaderNavItems: NavItem[] = [
   { to: "/features", icon: Rocket, label: "Features", description: "Platform Features" },
   { to: "/solutions", icon: Target, label: "Solutions", description: "Industry Solutions" },
   { to: "/pricing", icon: DollarSign, label: "Pricing", description: "Plans & Pricing" },
-  { to: "/agent-marketplace", icon: Store, label: "Marketplace", description: "Browse AI Agents" },
+  { to: "/agents", icon: Store, label: "Agents", description: "AI Agent Hub" },
 ];
 
 // Mobile bottom nav items (simplified to 5 core items)
 export const mobileBottomNavItems = {
   authenticated: [
     { to: "/", icon: MessageSquare, label: "Chat" },
-    { to: "/agent-marketplace", icon: Store, label: "Agents" },
-    { to: "/multimodal-studio", icon: Layers, label: "Create" },
+    { to: "/agents", icon: Store, label: "Agents" },
+    { to: "/ai-studio", icon: Sparkles, label: "Create" },
     { to: "/analytics", icon: BarChart3, label: "Stats" },
-    { to: "/account", icon: Users, label: "More" },
+    { to: "/account", icon: Users, label: "Account" },
   ],
   public: [
     { to: "/", icon: MessageSquare, label: "Chat" },
-    { to: "/agent-marketplace", icon: Store, label: "Agents" },
+    { to: "/agents", icon: Store, label: "Agents" },
     { to: "/pricing", icon: DollarSign, label: "Pricing" },
     { to: "/voice-agent", icon: Mic, label: "Voice" },
     { to: "/getting-started", icon: Rocket, label: "Start" },
   ],
 };
 
-// Organized navigation sections for dropdown/sidebar menus - Consolidated to 5 categories
+// Organized navigation sections - Consolidated to 4 core categories
 export const navSections: NavSection[] = [
   {
-    id: "chat",
-    label: "Chat",
+    id: "main",
+    label: "Main",
     items: [
       { to: "/", icon: MessageSquare, label: "Chat", description: "AI Chat Interface", public: true },
       { to: "/getting-started", icon: Rocket, label: "Getting Started", description: "Quick Start Guide", public: true },
@@ -74,11 +74,9 @@ export const navSections: NavSection[] = [
     id: "agents",
     label: "Agents",
     items: [
-      { to: "/agent-marketplace", icon: Store, label: "Marketplace", description: "Browse AI Agents", public: true },
-      { to: "/agent-studio", icon: Bot, label: "Agent Studio", description: "Build custom agents", public: true },
+      { to: "/agents", icon: Store, label: "Agent Hub", description: "Marketplace, Build & Analytics", public: true },
       { to: "/voice-agent", icon: Phone, label: "Voice AI", description: "Voice conversations", public: true },
       { to: "/voice-agent-manager", icon: Mic, label: "Voice Manager", description: "Manage voice agents", public: true },
-      { to: "/agent-revenue", icon: TrendingUp, label: "Revenue", description: "Agent revenue", public: true },
       { to: "/model-comparison", icon: BarChart3, label: "Model Comparison", description: "Compare AI models", public: true },
     ],
   },
@@ -86,22 +84,19 @@ export const navSections: NavSection[] = [
     id: "create",
     label: "Create",
     items: [
+      { to: "/ai-studio", icon: Sparkles, label: "AI Studio", description: "Image, Vision, Code & Reasoning", public: true },
       { to: "/multimodal-studio", icon: Layers, label: "Multimodal Studio", description: "Images, audio, video", public: true },
       { to: "/automation-hub", icon: Zap, label: "Automation", description: "Automated workflows", public: true },
       { to: "/problem-solver", icon: Target, label: "Problem Solver", description: "AI problem solving", public: true },
-      { to: "/xai-studio", icon: Sparkles, label: "XAI Studio", description: "Explainable AI tools", public: true },
-      { to: "/browser-ai", icon: Globe, label: "Browser AI", description: "In-browser AI", public: true },
       { to: "/ai-hub", icon: Cpu, label: "AI Hub", description: "Central AI hub", public: true },
       { to: "/collaboration", icon: Users, label: "Collaboration", description: "Team collaboration", public: true },
     ],
   },
   {
     id: "intelligence",
-    label: "Analytics",
+    label: "Intelligence",
     items: [
-      { to: "/analytics", icon: BarChart3, label: "Dashboard", description: "Analytics overview", public: true },
-      { to: "/xai-dashboard", icon: Sparkles, label: "XAI Dashboard", description: "AI insights", public: true },
-      { to: "/xai-analytics", icon: LineChart, label: "XAI Analytics", description: "XAI performance", public: true },
+      { to: "/analytics", icon: BarChart3, label: "Analytics", description: "Unified analytics dashboard", public: true },
       { to: "/knowledge-graph", icon: Network, label: "Knowledge Graph", description: "Visual knowledge", public: true },
       { to: "/memory-graph", icon: GitBranch, label: "Memory Graph", description: "AI memory visualization", public: true },
       { to: "/agi-dashboard", icon: Brain, label: "AGI Dashboard", description: "AGI Control Center", public: true },

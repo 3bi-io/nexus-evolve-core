@@ -32,23 +32,13 @@ const Solutions = lazy(() => import("./pages/Solutions"));
 const Contact = lazy(() => import("./pages/Contact"));
 const Security = lazy(() => import("./pages/Security"));
 const Achievements = lazy(() => import("./pages/Achievements"));
-const Analytics = lazy(() => import("./pages/Analytics"));
-const LLMAnalytics = lazy(() => import("./pages/LLMAnalytics"));
 const SuperAdmin = lazy(() => import("./pages/SuperAdmin"));
 const ProblemSolver = lazy(() => import("./pages/ProblemSolver"));
 const Evolution = lazy(() => import("./pages/Evolution"));
 const AGIDashboard = lazy(() => import("./pages/AGIDashboard"));
 const Referrals = lazy(() => import("./pages/Referrals"));
 const Integrations = lazy(() => import("./pages/Integrations"));
-const UsageAnalytics = lazy(() => import("./pages/UsageAnalytics"));
 const SocialIntelligence = lazy(() => import("./pages/SocialIntelligence"));
-const AgentMarketplace = lazy(() => import("./pages/AgentMarketplace"));
-const AgentStudio = lazy(() => import("./pages/AgentStudio"));
-const AgentRevenue = lazy(() => import("./pages/AgentRevenue"));
-const AgentExecutor = lazy(() => import("./pages/AgentExecutor"));
-const AgentAnalytics = lazy(() => import("./pages/AgentAnalytics"));
-const AdvancedAnalytics = lazy(() => import("./pages/AdvancedAnalytics"));
-const AdvancedAI = lazy(() => import("./pages/AdvancedAI"));
 const SystemHealth = lazy(() => import("./pages/SystemHealth"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const KnowledgeGraph = lazy(() => import("./pages/KnowledgeGraph"));
@@ -60,22 +50,22 @@ const VoiceAgent = lazy(() => import("./pages/VoiceAgent"));
 const VoiceAgentManager = lazy(() => import("./pages/VoiceAgentManager"));
 const ModelComparison = lazy(() => import("./pages/ModelComparison"));
 const Sitemap = lazy(() => import("./pages/Sitemap"));
-const BrowserAI = lazy(() => import("./pages/BrowserAI"));
 const AIHub = lazy(() => import("./pages/AIHub"));
-const AdvancedBrowserAI = lazy(() => import("./pages/AdvancedBrowserAI"));
 const RouterDashboard = lazy(() => import("./pages/RouterDashboard"));
-const EnterpriseRouter = lazy(() => import("./pages/EnterpriseRouter"));
-const UnifiedRouterDemo = lazy(() => import("./pages/UnifiedRouterDemo"));
 const Collaboration = lazy(() => import("./pages/Collaboration"));
 const Teams = lazy(() => import("./pages/Teams"));
 const APIAccess = lazy(() => import("./pages/APIAccess"));
 const Webhooks = lazy(() => import("./pages/Webhooks"));
-const PlatformOptimizer = lazy(() => import("./pages/PlatformOptimizer"));
-const XAIStudio = lazy(() => import("./pages/XAIStudio"));
-const XAIDashboard = lazy(() => import("./pages/XAIDashboard"));
-const XAIAnalytics = lazy(() => import("./pages/XAIAnalytics"));
 const AutomationHub = lazy(() => import("./pages/AutomationHub"));
 const Install = lazy(() => import("./pages/Install"));
+
+// Consolidated pages (Phase 1 refactor)
+const AIStudio = lazy(() => import("./pages/AIStudio"));
+const UnifiedAnalytics = lazy(() => import("./pages/UnifiedAnalytics"));
+const AgentsHub = lazy(() => import("./pages/AgentsHub"));
+
+// Keep AgentExecutor for direct agent execution route
+const AgentExecutor = lazy(() => import("./pages/AgentExecutor"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -94,6 +84,7 @@ const RoutesWithShortcuts = () => {
     <>
       <Suspense fallback={<LoadingPage />}>
         <Routes>
+          {/* Core Pages */}
           <Route path="/" element={<Index />} />
           <Route path="/chat" element={<Navigate to="/" replace />} />
           <Route path="/welcome" element={<Landing />} />
@@ -108,52 +99,75 @@ const RoutesWithShortcuts = () => {
           <Route path="/security" element={<Security />} />
           <Route path="/install" element={<Install />} />
           <Route path="/getting-started" element={<GettingStarted />} />
+          <Route path="/sitemap" element={<Sitemap />} />
+          
+          {/* Account & Settings */}
           <Route path="/account" element={<Account />} />
-          <Route path="/knowledge-graph" element={<KnowledgeGraph />} />
-          <Route path="/memory-graph" element={<MemoryGraph />} />
-          <Route path="/capabilities" element={<Capabilities />} />
-          <Route path="/problem-solver" element={<ProblemSolver />} />
-          <Route path="/evolution" element={<Evolution />} />
-          <Route path="/agi-dashboard" element={<AGIDashboard />} />
           <Route path="/achievements" element={<Achievements />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/llm-analytics" element={<LLMAnalytics />} />
-          <Route path="/admin" element={<Navigate to="/admin/overview" replace />} />
-          <Route path="/super-admin" element={<Navigate to="/admin/overview" replace />} />
-          <Route path="/admin/:section" element={<SuperAdmin />} />
           <Route path="/referrals" element={<Referrals />} />
           <Route path="/integrations" element={<Integrations />} />
-          <Route path="/usage-analytics" element={<UsageAnalytics />} />
-          <Route path="/social-intelligence" element={<SocialIntelligence />} />
-          <Route path="/xai-studio" element={<XAIStudio />} />
-          <Route path="/xai-dashboard" element={<XAIDashboard />} />
-          <Route path="/xai-analytics" element={<XAIAnalytics />} />
-          <Route path="/automation-hub" element={<AutomationHub />} />
-          <Route path="/agent-marketplace" element={<AgentMarketplace />} />
-          <Route path="/voice-agent" element={<VoiceAgent />} />
-          <Route path="/voice-agent-manager" element={<VoiceAgentManager />} />
-          <Route path="/agent-studio" element={<AgentStudio />} />
-          <Route path="/agent-studio/edit/:agentId" element={<AgentStudio />} />
-          <Route path="/agent-executor/:agentId" element={<AgentExecutor />} />
-          <Route path="/agent-revenue" element={<AgentRevenue />} />
-          <Route path="/agent-analytics/:agentId" element={<AgentAnalytics />} />
-          <Route path="/advanced-analytics" element={<AdvancedAnalytics />} />
-          <Route path="/advanced-ai" element={<AdvancedAI />} />
-          <Route path="/system-health" element={<SystemHealth />} />
-          <Route path="/collaboration" element={<Collaboration />} />
           <Route path="/teams" element={<Teams />} />
           <Route path="/api-access" element={<APIAccess />} />
           <Route path="/webhooks" element={<Webhooks />} />
+          <Route path="/system-health" element={<SystemHealth />} />
+          
+          {/* Admin */}
+          <Route path="/admin" element={<Navigate to="/admin/overview" replace />} />
+          <Route path="/super-admin" element={<Navigate to="/admin/overview" replace />} />
+          <Route path="/admin/:section" element={<SuperAdmin />} />
+          
+          {/* Consolidated AI Studio (replaces XAI pages) */}
+          <Route path="/ai-studio" element={<AIStudio />} />
+          <Route path="/xai-studio" element={<Navigate to="/ai-studio" replace />} />
+          <Route path="/xai-dashboard" element={<Navigate to="/ai-studio" replace />} />
+          <Route path="/xai-analytics" element={<Navigate to="/ai-studio?tab=analytics" replace />} />
+          
+          {/* Consolidated Analytics (replaces multiple analytics pages) */}
+          <Route path="/analytics" element={<UnifiedAnalytics />} />
+          <Route path="/llm-analytics" element={<Navigate to="/analytics?tab=llm" replace />} />
+          <Route path="/usage-analytics" element={<Navigate to="/analytics?tab=usage" replace />} />
+          <Route path="/advanced-analytics" element={<Navigate to="/analytics?tab=advanced" replace />} />
+          
+          {/* Consolidated Agents Hub (replaces agent pages) */}
+          <Route path="/agents" element={<AgentsHub />} />
+          <Route path="/agent-marketplace" element={<Navigate to="/agents" replace />} />
+          <Route path="/agent-studio" element={<Navigate to="/agents?tab=create" replace />} />
+          <Route path="/agent-studio/edit/:agentId" element={<AgentsHub />} />
+          <Route path="/agent-executor/:agentId" element={<AgentExecutor />} />
+          <Route path="/agent-revenue" element={<Navigate to="/agents?tab=revenue" replace />} />
+          <Route path="/agent-analytics/:agentId" element={<AgentsHub />} />
+          
+          {/* Voice & Multimodal */}
+          <Route path="/voice-agent" element={<VoiceAgent />} />
+          <Route path="/voice-agent-manager" element={<VoiceAgentManager />} />
           <Route path="/multimodal-studio" element={<MultimodalStudio />} />
           <Route path="/model-comparison" element={<ModelComparison />} />
-          <Route path="/sitemap" element={<Sitemap />} />
-          <Route path="/browser-ai" element={<BrowserAI />} />
+          
+          {/* Intelligence & Automation */}
+          <Route path="/automation-hub" element={<AutomationHub />} />
+          <Route path="/problem-solver" element={<ProblemSolver />} />
+          <Route path="/evolution" element={<Evolution />} />
+          <Route path="/agi-dashboard" element={<AGIDashboard />} />
+          <Route path="/social-intelligence" element={<SocialIntelligence />} />
+          <Route path="/collaboration" element={<Collaboration />} />
+          
+          {/* Knowledge & Memory */}
+          <Route path="/knowledge-graph" element={<KnowledgeGraph />} />
+          <Route path="/memory-graph" element={<MemoryGraph />} />
+          <Route path="/capabilities" element={<Capabilities />} />
+          
+          {/* AI Hub & Router */}
           <Route path="/ai-hub" element={<AIHub />} />
-          <Route path="/advanced-browser-ai" element={<AdvancedBrowserAI />} />
           <Route path="/router-dashboard" element={<RouterDashboard />} />
-          <Route path="/enterprise-router" element={<EnterpriseRouter />} />
-          <Route path="/unified-router" element={<UnifiedRouterDemo />} />
-          <Route path="/platform-optimizer" element={<PlatformOptimizer />} />
+          
+          {/* Legacy redirects for removed pages */}
+          <Route path="/browser-ai" element={<Navigate to="/ai-hub" replace />} />
+          <Route path="/advanced-browser-ai" element={<Navigate to="/ai-hub" replace />} />
+          <Route path="/enterprise-router" element={<Navigate to="/router-dashboard" replace />} />
+          <Route path="/unified-router" element={<Navigate to="/router-dashboard" replace />} />
+          <Route path="/platform-optimizer" element={<Navigate to="/automation-hub" replace />} />
+          <Route path="/advanced-ai" element={<Navigate to="/ai-studio" replace />} />
+          
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>
