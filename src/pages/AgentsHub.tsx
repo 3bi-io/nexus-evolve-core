@@ -113,9 +113,8 @@ export default function AgentsHub() {
       const { data } = await supabase
         .from("custom_agents")
         .select("*")
-        .eq("creator_id", user.id)
-        .neq("pricing_model", "free")
-        .order("total_revenue", { ascending: false });
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false }) as { data: any[] | null };
 
       setAgents(data || []);
       const total = data?.reduce((sum: number, agent: any) => sum + Number(agent.total_revenue || 0), 0) || 0;
@@ -123,10 +122,10 @@ export default function AgentsHub() {
 
       const { data: purchaseData } = await supabase
         .from("agent_purchases")
-        .select("*, custom_agents(name)")
+        .select("*")
         .eq("seller_id", user.id)
         .order("purchased_at", { ascending: false })
-        .limit(50);
+        .limit(50) as { data: any[] | null };
 
       setPurchases(purchaseData || []);
       setTotalSales(purchaseData?.length || 0);
