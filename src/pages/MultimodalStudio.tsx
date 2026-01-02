@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { PageLayout } from "@/components/layout/PageLayout";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollableTabs, TabsContent } from "@/components/ui/scrollable-tabs";
 import { ImageGenerator } from "@/components/multimodal/ImageGenerator";
 import { HuggingFaceImageGen } from "@/components/ai/HuggingFaceImageGen";
 import { VoiceRecorder } from "@/components/multimodal/VoiceRecorder";
@@ -8,7 +9,17 @@ import { MultimodalGallery } from "@/components/multimodal/MultimodalGallery";
 import { Sparkles, Image, Mic, Volume2, Grid } from "lucide-react";
 import { SEO } from "@/components/SEO";
 
+const TABS = [
+  { value: "image", label: "Lovable AI", shortLabel: "Lovable", icon: <Image className="w-4 h-4" /> },
+  { value: "huggingface", label: "HuggingFace", shortLabel: "HF", icon: <Image className="w-4 h-4" /> },
+  { value: "voice", label: "Voice to Text", shortLabel: "STT", icon: <Mic className="w-4 h-4" /> },
+  { value: "tts", label: "Text to Speech", shortLabel: "TTS", icon: <Volume2 className="w-4 h-4" /> },
+  { value: "gallery", label: "Gallery", shortLabel: "Gallery", icon: <Grid className="w-4 h-4" /> },
+];
+
 export default function MultimodalStudio() {
+  const [activeTab, setActiveTab] = useState("image");
+
   return (
     <PageLayout>
       <SEO 
@@ -19,39 +30,16 @@ export default function MultimodalStudio() {
       />
       <div className="container mx-auto px-4 py-6 md:py-8 max-w-7xl space-y-6">
         <div className="flex items-center gap-3">
-          <Sparkles className="w-8 h-8 text-primary" />
+          <Sparkles className="w-7 h-7 md:w-8 md:h-8 text-primary" />
           <div>
-            <h1 className="text-3xl font-bold">Multimodal Studio</h1>
-            <p className="text-muted-foreground">
+            <h1 className="text-2xl md:text-3xl font-bold">Multimodal Studio</h1>
+            <p className="text-sm md:text-base text-muted-foreground">
               Generate images, transcribe audio, and create voice from text
             </p>
           </div>
         </div>
 
-        <Tabs defaultValue="image" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="image" className="gap-2">
-              <Image className="w-4 h-4" />
-              Lovable AI
-            </TabsTrigger>
-            <TabsTrigger value="huggingface" className="gap-2">
-              <Image className="w-4 h-4" />
-              HuggingFace
-            </TabsTrigger>
-            <TabsTrigger value="voice" className="gap-2">
-              <Mic className="w-4 h-4" />
-              Voice to Text
-            </TabsTrigger>
-            <TabsTrigger value="tts" className="gap-2">
-              <Volume2 className="w-4 h-4" />
-              Text to Speech
-            </TabsTrigger>
-            <TabsTrigger value="gallery" className="gap-2">
-              <Grid className="w-4 h-4" />
-              Gallery
-            </TabsTrigger>
-          </TabsList>
-
+        <ScrollableTabs tabs={TABS} value={activeTab} onValueChange={setActiveTab}>
           <TabsContent value="image">
             <ImageGenerator />
           </TabsContent>
@@ -71,7 +59,7 @@ export default function MultimodalStudio() {
           <TabsContent value="gallery">
             <MultimodalGallery />
           </TabsContent>
-        </Tabs>
+        </ScrollableTabs>
       </div>
     </PageLayout>
   );
